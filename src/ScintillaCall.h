@@ -180,6 +180,8 @@ public:
 	void SetSelAlpha(API::Alpha alpha);
 	bool SelEOLFilled();
 	void SetSelEOLFilled(bool filled);
+	API::Layer SelectionLayer();
+	void SetSelectionLayer(API::Layer layer);
 	void SetCaretFore(Colour fore);
 	void AssignCmdKey(int keyDefinition, int sciCommand);
 	void ClearCmdKey(int keyDefinition);

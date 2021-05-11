@@ -165,6 +165,22 @@ enum class Element {
 	ListBack = 1,
 	ListSelected = 2,
 	ListSelectedBack = 3,
+	SelectionText = 10,
+	SelectionBack = 11,
+	SelectionAdditionalText = 12,
+	SelectionAdditionalBack = 13,
+	SelectionSecondaryText = 14,
+	SelectionSecondaryBack = 15,
+	SelectionNoFocusText = 16,
+	SelectionNoFocusBack = 17,
+	Caret = 40,
+	CaretAdditional = 41,
+	CaretSecondary = 42,
+};
+
+enum class Layer {
+	Base = 0,
+	OverText = 10,
 };
 
 enum class IndicatorStyle {

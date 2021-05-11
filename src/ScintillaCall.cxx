@@ -663,6 +663,14 @@ void ScintillaCall::SetSelEOLFilled(bool filled) {
 	Call(Message::SetSelEOLFilled, filled);
 }
 
+Layer ScintillaCall::SelectionLayer() {
+	return static_cast<API::Layer>(Call(Message::GetSelectionLayer));
+}
+
+void ScintillaCall::SetSelectionLayer(API::Layer layer) {
+	Call(Message::SetSelectionLayer, static_cast<uintptr_t>(layer));
+}
+
 void ScintillaCall::SetCaretFore(Colour fore) {
 	Call(Message::SetCaretFore, fore);
 }

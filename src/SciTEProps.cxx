@@ -253,6 +253,11 @@ void OptionalSetColour(GUI::ScintillaWindow &scintilla, SA::Element element, con
 
 }
 
+void SciTEBase::SetElementColour(SA::Element element, const char *key) {
+	OptionalSetColour(wEditor, element, props, key);
+	OptionalSetColour(wOutput, element, props, key);
+}
+
 /**
  * Put the next property item from the given property string
  * into the buffer pointed by @a pPropItem.
@@ -837,9 +842,6 @@ void SciTEBase::ReadProperties() {
 
 	wrapStyle = static_cast<SA::Wrap>(props.GetInt("wrap.style", static_cast<int>(SA::Wrap::Word)));
 
-	CallChildren(SA::Message::SetCaretFore,
-		     ColourOfProperty(props, "caret.fore", ColourRGB(0, 0, 0)));
-
 	CallChildren(SA::Message::SetMouseSelectionRectangularSwitch, props.GetInt("selection.rectangular.switch.mouse", 0));
 	CallChildren(SA::Message::SetMultipleSelection, props.GetInt("selection.multiple", 1));
 	CallChildren(SA::Message::SetAdditionalSelectionTyping, props.GetInt("selection.additional.typing", 1));
@@ -848,6 +850,9 @@ void SciTEBase::ReadProperties() {
 	CallChildren(SA::Message::SetVirtualSpaceOptions, props.GetInt("virtual.space"));
 
 	wEditor.SetMouseDwellTime(props.GetInt("dwell.period", SA::TimeForever));
+
+	SetElementColour(SA::Element::Caret, "caret.fore");
+	SetElementColour(SA::Element::CaretAdditional, "caret.additional.fore");
 
 	const SA::CaretStyle caretStyle = static_cast<SA::CaretStyle>(props.GetInt("caret.style", static_cast<int>(SA::CaretStyle::Line)));
 	wEditor.SetCaretStyle(caretStyle);
@@ -925,35 +930,52 @@ void SciTEBase::ReadProperties() {
 	wEditor.SetEdgeColour(
 		ColourOfProperty(props, "edge.colour", ColourRGB(0xff, 0xda, 0xda)));
 
-	std::string selFore = props.GetExpandedString("selection.fore");
-	if (selFore.length()) {
-		CallChildren(SA::Message::SetSelFore, 1, ColourFromString(selFore));
-	} else {
-		CallChildren(SA::Message::SetSelFore, 0, 0);
-	}
-	std::string selBack = props.GetExpandedString("selection.back");
-	if (selBack.length()) {
-		CallChildren(SA::Message::SetSelBack, 1, ColourFromString(selBack));
-	} else {
-		if (selFore.length())
-			CallChildren(SA::Message::SetSelBack, 0, 0);
-		else	// Have to show selection somehow
-			CallChildren(SA::Message::SetSelBack, 1, ColourRGB(0xC0, 0xC0, 0xC0));
-	}
-	constexpr int NoAlpha = static_cast<int>(SA::Alpha::NoAlpha);
-	const int selectionAlpha = props.GetInt("selection.alpha", NoAlpha);
-	CallChildren(SA::Message::SetSelAlpha, selectionAlpha);
+	const std::string selectionLayer = props.GetExpandedString("selection.layer");
+	if (selectionLayer.empty()) {
 
-	std::string selAdditionalFore = props.GetString("selection.additional.fore");
-	if (selAdditionalFore.length()) {
-		CallChildren(SA::Message::SetAdditionalSelFore, ColourFromString(selAdditionalFore));
+		std::string selFore = props.GetExpandedString("selection.fore");
+		if (selFore.length()) {
+			CallChildren(SA::Message::SetSelFore, 1, ColourFromString(selFore));
+		} else {
+			CallChildren(SA::Message::SetSelFore, 0, 0);
+		}
+		std::string selBack = props.GetExpandedString("selection.back");
+		if (selBack.length()) {
+			CallChildren(SA::Message::SetSelBack, 1, ColourFromString(selBack));
+		} else {
+			if (selFore.length())
+				CallChildren(SA::Message::SetSelBack, 0, 0);
+			else	// Have to show selection somehow
+				CallChildren(SA::Message::SetSelBack, 1, ColourRGB(0xC0, 0xC0, 0xC0));
+		}
+		constexpr int NoAlpha = static_cast<int>(SA::Alpha::NoAlpha);
+		const int selectionAlpha = props.GetInt("selection.alpha", NoAlpha);
+		CallChildren(SA::Message::SetSelAlpha, selectionAlpha);
+
+		std::string selAdditionalFore = props.GetString("selection.additional.fore");
+		if (selAdditionalFore.length()) {
+			CallChildren(SA::Message::SetAdditionalSelFore, ColourFromString(selAdditionalFore));
+		}
+		std::string selAdditionalBack = props.GetString("selection.additional.back");
+		if (selAdditionalBack.length()) {
+			CallChildren(SA::Message::SetAdditionalSelBack, ColourFromString(selAdditionalBack));
+		}
+		const int selectionAdditionalAlpha = (selectionAlpha == NoAlpha) ? NoAlpha : selectionAlpha / 2;
+		CallChildren(SA::Message::SetAdditionalSelAlpha, props.GetInt("selection.additional.alpha", selectionAdditionalAlpha));
+
+	} else {
+		// New scheme
+		const int layer = IntegerFromString(selectionLayer, 0);
+		CallChildren(SA::Message::SetSelectionLayer, layer);
+		SetElementColour(SA::Element::SelectionText, "selection.fore");
+		SetElementColour(SA::Element::SelectionBack, "selection.back");
+		SetElementColour(SA::Element::SelectionAdditionalText, "selection.additional.fore");
+		SetElementColour(SA::Element::SelectionAdditionalBack, "selection.additional.back");
+		SetElementColour(SA::Element::SelectionSecondaryText, "selection.secondary.fore");
+		SetElementColour(SA::Element::SelectionSecondaryBack, "selection.secondary.back");
+		SetElementColour(SA::Element::SelectionNoFocusText, "selection.no.focus.fore");
+		SetElementColour(SA::Element::SelectionNoFocusBack, "selection.no.focus.back");
 	}
-	std::string selAdditionalBack = props.GetString("selection.additional.back");
-	if (selAdditionalBack.length()) {
-		CallChildren(SA::Message::SetAdditionalSelBack, ColourFromString(selAdditionalBack));
-	}
-	const int selectionAdditionalAlpha = (selectionAlpha == NoAlpha) ? NoAlpha : selectionAlpha / 2;
-	CallChildren(SA::Message::SetAdditionalSelAlpha, props.GetInt("selection.additional.alpha", selectionAdditionalAlpha));
 
 	foldColour = props.GetExpandedString("fold.margin.colour");
 	if (foldColour.length()) {

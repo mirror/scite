@@ -142,6 +142,8 @@ enum class Message {
 	SetSelAlpha = 2478,
 	GetSelEOLFilled = 2479,
 	SetSelEOLFilled = 2480,
+	GetSelectionLayer = 2762,
+	SetSelectionLayer = 2763,
 	SetCaretFore = 2069,
 	AssignCmdKey = 2070,
 	ClearCmdKey = 2071,

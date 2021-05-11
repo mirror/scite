@@ -916,6 +916,7 @@ protected:
 	void SetOverrideLanguage(int cmdID);
 	StyleAndWords GetStyleAndWords(const char *base);
 	std::string ExtensionFileName() const;
+	void SetElementColour(SA::Element element, const char *key);
 	static const char *GetNextPropItem(const char *pStart, char *pPropItem, int maxLen);
 	void ForwardPropertyToEditor(const char *key);
 	struct MarkerAppearance {
