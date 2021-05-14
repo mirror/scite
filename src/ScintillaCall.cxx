@@ -439,6 +439,14 @@ void ScintillaCall::MarkerSetAlpha(int markerNumber, API::Alpha alpha) {
 	Call(Message::MarkerSetAlpha, markerNumber, static_cast<intptr_t>(alpha));
 }
 
+Layer ScintillaCall::MarkerGetLayer(int markerNumber) {
+	return static_cast<API::Layer>(Call(Message::MarkerGetLayer, markerNumber));
+}
+
+void ScintillaCall::MarkerSetLayer(int markerNumber, API::Layer layer) {
+	Call(Message::MarkerSetLayer, markerNumber, static_cast<intptr_t>(layer));
+}
+
 void ScintillaCall::SetMarginTypeN(int margin, API::MarginType marginType) {
 	Call(Message::SetMarginTypeN, margin, static_cast<intptr_t>(marginType));
 }
@@ -673,6 +681,14 @@ Layer ScintillaCall::SelectionLayer() {
 
 void ScintillaCall::SetSelectionLayer(API::Layer layer) {
 	Call(Message::SetSelectionLayer, static_cast<uintptr_t>(layer));
+}
+
+Layer ScintillaCall::CaretLineLayer() {
+	return static_cast<API::Layer>(Call(Message::GetCaretLineLayer));
+}
+
+void ScintillaCall::SetCaretLineLayer(API::Layer layer) {
+	Call(Message::SetCaretLineLayer, static_cast<uintptr_t>(layer));
 }
 
 void ScintillaCall::SetCaretFore(Colour fore) {

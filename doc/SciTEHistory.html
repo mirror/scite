@@ -617,7 +617,24 @@
 		The selection background colour may default to use platform APIs to discover global
 		or user settings and may change in response to those settings changing.
 		The SCI_SETSELECTIONLAYER method defines whether the selection background is drawn
-		translucently over text or opaquely underneath other drawing.
+		translucently over or under text or opaquely underneath other drawing.
+		</li>
+		<li>
+		Change caret line drawing to use SC_ELEMENT_CARET_LINE_BACK element and
+		SCI_SETCARETLINELAYER method.
+		Older caret line APIs SCI_SETCARETLINEVISIBLE, SCI_SETCARETLINEBACK,
+		SCI_SETCARETLINEBACKALPHA now discouraged.
+		</li>
+		<li>
+		Add SCI_MARKERSETLAYER to define layer on which to draw content area markers.
+		This replaces the use of SC_ALPHA_NOALPHA for markers.
+		</li>
+		<li>
+		Add SC_ELEMENT_WHITE_SPACE to set the colour of visible whitespace including translucency.
+		</li>
+		<li>
+		Add elements for hot spots SC_ELEMENT_HOT_SPOT_ACTIVE and
+		SC_ELEMENT_HOT_SPOT_ACTIVE_BACK.
 		</li>
 		<li>
 		Add SCI_GETELEMENTBASECOLOUR to return the default values for element colours.

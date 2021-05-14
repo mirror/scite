@@ -124,6 +124,8 @@ public:
 	void MarkerDefinePixmap(int markerNumber, const char *pixmap);
 	void MarkerAddSet(Line line, int markerSet);
 	void MarkerSetAlpha(int markerNumber, API::Alpha alpha);
+	API::Layer MarkerGetLayer(int markerNumber);
+	void MarkerSetLayer(int markerNumber, API::Layer layer);
 	void SetMarginTypeN(int margin, API::MarginType marginType);
 	API::MarginType MarginTypeN(int margin);
 	void SetMarginWidthN(int margin, int pixelWidth);
@@ -183,6 +185,8 @@ public:
 	void SetSelEOLFilled(bool filled);
 	API::Layer SelectionLayer();
 	void SetSelectionLayer(API::Layer layer);
+	API::Layer CaretLineLayer();
+	void SetCaretLineLayer(API::Layer layer);
 	void SetCaretFore(Colour fore);
 	void AssignCmdKey(int keyDefinition, int sciCommand);
 	void ClearCmdKey(int keyDefinition);

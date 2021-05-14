@@ -176,11 +176,17 @@ enum class Element {
 	Caret = 40,
 	CaretAdditional = 41,
 	CaretSecondary = 42,
+	CaretLineBack = 50,
+	WhiteSpace = 60,
+	WhiteSpaceBack = 61,
+	HotSpotActive = 70,
+	HotSpotActiveBack = 71,
 };
 
 enum class Layer {
 	Base = 0,
-	OverText = 10,
+	UnderText = 1,
+	OverText = 2,
 };
 
 enum class IndicatorStyle {
