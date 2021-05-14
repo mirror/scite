@@ -860,15 +860,25 @@ void SciTEBase::ReadProperties() {
 	wEditor.SetCaretWidth(props.GetInt("caret.width", 1));
 	wOutput.SetCaretWidth(props.GetInt("caret.width", 1));
 
-	std::string caretLineBack = props.GetExpandedString("caret.line.back");
-	if (caretLineBack.length()) {
-		wEditor.SetCaretLineVisible(true);
-		wEditor.SetCaretLineBack(ColourFromString(caretLineBack));
+	const std::string caretLineLayer = props.GetExpandedString("caret.line.layer");
+	if (caretLineLayer.empty()) {
+		std::string caretLineBack = props.GetExpandedString("caret.line.back");
+		if (caretLineBack.length()) {
+			wEditor.SetCaretLineVisible(true);
+			wEditor.SetCaretLineBack(ColourFromString(caretLineBack));
+		} else {
+			wEditor.SetCaretLineVisible(false);
+		}
+		wEditor.SetCaretLineBackAlpha(
+			static_cast<SA::Alpha>(props.GetInt("caret.line.back.alpha", static_cast<int>(SA::Alpha::NoAlpha))));
 	} else {
-		wEditor.SetCaretLineVisible(false);
+		// New scheme
+		const int layer = IntegerFromString(caretLineLayer, 0);
+		CallChildren(SA::Message::SetCaretLineLayer, layer);
+		SetElementColour(SA::Element::CaretLineBack, "caret.line.back");
+		const int caretLineFrame = props.GetInt("caret.line.frame");
+		CallChildren(SA::Message::SetCaretLineFrame, caretLineFrame);
 	}
-	wEditor.SetCaretLineBackAlpha(
-		static_cast<SA::Alpha>(props.GetInt("caret.line.back.alpha", static_cast<int>(SA::Alpha::NoAlpha))));
 
 	int indicatorsAlpha = props.GetInt("indicators.alpha", 30);
 	if (indicatorsAlpha < 0 || 255 < indicatorsAlpha) // If invalid value,
@@ -990,18 +1000,9 @@ void SciTEBase::ReadProperties() {
 		CallChildren(SA::Message::SetFoldMarginHiColour, 0, 0);
 	}
 
-	std::string whitespaceFore = props.GetExpandedString("whitespace.fore");
-	if (whitespaceFore.length()) {
-		CallChildren(SA::Message::SetWhitespaceFore, 1, ColourFromString(whitespaceFore));
-	} else {
-		CallChildren(SA::Message::SetWhitespaceFore, 0, 0);
-	}
-	std::string whitespaceBack = props.GetExpandedString("whitespace.back");
-	if (whitespaceBack.length()) {
-		CallChildren(SA::Message::SetWhitespaceBack, 1, ColourFromString(whitespaceBack));
-	} else {
-		CallChildren(SA::Message::SetWhitespaceBack, 0, 0);
-	}
+	SetElementColour(SA::Element::WhiteSpace, "whitespace.fore");
+	SetElementColour(SA::Element::WhiteSpaceBack, "whitespace.back");
+
 	CallChildren(SA::Message::SetWhitespaceSize, props.GetInt("whitespace.size", 1));
 
 	char bracesStyleKey[200];
