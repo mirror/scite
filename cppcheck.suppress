@@ -17,9 +17,6 @@ nullPointerRedundantCheck:scite/src/SciTEBase.cxx
 // Doesn't understand Win32 SetClipboardData is not leak
 memleak:scite/win32/SciTEWin.cxx
 
-// Confused by expression (x && (x != -1))
-knownConditionTrueFalse:scite/win32/SciTEWin.cxx
-
 // AddToPopUp is currently const but is not logically const and may change
 constParameter:scite/gtk/Widget.cxx
 
