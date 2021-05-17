@@ -468,10 +468,7 @@ long long FilePath::GetFileLength() const noexcept {
 	WIN32_FILE_ATTRIBUTE_DATA fad;
 	if (!GetFileAttributesEx(AsInternal(), GetFileExInfoStandard, &fad))
 		return 0;
-	LARGE_INTEGER liSze;
-	liSze.HighPart = fad.nFileSizeHigh;
-	liSze.LowPart = fad.nFileSizeLow;
-	return liSze.QuadPart;
+	return (static_cast<unsigned long long>(fad.nFileSizeHigh) << 32) + fad.nFileSizeLow;
 #else
 	struct stat statusFile;
 	if (stat(AsInternal(), &statusFile) != -1)
