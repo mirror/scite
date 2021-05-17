@@ -562,6 +562,8 @@
 	<td>YX Hao</td>
 	<td>Petko Georgiev</td>
       </tr><tr>
+	<td>Damiano Lombardi</td>
+	<td>riQQ</td>
       </tr>
     </table>
     <p>
@@ -589,6 +591,10 @@
 		AddStaticLexerModule function adds a static lexer to Lexilla's list.
 		</li>
 		<li>
+		<li>
+		Fix variable expansion in Batch.
+		<a href="https://github.com/ScintillaOrg/lexilla/issues/4">Issue #4</a>.
+		</li>
 		Fix transition to comment for --> inside JavaScript string.
 		<a href="https://sourceforge.net/p/scintilla/bugs/2207/">Bug #2207</a>.
 		</li>
@@ -640,23 +646,27 @@
 		Add SCI_GETELEMENTBASECOLOUR to return the default values for element colours.
 		</li>
 		<li>
-		On GTK 3 with Wayland, fix primary selection.
-		<a href="https://sourceforge.net/p/scintilla/bugs/2227/">Bug #2227</a>.
+		Make idle actions wrapping and background styling smoother by
+		measuring per-byte instead of per-line and allowing just one line to be
+		processed in a time slice.
+		Very long lines will not distort estimation	or block interaction as much.
+		<a href="https://sourceforge.net/p/scintilla/feature-requests/1373/">Feature #1373</a>.
+		</li>
+		<li>
+		Include modifiers in SCN_INDICATORRELEASE notification.
+		<a href="https://sourceforge.net/p/scintilla/bugs/2254/">Bug #2254</a>.
 		</li>
 		<li>
 		Update to Unicode 13.
 		<a href="https://sourceforge.net/p/scintilla/feature-requests/1379/">Feature #1379</a>.
 		</li>
 		<li>
-		On Win32 enable hardware-enforced stack protection.
-		<a href="https://sourceforge.net/p/scintilla/feature-requests/1405/">Feature #1405</a>.
+		On GTK 3 with Wayland, fix primary selection.
+		<a href="https://sourceforge.net/p/scintilla/bugs/2227/">Bug #2227</a>.
 		</li>
 		<li>
-		Make idle actions wrapping and background styling smoother by
-		measuring per-byte instead of per-line and allowing just one line to be
-		processed in a time slice.
-		Very long lines will not distort estimation	or block interaction as much.
-		<a href="https://sourceforge.net/p/scintilla/feature-requests/1373/">Feature #1373</a>.
+		On Win32 enable hardware-enforced stack protection.
+		<a href="https://sourceforge.net/p/scintilla/feature-requests/1405/">Feature #1405</a>.
 		</li>
 	</ul>
     </ul>
