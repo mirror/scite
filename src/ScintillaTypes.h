@@ -175,7 +175,6 @@ enum class Element {
 	SelectionNoFocusBack = 17,
 	Caret = 40,
 	CaretAdditional = 41,
-	CaretSecondary = 42,
 	CaretLineBack = 50,
 	WhiteSpace = 60,
 	WhiteSpaceBack = 61,
