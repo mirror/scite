@@ -226,10 +226,13 @@ def CondenseItem(item):
 
 def NewItems(sciteHistory, items):
     condensedHistory = [CondenseItem(i) for i in sciteHistory]
+    #~ print("SciTE condensed=\n   ", "\n    ".join(condensedHistory), "\n")
+    #~ print("Other condensed=\n   ", "\n    ".join([CondenseItem(i) for i in items]), "\n")
     new = []
     for item in items:
         condensed = CondenseItem(item)
         if condensed not in condensedHistory:
+            #~ print(f"New item:\n{condensed}\n{item}")
             new.append(item)
     return new
 
