@@ -492,7 +492,7 @@ void Strip::TrackMouse(GUI::Point pt) {
 			closeState = csClicked;
 	}
 	if ((closeState != csNone) && !capturedMouse) {
-		TRACKMOUSEEVENT tme;
+		TRACKMOUSEEVENT tme {};
 		tme.cbSize = sizeof(tme);
 		tme.dwFlags = TME_LEAVE;
 		tme.hwndTrack = Hwnd();

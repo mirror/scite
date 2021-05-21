@@ -84,7 +84,7 @@ void Searcher::InsertFindInMemory() {
 // The find and replace dialogs and strips often manipulate boolean
 // flags based on dialog control IDs and menu IDs.
 bool &Searcher::FlagFromCmd(int cmd) noexcept {
-	static bool notFound;
+	static bool notFound = false;
 	switch (cmd) {
 	case IDWHOLEWORD:
 	case IDM_WHOLEWORD:

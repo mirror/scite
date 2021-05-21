@@ -1119,7 +1119,7 @@ bool SciTEBase::SaveBuffer(const FilePath &saveName, SaveFlags sf) {
 				convert.setfile(fp);
 				std::vector<char> data(blockSize + 1);
 				retVal = true;
-				size_t grabSize;
+				size_t grabSize = 0;
 				for (size_t i = 0; i < lengthDoc; i += grabSize) {
 					grabSize = lengthDoc - i;
 					if (grabSize > blockSize)

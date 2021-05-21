@@ -161,7 +161,7 @@ GUI::Point ClientFromScreen(HWND hWnd, GUI::Point ptScreen) noexcept {
 namespace {
 
 int TabAtPoint(HWND hWnd, GUI::Point pt) noexcept {
-	TCHITTESTINFO thti;
+	TCHITTESTINFO thti {};
 	thti.pt.x = pt.x;
 	thti.pt.y = pt.y;
 	thti.flags = 0;
@@ -540,7 +540,7 @@ void SciTEWin::SetMenuItem(int menuNumber, int position, int itemID,
 	if (itemID >= IDM_TOOLS && itemID < IDM_TOOLS + toolMax) {
 		// Stow the keycode for later retrieval.
 		// Do this even if 0, in case the menu already existed (e.g. ModifyMenu)
-		MENUITEMINFO mii;
+		MENUITEMINFO mii {};
 		mii.cbSize = sizeof(MENUITEMINFO);
 		mii.fMask = MIIM_DATA;
 		mii.dwItemData = keycode;
@@ -598,8 +598,7 @@ void SciTEWin::CheckMenus() {
 
 void SciTEWin::LocaliseMenu(HMENU hmenu) {
 	for (int i = 0; i <= ::GetMenuItemCount(hmenu); i++) {
-		GUI::gui_char buff[200];
-		buff[0] = '\0';
+		GUI::gui_char buff[200] {};
 		MENUITEMINFOW mii {};
 		mii.cbSize = sizeof(mii);
 		mii.fMask = MIIM_CHECKMARKS | MIIM_DATA | MIIM_ID |
@@ -794,7 +793,7 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 				const GUI::Point ptClient = ClientFromScreen(hWnd, PointOfCursor());
 				const int tab = TabAtPoint(hWnd, ptClient);
 
-				RECT tabrc;
+				RECT tabrc {};
 				if (tab != -1 &&
 						tab != iDraggingTab &&
 						TabCtrl_GetItemRect(hWnd, tab, &tabrc)) {
@@ -952,7 +951,7 @@ void SciTEWin::Creation() {
 
 	wToolBar.Show();
 
-	INITCOMMONCONTROLSEX icce;
+	INITCOMMONCONTROLSEX icce {};
 	icce.dwSize = sizeof(icce);
 	icce.dwICC = ICC_TAB_CLASSES;
 	InitCommonControlsEx(&icce);

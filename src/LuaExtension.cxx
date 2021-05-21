@@ -2024,7 +2024,7 @@ bool LuaExtension::OnStyle(SA::Position startPos, SA::Position lengthDoc, int in
 	if (luaState) {
 		if (lua_getglobal(luaState, "OnStyle") != LUA_TNIL) {
 
-			StylingContext sc;
+			StylingContext sc {};
 			sc.startPos = startPos;
 			sc.lengthDoc = lengthDoc;
 			sc.initStyle = initStyle;

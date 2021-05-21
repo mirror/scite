@@ -604,7 +604,7 @@ void SciTEWin::ExecuteHelp(const char *cmd) {
 			typedef HWND (WINAPI *HelpFn)(HWND, const wchar_t *, UINT, DWORD_PTR);
 			HelpFn fnHHW = reinterpret_cast<HelpFn>(::GetProcAddress(hHH, "HtmlHelpW"));
 			if (fnHHW) {
-				XHH_AKLINK ak;
+				XHH_AKLINK ak {};
 				ak.cbStruct = sizeof(ak);
 				ak.fReserved = FALSE;
 				ak.pszKeywords = topic.c_str();
@@ -1882,7 +1882,7 @@ LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 	HMENU hMenu = ::GetMenu(MainHWND());
 	HMENU hToolsMenu = ::GetSubMenu(hMenu, menuTools);
 	for (int tool = 0; tool < toolMax; ++tool) {
-		MENUITEMINFO mii;
+		MENUITEMINFO mii {};
 		mii.cbSize = sizeof(MENUITEMINFO);
 		mii.fMask = MIIM_DATA;
 		if (::GetMenuItemInfo(hToolsMenu, IDM_TOOLS+tool, FALSE, &mii) && mii.dwItemData) {
@@ -2275,7 +2275,7 @@ std::string SciTEWin::GetRangeInUIEncoding(GUI::ScintillaWindow &win, SA::Span r
 }
 
 uintptr_t SciTEWin::EventLoop() {
-	MSG msg;
+	MSG msg {};
 	msg.wParam = 0;
 	BOOL going = TRUE;
 	while (going) {
