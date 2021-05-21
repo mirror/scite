@@ -6,9 +6,9 @@
 // Copyright 1998-2010 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
+#include <cstdlib>
+#include <cstdio>
+#include <ctime>
 
 #include <string>
 #include <vector>

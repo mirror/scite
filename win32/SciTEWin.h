@@ -8,13 +8,12 @@
 #ifndef SCITEWIN_H
 #define SCITEWIN_H
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdarg.h>
-
+#include <cstdlib>
 #include <cstdint>
 #include <cassert>
+#include <cstring>
+#include <cstdio>
+#include <cstdarg>
 
 #include <tuple>
 #include <string>

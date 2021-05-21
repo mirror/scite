@@ -14,16 +14,6 @@
 // Exclude lua implementation as it is an external project that follows different rules
 //exclude:lua
 
-// C standard library
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <time.h>
-#include <assert.h>
-#include <errno.h>
-#include <signal.h>
-
 // C++ wrappers of C standard library
 #include <cstddef>
 #include <cstdlib>
@@ -36,6 +26,7 @@
 #include <cmath>
 #include <clocale>
 #include <cerrno>
+#include <csignal>
 
 // C++ standard library
 #include <stdexcept>

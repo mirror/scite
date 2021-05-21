@@ -33,11 +33,11 @@
 // Copyright 1998-2001 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <time.h>
-#include <errno.h>
+#include <cstdlib>
+#include <cstring>
+#include <cstdio>
+#include <ctime>
+#include <cerrno>
 
 #include <tuple>
 #include <string>
