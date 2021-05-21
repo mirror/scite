@@ -624,7 +624,7 @@ void SciTEWin::ExecuteHelp(const char *cmd) {
 }
 
 void SciTEWin::CopyAsRTF() {
-	const SA::Range cr = GetSelection();
+	const SA::Span cr = GetSelection();
 	std::ostringstream oss;
 	SaveToStreamRTF(oss, cr.start, cr.end);
 	const std::string rtf = oss.str();
@@ -2261,7 +2261,7 @@ std::string SciTEWin::EncodeString(const std::string &s) {
 }
 
 // Convert String from doc encoding to UTF-8
-std::string SciTEWin::GetRangeInUIEncoding(GUI::ScintillaWindow &win, SA::Range range) {
+std::string SciTEWin::GetRangeInUIEncoding(GUI::ScintillaWindow &win, SA::Span range) {
 	std::string s = SciTEBase::GetRangeInUIEncoding(win, range);
 
 	UINT codePageDocument = wEditor.CodePage();

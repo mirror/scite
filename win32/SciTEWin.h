@@ -402,7 +402,7 @@ public:
 	LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
 
 	std::string EncodeString(const std::string &s) override;
-	std::string GetRangeInUIEncoding(GUI::ScintillaWindow &win, SA::Range range) override;
+	std::string GetRangeInUIEncoding(GUI::ScintillaWindow &win, SA::Span span) override;
 
 	HACCEL GetAcceleratorTable() noexcept {
 		return hAccTable;

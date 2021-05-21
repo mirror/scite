@@ -78,14 +78,14 @@ void MatchMarker::Continue() {
 	pSci->SetSearchFlags(flagsMatch);
 	const SA::Position positionStart = pSci->LineStart(rangeSearch.lineStart);
 	const SA::Position positionEnd = pSci->LineStart(lineEndSegment);
-	pSci->SetTarget(SA::Range(positionStart, positionEnd));
+	pSci->SetTarget(SA::Span(positionStart, positionEnd));
 	pSci->IndicatorClearRange(positionStart, positionEnd - positionStart);
 
 	//Monitor the amount of time took by the search.
 	GUI::ElapsedTime searchElapsedTime;
 
 	// Find the first occurrence of word.
-	SA::Range rangeFound = pSci->RangeSearchInTarget(textMatch);
+	SA::Span rangeFound = pSci->SpanSearchInTarget(textMatch);
 	while (rangeFound.start >= 0) {
 		// Limit the search duration to 250 ms. Avoid to freeze editor for huge lines.
 		if (searchElapsedTime.Duration() > 0.25) {
@@ -107,8 +107,8 @@ void MatchMarker::Continue() {
 			rangeFound.end = pSci->PositionAfter(rangeFound.end);
 		}
 		// Try to find next occurrence of word.
-		pSci->SetTarget(SA::Range(rangeFound.end, positionEnd));
-		rangeFound = pSci->RangeSearchInTarget(textMatch);
+		pSci->SetTarget(SA::Span(rangeFound.end, positionEnd));
+		rangeFound = pSci->SpanSearchInTarget(textMatch);
 	}
 
 	// Retire searched lines

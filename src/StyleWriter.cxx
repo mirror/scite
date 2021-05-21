@@ -43,7 +43,7 @@ void TextReader::Fill(SA::Position position) {
 	endPos = startPos + bufferSize;
 	if (endPos > lenDoc)
 		endPos = lenDoc;
-	sc.SetTarget(SA::Range(startPos, endPos));
+	sc.SetTarget(SA::Span(startPos, endPos));
 	sc.TargetText(buf);
 }
 

@@ -74,20 +74,20 @@ Position ScintillaCall::LineEnd(Line line) {
 	return Call(Message::GetLineEndPosition, line);
 }
 
-Range ScintillaCall::SelectionRange() {
-	return Range(
+Span ScintillaCall::SelectionSpan() {
+	return Span(
 		       Call(Message::GetSelectionStart),
 		       Call(Message::GetSelectionEnd));
 }
 
-Range ScintillaCall::TargetRange() {
-	return Range(
+Span ScintillaCall::TargetSpan() {
+	return Span(
 		       Call(Message::GetTargetStart),
 		       Call(Message::GetTargetEnd));
 }
 
-void ScintillaCall::SetTarget(Range range) {
-	Call(Message::SetTargetRange, range.start, range.end);
+void ScintillaCall::SetTarget(Span span) {
+	Call(Message::SetTargetRange, span.start, span.end);
 }
 
 void ScintillaCall::ColouriseAll() {
@@ -103,12 +103,12 @@ int ScintillaCall::UnsignedStyleAt(Position position) {
 	return static_cast<unsigned char>(Call(Message::GetStyleAt, position));
 }
 
-std::string ScintillaCall::StringOfRange(Range range) {
-	if (range.Length() == 0) {
+std::string ScintillaCall::StringOfSpan(Span span) {
+	if (span.Length() == 0) {
 		return std::string();
 	} else {
-		std::string text(range.Length(), '\0');
-		SetTarget(range);
+		std::string text(span.Length(), '\0');
+		SetTarget(span);
 		TargetText(text.data());
 		return text;
 	}
@@ -126,12 +126,12 @@ Position ScintillaCall::SearchInTarget(std::string_view text) {
 	return CallString(Message::SearchInTarget, text.length(), text.data());
 }
 
-Range ScintillaCall::RangeSearchInTarget(std::string_view text) {
+Span ScintillaCall::SpanSearchInTarget(std::string_view text) {
 	const Position posFound = SearchInTarget(text);
 	if (posFound >= 0)
-		return Range(posFound, TargetEnd());
+		return Span(posFound, TargetEnd());
 	else
-		return Range(posFound, 0);
+		return Span(posFound, 0);
 }
 
 // Generated methods

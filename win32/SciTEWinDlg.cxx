@@ -450,7 +450,7 @@ void SciTEWin::Print(
 	// This code will not work for documents > 2GB
 
 	// See if a range has been selected
-	const SA::Range rangeSelection = GetSelection();
+	const SA::Span rangeSelection = GetSelection();
 	const LONG startPos = static_cast<LONG>(rangeSelection.start);
 	const LONG endPos = static_cast<LONG>(rangeSelection.end);
 

@@ -623,7 +623,7 @@ protected:
 	void Print(bool) override;
 	void PrintSetup() override;
 
-	std::string GetRangeInUIEncoding(GUI::ScintillaWindow &win, SA::Range range) override;
+	std::string GetRangeInUIEncoding(GUI::ScintillaWindow &win, SA::Span span) override;
 
 	MessageBoxChoice WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int style = mbsIconWarning) override;
 	void FindMessageBox(const std::string &msg, const std::string *findItem=0) override;
@@ -1937,12 +1937,12 @@ void SciTEGTK::PrintSetup() {
 	pageSetup = newPageSetup;
 }
 
-std::string SciTEGTK::GetRangeInUIEncoding(GUI::ScintillaWindow &win, SA::Range range) {
-	const SA::Position len = range.Length();
+std::string SciTEGTK::GetRangeInUIEncoding(GUI::ScintillaWindow &win, SA::Span span) {
+	const SA::Position len = span.Length();
 	if (len == 0)
 		return std::string();
 	std::string allocation(len * 3 + 1, 0);
-	win.SetTarget(range);
+	win.SetTarget(span);
 	const SA::Position byteLength = win.TargetAsUTF8(&allocation[0]);
 	std::string sel(allocation, 0, byteLength);
 	return sel;
