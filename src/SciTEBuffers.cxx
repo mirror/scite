@@ -1510,7 +1510,7 @@ void SciTEBase::ToolsMenu(int item) {
 
 	const std::string itemSuffix = StdStringFromInteger(item) + ".";
 	const std::string propName = std::string("command.") + itemSuffix;
-	std::string command(props.GetWild(propName.c_str(), FileNameExt().AsUTF8().c_str()).c_str());
+	std::string command(props.GetWild(propName.c_str(), FileNameExt().AsUTF8().c_str()));
 	if (command.length()) {
 		JobMode jobMode(props, item, FileNameExt().AsUTF8().c_str());
 		if (jobQueue.IsExecuting() && (jobMode.jobType != jobImmediate))

@@ -1182,7 +1182,7 @@ void SciTEBase::ReadProperties() {
 		}
 	}
 
-	memFiles.AppendList(props.GetNewExpandString("find.files").c_str());
+	memFiles.AppendList(props.GetNewExpandString("find.files"));
 
 	wEditor.SetWrapVisualFlags(static_cast<SA::WrapVisualFlag>(props.GetInt("wrap.visual.flags")));
 	wEditor.SetWrapVisualFlagsLocation(static_cast<SA::WrapVisualLocation>(props.GetInt("wrap.visual.flags.location")));

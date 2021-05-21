@@ -2269,8 +2269,7 @@ std::string SciTEWin::GetRangeInUIEncoding(GUI::ScintillaWindow &win, SA::Span r
 	if (codePageDocument != SA::CpUtf8) {
 		codePageDocument = CodePageFromCharSet(characterSet, codePageDocument);
 		std::wstring sWide = StringDecode(std::string(s.c_str(), s.length()), codePageDocument);
-		std::string sMulti = StringEncode(sWide, CP_UTF8);
-		return std::string(sMulti.c_str(), 0, sMulti.length());
+		return StringEncode(sWide, CP_UTF8);
 	}
 	return s;
 }

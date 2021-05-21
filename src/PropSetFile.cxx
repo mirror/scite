@@ -271,7 +271,7 @@ static int ExpandAllInPlace(const PropSetFile &props, std::string &withVars, int
 			innerVarStart = withVars.find("$(", varStart+2);
 		}
 
-		std::string var(withVars.c_str(), varStart + 2, varEnd - (varStart + 2));
+		std::string var(withVars, varStart + 2, varEnd - (varStart + 2));
 		std::string val = props.Evaluate(var.c_str());
 
 		if (blankVars.contains(var.c_str())) {

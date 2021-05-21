@@ -1519,7 +1519,7 @@ void SciTEBase::FillFunctionDefinition(SA::Position pos /*= -1*/) {
 			}
 
 			if (calltipEndDefinition != "") {
-				const size_t posEndDef = functionDefinition.find(calltipEndDefinition.c_str());
+				const size_t posEndDef = functionDefinition.find(calltipEndDefinition);
 				if (maxCallTips > 1) {
 					if (posEndDef != std::string::npos) {
 						functionDefinition.insert(posEndDef + calltipEndDefinition.length(), "\n\002");
@@ -1733,7 +1733,7 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 				std::string word = wEditor.StringOfSpan(SA::Span(posFind, wordEnd));
 				word.insert(0, "\n");
 				word.append("\n");
-				if (wordsNear.find(word.c_str()) == std::string::npos) {	// add a new entry
+				if (wordsNear.find(word) == std::string::npos) {	// add a new entry
 					wordsNear += word.c_str() + 1;
 					if (minWordLength < wordLength)
 						minWordLength = wordLength;
@@ -1806,7 +1806,7 @@ bool SciTEBase::PerformInsertAbbreviation() {
 	// add the abbreviation one character at a time
 	for (size_t i = 0; i < expbuflen; i++) {
 		const char c = expbuf[i];
-		std::string abbrevText("");
+		std::string abbrevText;
 		if (isIndent && c == '\t') {
 			if (props.GetInt("indent.automatic")) {
 				indentExtra++;
@@ -1938,7 +1938,7 @@ bool SciTEBase::StartExpandAbbreviation() {
 	// add the abbreviation one character at a time
 	for (size_t i = 0; i < expbuflen; i++) {
 		const char c = expbuf[i];
-		std::string abbrevText("");
+		std::string abbrevText;
 		if (isIndent && c == '\t') {
 			indentExtra++;
 			SetLineIndentation(currentLineNumber, indent + indentSize * indentExtra);
@@ -2150,7 +2150,7 @@ bool SciTEBase::StartBoxComment() {
 		const SA::Position lineEnd = wEditor.LineEnd(selEndLine);
 		tempString = wEditor.StringOfSpan(SA::Span(lineEnd - endCommentLength, lineEnd));
 		if (endComment != tempString) {
-			endComment.insert(0, whiteSpace.c_str());
+			endComment.insert(0, whiteSpace);
 			wEditor.InsertText(lineEnd, endComment.c_str());
 		}
 	} else {
@@ -2816,7 +2816,7 @@ bool SciTEBase::HandleXml(char ch) {
  * @return The tag name
  */
 std::string SciTEBase::FindOpenXmlTag(const char sel[], SA::Position nSize) {
-	std::string strRet = "";
+	std::string strRet;
 
 	if (nSize < 3) {
 		// Smallest tag is "<p>" which is 3 characters
@@ -4670,7 +4670,7 @@ bool SciTEBase::ProcessCommandLine(const GUI::gui_string &args, int phase) {
 					gf = static_cast<GrepFlags>(gf | grepDot);
 				if (wlArgs[i+1][3] == 'b')
 					gf = static_cast<GrepFlags>(gf | grepBinary);
-				std::string sSearch = GUI::UTF8FromString(wlArgs[i+3].c_str());
+				std::string sSearch = GUI::UTF8FromString(wlArgs[i+3]);
 				std::string unquoted = UnSlashString(sSearch.c_str());
 				SA::Position originalEnd = 0;
 				InternalGrep(gf, FilePath::GetWorkingDirectory().AsInternal(), wlArgs[i+2].c_str(), unquoted.c_str(), originalEnd);

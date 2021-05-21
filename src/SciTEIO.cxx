@@ -160,7 +160,7 @@ void SciTEBase::DiscoverEOLSetting() {
 std::string SciTEBase::DiscoverLanguage() {
 	const SA::Position length = std::min<SA::Position>(LengthDocument(), 64 * 1024);
 	std::string buf = wEditor.StringOfSpan(SA::Span(0, length));
-	std::string languageOverride = "";
+	std::string languageOverride;
 	std::string_view line = ExtractLine(buf);
 	if (StartsWith(line, "<?xml")) {
 		languageOverride = "xml";
@@ -1513,10 +1513,10 @@ void SciTEBase::GrepRecursive(GrepFlags gf, const FilePath &baseDir, const char 
 							}
 						}
 						if (match) {
-							os.append(fPath.AsUTF8().c_str());
+							os.append(fPath.AsUTF8());
 							os.append(":");
 							std::string lNumber = StdStringFromInteger(fr.LineNumber());
-							os.append(lNumber.c_str());
+							os.append(lNumber);
 							os.append(":");
 							os.append(fr.Original());
 							os.append("\n");
@@ -1547,7 +1547,7 @@ void SciTEBase::InternalGrep(GrepFlags gf, const GUI::gui_char *directory, const
 		os.append(">Internal search for \"");
 		os.append(search);
 		os.append("\" in \"");
-		os.append(GUI::UTF8FromString(fileTypes).c_str());
+		os.append(GUI::UTF8FromString(fileTypes));
 		os.append("\"\n");
 		OutputAppendStringSynchronised(os.c_str());
 		ShowOutputOnMainThread();

@@ -622,7 +622,7 @@ void SciTEWin::LocaliseMenu(HMENU hmenu) {
 					} else {
 						accel = GUI_TEXT("");
 					}
-					text = localiser.Text(GUI::UTF8FromString(text.c_str()).c_str(), true);
+					text = localiser.Text(GUI::UTF8FromString(text).c_str(), true);
 					if (text.length()) {
 						if (accel != GUI_TEXT("")) {
 							text += GUI_TEXT("\t");

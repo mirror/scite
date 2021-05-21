@@ -201,7 +201,7 @@ void UniqueInstance::SendCommands(const char *cmdLine) {
 	// locking of directories.
 	std::string cwdCmd("\"-cwd:");
 	FilePath cwd = FilePath::GetWorkingDirectory();
-	cwdCmd.append(cwd.AsUTF8().c_str());
+	cwdCmd.append(cwd.AsUTF8());
 	cwdCmd.append("\"");
 	// Defeat the "\" mangling - convert "\" to "/"
 	std::replace(cwdCmd.begin(), cwdCmd.end(), '\\', '/');
