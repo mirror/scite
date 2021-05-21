@@ -205,7 +205,7 @@ std::string LowerCaseUTF8(std::string_view sv) {
 void Window::Destroy() {
 	if (wid)
 		::DestroyWindow(static_cast<HWND>(wid));
-	wid = 0;
+	wid = {};
 }
 
 bool Window::HasFocus() {
@@ -253,13 +253,13 @@ void Menu::CreatePopUp() {
 void Menu::Destroy() {
 	if (mid)
 		::DestroyMenu(static_cast<HMENU>(mid));
-	mid = 0;
+	mid = {};
 }
 
 void Menu::Show(Point pt, Window &w) {
 	::TrackPopupMenu(static_cast<HMENU>(mid),
 			 TPM_RIGHTBUTTON, pt.x - 4, pt.y, 0,
-			 static_cast<HWND>(w.GetID()), NULL);
+			 static_cast<HWND>(w.GetID()), nullptr);
 	Destroy();
 }
 

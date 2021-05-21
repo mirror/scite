@@ -46,7 +46,7 @@ bool UniqueInstance::AcceptToOpenFiles(bool bAccept) {
 		// The mutex object is destroyed when its last handle has been closed."
 		// If the mutex already exists, the new process get a handle on it, so even if the first
 		// process exits, the mutex isn't destroyed, until all SciTE instances exit.
-		mutex = ::CreateMutex(NULL, FALSE, mutexName.c_str());
+		mutex = ::CreateMutex(nullptr, FALSE, mutexName.c_str());
 		// The call fails with ERROR_ACCESS_DENIED if the mutex was
 		// created in a different user session because of passing
 		// NULL for the SECURITY_ATTRIBUTES on mutex creation

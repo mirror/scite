@@ -771,13 +771,13 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 				::SetCapture(hWnd);
 				hwndLastFocus = ::SetFocus(hWnd);
 				bDragBegin = true;
-				HCURSOR hcursor = ::LoadCursor(::GetModuleHandle(NULL),
+				HCURSOR hcursor = ::LoadCursor(::GetModuleHandle(nullptr),
 							       MAKEINTRESOURCE(IDC_DRAGDROP));
 				if (hcursor) ::SetCursor(hcursor);
 			} else {
 				if (bDragBegin) {
 					if (tab > -1 && iDraggingTab > -1 /*&& iDraggingTab != tab*/) {
-						HCURSOR hcursor = ::LoadCursor(::GetModuleHandle(NULL),
+						HCURSOR hcursor = ::LoadCursor(::GetModuleHandle(nullptr),
 									       MAKEINTRESOURCE(IDC_DRAGDROP));
 						if (hcursor) ::SetCursor(hcursor);
 					} else {
@@ -875,7 +875,7 @@ void SciTEWin::Creation() {
 				     HwndOf(wContent),
 				     HmenuID(IDM_SRCWIN),
 				     hInstance,
-				     0));
+				     nullptr));
 	if (!wEditor.CanCall())
 		exit(FALSE);
 	wEditor.Show();
@@ -893,7 +893,7 @@ void SciTEWin::Creation() {
 				     HwndOf(wContent),
 				     HmenuID(IDM_RUNWIN),
 				     hInstance,
-				     0));
+				     nullptr));
 	if (!wOutput.CanCall())
 		exit(FALSE);
 	wOutput.Show();
@@ -915,7 +915,7 @@ void SciTEWin::Creation() {
 				   MainHWND(),
 				   HmenuID(IDM_TOOLWIN),
 				   hInstance,
-				   0);
+				   nullptr);
 	wToolBar = hwndToolBar;
 
 	::SendMessage(hwndToolBar, TB_BUTTONSTRUCTSIZE, sizeof(TBBUTTON), 0);
@@ -979,7 +979,7 @@ void SciTEWin::Creation() {
 			  MainHWND(),
 			  HmenuID(IDM_TABWIN),
 			  hInstance,
-			  0);
+			  nullptr);
 
 	if (!wTabBar.Created())
 		exit(FALSE);
@@ -1072,7 +1072,7 @@ void SciTEWin::Creation() {
 			     MainHWND(),
 			     HmenuID(IDM_STATUSWIN),
 			     hInstance,
-			     0);
+			     nullptr);
 	wStatusBar.Show();
 	const int widths[] = { 4000 };
 	// Perhaps we can define a syntax to create more parts,

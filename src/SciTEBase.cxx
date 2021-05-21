@@ -868,7 +868,7 @@ std::string SciTEBase::SelectionFilename() {
 }
 
 void SciTEBase::SelectionIntoProperties() {
-	std::string currentSelection = SelectionExtend(0, false);
+	std::string currentSelection = SelectionExtend(nullptr, false);
 	props.Set("CurrentSelection", currentSelection.c_str());
 
 	std::string word = SelectionWord();

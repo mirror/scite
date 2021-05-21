@@ -464,7 +464,7 @@ void SciTEWin::ReadEmbeddedProperties() {
 			const void *pv = ::LockResource(hmem);
 			if (pv) {
 				propsEmbed.ReadFromMemory(
-					static_cast<const char *>(pv), size, FilePath(), filter, NULL, 0);
+					static_cast<const char *>(pv), size, FilePath(), filter, nullptr, 0);
 			}
 		}
 		::FreeResource(handProps);
@@ -495,7 +495,7 @@ SystemAppearance SciTEWin::CurrentAppearance() const noexcept {
 		;
 	const BOOL status = SystemParametersInfoW(SPI_GETHIGHCONTRAST, 0, &info, 0);
 	if (status) {
-		currentAppearance.highContrast = (info.dwFlags & HCF_HIGHCONTRASTON) ? 1 : 0;
+		currentAppearance.highContrast = (info.dwFlags & HCF_HIGHCONTRASTON) != 0;
 		if (currentAppearance.highContrast) {
 			// With high contrast, AppsUseLightTheme not correct so examine system background colour
 			const DWORD dwWindowColour = ::GetSysColor(COLOR_WINDOW);
@@ -1025,7 +1025,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 			std::vector<char> buffer(pipeBufferSize);
 
 			if (!::PeekNamedPipe(hPipeRead, &buffer[0],
-					     static_cast<DWORD>(buffer.size()), &bytesRead, &bytesAvail, NULL)) {
+					     static_cast<DWORD>(buffer.size()), &bytesRead, &bytesAvail, nullptr)) {
 				bytesAvail = 0;
 			}
 
@@ -1048,7 +1048,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 
 				const int bTest = ::WriteFile(hWriteSubProcess,
 							      jobToRun.input.c_str() + writingPosition,
-							      static_cast<DWORD>(bytesToWrite), &bytesWrote, NULL);
+							      static_cast<DWORD>(bytesToWrite), &bytesWrote, nullptr);
 
 				if (bTest) {
 					if ((writingPosition + bytesToWrite) / 1024 > writingPosition / 1024) {
@@ -1072,7 +1072,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 
 			} else if (bytesAvail > 0) {
 				const int bTest = ::ReadFile(hPipeRead, &buffer[0],
-							     static_cast<DWORD>(buffer.size()), &bytesRead, NULL);
+							     static_cast<DWORD>(buffer.size()), &bytesRead, nullptr);
 
 				if (bTest && bytesRead) {
 
