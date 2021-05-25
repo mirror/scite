@@ -17,7 +17,7 @@
 
 #include "MatchMarker.h"
 
-namespace SA = Scintilla::API;
+namespace SA = Scintilla;
 
 std::vector<LineRange> LinesBreak(SA::ScintillaCall *pSci) {
 	std::vector<LineRange> lineRanges;

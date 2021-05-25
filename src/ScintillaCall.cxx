@@ -17,7 +17,7 @@
 #include "ScintillaMessages.h"
 #include "ScintillaCall.h"
 
-namespace Scintilla::API {
+namespace Scintilla {
 
 ScintillaCall::ScintillaCall() noexcept : fn(nullptr), ptr(0), statusLastCall(Status::Ok) {
 }
@@ -32,7 +32,7 @@ bool ScintillaCall::IsValid() const noexcept {
 }
 
 void ScintillaCall::SetCallStatus() {
-	statusLastCall = static_cast<API::Status>(fn(ptr, static_cast<unsigned int>(Message::GetStatus), 0, 0));
+	statusLastCall = static_cast<Scintilla::Status>(fn(ptr, static_cast<unsigned int>(Message::GetStatus), 0, 0));
 	if (statusLastCall > Status::Ok && statusLastCall < Status::WarnStart)
 		throw Failure(statusLastCall);
 }
@@ -240,18 +240,18 @@ bool ScintillaCall::UndoCollection() {
 }
 
 WhiteSpace ScintillaCall::ViewWS() {
-	return static_cast<API::WhiteSpace>(Call(Message::GetViewWS));
+	return static_cast<WhiteSpace>(Call(Message::GetViewWS));
 }
 
-void ScintillaCall::SetViewWS(API::WhiteSpace viewWS) {
+void ScintillaCall::SetViewWS(WhiteSpace viewWS) {
 	Call(Message::SetViewWS, static_cast<uintptr_t>(viewWS));
 }
 
 TabDrawMode ScintillaCall::TabDrawMode() {
-	return static_cast<API::TabDrawMode>(Call(Message::GetTabDrawMode));
+	return static_cast<Scintilla::TabDrawMode>(Call(Message::GetTabDrawMode));
 }
 
-void ScintillaCall::SetTabDrawMode(API::TabDrawMode tabDrawMode) {
+void ScintillaCall::SetTabDrawMode(Scintilla::TabDrawMode tabDrawMode) {
 	Call(Message::SetTabDrawMode, static_cast<uintptr_t>(tabDrawMode));
 }
 
@@ -287,15 +287,15 @@ Position ScintillaCall::EndStyled() {
 	return Call(Message::GetEndStyled);
 }
 
-void ScintillaCall::ConvertEOLs(API::EndOfLine eolMode) {
+void ScintillaCall::ConvertEOLs(Scintilla::EndOfLine eolMode) {
 	Call(Message::ConvertEOLs, static_cast<uintptr_t>(eolMode));
 }
 
 EndOfLine ScintillaCall::EOLMode() {
-	return static_cast<API::EndOfLine>(Call(Message::GetEOLMode));
+	return static_cast<Scintilla::EndOfLine>(Call(Message::GetEOLMode));
 }
 
-void ScintillaCall::SetEOLMode(API::EndOfLine eolMode) {
+void ScintillaCall::SetEOLMode(Scintilla::EndOfLine eolMode) {
 	Call(Message::SetEOLMode, static_cast<uintptr_t>(eolMode));
 }
 
@@ -360,14 +360,14 @@ std::string ScintillaCall::FontLocale() {
 }
 
 IMEInteraction ScintillaCall::IMEInteraction() {
-	return static_cast<API::IMEInteraction>(Call(Message::GetIMEInteraction));
+	return static_cast<Scintilla::IMEInteraction>(Call(Message::GetIMEInteraction));
 }
 
-void ScintillaCall::SetIMEInteraction(API::IMEInteraction imeInteraction) {
+void ScintillaCall::SetIMEInteraction(Scintilla::IMEInteraction imeInteraction) {
 	Call(Message::SetIMEInteraction, static_cast<uintptr_t>(imeInteraction));
 }
 
-void ScintillaCall::MarkerDefine(int markerNumber, API::MarkerSymbol markerSymbol) {
+void ScintillaCall::MarkerDefine(int markerNumber, Scintilla::MarkerSymbol markerSymbol) {
 	Call(Message::MarkerDefine, markerNumber, static_cast<intptr_t>(markerSymbol));
 }
 
@@ -435,24 +435,24 @@ void ScintillaCall::MarkerAddSet(Line line, int markerSet) {
 	Call(Message::MarkerAddSet, line, markerSet);
 }
 
-void ScintillaCall::MarkerSetAlpha(int markerNumber, API::Alpha alpha) {
+void ScintillaCall::MarkerSetAlpha(int markerNumber, Scintilla::Alpha alpha) {
 	Call(Message::MarkerSetAlpha, markerNumber, static_cast<intptr_t>(alpha));
 }
 
 Layer ScintillaCall::MarkerGetLayer(int markerNumber) {
-	return static_cast<API::Layer>(Call(Message::MarkerGetLayer, markerNumber));
+	return static_cast<Scintilla::Layer>(Call(Message::MarkerGetLayer, markerNumber));
 }
 
-void ScintillaCall::MarkerSetLayer(int markerNumber, API::Layer layer) {
+void ScintillaCall::MarkerSetLayer(int markerNumber, Scintilla::Layer layer) {
 	Call(Message::MarkerSetLayer, markerNumber, static_cast<intptr_t>(layer));
 }
 
-void ScintillaCall::SetMarginTypeN(int margin, API::MarginType marginType) {
+void ScintillaCall::SetMarginTypeN(int margin, Scintilla::MarginType marginType) {
 	Call(Message::SetMarginTypeN, margin, static_cast<intptr_t>(marginType));
 }
 
 MarginType ScintillaCall::MarginTypeN(int margin) {
-	return static_cast<API::MarginType>(Call(Message::GetMarginTypeN, margin));
+	return static_cast<Scintilla::MarginType>(Call(Message::GetMarginTypeN, margin));
 }
 
 void ScintillaCall::SetMarginWidthN(int margin, int pixelWidth) {
@@ -479,12 +479,12 @@ bool ScintillaCall::MarginSensitiveN(int margin) {
 	return Call(Message::GetMarginSensitiveN, margin);
 }
 
-void ScintillaCall::SetMarginCursorN(int margin, API::CursorShape cursor) {
+void ScintillaCall::SetMarginCursorN(int margin, Scintilla::CursorShape cursor) {
 	Call(Message::SetMarginCursorN, margin, static_cast<intptr_t>(cursor));
 }
 
 CursorShape ScintillaCall::MarginCursorN(int margin) {
-	return static_cast<API::CursorShape>(Call(Message::GetMarginCursorN, margin));
+	return static_cast<Scintilla::CursorShape>(Call(Message::GetMarginCursorN, margin));
 }
 
 void ScintillaCall::SetMarginBackN(int margin, Colour back) {
@@ -580,11 +580,11 @@ bool ScintillaCall::StyleGetUnderline(int style) {
 }
 
 CaseVisible ScintillaCall::StyleGetCase(int style) {
-	return static_cast<API::CaseVisible>(Call(Message::StyleGetCase, style));
+	return static_cast<Scintilla::CaseVisible>(Call(Message::StyleGetCase, style));
 }
 
 CharacterSet ScintillaCall::StyleGetCharacterSet(int style) {
-	return static_cast<API::CharacterSet>(Call(Message::StyleGetCharacterSet, style));
+	return static_cast<Scintilla::CharacterSet>(Call(Message::StyleGetCharacterSet, style));
 }
 
 bool ScintillaCall::StyleGetVisible(int style) {
@@ -599,7 +599,7 @@ bool ScintillaCall::StyleGetHotSpot(int style) {
 	return Call(Message::StyleGetHotSpot, style);
 }
 
-void ScintillaCall::StyleSetCase(int style, API::CaseVisible caseVisible) {
+void ScintillaCall::StyleSetCase(int style, Scintilla::CaseVisible caseVisible) {
 	Call(Message::StyleSetCase, style, static_cast<intptr_t>(caseVisible));
 }
 
@@ -611,15 +611,15 @@ int ScintillaCall::StyleGetSizeFractional(int style) {
 	return static_cast<int>(Call(Message::StyleGetSizeFractional, style));
 }
 
-void ScintillaCall::StyleSetWeight(int style, API::FontWeight weight) {
+void ScintillaCall::StyleSetWeight(int style, Scintilla::FontWeight weight) {
 	Call(Message::StyleSetWeight, style, static_cast<intptr_t>(weight));
 }
 
 FontWeight ScintillaCall::StyleGetWeight(int style) {
-	return static_cast<API::FontWeight>(Call(Message::StyleGetWeight, style));
+	return static_cast<Scintilla::FontWeight>(Call(Message::StyleGetWeight, style));
 }
 
-void ScintillaCall::StyleSetCharacterSet(int style, API::CharacterSet characterSet) {
+void ScintillaCall::StyleSetCharacterSet(int style, Scintilla::CharacterSet characterSet) {
 	Call(Message::StyleSetCharacterSet, style, static_cast<intptr_t>(characterSet));
 }
 
@@ -627,27 +627,27 @@ void ScintillaCall::StyleSetHotSpot(int style, bool hotspot) {
 	Call(Message::StyleSetHotSpot, style, hotspot);
 }
 
-void ScintillaCall::SetElementColour(API::Element element, ColourAlpha colourElement) {
+void ScintillaCall::SetElementColour(Scintilla::Element element, ColourAlpha colourElement) {
 	Call(Message::SetElementColour, static_cast<uintptr_t>(element), colourElement);
 }
 
-ColourAlpha ScintillaCall::ElementColour(API::Element element) {
+ColourAlpha ScintillaCall::ElementColour(Scintilla::Element element) {
 	return static_cast<ColourAlpha>(Call(Message::GetElementColour, static_cast<uintptr_t>(element)));
 }
 
-void ScintillaCall::ResetElementColour(API::Element element) {
+void ScintillaCall::ResetElementColour(Scintilla::Element element) {
 	Call(Message::ResetElementColour, static_cast<uintptr_t>(element));
 }
 
-bool ScintillaCall::ElementIsSet(API::Element element) {
+bool ScintillaCall::ElementIsSet(Scintilla::Element element) {
 	return Call(Message::GetElementIsSet, static_cast<uintptr_t>(element));
 }
 
-bool ScintillaCall::ElementAllowsTranslucent(API::Element element) {
+bool ScintillaCall::ElementAllowsTranslucent(Scintilla::Element element) {
 	return Call(Message::GetElementAllowsTranslucent, static_cast<uintptr_t>(element));
 }
 
-ColourAlpha ScintillaCall::ElementBaseColour(API::Element element) {
+ColourAlpha ScintillaCall::ElementBaseColour(Scintilla::Element element) {
 	return static_cast<ColourAlpha>(Call(Message::GetElementBaseColour, static_cast<uintptr_t>(element)));
 }
 
@@ -660,10 +660,10 @@ void ScintillaCall::SetSelBack(bool useSetting, Colour back) {
 }
 
 Alpha ScintillaCall::SelAlpha() {
-	return static_cast<API::Alpha>(Call(Message::GetSelAlpha));
+	return static_cast<Scintilla::Alpha>(Call(Message::GetSelAlpha));
 }
 
-void ScintillaCall::SetSelAlpha(API::Alpha alpha) {
+void ScintillaCall::SetSelAlpha(Scintilla::Alpha alpha) {
 	Call(Message::SetSelAlpha, static_cast<uintptr_t>(alpha));
 }
 
@@ -676,18 +676,18 @@ void ScintillaCall::SetSelEOLFilled(bool filled) {
 }
 
 Layer ScintillaCall::SelectionLayer() {
-	return static_cast<API::Layer>(Call(Message::GetSelectionLayer));
+	return static_cast<Scintilla::Layer>(Call(Message::GetSelectionLayer));
 }
 
-void ScintillaCall::SetSelectionLayer(API::Layer layer) {
+void ScintillaCall::SetSelectionLayer(Scintilla::Layer layer) {
 	Call(Message::SetSelectionLayer, static_cast<uintptr_t>(layer));
 }
 
 Layer ScintillaCall::CaretLineLayer() {
-	return static_cast<API::Layer>(Call(Message::GetCaretLineLayer));
+	return static_cast<Scintilla::Layer>(Call(Message::GetCaretLineLayer));
 }
 
-void ScintillaCall::SetCaretLineLayer(API::Layer layer) {
+void ScintillaCall::SetCaretLineLayer(Scintilla::Layer layer) {
 	Call(Message::SetCaretLineLayer, static_cast<uintptr_t>(layer));
 }
 
@@ -751,12 +751,12 @@ void ScintillaCall::EndUndoAction() {
 	Call(Message::EndUndoAction);
 }
 
-void ScintillaCall::IndicSetStyle(int indicator, API::IndicatorStyle indicatorStyle) {
+void ScintillaCall::IndicSetStyle(int indicator, Scintilla::IndicatorStyle indicatorStyle) {
 	Call(Message::IndicSetStyle, indicator, static_cast<intptr_t>(indicatorStyle));
 }
 
 IndicatorStyle ScintillaCall::IndicGetStyle(int indicator) {
-	return static_cast<API::IndicatorStyle>(Call(Message::IndicGetStyle, indicator));
+	return static_cast<Scintilla::IndicatorStyle>(Call(Message::IndicGetStyle, indicator));
 }
 
 void ScintillaCall::IndicSetFore(int indicator, Colour fore) {
@@ -775,12 +775,12 @@ bool ScintillaCall::IndicGetUnder(int indicator) {
 	return Call(Message::IndicGetUnder, indicator);
 }
 
-void ScintillaCall::IndicSetHoverStyle(int indicator, API::IndicatorStyle indicatorStyle) {
+void ScintillaCall::IndicSetHoverStyle(int indicator, Scintilla::IndicatorStyle indicatorStyle) {
 	Call(Message::IndicSetHoverStyle, indicator, static_cast<intptr_t>(indicatorStyle));
 }
 
 IndicatorStyle ScintillaCall::IndicGetHoverStyle(int indicator) {
-	return static_cast<API::IndicatorStyle>(Call(Message::IndicGetHoverStyle, indicator));
+	return static_cast<Scintilla::IndicatorStyle>(Call(Message::IndicGetHoverStyle, indicator));
 }
 
 void ScintillaCall::IndicSetHoverFore(int indicator, Colour fore) {
@@ -791,12 +791,12 @@ Colour ScintillaCall::IndicGetHoverFore(int indicator) {
 	return static_cast<Colour>(Call(Message::IndicGetHoverFore, indicator));
 }
 
-void ScintillaCall::IndicSetFlags(int indicator, API::IndicFlag flags) {
+void ScintillaCall::IndicSetFlags(int indicator, Scintilla::IndicFlag flags) {
 	Call(Message::IndicSetFlags, indicator, static_cast<intptr_t>(flags));
 }
 
 IndicFlag ScintillaCall::IndicGetFlags(int indicator) {
-	return static_cast<API::IndicFlag>(Call(Message::IndicGetFlags, indicator));
+	return static_cast<Scintilla::IndicFlag>(Call(Message::IndicGetFlags, indicator));
 }
 
 void ScintillaCall::IndicSetStrokeWidth(int indicator, int hundredths) {
@@ -1027,12 +1027,12 @@ bool ScintillaCall::HScrollBar() {
 	return Call(Message::GetHScrollBar);
 }
 
-void ScintillaCall::SetIndentationGuides(API::IndentView indentView) {
+void ScintillaCall::SetIndentationGuides(Scintilla::IndentView indentView) {
 	Call(Message::SetIndentationGuides, static_cast<uintptr_t>(indentView));
 }
 
 IndentView ScintillaCall::IndentationGuides() {
-	return static_cast<API::IndentView>(Call(Message::GetIndentationGuides));
+	return static_cast<Scintilla::IndentView>(Call(Message::GetIndentationGuides));
 }
 
 void ScintillaCall::SetHighlightGuide(Position column) {
@@ -1091,15 +1091,15 @@ int ScintillaCall::PrintMagnification() {
 	return static_cast<int>(Call(Message::GetPrintMagnification));
 }
 
-void ScintillaCall::SetPrintColourMode(API::PrintOption mode) {
+void ScintillaCall::SetPrintColourMode(Scintilla::PrintOption mode) {
 	Call(Message::SetPrintColourMode, static_cast<uintptr_t>(mode));
 }
 
 PrintOption ScintillaCall::PrintColourMode() {
-	return static_cast<API::PrintOption>(Call(Message::GetPrintColourMode));
+	return static_cast<Scintilla::PrintOption>(Call(Message::GetPrintColourMode));
 }
 
-Position ScintillaCall::FindText(API::FindOption searchFlags, void *ft) {
+Position ScintillaCall::FindText(Scintilla::FindOption searchFlags, void *ft) {
 	return CallPointer(Message::FindText, static_cast<uintptr_t>(searchFlags), ft);
 }
 
@@ -1339,12 +1339,12 @@ Position ScintillaCall::SearchInTarget(Position length, const char *text) {
 	return CallString(Message::SearchInTarget, length, text);
 }
 
-void ScintillaCall::SetSearchFlags(API::FindOption searchFlags) {
+void ScintillaCall::SetSearchFlags(Scintilla::FindOption searchFlags) {
 	Call(Message::SetSearchFlags, static_cast<uintptr_t>(searchFlags));
 }
 
 FindOption ScintillaCall::SearchFlags() {
-	return static_cast<API::FindOption>(Call(Message::GetSearchFlags));
+	return static_cast<Scintilla::FindOption>(Call(Message::GetSearchFlags));
 }
 
 void ScintillaCall::CallTipShow(Position pos, const char *definition) {
@@ -1403,15 +1403,15 @@ Line ScintillaCall::WrapCount(Line docLine) {
 	return Call(Message::WrapCount, docLine);
 }
 
-void ScintillaCall::SetFoldLevel(Line line, API::FoldLevel level) {
+void ScintillaCall::SetFoldLevel(Line line, Scintilla::FoldLevel level) {
 	Call(Message::SetFoldLevel, line, static_cast<intptr_t>(level));
 }
 
 FoldLevel ScintillaCall::FoldLevel(Line line) {
-	return static_cast<API::FoldLevel>(Call(Message::GetFoldLevel, line));
+	return static_cast<Scintilla::FoldLevel>(Call(Message::GetFoldLevel, line));
 }
 
-Line ScintillaCall::LastChild(Line line, API::FoldLevel level) {
+Line ScintillaCall::LastChild(Line line, Scintilla::FoldLevel level) {
 	return Call(Message::GetLastChild, line, static_cast<intptr_t>(level));
 }
 
@@ -1451,12 +1451,12 @@ void ScintillaCall::ToggleFoldShowText(Line line, const char *text) {
 	CallString(Message::ToggleFoldShowText, line, text);
 }
 
-void ScintillaCall::FoldDisplayTextSetStyle(API::FoldDisplayTextStyle style) {
+void ScintillaCall::FoldDisplayTextSetStyle(Scintilla::FoldDisplayTextStyle style) {
 	Call(Message::FoldDisplayTextSetStyle, static_cast<uintptr_t>(style));
 }
 
 FoldDisplayTextStyle ScintillaCall::FoldDisplayTextGetStyle() {
-	return static_cast<API::FoldDisplayTextStyle>(Call(Message::FoldDisplayTextGetStyle));
+	return static_cast<Scintilla::FoldDisplayTextStyle>(Call(Message::FoldDisplayTextGetStyle));
 }
 
 void ScintillaCall::SetDefaultFoldDisplayText(const char *text) {
@@ -1471,19 +1471,19 @@ std::string ScintillaCall::GetDefaultFoldDisplayText() {
 	return CallReturnString(Message::GetDefaultFoldDisplayText, 0);
 }
 
-void ScintillaCall::FoldLine(Line line, API::FoldAction action) {
+void ScintillaCall::FoldLine(Line line, Scintilla::FoldAction action) {
 	Call(Message::FoldLine, line, static_cast<intptr_t>(action));
 }
 
-void ScintillaCall::FoldChildren(Line line, API::FoldAction action) {
+void ScintillaCall::FoldChildren(Line line, Scintilla::FoldAction action) {
 	Call(Message::FoldChildren, line, static_cast<intptr_t>(action));
 }
 
-void ScintillaCall::ExpandChildren(Line line, API::FoldLevel level) {
+void ScintillaCall::ExpandChildren(Line line, Scintilla::FoldLevel level) {
 	Call(Message::ExpandChildren, line, static_cast<intptr_t>(level));
 }
 
-void ScintillaCall::FoldAll(API::FoldAction action) {
+void ScintillaCall::FoldAll(Scintilla::FoldAction action) {
 	Call(Message::FoldAll, static_cast<uintptr_t>(action));
 }
 
@@ -1491,15 +1491,15 @@ void ScintillaCall::EnsureVisible(Line line) {
 	Call(Message::EnsureVisible, line);
 }
 
-void ScintillaCall::SetAutomaticFold(API::AutomaticFold automaticFold) {
+void ScintillaCall::SetAutomaticFold(Scintilla::AutomaticFold automaticFold) {
 	Call(Message::SetAutomaticFold, static_cast<uintptr_t>(automaticFold));
 }
 
 AutomaticFold ScintillaCall::AutomaticFold() {
-	return static_cast<API::AutomaticFold>(Call(Message::GetAutomaticFold));
+	return static_cast<Scintilla::AutomaticFold>(Call(Message::GetAutomaticFold));
 }
 
-void ScintillaCall::SetFoldFlags(API::FoldFlag flags) {
+void ScintillaCall::SetFoldFlags(Scintilla::FoldFlag flags) {
 	Call(Message::SetFoldFlags, static_cast<uintptr_t>(flags));
 }
 
@@ -1543,36 +1543,36 @@ bool ScintillaCall::IsRangeWord(Position start, Position end) {
 	return Call(Message::IsRangeWord, start, end);
 }
 
-void ScintillaCall::SetIdleStyling(API::IdleStyling idleStyling) {
+void ScintillaCall::SetIdleStyling(Scintilla::IdleStyling idleStyling) {
 	Call(Message::SetIdleStyling, static_cast<uintptr_t>(idleStyling));
 }
 
 IdleStyling ScintillaCall::IdleStyling() {
-	return static_cast<API::IdleStyling>(Call(Message::GetIdleStyling));
+	return static_cast<Scintilla::IdleStyling>(Call(Message::GetIdleStyling));
 }
 
-void ScintillaCall::SetWrapMode(API::Wrap wrapMode) {
+void ScintillaCall::SetWrapMode(Scintilla::Wrap wrapMode) {
 	Call(Message::SetWrapMode, static_cast<uintptr_t>(wrapMode));
 }
 
 Wrap ScintillaCall::WrapMode() {
-	return static_cast<API::Wrap>(Call(Message::GetWrapMode));
+	return static_cast<Scintilla::Wrap>(Call(Message::GetWrapMode));
 }
 
-void ScintillaCall::SetWrapVisualFlags(API::WrapVisualFlag wrapVisualFlags) {
+void ScintillaCall::SetWrapVisualFlags(Scintilla::WrapVisualFlag wrapVisualFlags) {
 	Call(Message::SetWrapVisualFlags, static_cast<uintptr_t>(wrapVisualFlags));
 }
 
 WrapVisualFlag ScintillaCall::WrapVisualFlags() {
-	return static_cast<API::WrapVisualFlag>(Call(Message::GetWrapVisualFlags));
+	return static_cast<Scintilla::WrapVisualFlag>(Call(Message::GetWrapVisualFlags));
 }
 
-void ScintillaCall::SetWrapVisualFlagsLocation(API::WrapVisualLocation wrapVisualFlagsLocation) {
+void ScintillaCall::SetWrapVisualFlagsLocation(Scintilla::WrapVisualLocation wrapVisualFlagsLocation) {
 	Call(Message::SetWrapVisualFlagsLocation, static_cast<uintptr_t>(wrapVisualFlagsLocation));
 }
 
 WrapVisualLocation ScintillaCall::WrapVisualFlagsLocation() {
-	return static_cast<API::WrapVisualLocation>(Call(Message::GetWrapVisualFlagsLocation));
+	return static_cast<Scintilla::WrapVisualLocation>(Call(Message::GetWrapVisualFlagsLocation));
 }
 
 void ScintillaCall::SetWrapStartIndent(int indent) {
@@ -1583,20 +1583,20 @@ int ScintillaCall::WrapStartIndent() {
 	return static_cast<int>(Call(Message::GetWrapStartIndent));
 }
 
-void ScintillaCall::SetWrapIndentMode(API::WrapIndentMode wrapIndentMode) {
+void ScintillaCall::SetWrapIndentMode(Scintilla::WrapIndentMode wrapIndentMode) {
 	Call(Message::SetWrapIndentMode, static_cast<uintptr_t>(wrapIndentMode));
 }
 
 WrapIndentMode ScintillaCall::WrapIndentMode() {
-	return static_cast<API::WrapIndentMode>(Call(Message::GetWrapIndentMode));
+	return static_cast<Scintilla::WrapIndentMode>(Call(Message::GetWrapIndentMode));
 }
 
-void ScintillaCall::SetLayoutCache(API::LineCache cacheMode) {
+void ScintillaCall::SetLayoutCache(Scintilla::LineCache cacheMode) {
 	Call(Message::SetLayoutCache, static_cast<uintptr_t>(cacheMode));
 }
 
 LineCache ScintillaCall::LayoutCache() {
-	return static_cast<API::LineCache>(Call(Message::GetLayoutCache));
+	return static_cast<Scintilla::LineCache>(Call(Message::GetLayoutCache));
 }
 
 void ScintillaCall::SetScrollWidth(int pixelWidth) {
@@ -1644,31 +1644,31 @@ void ScintillaCall::AppendText(Position length, const char *text) {
 }
 
 PhasesDraw ScintillaCall::PhasesDraw() {
-	return static_cast<API::PhasesDraw>(Call(Message::GetPhasesDraw));
+	return static_cast<Scintilla::PhasesDraw>(Call(Message::GetPhasesDraw));
 }
 
-void ScintillaCall::SetPhasesDraw(API::PhasesDraw phases) {
+void ScintillaCall::SetPhasesDraw(Scintilla::PhasesDraw phases) {
 	Call(Message::SetPhasesDraw, static_cast<uintptr_t>(phases));
 }
 
-void ScintillaCall::SetFontQuality(API::FontQuality fontQuality) {
+void ScintillaCall::SetFontQuality(Scintilla::FontQuality fontQuality) {
 	Call(Message::SetFontQuality, static_cast<uintptr_t>(fontQuality));
 }
 
 FontQuality ScintillaCall::FontQuality() {
-	return static_cast<API::FontQuality>(Call(Message::GetFontQuality));
+	return static_cast<Scintilla::FontQuality>(Call(Message::GetFontQuality));
 }
 
 void ScintillaCall::SetFirstVisibleLine(Line displayLine) {
 	Call(Message::SetFirstVisibleLine, displayLine);
 }
 
-void ScintillaCall::SetMultiPaste(API::MultiPaste multiPaste) {
+void ScintillaCall::SetMultiPaste(Scintilla::MultiPaste multiPaste) {
 	Call(Message::SetMultiPaste, static_cast<uintptr_t>(multiPaste));
 }
 
 MultiPaste ScintillaCall::MultiPaste() {
-	return static_cast<API::MultiPaste>(Call(Message::GetMultiPaste));
+	return static_cast<Scintilla::MultiPaste>(Call(Message::GetMultiPaste));
 }
 
 int ScintillaCall::Tag(int tagNumber, char *tagValue) {
@@ -1695,12 +1695,12 @@ void ScintillaCall::SetFoldMarginHiColour(bool useSetting, Colour fore) {
 	Call(Message::SetFoldMarginHiColour, useSetting, fore);
 }
 
-void ScintillaCall::SetAccessibility(API::Accessibility accessibility) {
+void ScintillaCall::SetAccessibility(Scintilla::Accessibility accessibility) {
 	Call(Message::SetAccessibility, static_cast<uintptr_t>(accessibility));
 }
 
 Accessibility ScintillaCall::Accessibility() {
-	return static_cast<API::Accessibility>(Call(Message::GetAccessibility));
+	return static_cast<Scintilla::Accessibility>(Call(Message::GetAccessibility));
 }
 
 void ScintillaCall::LineDown() {
@@ -1987,7 +1987,7 @@ void ScintillaCall::SetDocPointer(void *doc) {
 	CallPointer(Message::SetDocPointer, 0, doc);
 }
 
-void ScintillaCall::SetModEventMask(API::ModificationFlags eventMask) {
+void ScintillaCall::SetModEventMask(Scintilla::ModificationFlags eventMask) {
 	Call(Message::SetModEventMask, static_cast<uintptr_t>(eventMask));
 }
 
@@ -2000,10 +2000,10 @@ void ScintillaCall::SetEdgeColumn(Position column) {
 }
 
 EdgeVisualStyle ScintillaCall::EdgeMode() {
-	return static_cast<API::EdgeVisualStyle>(Call(Message::GetEdgeMode));
+	return static_cast<Scintilla::EdgeVisualStyle>(Call(Message::GetEdgeMode));
 }
 
-void ScintillaCall::SetEdgeMode(API::EdgeVisualStyle edgeMode) {
+void ScintillaCall::SetEdgeMode(Scintilla::EdgeVisualStyle edgeMode) {
 	Call(Message::SetEdgeMode, static_cast<uintptr_t>(edgeMode));
 }
 
@@ -2031,11 +2031,11 @@ void ScintillaCall::SearchAnchor() {
 	Call(Message::SearchAnchor);
 }
 
-Position ScintillaCall::SearchNext(API::FindOption searchFlags, const char *text) {
+Position ScintillaCall::SearchNext(Scintilla::FindOption searchFlags, const char *text) {
 	return CallString(Message::SearchNext, static_cast<uintptr_t>(searchFlags), text);
 }
 
-Position ScintillaCall::SearchPrev(API::FindOption searchFlags, const char *text) {
+Position ScintillaCall::SearchPrev(Scintilla::FindOption searchFlags, const char *text) {
 	return CallString(Message::SearchPrev, static_cast<uintptr_t>(searchFlags), text);
 }
 
@@ -2043,7 +2043,7 @@ Line ScintillaCall::LinesOnScreen() {
 	return Call(Message::LinesOnScreen);
 }
 
-void ScintillaCall::UsePopUp(API::PopUp popUpMode) {
+void ScintillaCall::UsePopUp(Scintilla::PopUp popUpMode) {
 	Call(Message::UsePopUp, static_cast<uintptr_t>(popUpMode));
 }
 
@@ -2059,7 +2059,7 @@ int ScintillaCall::Zoom() {
 	return static_cast<int>(Call(Message::GetZoom));
 }
 
-void *ScintillaCall::CreateDocument(Position bytes, API::DocumentOption documentOptions) {
+void *ScintillaCall::CreateDocument(Position bytes, Scintilla::DocumentOption documentOptions) {
 	return reinterpret_cast<void *>(Call(Message::CreateDocument, bytes, static_cast<intptr_t>(documentOptions)));
 }
 
@@ -2072,11 +2072,11 @@ void ScintillaCall::ReleaseDocument(void *doc) {
 }
 
 DocumentOption ScintillaCall::DocumentOptions() {
-	return static_cast<API::DocumentOption>(Call(Message::GetDocumentOptions));
+	return static_cast<Scintilla::DocumentOption>(Call(Message::GetDocumentOptions));
 }
 
 ModificationFlags ScintillaCall::ModEventMask() {
-	return static_cast<API::ModificationFlags>(Call(Message::GetModEventMask));
+	return static_cast<Scintilla::ModificationFlags>(Call(Message::GetModEventMask));
 }
 
 void ScintillaCall::SetCommandEvents(bool commandEvents) {
@@ -2095,12 +2095,12 @@ bool ScintillaCall::Focus() {
 	return Call(Message::GetFocus);
 }
 
-void ScintillaCall::SetStatus(API::Status status) {
+void ScintillaCall::SetStatus(Scintilla::Status status) {
 	Call(Message::SetStatus, static_cast<uintptr_t>(status));
 }
 
 Status ScintillaCall::Status() {
-	return static_cast<API::Status>(Call(Message::GetStatus));
+	return static_cast<Scintilla::Status>(Call(Message::GetStatus));
 }
 
 void ScintillaCall::SetMouseDownCaptures(bool captures) {
@@ -2119,12 +2119,12 @@ bool ScintillaCall::MouseWheelCaptures() {
 	return Call(Message::GetMouseWheelCaptures);
 }
 
-void ScintillaCall::SetCursor(API::CursorShape cursorType) {
+void ScintillaCall::SetCursor(Scintilla::CursorShape cursorType) {
 	Call(Message::SetCursor, static_cast<uintptr_t>(cursorType));
 }
 
 CursorShape ScintillaCall::Cursor() {
-	return static_cast<API::CursorShape>(Call(Message::GetCursor));
+	return static_cast<Scintilla::CursorShape>(Call(Message::GetCursor));
 }
 
 void ScintillaCall::SetControlCharSymbol(int symbol) {
@@ -2151,7 +2151,7 @@ void ScintillaCall::WordPartRightExtend() {
 	Call(Message::WordPartRightExtend);
 }
 
-void ScintillaCall::SetVisiblePolicy(API::VisiblePolicy visiblePolicy, int visibleSlop) {
+void ScintillaCall::SetVisiblePolicy(Scintilla::VisiblePolicy visiblePolicy, int visibleSlop) {
 	Call(Message::SetVisiblePolicy, static_cast<uintptr_t>(visiblePolicy), visibleSlop);
 }
 
@@ -2179,20 +2179,20 @@ void ScintillaCall::GrabFocus() {
 	Call(Message::GrabFocus);
 }
 
-void ScintillaCall::SetXCaretPolicy(API::CaretPolicy caretPolicy, int caretSlop) {
+void ScintillaCall::SetXCaretPolicy(Scintilla::CaretPolicy caretPolicy, int caretSlop) {
 	Call(Message::SetXCaretPolicy, static_cast<uintptr_t>(caretPolicy), caretSlop);
 }
 
-void ScintillaCall::SetYCaretPolicy(API::CaretPolicy caretPolicy, int caretSlop) {
+void ScintillaCall::SetYCaretPolicy(Scintilla::CaretPolicy caretPolicy, int caretSlop) {
 	Call(Message::SetYCaretPolicy, static_cast<uintptr_t>(caretPolicy), caretSlop);
 }
 
-void ScintillaCall::SetPrintWrapMode(API::Wrap wrapMode) {
+void ScintillaCall::SetPrintWrapMode(Scintilla::Wrap wrapMode) {
 	Call(Message::SetPrintWrapMode, static_cast<uintptr_t>(wrapMode));
 }
 
 Wrap ScintillaCall::PrintWrapMode() {
-	return static_cast<API::Wrap>(Call(Message::GetPrintWrapMode));
+	return static_cast<Scintilla::Wrap>(Call(Message::GetPrintWrapMode));
 }
 
 void ScintillaCall::SetHotspotActiveFore(bool useSetting, Colour fore) {
@@ -2267,12 +2267,12 @@ void ScintillaCall::CopyText(Position length, const char *text) {
 	CallString(Message::CopyText, length, text);
 }
 
-void ScintillaCall::SetSelectionMode(API::SelectionMode selectionMode) {
+void ScintillaCall::SetSelectionMode(Scintilla::SelectionMode selectionMode) {
 	Call(Message::SetSelectionMode, static_cast<uintptr_t>(selectionMode));
 }
 
 SelectionMode ScintillaCall::SelectionMode() {
-	return static_cast<API::SelectionMode>(Call(Message::GetSelectionMode));
+	return static_cast<Scintilla::SelectionMode>(Call(Message::GetSelectionMode));
 }
 
 bool ScintillaCall::MoveExtendsSelection() {
@@ -2395,28 +2395,28 @@ std::string ScintillaCall::AutoCGetCurrentText() {
 	return CallReturnString(Message::AutoCGetCurrentText, 0);
 }
 
-void ScintillaCall::AutoCSetCaseInsensitiveBehaviour(API::CaseInsensitiveBehaviour behaviour) {
+void ScintillaCall::AutoCSetCaseInsensitiveBehaviour(Scintilla::CaseInsensitiveBehaviour behaviour) {
 	Call(Message::AutoCSetCaseInsensitiveBehaviour, static_cast<uintptr_t>(behaviour));
 }
 
 CaseInsensitiveBehaviour ScintillaCall::AutoCGetCaseInsensitiveBehaviour() {
-	return static_cast<API::CaseInsensitiveBehaviour>(Call(Message::AutoCGetCaseInsensitiveBehaviour));
+	return static_cast<Scintilla::CaseInsensitiveBehaviour>(Call(Message::AutoCGetCaseInsensitiveBehaviour));
 }
 
-void ScintillaCall::AutoCSetMulti(API::MultiAutoComplete multi) {
+void ScintillaCall::AutoCSetMulti(Scintilla::MultiAutoComplete multi) {
 	Call(Message::AutoCSetMulti, static_cast<uintptr_t>(multi));
 }
 
 MultiAutoComplete ScintillaCall::AutoCGetMulti() {
-	return static_cast<API::MultiAutoComplete>(Call(Message::AutoCGetMulti));
+	return static_cast<Scintilla::MultiAutoComplete>(Call(Message::AutoCGetMulti));
 }
 
-void ScintillaCall::AutoCSetOrder(API::Ordering order) {
+void ScintillaCall::AutoCSetOrder(Scintilla::Ordering order) {
 	Call(Message::AutoCSetOrder, static_cast<uintptr_t>(order));
 }
 
 Ordering ScintillaCall::AutoCGetOrder() {
-	return static_cast<API::Ordering>(Call(Message::AutoCGetOrder));
+	return static_cast<Scintilla::Ordering>(Call(Message::AutoCGetOrder));
 }
 
 void ScintillaCall::Allocate(Position bytes) {
@@ -2448,10 +2448,10 @@ Position ScintillaCall::FindColumn(Line line, Position column) {
 }
 
 CaretSticky ScintillaCall::CaretSticky() {
-	return static_cast<API::CaretSticky>(Call(Message::GetCaretSticky));
+	return static_cast<Scintilla::CaretSticky>(Call(Message::GetCaretSticky));
 }
 
-void ScintillaCall::SetCaretSticky(API::CaretSticky useCaretStickyBehaviour) {
+void ScintillaCall::SetCaretSticky(Scintilla::CaretSticky useCaretStickyBehaviour) {
 	Call(Message::SetCaretSticky, static_cast<uintptr_t>(useCaretStickyBehaviour));
 }
 
@@ -2471,20 +2471,20 @@ void ScintillaCall::SelectionDuplicate() {
 	Call(Message::SelectionDuplicate);
 }
 
-void ScintillaCall::SetCaretLineBackAlpha(API::Alpha alpha) {
+void ScintillaCall::SetCaretLineBackAlpha(Scintilla::Alpha alpha) {
 	Call(Message::SetCaretLineBackAlpha, static_cast<uintptr_t>(alpha));
 }
 
 Alpha ScintillaCall::CaretLineBackAlpha() {
-	return static_cast<API::Alpha>(Call(Message::GetCaretLineBackAlpha));
+	return static_cast<Scintilla::Alpha>(Call(Message::GetCaretLineBackAlpha));
 }
 
-void ScintillaCall::SetCaretStyle(API::CaretStyle caretStyle) {
+void ScintillaCall::SetCaretStyle(Scintilla::CaretStyle caretStyle) {
 	Call(Message::SetCaretStyle, static_cast<uintptr_t>(caretStyle));
 }
 
 CaretStyle ScintillaCall::CaretStyle() {
-	return static_cast<API::CaretStyle>(Call(Message::GetCaretStyle));
+	return static_cast<Scintilla::CaretStyle>(Call(Message::GetCaretStyle));
 }
 
 void ScintillaCall::SetIndicatorCurrent(int indicator) {
@@ -2551,20 +2551,20 @@ Position ScintillaCall::GapPosition() {
 	return Call(Message::GetGapPosition);
 }
 
-void ScintillaCall::IndicSetAlpha(int indicator, API::Alpha alpha) {
+void ScintillaCall::IndicSetAlpha(int indicator, Scintilla::Alpha alpha) {
 	Call(Message::IndicSetAlpha, indicator, static_cast<intptr_t>(alpha));
 }
 
 Alpha ScintillaCall::IndicGetAlpha(int indicator) {
-	return static_cast<API::Alpha>(Call(Message::IndicGetAlpha, indicator));
+	return static_cast<Scintilla::Alpha>(Call(Message::IndicGetAlpha, indicator));
 }
 
-void ScintillaCall::IndicSetOutlineAlpha(int indicator, API::Alpha alpha) {
+void ScintillaCall::IndicSetOutlineAlpha(int indicator, Scintilla::Alpha alpha) {
 	Call(Message::IndicSetOutlineAlpha, indicator, static_cast<intptr_t>(alpha));
 }
 
 Alpha ScintillaCall::IndicGetOutlineAlpha(int indicator) {
-	return static_cast<API::Alpha>(Call(Message::IndicGetOutlineAlpha, indicator));
+	return static_cast<Scintilla::Alpha>(Call(Message::IndicGetOutlineAlpha, indicator));
 }
 
 void ScintillaCall::SetExtraAscent(int extraAscent) {
@@ -2631,12 +2631,12 @@ int ScintillaCall::MarginGetStyleOffset() {
 	return static_cast<int>(Call(Message::MarginGetStyleOffset));
 }
 
-void ScintillaCall::SetMarginOptions(API::MarginOption marginOptions) {
+void ScintillaCall::SetMarginOptions(Scintilla::MarginOption marginOptions) {
 	Call(Message::SetMarginOptions, static_cast<uintptr_t>(marginOptions));
 }
 
 MarginOption ScintillaCall::MarginOptions() {
-	return static_cast<API::MarginOption>(Call(Message::GetMarginOptions));
+	return static_cast<Scintilla::MarginOption>(Call(Message::GetMarginOptions));
 }
 
 void ScintillaCall::AnnotationSetText(Line line, const char *text) {
@@ -2679,12 +2679,12 @@ void ScintillaCall::AnnotationClearAll() {
 	Call(Message::AnnotationClearAll);
 }
 
-void ScintillaCall::AnnotationSetVisible(API::AnnotationVisible visible) {
+void ScintillaCall::AnnotationSetVisible(Scintilla::AnnotationVisible visible) {
 	Call(Message::AnnotationSetVisible, static_cast<uintptr_t>(visible));
 }
 
 AnnotationVisible ScintillaCall::AnnotationGetVisible() {
-	return static_cast<API::AnnotationVisible>(Call(Message::AnnotationGetVisible));
+	return static_cast<Scintilla::AnnotationVisible>(Call(Message::AnnotationGetVisible));
 }
 
 void ScintillaCall::AnnotationSetStyleOffset(int style) {
@@ -2703,7 +2703,7 @@ int ScintillaCall::AllocateExtendedStyles(int numberStyles) {
 	return static_cast<int>(Call(Message::AllocateExtendedStyles, numberStyles));
 }
 
-void ScintillaCall::AddUndoAction(int token, API::UndoFlags flags) {
+void ScintillaCall::AddUndoAction(int token, Scintilla::UndoFlags flags) {
 	Call(Message::AddUndoAction, token, static_cast<intptr_t>(flags));
 }
 
@@ -2875,12 +2875,12 @@ Position ScintillaCall::RectangularSelectionAnchorVirtualSpace() {
 	return Call(Message::GetRectangularSelectionAnchorVirtualSpace);
 }
 
-void ScintillaCall::SetVirtualSpaceOptions(API::VirtualSpace virtualSpaceOptions) {
+void ScintillaCall::SetVirtualSpaceOptions(Scintilla::VirtualSpace virtualSpaceOptions) {
 	Call(Message::SetVirtualSpaceOptions, static_cast<uintptr_t>(virtualSpaceOptions));
 }
 
 VirtualSpace ScintillaCall::VirtualSpaceOptions() {
-	return static_cast<API::VirtualSpace>(Call(Message::GetVirtualSpaceOptions));
+	return static_cast<Scintilla::VirtualSpace>(Call(Message::GetVirtualSpaceOptions));
 }
 
 void ScintillaCall::SetRectangularSelectionModifier(int modifier) {
@@ -2899,12 +2899,12 @@ void ScintillaCall::SetAdditionalSelBack(Colour back) {
 	Call(Message::SetAdditionalSelBack, back);
 }
 
-void ScintillaCall::SetAdditionalSelAlpha(API::Alpha alpha) {
+void ScintillaCall::SetAdditionalSelAlpha(Scintilla::Alpha alpha) {
 	Call(Message::SetAdditionalSelAlpha, static_cast<uintptr_t>(alpha));
 }
 
 Alpha ScintillaCall::AdditionalSelAlpha() {
-	return static_cast<API::Alpha>(Call(Message::GetAdditionalSelAlpha));
+	return static_cast<Scintilla::Alpha>(Call(Message::GetAdditionalSelAlpha));
 }
 
 void ScintillaCall::SetAdditionalCaretFore(Colour fore) {
@@ -2987,15 +2987,15 @@ void ScintillaCall::ScrollToEnd() {
 	Call(Message::ScrollToEnd);
 }
 
-void ScintillaCall::SetTechnology(API::Technology technology) {
+void ScintillaCall::SetTechnology(Scintilla::Technology technology) {
 	Call(Message::SetTechnology, static_cast<uintptr_t>(technology));
 }
 
 Technology ScintillaCall::Technology() {
-	return static_cast<API::Technology>(Call(Message::GetTechnology));
+	return static_cast<Scintilla::Technology>(Call(Message::GetTechnology));
 }
 
-void *ScintillaCall::CreateLoader(Position bytes, API::DocumentOption documentOptions) {
+void *ScintillaCall::CreateLoader(Position bytes, Scintilla::DocumentOption documentOptions) {
 	return reinterpret_cast<void *>(Call(Message::CreateLoader, bytes, static_cast<intptr_t>(documentOptions)));
 }
 
@@ -3027,16 +3027,16 @@ void ScintillaCall::SetCaretLineVisibleAlways(bool alwaysVisible) {
 	Call(Message::SetCaretLineVisibleAlways, alwaysVisible);
 }
 
-void ScintillaCall::SetLineEndTypesAllowed(API::LineEndType lineEndBitSet) {
+void ScintillaCall::SetLineEndTypesAllowed(Scintilla::LineEndType lineEndBitSet) {
 	Call(Message::SetLineEndTypesAllowed, static_cast<uintptr_t>(lineEndBitSet));
 }
 
 LineEndType ScintillaCall::LineEndTypesAllowed() {
-	return static_cast<API::LineEndType>(Call(Message::GetLineEndTypesAllowed));
+	return static_cast<Scintilla::LineEndType>(Call(Message::GetLineEndTypesAllowed));
 }
 
 LineEndType ScintillaCall::LineEndTypesActive() {
-	return static_cast<API::LineEndType>(Call(Message::GetLineEndTypesActive));
+	return static_cast<Scintilla::LineEndType>(Call(Message::GetLineEndTypesActive));
 }
 
 void ScintillaCall::SetRepresentation(const char *encodedCharacter, const char *representation) {
@@ -3079,12 +3079,12 @@ void ScintillaCall::EOLAnnotationClearAll() {
 	Call(Message::EOLAnnotationClearAll);
 }
 
-void ScintillaCall::EOLAnnotationSetVisible(API::EOLAnnotationVisible visible) {
+void ScintillaCall::EOLAnnotationSetVisible(Scintilla::EOLAnnotationVisible visible) {
 	Call(Message::EOLAnnotationSetVisible, static_cast<uintptr_t>(visible));
 }
 
 EOLAnnotationVisible ScintillaCall::EOLAnnotationGetVisible() {
-	return static_cast<API::EOLAnnotationVisible>(Call(Message::EOLAnnotationGetVisible));
+	return static_cast<Scintilla::EOLAnnotationVisible>(Call(Message::EOLAnnotationGetVisible));
 }
 
 void ScintillaCall::EOLAnnotationSetStyleOffset(int style) {
@@ -3095,27 +3095,27 @@ int ScintillaCall::EOLAnnotationGetStyleOffset() {
 	return static_cast<int>(Call(Message::EOLAnnotationGetStyleOffset));
 }
 
-bool ScintillaCall::SupportsFeature(API::Supports feature) {
+bool ScintillaCall::SupportsFeature(Scintilla::Supports feature) {
 	return Call(Message::SupportsFeature, static_cast<uintptr_t>(feature));
 }
 
 LineCharacterIndexType ScintillaCall::LineCharacterIndex() {
-	return static_cast<API::LineCharacterIndexType>(Call(Message::GetLineCharacterIndex));
+	return static_cast<Scintilla::LineCharacterIndexType>(Call(Message::GetLineCharacterIndex));
 }
 
-void ScintillaCall::AllocateLineCharacterIndex(API::LineCharacterIndexType lineCharacterIndex) {
+void ScintillaCall::AllocateLineCharacterIndex(Scintilla::LineCharacterIndexType lineCharacterIndex) {
 	Call(Message::AllocateLineCharacterIndex, static_cast<uintptr_t>(lineCharacterIndex));
 }
 
-void ScintillaCall::ReleaseLineCharacterIndex(API::LineCharacterIndexType lineCharacterIndex) {
+void ScintillaCall::ReleaseLineCharacterIndex(Scintilla::LineCharacterIndexType lineCharacterIndex) {
 	Call(Message::ReleaseLineCharacterIndex, static_cast<uintptr_t>(lineCharacterIndex));
 }
 
-Line ScintillaCall::LineFromIndexPosition(Position pos, API::LineCharacterIndexType lineCharacterIndex) {
+Line ScintillaCall::LineFromIndexPosition(Position pos, Scintilla::LineCharacterIndexType lineCharacterIndex) {
 	return Call(Message::LineFromIndexPosition, pos, static_cast<intptr_t>(lineCharacterIndex));
 }
 
-Position ScintillaCall::IndexPositionFromLine(Line line, API::LineCharacterIndexType lineCharacterIndex) {
+Position ScintillaCall::IndexPositionFromLine(Line line, Scintilla::LineCharacterIndexType lineCharacterIndex) {
 	return Call(Message::IndexPositionFromLine, line, static_cast<intptr_t>(lineCharacterIndex));
 }
 
@@ -3184,7 +3184,7 @@ std::string ScintillaCall::PropertyNames() {
 }
 
 TypeProperty ScintillaCall::PropertyType(const char *name) {
-	return static_cast<API::TypeProperty>(Call(Message::PropertyType, reinterpret_cast<uintptr_t>(name)));
+	return static_cast<Scintilla::TypeProperty>(Call(Message::PropertyType, reinterpret_cast<uintptr_t>(name)));
 }
 
 int ScintillaCall::DescribeProperty(const char *name, char *description) {
@@ -3280,10 +3280,10 @@ void ScintillaCall::SetILexer(void *ilexer) {
 }
 
 Bidirectional ScintillaCall::Bidirectional() {
-	return static_cast<API::Bidirectional>(Call(Message::GetBidirectional));
+	return static_cast<Scintilla::Bidirectional>(Call(Message::GetBidirectional));
 }
 
-void ScintillaCall::SetBidirectional(API::Bidirectional bidirectional) {
+void ScintillaCall::SetBidirectional(Scintilla::Bidirectional bidirectional) {
 	Call(Message::SetBidirectional, static_cast<uintptr_t>(bidirectional));
 }
 

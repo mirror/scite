@@ -52,7 +52,7 @@ extern "C" {
 
 #endif
 
-namespace SA = Scintilla::API;
+namespace SA = Scintilla;
 
 // A note on naming conventions:
 // I've gone back and forth on this a bit, trying different styles.

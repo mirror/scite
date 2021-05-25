@@ -284,7 +284,7 @@ void SciTEBase::OpenCurrentFile(long long fileSize, bool suppressMessage, bool a
 		wEditor.StyleSetBack(StyleDefault, 0xEEEEEE);
 		wEditor.SetReadOnly(true);
 		assert(CurrentBufferConst()->pFileWorker == nullptr);
-		ILoader *pdocLoad;
+		Scintilla::ILoader *pdocLoad;
 		try {
 			SA::DocumentOption docOptions = SA::DocumentOption::Default;
 
@@ -297,7 +297,7 @@ void SciTEBase::OpenCurrentFile(long long fileSize, bool suppressMessage, bool a
 				docOptions = static_cast<SA::DocumentOption>(
 						     static_cast<int>(docOptions) | static_cast<int>(SA::DocumentOption::StylesNone));
 
-			pdocLoad = static_cast<ILoader *>(
+			pdocLoad = static_cast<Scintilla::ILoader *>(
 					   wEditor.CreateLoader(static_cast<SA::Position>(fileSize) + 1000,
 								docOptions));
 		} catch (...) {

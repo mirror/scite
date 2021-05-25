@@ -268,7 +268,7 @@ intptr_t ScintillaPrimitive::Send(unsigned int msg, uintptr_t wParam, intptr_t l
 }
 
 bool IsDBCSLeadByte(int codePage, char ch) {
-	if (Scintilla::API::CpUtf8 == codePage)
+	if (Scintilla::CpUtf8 == codePage)
 		// For lexing, all characters >= 0x80 are treated the
 		// same so none is considered a lead byte.
 		return false;

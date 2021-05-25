@@ -490,7 +490,7 @@ static void AddStyledText(GUI::ScintillaWindow &wsci, const char *s, int attr) {
 	wsci.AddStyledText(len*2, &buf[0]);
 }
 
-static void SetAboutStyle(GUI::ScintillaWindow &wsci, int style, Scintilla::API::Colour fore) {
+static void SetAboutStyle(GUI::ScintillaWindow &wsci, int style, Scintilla::Colour fore) {
 	wsci.StyleSetFore(style, fore);
 }
 

@@ -40,7 +40,7 @@ double FileWorker::Duration() noexcept {
 	return et.Duration();
 }
 
-FileLoader::FileLoader(WorkerListener *pListener_, ILoader *pLoader_, const FilePath &path_, size_t size_, FILE *fp_) :
+FileLoader::FileLoader(WorkerListener *pListener_, Scintilla::ILoader *pLoader_, const FilePath &path_, size_t size_, FILE *fp_) :
 	FileWorker(pListener_, path_, size_, fp_), pLoader(pLoader_), readSoFar(0), unicodeMode(uni8Bit) {
 	SetSizeJob(size);
 }

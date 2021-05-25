@@ -17,7 +17,7 @@
 #include "GUI.h"
 #include "StyleWriter.h"
 
-namespace SA = Scintilla::API;
+namespace SA = Scintilla;
 
 TextReader::TextReader(SA::ScintillaCall &sc_) noexcept :
 	startPos(extremePosition),

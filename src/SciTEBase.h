@@ -36,7 +36,7 @@ enum {
 	menuHelp = 8
 };
 
-namespace SA = Scintilla::API;
+namespace SA = Scintilla;
 
 constexpr int StyleMax = static_cast<int>(SA::StylesCommon::Max);
 constexpr int StyleDefault = static_cast<int>(SA::StylesCommon::Default);
@@ -385,7 +385,7 @@ protected:
 	enum { importCmdID = IDM_IMPORT };
 	ImportFilter filter;
 
-	enum { indicatorMatch = static_cast<int>(SA::IndicatorStyle::Container),
+	enum { indicatorMatch = static_cast<int>(SA::IndicatorNumbers::Container),
 	       indicatorHighlightCurrentWord,
 	       indicatorSpellingMistake,
 	       indicatorSentinel

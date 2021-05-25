@@ -32,7 +32,7 @@ public:
 	bool OnExecute(const char *cmd) override;
 	bool OnSavePointReached() override;
 	bool OnSavePointLeft() override;
-	bool OnStyle(Scintilla::API::Position startPos, Scintilla::API::Position lengthDoc, int initStyle, StyleWriter *styler) override;
+	bool OnStyle(Scintilla::Position startPos, Scintilla::Position lengthDoc, int initStyle, StyleWriter *styler) override;
 	bool OnDoubleClick() override;
 	bool OnUpdateUI() override;
 	bool OnMarginClick() override;

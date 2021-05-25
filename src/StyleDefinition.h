@@ -15,11 +15,11 @@ public:
 	int size;
 	std::string fore;
 	std::string back;
-	Scintilla::API::FontWeight weight;
+	Scintilla::FontWeight weight;
 	bool italics;
 	bool eolfilled;
 	bool underlined;
-	Scintilla::API::CaseVisible caseForce;
+	Scintilla::CaseVisible caseForce;
 	bool visible;
 	bool changeable;
 	enum flags { sdNone = 0, sdFont = 0x1, sdSize = 0x2, sdFore = 0x4, sdBack = 0x8,
@@ -28,31 +28,31 @@ public:
 		   } specified;
 	explicit StyleDefinition(std::string_view definition);
 	bool ParseStyleDefinition(std::string_view definition);
-	Scintilla::API::Colour Fore() const;
-	Scintilla::API::Colour Back() const;
+	Scintilla::Colour Fore() const;
+	Scintilla::Colour Back() const;
 	int FractionalSize() const noexcept;
 	bool IsBold() const noexcept;
 };
 
-inline constexpr Scintilla::API::Colour ColourRGB(unsigned int red, unsigned int green, unsigned int blue) noexcept {
+inline constexpr Scintilla::Colour ColourRGB(unsigned int red, unsigned int green, unsigned int blue) noexcept {
 	return red | (green << 8) | (blue << 16);
 }
 
-inline constexpr Scintilla::API::ColourAlpha ColourRGBA(unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha=0xff) noexcept {
+inline constexpr Scintilla::ColourAlpha ColourRGBA(unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha=0xff) noexcept {
 	return red | (green << 8) | (blue << 16) | (alpha << 24);
 }
 
 int IntFromHexDigit(int ch) noexcept;
 int IntFromHexByte(std::string_view hexByte) noexcept;
 
-Scintilla::API::Colour ColourFromString(const std::string &s);
-Scintilla::API::ColourAlpha ColourAlphaFromString(const std::string &s);
+Scintilla::Colour ColourFromString(const std::string &s);
+Scintilla::ColourAlpha ColourAlphaFromString(const std::string &s);
 
 struct IndicatorDefinition {
-	Scintilla::API::IndicatorStyle style;
-	Scintilla::API::Colour colour;
-	Scintilla::API::Alpha fillAlpha;
-	Scintilla::API::Alpha outlineAlpha;
+	Scintilla::IndicatorStyle style;
+	Scintilla::Colour colour;
+	Scintilla::Alpha fillAlpha;
+	Scintilla::Alpha outlineAlpha;
 	bool under;
 	explicit IndicatorDefinition(std::string_view definition);
 	bool ParseIndicatorDefinition(std::string_view definition);

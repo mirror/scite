@@ -23,7 +23,7 @@
 #include "StringHelpers.h"
 #include "StyleDefinition.h"
 
-namespace SA = Scintilla::API;
+namespace SA = Scintilla;
 
 StyleDefinition::StyleDefinition(std::string_view definition) :
 	sizeFractional(10.0), size(10), fore("#000000"), back("#FFFFFF"),

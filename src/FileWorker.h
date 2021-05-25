@@ -32,11 +32,11 @@ struct FileWorker : public Worker {
 
 class FileLoader : public FileWorker {
 public:
-	ILoader *pLoader;
+	Scintilla::ILoader *pLoader;
 	size_t readSoFar;
 	UniMode unicodeMode;
 
-	FileLoader(WorkerListener *pListener_, ILoader *pLoader_, const FilePath &path_, size_t size_, FILE *fp_);
+	FileLoader(WorkerListener *pListener_, Scintilla::ILoader *pLoader_, const FilePath &path_, size_t size_, FILE *fp_);
 	~FileLoader() override;
 	void Execute() override;
 	void Cancel() override;
