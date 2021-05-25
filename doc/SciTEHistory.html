@@ -564,6 +564,7 @@
       </tr><tr>
 	<td>Damiano Lombardi</td>
 	<td>riQQ</td>
+	<td>Bertrand Lacoste</td>
       </tr>
     </table>
     <p>
@@ -589,6 +590,10 @@
 		</li>
 		<li>
 		AddStaticLexerModule function adds a static lexer to Lexilla's list.
+		</li>
+		<li>
+		Add Julia lexer.
+		<a href="https://sourceforge.net/p/scintilla/feature-requests/1380/">Feature #1380</a>.
 		</li>
 		<li>
 		Fix variable expansion in Batch.
@@ -618,6 +623,10 @@
 	</ul>
 	<li>Scintilla 5.0.2</li>
 	<ul>
+		<li>
+		A more type-safe binding of Scintilla's API that can be used from C++ is implemented in the
+		ScintillaTypes.h, ScintillaMessages.h, and ScintillaStructures.h headers.
+		</li>
 		<li>
 		Change the way that selections and carets are drawn to use the element APIs.
 		The selection background colour may default to use platform APIs to discover global
