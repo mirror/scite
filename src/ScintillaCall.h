@@ -18,8 +18,8 @@ enum class Message;	// Declare in case ScintillaMessages.h not included
 using FunctionDirect = intptr_t(*)(intptr_t ptr, unsigned int iMessage, uintptr_t wParam, intptr_t lParam);
 
 struct Failure {
-	Status status;
-	explicit Failure(Status status_) noexcept : status(status_) {
+	Scintilla::Status status;
+	explicit Failure(Scintilla::Status status_) noexcept : status(status_) {
 	}
 };
 
@@ -50,7 +50,7 @@ class ScintillaCall {
 	intptr_t CallString(Message msg, uintptr_t wParam, const char *s);
 	std::string CallReturnString(Message msg, uintptr_t wParam);
 public:
-	Status statusLastCall;
+	Scintilla::Status statusLastCall;
 	ScintillaCall() noexcept;
 	// All standard methods are fine
 
