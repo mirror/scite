@@ -240,10 +240,10 @@ bool ScintillaCall::UndoCollection() {
 }
 
 WhiteSpace ScintillaCall::ViewWS() {
-	return static_cast<WhiteSpace>(Call(Message::GetViewWS));
+	return static_cast<Scintilla::WhiteSpace>(Call(Message::GetViewWS));
 }
 
-void ScintillaCall::SetViewWS(WhiteSpace viewWS) {
+void ScintillaCall::SetViewWS(Scintilla::WhiteSpace viewWS) {
 	Call(Message::SetViewWS, static_cast<uintptr_t>(viewWS));
 }
 

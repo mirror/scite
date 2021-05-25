@@ -13,23 +13,6 @@ sys.path.append(srcRoot + "/scintilla/scripts")
 import Face
 import FileGenerator
 
-def PascalCase(s):
-	capitalized = s.title()
-	# Remove '_' except between digits
-	pascalCase = ""
-	characterPrevious = " "
-	# Loop until penultimate character
-	for i in range(len(capitalized)-1):
-		character = capitalized[i]
-		characterNext = capitalized[i+1]
-		if character != "_" or (
-			characterPrevious.isnumeric() and characterNext.isnumeric()):
-			pascalCase += character
-		characterPrevious = character
-	# Add last character - not between digits so no special treatment
-	pascalCase += capitalized[-1]
-	return pascalCase
-
 typeAliases = {
 	# Convert iface types to C++ types
 	# bool and void are OK as is
@@ -62,7 +45,7 @@ basicTypes = [
 	"void *",
 ]
 
-namespace = "API::"
+namespace = "Scintilla::"
 
 def ActualTypeName(type, identifier=None):
 	if type in typeAliases:
@@ -131,86 +114,6 @@ def ParametersArgsCallname(v):
 	if args:
 		args = ", " + args
 	return (parameters, args, callName)
-
-def HMessages(f):
-	out = ["enum class Message {"]
-	for name in f.order:
-		v = f.features[name]
-		if v["Category"] != "Deprecated":
-			if v["FeatureType"] in ["fun", "get", "set"]:
-				out.append("\t" + name + " = " + v["Value"] + ",")
-	out.append("};")
-	return out
-
-def HEnumerations(f):
-	out = []
-	for name in f.order:
-		v = f.features[name]
-		if v["Category"] != "Deprecated":
-			# Only want non-deprecated enumerations and lexers are not part of Scintilla API
-			if v["FeatureType"] in ["enu"] and name != "Lexer":
-				out.append("")
-				prefixes = v["Value"].split()
-				#out.append("enum class " + name + " {" + " // " + ",".join(prefixes))
-				out.append("enum class " + name + " {")
-				for valueName in f.order:
-					prefixMatched = ""
-					for p in prefixes:
-						if valueName.startswith(p):
-							prefixMatched = p
-					if prefixMatched:
-						vEnum = f.features[valueName]
-						valueNameNoPrefix = ""
-						if valueName in f.aliases:
-							valueNameNoPrefix = f.aliases[valueName]
-						else:
-							valueNameNoPrefix = valueName[len(prefixMatched):]
-							if not valueNameNoPrefix:	# Removed whole name
-								valueNameNoPrefix = valueName
-							if valueNameNoPrefix.startswith("SC_"):
-								valueNameNoPrefix = valueNameNoPrefix[len("SC_"):]
-						pascalName = PascalCase(valueNameNoPrefix)
-						out.append("\t" + pascalName + " = " + vEnum["Value"] + ",")
-				out.append("};")
-
-	out.append("")
-	out.append("enum class Notification {")
-	for name in f.order:
-		v = f.features[name]
-		if v["Category"] != "Deprecated":
-			if v["FeatureType"] in ["evt"]:
-				out.append("\t" + name + " = " + v["Value"] + ",")
-	out.append("};")
-
-	return out
-
-def HConstants(f):
-	# Constants not in an eumeration
-	out = []
-	allEnumPrefixes = [
-		"SCE_", # Lexical styles
-		"SCI_", # Message number allocation
-		"SCEN_", # Notifications sent with WM_COMMAND
-	]
-	for _n, v in f.features.items():
-		if v["Category"] != "Deprecated":
-			# Only want non-deprecated enumerations and lexers are not part of Scintilla API
-			if v["FeatureType"] in ["enu"]:
-				allEnumPrefixes.extend(v["Value"].split())
-	for name in f.order:
-		v = f.features[name]
-		if v["Category"] != "Deprecated":
-			# Only want non-deprecated enumerations and lexers are not part of Scintilla API
-			if v["FeatureType"] in ["val"]:
-				hasPrefix = False
-				for prefix in allEnumPrefixes:
-					if name.startswith(prefix):
-						hasPrefix = True
-				if not hasPrefix:
-					if name.startswith("SC_"):
-						name = name[3:]
-					out.append("constexpr int " + PascalCase(name) + " = " + v["Value"] + ";")
-	return out
 
 def ParametersExceptLast(parameters):
 	if "," in parameters:
@@ -282,8 +185,6 @@ def CXXMethods(f):
 def RegenerateAll(root):
 	f = Face.Face()
 	f.ReadFromFile(root + "../scintilla/" + "include/Scintilla.iface")
-	FileGenerator.Regenerate(root + "src/ScintillaMessages.h", "//", HMessages(f))
-	FileGenerator.Regenerate(root + "src/ScintillaTypes.h", "//", HEnumerations(f), HConstants(f))
 	FileGenerator.Regenerate(root + "src/ScintillaCall.h", "//", HMethods(f))
 	FileGenerator.Regenerate(root + "src/ScintillaCall.cxx", "//", CXXMethods(f))
 
