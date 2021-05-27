@@ -988,8 +988,8 @@ void SciTEBase::ReadProperties() {
 		SetElementColour(SA::Element::SelectionAdditionalBack, "selection.additional.back");
 		SetElementColour(SA::Element::SelectionSecondaryText, "selection.secondary.fore");
 		SetElementColour(SA::Element::SelectionSecondaryBack, "selection.secondary.back");
-		SetElementColour(SA::Element::SelectionNoFocusText, "selection.no.focus.fore");
-		SetElementColour(SA::Element::SelectionNoFocusBack, "selection.no.focus.back");
+		SetElementColour(SA::Element::SelectionInactiveText, "selection.inactive.fore");
+		SetElementColour(SA::Element::SelectionInactiveBack, "selection.inactive.back");
 	}
 
 	foldColour = props.GetExpandedString("fold.margin.colour");
