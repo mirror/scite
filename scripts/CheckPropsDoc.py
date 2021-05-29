@@ -28,6 +28,9 @@ knownDebugOptionalAndArchaicProperties = {
 	"ipc.director.name",	# Archaic
 	"two.phase.draw",	# Archaic
 	"translation.encoding",	# Used in translations
+	"selection.alpha",	# Archaic
+	"selection.additional.alpha",	# Archaic
+	"caret.line.back.alpha",	# Archaic
 }
 
 # These properties are either set by SciTE and used (not set) in property files or
@@ -95,6 +98,13 @@ with docFileName.open(encoding="windows-1252") as docFile:
 			if word in propertyNames:
 				propertiesInDoc.add(word)
 
+propertiesAnchoredInDoc = set()
+docText = docFileName.read_text(encoding="windows-1252")
+for ident in re.findall(" id='property-([a-z0-9*.]+)'>", docText):
+	propertiesAnchoredInDoc.add(ident)
+for ident in re.findall("<a name='property-([a-z.]+)'>", docText):
+	propertiesAnchoredInDoc.add(ident)
+
 propertiesInGlobal = set()
 with propsFileName.open(encoding="windows-1252") as propsFile:
 	for propLine in propsFile:
@@ -147,6 +157,11 @@ for propPath in propertiesPaths:
 
 print(f"# Not mentioned in {docFileName}")
 for identifier in sorted(propertyNames - propertiesInDoc - knownDebugOptionalAndArchaicProperties):
+	print(identifier)
+
+print(f"\n# Not anchored in {docFileName}")
+propertyNamesNoDots = set([s.rstrip(".") for s in propertyNames])
+for identifier in sorted(propertyNamesNoDots - propertiesAnchoredInDoc - knownOutputAndLexerProperties):
 	print(identifier)
 
 print(f"\n# Not mentioned in {propsFileName}")

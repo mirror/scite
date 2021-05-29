@@ -1646,17 +1646,69 @@ NameError: name 'mistake' is not defined
       </tr>
       <tr id='property-selection.fore'>
         <td>
-          <a name='property-selection.back'></a><a name='property-selection.alpha'></a>
+          <a name='property-selection.back'></a>
           selection.fore<br />
-           selection.back<br />
-           selection.alpha
+          selection.back
         </td>
         <td>
           Sets the colours used for displaying selected text. If one of these is not set then that
           attribute is not changed for the selection. The default is to show the selection by
           changing the background to light grey and leaving the foreground the same as when it was
-          not selected. The translucency of the selection is set with selection.alpha with an alpha
-	of 256 turning translucency off.
+          not selected.
+          When selection.layer is under text (1) or over text (2), selection.back may be an 8 digit number
+          with translucency as the last two digits.
+          On macOS, the system's selection background may be used when selection.back is set to empty.
+        </td>
+      </tr>
+      <tr id='property-selection.layer'>
+        <td>
+          selection.layer
+        </td>
+        <td>
+          Sets the layer for drawing the selection background:
+          base opaque (0), under text (1), or over text (2).
+        </td>
+      </tr>
+      <tr id='property-selection.additional.fore'>
+        <td>
+          <a name='property-selection.additional.back'></a>
+          selection.additional.fore<br />
+          selection.additional.back
+        </td>
+        <td>
+          Similar to selection.fore, selection.back.
+          Sets the colours used for displaying additional selections when multiple selections are
+          enabled or a rectangular selection is made.
+        </td>
+      </tr>
+      <tr id='property-selection.secondary.fore'>
+        <td>
+          <a name='property-selection.secondary.back'></a>
+          selection.secondary.fore<br />
+          selection.secondary.back
+        </td>
+        <td>
+          Similar to selection.fore and selection.back.
+          Sets the colours used for displaying selections when another window holds the primary selection.
+        </td>
+      </tr>
+      <tr id='property-selection.inactive.fore'>
+        <td>
+          <a name='property-selection.inactive.back'></a>
+          selection.inactive.fore<br />
+          selection.inactive.back
+        </td>
+        <td>
+          Similar to selection.fore and selection.back.
+          Sets the colours used for displaying selections when the window is inactive because it does not have focus.
+        </td>
+      </tr>
+      <tr class="windowsonly" id='property-selection.always.visible'>
+        <td>
+          selection.always.visible
+        </td>
+        <td>
+          Set to 1 to show the selection coloured even when SciTE is not the active application. Default is 1.
         </td>
       </tr>
       <tr id='property-caret.fore'>
@@ -1667,19 +1719,6 @@ NameError: name 'mistake' is not defined
           Sets the colour used for the caret.
         </td>
       </tr>
-      <tr id='property-selection.additional.fore'>
-        <td>
-          <a name='property-selection.additional.back'></a><a name='property-selection.additional.alpha'></a>
-          selection.additional.fore<br />
-           selection.additional.back<br />
-           selection.additional.alpha
-        </td>
-        <td>
-          Similar to selection.fore, selection.back, selection.alpha.
-        Sets the colours used for displaying additional selections when multiple selections are
-        enabled or a rectangular selection is made.
-        </td>
-      </tr>
       <tr id='property-caret.additional.blinks'>
         <td>
           caret.additional.blinks
@@ -1688,46 +1727,24 @@ NameError: name 'mistake' is not defined
           Set whether all carets blink. 0 means only the main caret blinks. Default is 1.
         </td>
       </tr>
-      <tr id='property-selection.secondary.fore'>
-        <td>
-          <a name='property-selection.secondary.back'></a><a name='property-selection.secondary.alpha'></a>
-          selection.secondary.fore<br />
-           selection.secondary.back
-        </td>
-        <td>
-          Similar to selection.fore and selection.back.
-        Sets the colours used for displaying selections when another window holds the primary selection.
-        </td>
-      </tr>
-      <tr id='property-selection.inactive.fore'>
-        <td>
-          <a name='property-selection.inactive.back'></a><a name='property-selection.inactive.alpha'></a>
-          selection.inactive.fore<br />
-           selection.inactive.back
-        </td>
-        <td>
-          Similar to selection.fore and selection.back.
-        Sets the colours used for displaying selections when the window is inactive because it does not have focus.
-        </td>
-      </tr>
-      <tr class="windowsonly" id='property-selection.always.visible'>
-        <td>
-          selection.always.visible
-        </td>
-        <td>
-          Set to 1 to show the selection coloured even when SciTE is not the active application. Default is 0.
-        </td>
-      </tr>
       <tr id='property-caret.line.back'>
         <td>
-          <a name='property-caret.line.back.alpha'></a>
+          <a name='property-caret.line.layer'></a>
           caret.line.back<br />
-          caret.line.back.alpha
+          caret.line.layer
         </td>
         <td>
           Sets the background colour and translucency used for line containing the caret.
-		    Translucency ranges from 0 for completely transparent to 255 for opaque with
-			 256 being opaque and not using translucent drawing code which may be slower.
+          caret.line.back is the layer to draw the caret line: base opaque (0), under text (1), or over text (2).
+        </td>
+      </tr>
+      <tr id='property-caret.line.frame'>
+        <td>
+          caret.line.frame
+        </td>
+        <td>
+          This setting allows the caret line to be drawn as a rectangle inside the line instead of the whole line.
+          It sets the width of rectanges sides. A setting of 0 returns to drawing the whole line.
         </td>
       </tr>
       <tr id='property-caret.period'>
@@ -1767,7 +1784,7 @@ NameError: name 'mistake' is not defined
       </tr>
       <tr id='property-selection.multiple'>
         <td>
-          <a name='property-selection.additional.typing'></a>
+          <a name='property-selection.additional.typing'></a><a name='property-selection.multipaste'></a>
           selection.multiple<br />
           selection.additional.typing<br />
           selection.multipaste
@@ -1899,7 +1916,7 @@ NameError: name 'mistake' is not defined
        </tr>
       <tr id='property-bookmark.fore'>
         <td>
-          <a name='property-bookmark.back'></a><a name='property-bookmark.alpha'></a>
+          <a name='property-bookmark.back'></a><a name='property-bookmark.alpha'></a><a name='property-bookmark.stroke.width'></a>
           bookmark.fore<br />
           bookmark.back<br />
           bookmark.alpha<br />
@@ -3038,7 +3055,7 @@ Prev File|IDM_PREVFILE|<br/>
       </tr>
       <tr id='property-save.session'>
         <td>
-          <a name='property-save.recent'></a><a name='property-save.position'></a>
+          <a name='property-save.recent'></a><a name='property-save.position'></a><a name='property-save.find'></a>
           save.session<br />
           save.recent<br />
           save.position<br />
@@ -3228,6 +3245,7 @@ Prev File|IDM_PREVFILE|<br/>
       </tr>
       <tr id='property-find.command'>
         <td>
+          <a name='property-find.input'></a>
           find.command<br />
 	  find.option.wholeword.0<br />
 	  find.option.wholeword.1<br />
@@ -3414,6 +3432,16 @@ c:\cygwin\bin\xargs -0 grep $(find.wholeword) $(find.matchcase) -G -n "$(find.wh
           It defaults to 0, so disabled.
         </td>
       </tr>
+      <tr class="windows-osx" id='property-bidirectional'>
+        <td>
+          bidirectional
+        </td>
+        <td>
+          Experimental and incomplete display for bidirectional languages like Arabic and Hebrew on macOS
+          and Windows.
+          Set to 1 to turn on bidirectional display.
+        </td>
+      </tr>
       <tr class="gtkonly" id='property-accessibility'>
         <td>
           accessibility
@@ -3555,7 +3583,7 @@ imports.include=fortran lisp
 			 triggered by an initial line <span class="example">#!/usr/bin/env python</span> so the file will be treated as Python.
         </td>
       </tr>
-      <tr id='property-lexillapath'>
+      <tr id='property-lexilla.path'>
       	<td>
       	lexilla.path
       	</td>
@@ -3794,7 +3822,7 @@ imports.include=fortran lisp
       </tr>
       <tr id='property-command.compile'>
         <td>
-          <a name='property-command.compile.subsystem'></a><a name='property-command.build'></a><a name='property-command.build.subsystem'></a><a name='property-command.build.directory'></a><a name='property-command.go'></a><a name='property-command.go.subsystem'></a>
+          <a name='property-command.compile.subsystem'></a><a name='property-command.build'></a><a name='property-command.build.subsystem'></a><a name='property-command.build.directory'></a><a name='property-command.go'></a><a name='property-command.go.subsystem'></a><a name='property-command.clean'></a>
           command.compile.<i>filepattern</i><br />
           command.compile.subsystem.<i>filepattern</i><br />
           command.build.<i>filepattern</i><br />
@@ -4143,7 +4171,7 @@ groupundo - yes or no
       </tr>
       <tr id='property-fold.fore'>
         <td>
-          <a name="property-fold.back"></a>
+          <a name='property-fold.back'></a>
           fold.fore<br />
           fold.back
         </td>
