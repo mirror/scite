@@ -17,10 +17,13 @@ for base in ["scintilla", "lexilla", "scite"]:
 	baseDir = srcRoot / base
 	for src in baseDir.glob("**/*"):
 		if src.suffix in [".cxx", ".h", ".mm", ".m", ".cpp", ".c"]:
-			if not src.name.startswith("moc_") and not src.name.startswith("scintilla-marshal"):
+			if not src.name.startswith("moc_") and \
+				not src.name.startswith("scintilla-marshal") and \
+				"cov-int" not in src.parts:
 				srcPaths.append(src)
 
-#~ for p in srcPaths: print(p)
+#~ for p in srcPaths:
+	#~ print(p.parts)
 
 headerPaths = [f for f in srcPaths if f.suffix == ".h"]
 
@@ -71,8 +74,7 @@ for p in srcPaths:
 # Check whether a header guard is present
 for header in headerPaths:
 	# For Cocoa, using #import avoids need for guards
-	if header.parent.name == "cocoa": continue
-	if header.parent.parent.name == "cocoa": continue
+	if "cocoa" in header.parent.parts: continue
 	# global.h generated for ScintillaEditPy
 	if header.parent.name == "ScintillaEditPy" and header.name == "global.h": continue
 	# XPM pixmap files may need to be edited with a graphics program
