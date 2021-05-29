@@ -48,7 +48,7 @@ public:
 	bool RegisterExtension(Extension &ext_);
 
 	bool Initialise(ExtensionAPI *host_) override;
-	bool Finalise() override;
+	bool Finalise() noexcept override;
 	bool Clear() override;
 	bool Load(const char *filename) override;
 

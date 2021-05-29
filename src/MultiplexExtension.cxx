@@ -54,7 +54,7 @@ bool MultiplexExtension::Initialise(ExtensionAPI *host_) {
 	return false;
 }
 
-bool MultiplexExtension::Finalise() {
+bool MultiplexExtension::Finalise() noexcept {
 	if (host) {
 		for (int i = static_cast<int>(extensions.size()) - 1; i >= 0; --i)
 			extensions[i]->Finalise();

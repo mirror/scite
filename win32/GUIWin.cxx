@@ -250,7 +250,7 @@ void Menu::CreatePopUp() {
 	mid = ::CreatePopupMenu();
 }
 
-void Menu::Destroy() {
+void Menu::Destroy() noexcept {
 	if (mid)
 		::DestroyMenu(static_cast<HMENU>(mid));
 	mid = {};

@@ -85,7 +85,7 @@ static void SendDirector(const char *verb, const char *arg = nullptr) {
 	}
 }
 
-static void SendDirector(const char *verb, intptr_t arg) {
+static void SendDirectorInteger(const char *verb, intptr_t arg) {
 	std::string s = std::to_string(arg);
 	::SendDirector(verb, s.c_str());
 }
@@ -102,7 +102,7 @@ static void CheckEnvironment(ExtensionAPI *phost) {
 				startedByDirector = true;
 				wDirector = HwndFromString(director.c_str());
 				// Director is just seen so identify this to it
-				::SendDirector("identity", reinterpret_cast<intptr_t>(wReceiver));
+				::SendDirectorInteger("identity", reinterpret_cast<intptr_t>(wReceiver));
 			}
 		}
 		std::string sReceiver = StdStringFromSizeT(reinterpret_cast<size_t>(wReceiver));
@@ -177,8 +177,12 @@ bool DirectorExtension::Initialise(ExtensionAPI *host_) {
 	return true;
 }
 
-bool DirectorExtension::Finalise() {
-	::SendDirector("closing");
+bool DirectorExtension::Finalise() noexcept {
+	try {
+		::SendDirector("closing");
+	} catch (...) {
+		// Shutting down so continue even if unable to send message to director.
+	}
 	if (wReceiver)
 		::DestroyWindow(wReceiver);
 	wReceiver = {};

@@ -1494,7 +1494,7 @@ bool LuaExtension::Initialise(ExtensionAPI *host_) {
 	return false;
 }
 
-bool LuaExtension::Finalise() {
+bool LuaExtension::Finalise() noexcept {
 	if (luaState) {
 		lua_close(luaState);
 	}
@@ -1505,7 +1505,7 @@ bool LuaExtension::Finalise() {
 	// The rest don't strictly need to be cleared since they
 	// are never accessed except when luaState and host are set
 
-	startupScript = "";
+	startupScript.clear();
 
 	return false;
 }

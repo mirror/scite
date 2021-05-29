@@ -122,7 +122,7 @@ public:
 		return mid;
 	}
 	void CreatePopUp();
-	void Destroy();
+	void Destroy() noexcept;
 	void Show(Point pt, Window &w);
 };
 

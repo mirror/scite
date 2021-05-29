@@ -128,7 +128,7 @@ static void AddSendPipe(int fd, const char *name) {
 	}
 }
 
-static void RemoveSendPipes() {
+static void RemoveSendPipes() noexcept {
 	for (int i = 0; i < s_send_cnt; ++i) {
 		PipeEntry &entry = s_send_pipes[i];
 		close(entry.fd);
@@ -247,7 +247,7 @@ bool DirectorExtension::Initialise(ExtensionAPI *host_) {
 	return true;
 }
 
-bool DirectorExtension::Finalise() {
+bool DirectorExtension::Finalise() noexcept {
 	::SendDirector("closing");
 	// close and remove all the notification pipes (except ipc.director.name)
 	RemoveSendPipes();

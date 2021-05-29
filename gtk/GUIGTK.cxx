@@ -126,7 +126,7 @@ void Menu::CreatePopUp() {
 	g_object_ref_sink(G_OBJECT(mid));
 }
 
-void Menu::Destroy() {
+void Menu::Destroy() noexcept {
 	if (mid)
 		g_object_unref(mid);
 	mid = 0;

@@ -56,7 +56,7 @@ public:
 	virtual ~Extension() {}
 
 	virtual bool Initialise(ExtensionAPI *host_)=0;
-	virtual bool Finalise()=0;
+	virtual bool Finalise() noexcept =0;
 	virtual bool Clear()=0;
 	virtual bool Load(const char *filename)=0;
 

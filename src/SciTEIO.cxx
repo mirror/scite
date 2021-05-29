@@ -951,10 +951,16 @@ public:
 	}
 
 	~SelectionKeeper() {
-		int i = 0;
-		for (auto const &sel : selections) {
-			SetSelection(i, PosFromLoc(sel));
-			++i;
+		try {
+			// Should never throw unless there was an earlier failure in Scintilla.
+			// This is just for restoring selection so swallow exceptions.
+			int i = 0;
+			for (auto const &sel : selections) {
+				SetSelection(i, PosFromLoc(sel));
+				++i;
+			}
+		} catch (...) {
+			// Ignore exceptions
 		}
 	}
 
