@@ -262,7 +262,7 @@ def RegenerateAll():
     SortListInsensitive(documentProperties)
     propertiesHTML = []
     for k in documentProperties:
-        propertiesHTML.append("\t<tr id='property-%s'>\n\t<td>%s</td>\n\t<td>%s</td>\n\t</tr>" %
+        propertiesHTML.append("        <tr id='property-%s'>\n        <td>%s</td>\n        <td>%s</td>\n        </tr>" %
             (k, k, lex.propertyDocuments[k]))
 
     # Find all the SciTE properties files
