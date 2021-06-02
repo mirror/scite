@@ -180,7 +180,7 @@ gui_string StringFromLongLong(long long i) {
 gui_string HexStringFromInteger(long i) {
 	char number[32];
 	sprintf(number, "%0lx", i);
-	gui_char gnumber[32];
+	gui_char gnumber[32] {};
 	size_t n = 0;
 	while (number[n]) {
 		gnumber[n] = static_cast<gui_char>(number[n]);
