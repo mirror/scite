@@ -2396,6 +2396,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 			result = MainWind.EventLoop();
 		} catch (const SA::Failure &sf) {
 			MainWind.CheckForScintillaFailure(sf.status);
+		} catch (const std::bad_alloc &) {
+			::MessageBox({}, TEXT("Allocation failure"), TEXT("Failure in SciTE"), MB_OK | MB_ICONERROR | MB_APPLMODAL);
 		}
 		MainWind.Finalise();
 	}
