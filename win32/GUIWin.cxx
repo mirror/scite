@@ -142,9 +142,9 @@ gui_string StringFromUTF8(const char *s) {
 	}
 	const size_t sLen = strlen(s);
 	const size_t wideLen = UTF16Length(s, sLen);
-	std::vector<gui_char> vgc(wideLen);
-	UTF16FromUTF8(s, sLen, &vgc[0], wideLen);
-	return gui_string(&vgc[0], wideLen);
+	gui_string us(wideLen, 0);
+	UTF16FromUTF8(s, sLen, us.data(), wideLen);
+	return us;
 }
 
 gui_string StringFromUTF8(const std::string &s) {
@@ -153,9 +153,9 @@ gui_string StringFromUTF8(const std::string &s) {
 	}
 	const size_t sLen = s.length();
 	const size_t wideLen = UTF16Length(s.c_str(), sLen);
-	std::vector<gui_char> vgc(wideLen);
-	UTF16FromUTF8(s.c_str(), sLen, &vgc[0], wideLen);
-	return gui_string(&vgc[0], wideLen);
+	gui_string us(wideLen, 0);
+	UTF16FromUTF8(s.c_str(), sLen, us.data(), wideLen);
+	return us;
 }
 
 std::string UTF8FromString(const gui_string &s) {
@@ -164,9 +164,9 @@ std::string UTF8FromString(const gui_string &s) {
 	}
 	const size_t sLen = s.size();
 	const size_t narrowLen = UTF8Length(s.c_str(), sLen);
-	std::vector<char> vc(narrowLen);
-	UTF8FromUTF16(s.c_str(), sLen, &vc[0]);
-	return std::string(&vc[0], narrowLen);
+	std::string us(narrowLen, 0);
+	UTF8FromUTF16(s.c_str(), sLen, us.data());
+	return us;
 }
 
 gui_string StringFromInteger(long i) {
