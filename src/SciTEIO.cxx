@@ -545,6 +545,8 @@ bool SciTEBase::Open(const FilePath &file, OpenFlags of) {
 	}
 
 	const long long fileSize = absPath.IsUntitled() ? 0 : absPath.GetFileLength();
+#if !defined(_WIN64)
+	// The #if is just to prevent a warning from Coverity on 64-bit Win32
 	if (fileSize > INTPTR_MAX) {
 		const GUI::gui_string sSize = GUI::StringFromLongLong(fileSize);
 		const GUI::gui_string msg = LocaliseMessage("File '^0' is ^1 bytes long, "
@@ -553,6 +555,7 @@ bool SciTEBase::Open(const FilePath &file, OpenFlags of) {
 		WindowMessageBox(wSciTE, msg, mbsIconWarning);
 		return false;
 	}
+#endif
 	if (fileSize > 0) {
 		// Real file, not empty buffer
 		const long long maxSize = props.GetLongLong("max.file.size", 2000000000LL);
