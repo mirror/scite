@@ -804,6 +804,11 @@ public:
 	int Representation(const char *encodedCharacter, char *representation);
 	std::string Representation(const char *encodedCharacter);
 	void ClearRepresentation(const char *encodedCharacter);
+	void ClearAllRepresentations();
+	void SetRepresentationAppearance(const char *encodedCharacter, Scintilla::RepresentationAppearance appearance);
+	Scintilla::RepresentationAppearance RepresentationAppearance(const char *encodedCharacter);
+	void SetRepresentationColour(const char *encodedCharacter, ColourAlpha colour);
+	ColourAlpha RepresentationColour(const char *encodedCharacter);
 	void EOLAnnotationSetText(Line line, const char *text);
 	int EOLAnnotationGetText(Line line, char *text);
 	std::string EOLAnnotationGetText(Line line);

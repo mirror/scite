@@ -3055,6 +3055,26 @@ void ScintillaCall::ClearRepresentation(const char *encodedCharacter) {
 	Call(Message::ClearRepresentation, reinterpret_cast<uintptr_t>(encodedCharacter));
 }
 
+void ScintillaCall::ClearAllRepresentations() {
+	Call(Message::ClearAllRepresentations);
+}
+
+void ScintillaCall::SetRepresentationAppearance(const char *encodedCharacter, Scintilla::RepresentationAppearance appearance) {
+	Call(Message::SetRepresentationAppearance, reinterpret_cast<uintptr_t>(encodedCharacter), static_cast<intptr_t>(appearance));
+}
+
+RepresentationAppearance ScintillaCall::RepresentationAppearance(const char *encodedCharacter) {
+	return static_cast<Scintilla::RepresentationAppearance>(Call(Message::GetRepresentationAppearance, reinterpret_cast<uintptr_t>(encodedCharacter)));
+}
+
+void ScintillaCall::SetRepresentationColour(const char *encodedCharacter, ColourAlpha colour) {
+	Call(Message::SetRepresentationColour, reinterpret_cast<uintptr_t>(encodedCharacter), colour);
+}
+
+ColourAlpha ScintillaCall::RepresentationColour(const char *encodedCharacter) {
+	return static_cast<ColourAlpha>(Call(Message::GetRepresentationColour, reinterpret_cast<uintptr_t>(encodedCharacter)));
+}
+
 void ScintillaCall::EOLAnnotationSetText(Line line, const char *text) {
 	CallString(Message::EOLAnnotationSetText, line, text);
 }
