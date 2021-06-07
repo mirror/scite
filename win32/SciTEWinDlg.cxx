@@ -238,8 +238,7 @@ bool SciTEWin::OpenDialog(const FilePath &directory, const GUI::gui_char *filesF
 	}
 
 	bool succeeded = false;
-	GUI::gui_char openName[maxBufferSize]; // maximum common dialog buffer size (says mfc..)
-	openName[0] = '\0';
+	GUI::gui_char openName[maxBufferSize] = GUI_TEXT(""); // maximum common dialog buffer size (says mfc..)
 
 	OPENFILENAMEW ofn {};
 	ofn.lStructSize = sizeof(ofn);
@@ -628,7 +627,7 @@ void SciTEWin::Print(
 	}
 
 	// We must subtract the physical margins from the printable area
-	Sci_RangeToFormat frPrint;
+	Sci_RangeToFormat frPrint {};
 	frPrint.hdc = hdc;
 	frPrint.hdcTarget = hdc;
 	frPrint.rc.left = rectMargins.left - rectPhysMargins.left;
