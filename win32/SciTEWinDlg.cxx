@@ -228,6 +228,14 @@ void SciTEWin::CheckCommonDialogError() {
 bool SciTEWin::OpenDialog(const FilePath &directory, const GUI::gui_char *filesFilter) {
 	enum {maxBufferSize=2048};
 
+	DWORD filterDefault = 1;
+	std::vector<GUI::gui_string> filters = StringSplit(GUI::gui_string(filesFilter), L'|');
+	if (!openFilterDefault.empty()) {
+		std::vector<GUI::gui_string>::iterator itFilter = std::find(filters.begin(), filters.end(), openFilterDefault);
+		if (itFilter != filters.end()) {
+			filterDefault = static_cast<DWORD>(std::distance(filters.begin(), itFilter)) / 2 + 1;
+		}
+	}
 	GUI::gui_string openFilter = DialogFilterFromProperty(filesFilter);
 
 	if (!openWhat[0]) {
@@ -266,7 +274,7 @@ bool SciTEWin::OpenDialog(const FilePath &directory, const GUI::gui_char *filesF
 	}
 	if (::GetOpenFileNameW(&ofn)) {
 		succeeded = true;
-		filterDefault = ofn.nFilterIndex;
+		openFilterDefault = filters[(ofn.nFilterIndex-1)*2];
 		// if single selection then have path+file
 		if (wcslen(openName) > static_cast<size_t>(ofn.nFileOffset)) {
 			Open(openName);

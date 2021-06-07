@@ -179,7 +179,7 @@ protected:
 	GUI::gui_char tooltipText[MAX_PATH*2 + 1];
 	bool tbLarge;
 	bool modalParameters;
-	int filterDefault;
+	GUI::gui_string openFilterDefault;
 	bool staticBuild;
 	int menuSource;
 	std::deque<GUI::gui_string> dropFilesQueue;

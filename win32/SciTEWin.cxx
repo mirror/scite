@@ -217,7 +217,6 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	tooltipText[0] = '\0';
 	tbLarge = false;
 	modalParameters = false;
-	filterDefault = 1;
 	staticBuild = false;
 	menuSource = 0;
 
