@@ -69,15 +69,18 @@ SIZE SizeButton(const GUI::Window &wButton) noexcept {
 	return sz;
 }
 
-int WidthText(HFONT hfont, const GUI::gui_char *text) noexcept {
+SIZE SizeText(HFONT hfont, const GUI::gui_char *text) noexcept {
 	HDC hdcMeasure = ::CreateCompatibleDC({});
 	HFONT hfontOriginal = SelectFont(hdcMeasure, hfont);
 	RECT rcText = {0, 0, 2000, 2000};
 	::DrawText(hdcMeasure, text, -1, &rcText, DT_CALCRECT);
-	const int width = rcText.right - rcText.left;
 	SelectFont(hdcMeasure, hfontOriginal);
 	::DeleteDC(hdcMeasure);
-	return width;
+	return SIZE{ rcText.right - rcText.left, rcText.bottom - rcText.top, };
+}
+
+int WidthText(HFONT hfont, const GUI::gui_char *text) noexcept {
+	return SizeText(hfont, text).cx;
 }
 
 int WidthControl(GUI::Window &w) {
@@ -744,6 +747,7 @@ void Strip::ShowPopup() {
 
 void BackgroundStrip::Creation() {
 	Strip::Creation();
+	lineHeight = SizeText(fontText, GUI_TEXT("\u00C5Ay")).cy + space * 2 + 1;
 
 	wExplanation = ::CreateWindowEx(0, TEXT("Static"), TEXT(""),
 					WS_CHILD | WS_CLIPSIBLINGS,
