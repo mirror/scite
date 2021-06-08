@@ -42,11 +42,10 @@ inline constexpr Scintilla::ColourAlpha ColourRGBA(unsigned int red, unsigned in
 	return red | (green << 8) | (blue << 16) | (alpha << 24);
 }
 
-int IntFromHexDigit(int ch) noexcept;
 int IntFromHexByte(std::string_view hexByte) noexcept;
 
 Scintilla::Colour ColourFromString(const std::string &s);
-Scintilla::ColourAlpha ColourAlphaFromString(const std::string &s);
+Scintilla::ColourAlpha ColourAlphaFromString(std::string_view s);
 
 struct IndicatorDefinition {
 	Scintilla::IndicatorStyle style;

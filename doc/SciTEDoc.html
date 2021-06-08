@@ -1103,6 +1103,33 @@ NameError: name 'mistake' is not defined
           command. To save all buffers set save.all.for.build=1
         </td>
       </tr>
+      <tr id='property-representations'>
+        <td>
+        representations
+        </td>
+        <td>
+          Sets up a different way of displaying particular characters.
+          It contains a list of items separated by ','.
+          An item may define the representation of a character or set an appearance or colour.
+          A representation item contains a character followed by '=' and its representation text.
+          Hexadecimal Unicode escapes may be used: '\x' followed by 2 hexadecimal digits, '\u' followed by 4, or '\U' followed by 8.
+          Appearance items start with '!' followed by an optional appearance number, '0' for plain or '1' for blobs,
+          '' for default.
+          Colour items start with '#' followed by 6 (opaque), 8 (translucent), or 0 (default) hexadecimal digits.
+          By default, representations are shown in the colour of the style of the original text.
+          Appearance and colour items continue to affect following representation items until they are changed or reset.
+          To specify the characters '\', '=', ',', '!', or '#' use an escape.
+          Only single characters can be represented except for the special case of Windows line ends
+          Carriage Return + Line Feed.<br />
+          The following example shows 'π' as a blob 'Pi';
+          '₪' as a blob 'shekel(₪)';
+          and with View | End of Line turned on Carriage Return + Line Feed appears as translucent red text 'crlf'.
+          <div class="example">
+representations=π=Pi,\u20AA=shekel(\u20AA),!0,#FF000090,\x0D\x0A=crlf</div>
+        </td>
+
+        </td>
+      </tr>
       <tr id='property-view.whitespace'>
         <td>
           <a name='property-view.indentation.whitespace'></a>

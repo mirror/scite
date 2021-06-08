@@ -19,6 +19,7 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <optional>
 #include <algorithm>
 #include <memory>
 #include <chrono>
@@ -693,6 +694,54 @@ std::string SciTEBase::GetFileNameProperty(const char *name) {
 	}
 }
 
+void SciTEBase::SetRepresentations() {
+	wEditor.ClearAllRepresentations();
+	const std::string representations = props.GetExpandedString("representations");
+	std::string_view reprs = representations;
+	std::optional<SA::Colour> colourRepresentation;
+	std::optional<SA::RepresentationAppearance> appearanceRepresentation;
+	while (!reprs.empty()) {
+		if (reprs[0] == ',') {
+			reprs.remove_prefix(1);
+		}
+		if (!reprs.empty()) {
+			const std::string_view item = reprs.substr(0, reprs.find_first_of(','));
+			if (!item.empty()) {
+				if (item[0] == '!') {
+					// Appearance
+					if (item.length() == 1) {
+						appearanceRepresentation.reset();
+					} else {
+						const std::string sAppearance(item.substr(1));
+						appearanceRepresentation = static_cast<SA::RepresentationAppearance>(IntegerFromString(sAppearance, 0));
+					}
+				} else if (item[0] == '#') {
+					// Colour
+					if (item.length() == 1) {
+						colourRepresentation.reset();
+					} else {
+						colourRepresentation = ColourAlphaFromString(item);
+					}
+				} else {
+					const size_t eqPos = item.find_first_of('=');
+					if (eqPos != std::string_view::npos) {
+						const std::string target = UnicodeUnEscape(item.substr(0, eqPos));
+						const std::string representation = UnicodeUnEscape(item.substr(eqPos+1));
+						wEditor.SetRepresentation(target.c_str(), representation.c_str());
+						if (appearanceRepresentation) {
+							wEditor.SetRepresentationAppearance(target.c_str(), *appearanceRepresentation);
+						}
+						if (colourRepresentation) {
+							wEditor.SetRepresentationColour(target.c_str(), *colourRepresentation);
+						}
+					}
+				}
+				reprs.remove_prefix(item.length());
+			}
+		}
+	}
+}
+
 void SciTEBase::ReadProperties() {
 	if (extender)
 		extender->Clear();
@@ -826,6 +875,8 @@ void SciTEBase::ReadProperties() {
 	wOutput.SetCodePage(outputCodePage);
 
 	characterSet = static_cast<SA::CharacterSet>(props.GetInt("character.set", static_cast<int>(SA::CharacterSet::Default)));
+
+	SetRepresentations();
 
 #if defined(__unix__) || defined(__APPLE__)
 	const std::string localeCType = props.GetString("LC_CTYPE");

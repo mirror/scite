@@ -928,6 +928,7 @@ protected:
 	void DefineMarker(SA::MarkerOutline marker, SA::MarkerSymbol markerType, MarkerAppearance markerAppearance);
 	void ReadAPI(const std::string &fileNameForExtension);
 	std::string FindLanguageProperty(const char *pattern, const char *defaultValue = "");
+	void SetRepresentations();
 	virtual void ReadProperties();
 	void ReadEditorConfig(const std::string &fileNameForExtension);
 	std::string StyleString(const char *lang, int style) const;

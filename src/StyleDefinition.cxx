@@ -152,18 +152,6 @@ bool StyleDefinition::IsBold() const noexcept {
 	return weight > SA::FontWeight::Normal;
 }
 
-int IntFromHexDigit(int ch) noexcept {
-	if ((ch >= '0') && (ch <= '9')) {
-		return ch - '0';
-	} else if (ch >= 'A' && ch <= 'F') {
-		return ch - 'A' + 10;
-	} else if (ch >= 'a' && ch <= 'f') {
-		return ch - 'a' + 10;
-	} else {
-		return 0;
-	}
-}
-
 int IntFromHexByte(std::string_view hexByte) noexcept {
 	return IntFromHexDigit(hexByte[0]) * 16 + IntFromHexDigit(hexByte[1]);
 }
@@ -179,7 +167,7 @@ SA::Colour ColourFromString(const std::string &s) {
 	}
 }
 
-SA::ColourAlpha ColourAlphaFromString(const std::string &s) {
+SA::ColourAlpha ColourAlphaFromString(std::string_view s) {
 	if (s.length() >= 7) {
 		const int r = IntFromHexByte(&s[1]);
 		const int g = IntFromHexByte(&s[3]);

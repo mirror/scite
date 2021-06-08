@@ -128,11 +128,16 @@ constexpr const char *UTF8BOM = "\xef\xbb\xbf";
 
 std::u32string UTF32FromUTF8(std::string_view s);
 unsigned int UTF32Character(const char *utf8) noexcept;
+std::string UTF8FromUTF32(unsigned int uch);
 
 std::string Slash(const std::string &s, bool quoteQuotes);
 unsigned int UnSlash(char *s) noexcept;
 std::string UnSlashString(const char *s);
 std::string UnSlashLowOctalString(const char *s);
+
+unsigned int IntFromHexDigit(int ch) noexcept;
+unsigned int IntFromHexBytes(std::string_view hexBytes) noexcept;
+std::string UnicodeUnEscape(std::string_view s);
 
 class ILocalize {
 public:
