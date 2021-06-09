@@ -3325,6 +3325,7 @@ static IFaceFunction ifaceFunctions[] = {
 	{"ParaUp", 2415, iface_void, {iface_void, iface_void}},
 	{"ParaUpExtend", 2416, iface_void, {iface_void, iface_void}},
 	{"Paste", 2179, iface_void, {iface_void, iface_void}},
+	{"PasteRectangular", 2771, iface_void, {iface_length, iface_string}},
 	{"PointXFromPosition", 2164, iface_int, {iface_void, iface_position}},
 	{"PointYFromPosition", 2165, iface_int, {iface_void, iface_position}},
 	{"PositionAfter", 2418, iface_position, {iface_position, iface_void}},
@@ -3693,7 +3694,7 @@ static IFaceProperty ifaceProperties[] = {
 };
 
 enum {
-	ifaceFunctionCount = 320,
+	ifaceFunctionCount = 321,
 	ifaceConstantCount = 2983,
 	ifacePropertyCount = 254
 };
