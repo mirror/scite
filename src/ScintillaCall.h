@@ -657,6 +657,7 @@ public:
 	void ToggleCaretSticky();
 	void SetPasteConvertEndings(bool convert);
 	bool PasteConvertEndings();
+	void ReplaceRectangular(Position length, const char *text);
 	void SelectionDuplicate();
 	void SetCaretLineBackAlpha(Scintilla::Alpha alpha);
 	Scintilla::Alpha CaretLineBackAlpha();

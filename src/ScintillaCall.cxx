@@ -2467,6 +2467,10 @@ bool ScintillaCall::PasteConvertEndings() {
 	return Call(Message::GetPasteConvertEndings);
 }
 
+void ScintillaCall::ReplaceRectangular(Position length, const char *text) {
+	CallString(Message::ReplaceRectangular, length, text);
+}
+
 void ScintillaCall::SelectionDuplicate() {
 	Call(Message::SelectionDuplicate);
 }
