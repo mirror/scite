@@ -698,8 +698,13 @@ void SciTEBase::SetRepresentations() {
 	wEditor.ClearAllRepresentations();
 	const std::string representations = props.GetExpandedString("representations");
 	std::string_view reprs = representations;
-	std::optional<SA::Colour> colourRepresentation;
-	std::optional<SA::RepresentationAppearance> appearanceRepresentation;
+
+	bool colourSet = false;
+	SA::Colour colourRepresentation = 0;
+
+	bool appearanceSet = false;
+	SA::RepresentationAppearance appearanceRepresentation = SA::RepresentationAppearance::Blob;
+
 	while (!reprs.empty()) {
 		if (reprs[0] == ',') {
 			reprs.remove_prefix(1);
@@ -710,16 +715,18 @@ void SciTEBase::SetRepresentations() {
 				if (item[0] == '!') {
 					// Appearance
 					if (item.length() == 1) {
-						appearanceRepresentation.reset();
+						appearanceSet = false;
 					} else {
+						appearanceSet = true;
 						const std::string sAppearance(item.substr(1));
 						appearanceRepresentation = static_cast<SA::RepresentationAppearance>(IntegerFromString(sAppearance, 0));
 					}
 				} else if (item[0] == '#') {
 					// Colour
 					if (item.length() == 1) {
-						colourRepresentation.reset();
+						colourSet = false;
 					} else {
+						colourSet = true;
 						colourRepresentation = ColourAlphaFromString(item);
 					}
 				} else {
@@ -728,11 +735,11 @@ void SciTEBase::SetRepresentations() {
 						const std::string target = UnicodeUnEscape(item.substr(0, eqPos));
 						const std::string representation = UnicodeUnEscape(item.substr(eqPos+1));
 						wEditor.SetRepresentation(target.c_str(), representation.c_str());
-						if (appearanceRepresentation) {
-							wEditor.SetRepresentationAppearance(target.c_str(), *appearanceRepresentation);
+						if (appearanceSet) {
+							wEditor.SetRepresentationAppearance(target.c_str(), appearanceRepresentation);
 						}
-						if (colourRepresentation) {
-							wEditor.SetRepresentationColour(target.c_str(), *colourRepresentation);
+						if (colourSet) {
+							wEditor.SetRepresentationColour(target.c_str(), colourRepresentation);
 						}
 					}
 				}
