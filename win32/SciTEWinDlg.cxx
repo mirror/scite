@@ -537,10 +537,10 @@ void SciTEWin::Print(
 		}
 
 		// Don't reduce margins below the minimum printable area
-		rectMargins.left	= Maximum(rectPhysMargins.left, rectSetup.left);
-		rectMargins.top	= Maximum(rectPhysMargins.top, rectSetup.top);
-		rectMargins.right	= Maximum(rectPhysMargins.right, rectSetup.right);
-		rectMargins.bottom	= Maximum(rectPhysMargins.bottom, rectSetup.bottom);
+		rectMargins.left	= std::max(rectPhysMargins.left, rectSetup.left);
+		rectMargins.top	= std::max(rectPhysMargins.top, rectSetup.top);
+		rectMargins.right	= std::max(rectPhysMargins.right, rectSetup.right);
+		rectMargins.bottom	= std::max(rectPhysMargins.bottom, rectSetup.bottom);
 	} else {
 		rectMargins.left	= rectPhysMargins.left;
 		rectMargins.top	= rectPhysMargins.top;

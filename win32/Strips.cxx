@@ -1284,12 +1284,12 @@ void ReplaceStrip::Size() {
 		return;
 	Strip::Size();
 
-	const int widthCaption = Maximum(WidthControl(wStaticFind), WidthControl(wStaticReplace));
+	const int widthCaption = std::max(WidthControl(wStaticFind), WidthControl(wStaticReplace));
 
 	GUI::Rectangle rcLine = LineArea(0);
 
-	const int widthButtons = Maximum(WidthControl(wButtonFind), WidthControl(wButtonReplace));
-	const int widthLastButtons = Maximum(WidthControl(wButtonReplaceAll), WidthControl(wButtonReplaceInSelection));
+	const int widthButtons = std::max(WidthControl(wButtonFind), WidthControl(wButtonReplace));
+	const int widthLastButtons = std::max(WidthControl(wButtonReplaceAll), WidthControl(wButtonReplaceInSelection));
 
 	GUI::Rectangle rcButton = rcLine;
 	rcButton.top -= 1;

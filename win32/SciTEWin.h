@@ -49,6 +49,8 @@
 #define _WIN32_WINNT  0x0501
 #define WINVER 0x0501
 #endif
+#undef NOMINMAX
+#define NOMINMAX 1
 #include <windows.h>
 #include <commctrl.h>
 #include <richedit.h>

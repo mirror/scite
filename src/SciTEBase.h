@@ -14,14 +14,6 @@ extern const GUI::gui_char propUserFileName[];
 extern const GUI::gui_char propGlobalFileName[];
 extern const GUI::gui_char propAbbrevFileName[];
 
-inline int Minimum(int a, int b) noexcept {
-	return (a < b) ? a : b;
-}
-
-inline int Maximum(int a, int b) noexcept {
-	return (a > b) ? a : b;
-}
-
 inline int IntFromTwoShorts(short a, short b) noexcept {
 	return (a) | ((b) << 16);
 }
