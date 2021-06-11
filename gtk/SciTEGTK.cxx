@@ -4403,7 +4403,7 @@ void ReplaceStrip::Creation(GtkWidget *container) {
 	tableReplace.Add(wCheck[SearchOption::tWrap], 1, false, 0, 0);
 
 	// Make the fccus chain move down before moving right
-	GList *focusChain = 0;
+	GList *focusChain = nullptr;
 	focusChain = g_list_append(focusChain, wComboFind.Pointer());
 	focusChain = g_list_append(focusChain, wComboReplace.Pointer());
 	focusChain = g_list_append(focusChain, wButtonFind.Pointer());
@@ -4415,7 +4415,14 @@ void ReplaceStrip::Creation(GtkWidget *container) {
 	focusChain = g_list_append(focusChain, wCheck[SearchOption::tCase].Pointer());
 	focusChain = g_list_append(focusChain, wCheck[SearchOption::tWrap].Pointer());
 	focusChain = g_list_append(focusChain, wCheck[SearchOption::tRegExp].Pointer());
+
+	// gtk_container_set_focus_chain was deprecated in GTK 3.24 to prepare for GTK 4.
+	// Replacing it with a focus signal handler is significant work so won't be done, and isn't
+	// needed until/if SciTE is ported to GTK 4.
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 	gtk_container_set_focus_chain(GTK_CONTAINER(GetID()), focusChain);
+G_GNUC_END_IGNORE_DEPRECATIONS
+
 	g_list_free(focusChain);
 }
 
