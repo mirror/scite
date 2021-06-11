@@ -30,8 +30,8 @@
 # On Fedora 17, qmake is called qmake-qt4 so sepbuild.py should probe for correct name.
 # There are also problems with clang failing in the g++ 4.7 headers.
 
-# Turn off deprecation warnings if not interested:
-export CXXFLAGS="-Wno-deprecated-declarations -D GLIB_DISABLE_DEPRECATION_WARNINGS"
+# Turn off glib deprecation warnings since gtk headers use deprecated items
+NO_GLIB_DEPRECATIONS="CXXFLAGS=-D GLIB_DISABLE_DEPRECATION_WARNINGS"
 
 # Run commands in parallel up to number of processors
 JOBS="--jobs=$(getconf _NPROCESSORS_ONLN)"
@@ -68,13 +68,13 @@ make clean
 (
 cd scintilla/gtk || exit
 make clean
-make "$JOBS"
+make "$JOBS" "$NO_GLIB_DEPRECATIONS" GTK2=1
 )
 
 (
 cd scite/gtk || exit
 make clean
-make "$JOBS"
+make "$JOBS" "$NO_GLIB_DEPRECATIONS" GTK2=1
 )
 
 # ************************************************************
@@ -82,7 +82,7 @@ make "$JOBS"
 (
 cd scintilla/gtk || exit
 make clean
-make "$JOBS" GTK3=1
+make "$JOBS" "$NO_GLIB_DEPRECATIONS" GTK3=1
 )
 
 (
@@ -143,19 +143,19 @@ python2 sepbuild.py --clean
 (
 cd lexilla/src || exit
 make clean
-make "$JOBS" CLANG=1
+make "$JOBS" CLANG=1 GTK2=1
 )
 
 (
 cd scintilla/gtk || exit
 make clean
-make "$JOBS" CLANG=1
+make "$JOBS" "$NO_GLIB_DEPRECATIONS" CLANG=1 GTK2=1
 )
 
 (
 cd scite/gtk || exit
 make clean
-make "$JOBS" CLANG=1
+make "$JOBS" "$NO_GLIB_DEPRECATIONS" CLANG=1 GTK2=1
 )
 
 # ************************************************************
@@ -163,7 +163,7 @@ make "$JOBS" CLANG=1
 (
 cd scintilla/gtk || exit
 make clean
-make "$JOBS" CLANG=1 GTK3=1
+make "$JOBS" "$NO_GLIB_DEPRECATIONS" CLANG=1 GTK3=1
 )
 
 (
@@ -183,13 +183,13 @@ make "$JOBS" CLANG=1 analyze
 (
 cd scintilla/gtk || exit
 make clean
-make "$JOBS" analyze
+make "$JOBS" "$NO_GLIB_DEPRECATIONS" analyze
 )
 
 (
 cd scite/gtk || exit
 make clean
-make "$JOBS" analyze
+make "$JOBS" "$NO_GLIB_DEPRECATIONS" analyze
 make clean
 cd ../..
 cd scintilla/gtk || exit
