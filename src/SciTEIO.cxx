@@ -343,7 +343,7 @@ void SciTEBase::OpenCurrentFile(long long fileSize, bool suppressMessage, bool a
 }
 
 void SciTEBase::TextRead(FileWorker *pFileWorker) {
-	FileLoader *pFileLoader = static_cast<FileLoader *>(pFileWorker);
+	FileLoader *pFileLoader = dynamic_cast<FileLoader *>(pFileWorker);
 	const int iBuffer = buffers.GetDocumentByWorker(pFileLoader);
 	// May not be found if load cancelled
 	if (iBuffer >= 0) {
@@ -431,7 +431,11 @@ void SciTEBase::CompleteOpen(OpenCompletion oc) {
 }
 
 void SciTEBase::TextWritten(FileWorker *pFileWorker) {
-	const FileStorer *pFileStorer = static_cast<const FileStorer *>(pFileWorker);
+	const FileStorer *pFileStorer = dynamic_cast<const FileStorer *>(pFileWorker);
+	assert(pFileStorer);
+	if (!pFileStorer) {
+		return;
+	}
 	const int iBuffer = buffers.GetDocumentByWorker(pFileStorer);
 
 	FilePath pathSaved = pFileStorer->path;

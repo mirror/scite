@@ -79,8 +79,8 @@ void Buffer::CompleteStoring() {
 
 void Buffer::AbandonAutomaticSave() {
 	if (pFileWorker && !pFileWorker->IsLoading()) {
-		const FileStorer *pFileStorer = static_cast<FileStorer *>(pFileWorker);
-		if (!pFileStorer->visibleProgress) {
+		const FileStorer *pFileStorer = dynamic_cast<FileStorer *>(pFileWorker);
+		if (pFileStorer && !pFileStorer->visibleProgress) {
 			pFileWorker->Cancel();
 			// File is in partially saved state so may be better to remove
 		}
@@ -294,8 +294,8 @@ BackgroundActivities BufferList::CountBackgroundActivities() const {
 		if (buffers[i].pFileWorker) {
 			if (!buffers[i].pFileWorker->FinishedJob()) {
 				if (!buffers[i].pFileWorker->IsLoading()) {
-					const FileStorer *fstorer = static_cast<FileStorer *>(buffers[i].pFileWorker);
-					if (!fstorer->visibleProgress)
+					const FileStorer *fstorer = dynamic_cast<FileStorer *>(buffers[i].pFileWorker);
+					if (fstorer && !fstorer->visibleProgress)
 						continue;
 				}
 				if (buffers[i].pFileWorker->IsLoading())

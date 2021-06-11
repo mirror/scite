@@ -171,8 +171,12 @@ bool DirectorExtension::Initialise(ExtensionAPI *host_) {
 	if (!wReceiver)
 		::exit(FALSE);
 	// Make the frame window handle available so the director can activate it.
+	const SciTEBase *hostSciTE = dynamic_cast<SciTEBase *>(host);
+	if (!hostSciTE) {
+		::exit(FALSE);
+	}
 	::SetWindowLongPtr(wReceiver, GWLP_USERDATA,
-			   reinterpret_cast<LONG_PTR>((static_cast<SciTEBase *>(host))->GetID()));
+			   reinterpret_cast<LONG_PTR>(hostSciTE->GetID()));
 	CheckEnvironment(host);
 	return true;
 }
