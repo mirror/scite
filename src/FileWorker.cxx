@@ -103,7 +103,7 @@ FileStorer::FileStorer(WorkerListener *pListener_, const char *documentBytes_, c
 FileStorer::~FileStorer() {
 }
 
-static bool IsUTF8TrailByte(int ch) noexcept {
+static constexpr bool IsUTF8TrailByte(int ch) noexcept {
 	return (ch >= 0x80) && (ch < (0x80 + 0x40));
 }
 

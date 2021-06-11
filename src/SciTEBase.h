@@ -14,7 +14,7 @@ extern const GUI::gui_char propUserFileName[];
 extern const GUI::gui_char propGlobalFileName[];
 extern const GUI::gui_char propAbbrevFileName[];
 
-inline int IntFromTwoShorts(short a, short b) noexcept {
+constexpr int IntFromTwoShorts(short a, short b) noexcept {
 	return (a) | ((b) << 16);
 }
 

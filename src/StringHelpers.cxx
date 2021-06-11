@@ -297,7 +297,7 @@ std::string Slash(const std::string &s, bool quoteQuotes) {
 /**
  * Is the character an octal digit?
  */
-static bool IsOctalDigit(char ch) noexcept {
+static constexpr bool IsOctalDigit(char ch) noexcept {
 	return ch >= '0' && ch <= '7';
 }
 

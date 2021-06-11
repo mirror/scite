@@ -1532,6 +1532,8 @@ void SciTEBase::ToolsMenu(int item) {
 	}
 }
 
+namespace {
+
 static SA::Line DecodeMessage(const char *cdoc, std::string &sourcePath, int format, SA::Position &column) {
 	sourcePath.clear();
 	column = -1; // default to not detected
@@ -1879,13 +1881,13 @@ static SA::Line DecodeMessage(const char *cdoc, std::string &sourcePath, int for
 	return -1;
 }
 
-#define CSI "\033["
+constexpr const char *CSI = "\033[";
 
-static bool SeqEnd(int ch) noexcept {
+constexpr bool SeqEnd(int ch) noexcept {
 	return (ch == 0) || ((ch >= '@') && (ch <= '~'));
 }
 
-static void RemoveEscSeq(std::string &s) {
+void RemoveEscSeq(std::string &s) {
 	size_t csi = s.find(CSI);
 	while (csi != std::string::npos) {
 		size_t endSeq = csi + 2;
@@ -1897,13 +1899,11 @@ static void RemoveEscSeq(std::string &s) {
 }
 
 // Remove up to and including ch
-static void Chomp(std::string &s, char ch) {
+void Chomp(std::string &s, char ch) {
 	const size_t posCh = s.find(ch);
 	if (posCh != std::string::npos)
 		s.erase(0, posCh + 1);
 }
-
-namespace {
 
 char Severity(const std::string &message) noexcept {
 	if (message.find("fatal") != std::string::npos)

@@ -1463,7 +1463,7 @@ void SciTEWin::CreateUI() {
 	UIAvailable();
 }
 
-static bool IsSpaceOrTab(GUI::gui_char ch) noexcept {
+static constexpr bool IsSpaceOrTab(GUI::gui_char ch) noexcept {
 	return (ch == ' ') || (ch == '\t');
 }
 

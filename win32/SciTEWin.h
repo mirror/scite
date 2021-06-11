@@ -426,11 +426,11 @@ GUI::Point ClientFromScreen(HWND hWnd, GUI::Point ptScreen) noexcept;
 
 // Common minor conversions
 
-inline GUI::Point PointFromLong(LPARAM lPoint) noexcept {
-	return GUI::Point(static_cast<short>(LOWORD(lPoint)), static_cast<short>(HIWORD(lPoint)));
+constexpr GUI::Point PointFromLong(LPARAM lPoint) noexcept {
+	return GUI::Point(LOWORD(lPoint), HIWORD(lPoint));
 }
 
-inline int ControlIDOfWParam(WPARAM wParam) noexcept {
+constexpr int ControlIDOfWParam(WPARAM wParam) noexcept {
 	return wParam & 0xffff;
 }
 

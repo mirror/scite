@@ -355,7 +355,7 @@ static bool GetFullLine(const char *&fpc, size_t &lenData, char *s, size_t len) 
 	return false;
 }
 
-static bool IsSpaceOrTab(char ch) noexcept {
+static constexpr bool IsSpaceOrTab(char ch) noexcept {
 	return (ch == ' ') || (ch == '\t');
 }
 

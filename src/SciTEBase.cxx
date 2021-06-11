@@ -504,7 +504,7 @@ bool SciTEBase::FindMatchingPreprocCondPosition(
 	return isInside;
 }
 
-static bool IsBrace(char ch) noexcept {
+static constexpr bool IsBrace(char ch) noexcept {
 	return ch == '[' || ch == ']' || ch == '(' || ch == ')' || ch == '{' || ch == '}';
 }
 
@@ -4379,7 +4379,7 @@ void SciTEBase::PerformOne(char *action) {
 	}
 }
 
-static bool IsSwitchCharacter(GUI::gui_char ch) noexcept {
+static constexpr bool IsSwitchCharacter(GUI::gui_char ch) noexcept {
 #if defined(__unix__) || defined(__APPLE__)
 	return ch == '-';
 #else

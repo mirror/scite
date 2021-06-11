@@ -392,7 +392,7 @@ void Strip::Size() {
 
 namespace {
 
-RECT RECTFromRectangle(GUI::Rectangle r) noexcept {
+constexpr RECT RECTFromRectangle(GUI::Rectangle r) noexcept {
 	RECT rc = { r.left, r.top, r.right, r.bottom };
 	return rc;
 }
