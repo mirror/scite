@@ -199,6 +199,6 @@ make clean
 # ************************************************************
 # Target 7: cppcheck static checker
 # Disabled as there are false warnings and some different style choices
-cppcheck --enable=all --max-configs=100 --suppressions-list=lexilla/cppcheck.suppress -I lexilla/include -I lexilla/lexlib --template=gcc --quiet lexilla
-cppcheck --enable=all --max-configs=100 --suppressions-list=scintilla/cppcheck.suppress -I scintilla/src -I scintilla/include -I scintilla/qt/ScintillaEditBase --template=gcc --quiet scintilla
+cppcheck --enable=all --max-configs=120 --suppressions-list=lexilla/cppcheck.suppress -I lexilla/include -I lexilla/lexlib --template=gcc --quiet lexilla
+cppcheck --enable=all --max-configs=100 --suppressions-list=scintilla/cppcheck.suppress -I scintilla/src -I scintilla/include -I scintilla/qt/ScintillaEditBase "-DSTDMETHODIMP_(type) type STDMETHODCALLTYPE" --template=gcc --quiet scintilla
 cppcheck --enable=all --max-configs=100 --suppressions-list=scite/cppcheck.suppress -I scite/src -I scintilla/include -I scite/lua/src -Ulua_assert -DPATH_MAX=260 --template=gcc --quiet scite
