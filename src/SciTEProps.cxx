@@ -1532,50 +1532,67 @@ void SciTEBase::ReadProperties() {
 void SciTEBase::ReadEditorConfig(const std::string &fileNameForExtension) {
 	std::map<std::string, std::string> eConfig = editorConfig->MapFromAbsolutePath(filePath);
 	for (const std::pair<const std::string, std::string> &pss : eConfig) {
-		if (pss.first == "indent_style") {
-			const bool useTabs = pss.second == "tab";
-			propsDiscovered.Set("use.tabs", useTabs ? "1" : "0");
-			propsDiscovered.Set("use.tabs." + fileNameForExtension, useTabs ? "1" : "0");
-			wEditor.SetUseTabs(useTabs);
-		} else if (pss.first == "indent_size") {
-			propsDiscovered.Set("indent.size", pss.second);
-			propsDiscovered.Set("indent.size." + fileNameForExtension, pss.second);
-			wEditor.SetIndent(std::stoi(pss.second));
-		} else if (pss.first == "tab_width") {
-			propsDiscovered.Set("tabsize", pss.second);
-			propsDiscovered.Set("tab.size." + fileNameForExtension, pss.second);
-			wEditor.SetTabWidth(std::stoi(pss.second));
-		} else if (pss.first == "end_of_line") {
-			if (pss.second == "lf") {
-				propsDiscovered.Set("eol.mode", "LF");
-				wEditor.SetEOLMode(SA::EndOfLine::Lf);
-			} else if (pss.second == "cr") {
-				propsDiscovered.Set("eol.mode", "CR");
-				wEditor.SetEOLMode(SA::EndOfLine::Cr);
-			} else if (pss.second == "crlf") {
-				propsDiscovered.Set("eol.mode", "CRLF");
-				wEditor.SetEOLMode(SA::EndOfLine::CrLf);
+		try {
+			if (pss.first == "indent_style") {
+				const bool useTabs = pss.second == "tab";
+				propsDiscovered.Set("use.tabs", useTabs ? "1" : "0");
+				propsDiscovered.Set("use.tabs." + fileNameForExtension, useTabs ? "1" : "0");
+				wEditor.SetUseTabs(useTabs);
+			} else if (pss.first == "indent_size") {
+				std::string sIndentSize = pss.second;
+				if (sIndentSize == "tab") {
+					sIndentSize = props.GetExpandedString("tabsize");
+					if (sIndentSize.empty()) {
+						sIndentSize = "8";
+					}
+				}
+				propsDiscovered.Set("indent.size", sIndentSize);
+				propsDiscovered.Set("indent.size." + fileNameForExtension, sIndentSize);
+				wEditor.SetIndent(std::stoi(sIndentSize));
+			} else if (pss.first == "tab_width") {
+				propsDiscovered.Set("tabsize", pss.second);
+				propsDiscovered.Set("tab.size." + fileNameForExtension, pss.second);
+				wEditor.SetTabWidth(std::stoi(pss.second));
+			} else if (pss.first == "end_of_line") {
+				if (pss.second == "lf") {
+					propsDiscovered.Set("eol.mode", "LF");
+					wEditor.SetEOLMode(SA::EndOfLine::Lf);
+				} else if (pss.second == "cr") {
+					propsDiscovered.Set("eol.mode", "CR");
+					wEditor.SetEOLMode(SA::EndOfLine::Cr);
+				} else if (pss.second == "crlf") {
+					propsDiscovered.Set("eol.mode", "CRLF");
+					wEditor.SetEOLMode(SA::EndOfLine::CrLf);
+				}
+			} else if (pss.first == "charset") {
+				if (pss.second == "latin1") {
+					CurrentBuffer()->unicodeMode = uni8Bit;
+					codePage = 0;
+				} else {
+					if (pss.second == "utf-8")
+						CurrentBuffer()->unicodeMode = uniCookie;
+					if (pss.second == "utf-8-bom")
+						CurrentBuffer()->unicodeMode = uniUTF8;
+					if (pss.second == "utf-16be")
+						CurrentBuffer()->unicodeMode = uni16BE;
+					if (pss.second == "utf-16le")
+						CurrentBuffer()->unicodeMode = uni16LE;
+					codePage = SA::CpUtf8;
+				}
+				wEditor.SetCodePage(codePage);
+			} else if (pss.first == "trim_trailing_whitespace") {
+				stripTrailingSpaces = pss.second == "true";
+			} else if (pss.first == "insert_final_newline") {
+				ensureFinalLineEnd = pss.second == "true";
 			}
-		} else if (pss.first == "charset") {
-			if (pss.second == "latin1") {
-				CurrentBuffer()->unicodeMode = uni8Bit;
-				codePage = 0;
-			} else {
-				if (pss.second == "utf-8")
-					CurrentBuffer()->unicodeMode = uniCookie;
-				if (pss.second == "utf-8-bom")
-					CurrentBuffer()->unicodeMode = uniUTF8;
-				if (pss.second == "utf-16be")
-					CurrentBuffer()->unicodeMode = uni16BE;
-				if (pss.second == "utf-16le")
-					CurrentBuffer()->unicodeMode = uni16LE;
-				codePage = SA::CpUtf8;
-			}
-			wEditor.SetCodePage(codePage);
-		} else if (pss.first == "trim_trailing_whitespace") {
-			stripTrailingSpaces = pss.second == "true";
-		} else if (pss.first == "insert_final_newline") {
-			ensureFinalLineEnd = pss.second == "true";
+		} catch (std::invalid_argument &) {
+			std::string diagnostic = "Invalid argument in .editorconfig '";
+			diagnostic += pss.first;
+			diagnostic += "=";
+			diagnostic += pss.second;
+			diagnostic += "'.\n";
+			OutputAppendString(diagnostic.c_str());
+			SetOutputVisibility(true);
 		}
 	}
 }
