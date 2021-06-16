@@ -15,7 +15,7 @@ namespace Scintilla {
 
 enum class Message;	// Declare in case ScintillaMessages.h not included
 
-using FunctionDirect = intptr_t(*)(intptr_t ptr, unsigned int iMessage, uintptr_t wParam, intptr_t lParam);
+using FunctionDirect = intptr_t(*)(intptr_t ptr, unsigned int iMessage, uintptr_t wParam, intptr_t lParam, int *pStatus);
 
 struct Failure {
 	Scintilla::Status status;
@@ -56,7 +56,6 @@ public:
 
 	void SetFnPtr(FunctionDirect fn_, intptr_t ptr_) noexcept;
 	bool IsValid() const noexcept;
-	void SetCallStatus();
 	intptr_t Call(Message msg, uintptr_t wParam=0, intptr_t lParam=0);
 
 	// Common APIs made more structured and type-safe
@@ -354,6 +353,7 @@ public:
 	std::string GetText(Position length);
 	Position TextLength();
 	void *DirectFunction();
+	void *DirectStatusFunction();
 	void *DirectPointer();
 	void SetOvertype(bool overType);
 	bool Overtype();

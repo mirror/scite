@@ -31,17 +31,14 @@ bool ScintillaCall::IsValid() const noexcept {
 	return fn && ptr;
 }
 
-void ScintillaCall::SetCallStatus() {
-	statusLastCall = static_cast<Scintilla::Status>(fn(ptr, static_cast<unsigned int>(Message::GetStatus), 0, 0));
-	if (statusLastCall > Status::Ok && statusLastCall < Status::WarnStart)
-		throw Failure(statusLastCall);
-}
-
 intptr_t ScintillaCall::Call(Message msg, uintptr_t wParam, intptr_t lParam) {
 	if (!fn)
 		throw Failure(Status::Failure);
-	const intptr_t retVal = fn(ptr, static_cast<unsigned int>(msg), wParam, lParam);
-	SetCallStatus();
+	int status = 0;
+	const intptr_t retVal = fn(ptr, static_cast<unsigned int>(msg), wParam, lParam, &status);
+	statusLastCall = static_cast<Scintilla::Status>(status);
+	if (statusLastCall > Status::Ok && statusLastCall < Status::WarnStart)
+		throw Failure(statusLastCall);
 	return retVal;
 }
 
@@ -1253,6 +1250,10 @@ Position ScintillaCall::TextLength() {
 
 void *ScintillaCall::DirectFunction() {
 	return reinterpret_cast<void *>(Call(Message::GetDirectFunction));
+}
+
+void *ScintillaCall::DirectStatusFunction() {
+	return reinterpret_cast<void *>(Call(Message::GetDirectStatusFunction));
 }
 
 void *ScintillaCall::DirectPointer() {

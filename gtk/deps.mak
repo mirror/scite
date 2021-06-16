@@ -276,6 +276,7 @@ ScintillaCall.o: \
 ScintillaWindow.o: \
 	../src/ScintillaWindow.cxx \
 	../../scintilla/include/ScintillaTypes.h \
+	../../scintilla/include/ScintillaMessages.h \
 	../src/ScintillaCall.h \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/Sci_Position.h \
