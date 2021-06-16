@@ -602,6 +602,9 @@
 	<li>Lexilla 5.0.3</li>
 	<ul>
 		<li>
+		Fixed bugs with styling Erlang by handling \n and \r\n line endings consistently.
+		</li>
+		<li>
 		Fixed folding for F# open statements and for strings that contain comment prefixes.
 		</li>
 		<li>
@@ -619,6 +622,10 @@
 		</li>
 		<li>
 		Made folding of Tcl files more consistent by always treating completely empty lines as whitespace.
+		</li>
+		<li>
+		Fixed styling of "a:b" with no spaces in YAML as a single piece of text instead of a key-value pair.
+		<a href="https://github.com/ScintillaOrg/lexilla/pull/15">Pull request #15</a>.
 		</li>
 	</ul>
 	<li>Scintilla 5.0.3</li>
