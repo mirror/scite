@@ -226,6 +226,8 @@ $(PROGSTATIC): $(OBJSSTATIC) $(LIBSCI) $(LIBLEX) Sc1Res.res
 	$(CXX) $(CXXFLAGS) -c $<
 {..\..\lexilla\access}.cxx.obj::
 	$(CXX) $(CXXFLAGS) -c $<
+{..\..\scintilla\call}.cxx.obj::
+	$(CXX) $(CXXFLAGS) -c $<
 {.}.cxx.obj::
 	$(CXX) $(CXXFLAGS) -c $<
 

@@ -63,7 +63,7 @@ LEXILLA=$(srcdir)/../bin/liblexilla.$(SHAREDEXTENSION)
 all: $(PROG) $(COMPONENT) $(LEXILLA)
 
 vpath %.h $(srcdir) $(srcdir)/../src $(LEXILLA_DIR)/include $(SCINTILLA_DIR)/include
-vpath %.cxx $(srcdir) $(srcdir)/../src $(srcdir)/../../lexilla/access
+vpath %.cxx $(srcdir) $(srcdir)/../src $(srcdir)/../../lexilla/access $(SCINTILLA_DIR)/call
 
 INCLUDES=-I $(LEXILLA_DIR)/include  -I $(LEXILLA_DIR)/access -I $(SCINTILLA_DIR)/include -I $(srcdir)/../src
 DEFINES += -DGTK
