@@ -489,6 +489,7 @@ protected:
 	bool callTipUseEscapes;
 	bool callTipIgnoreCase;
 	bool autoCCausedByOnlyOne;
+	int autoCompleteVisibleItemCount;
 	std::string calltipWordCharacters;
 	std::string calltipParametersStart;
 	std::string calltipParametersEnd;

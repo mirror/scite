@@ -175,6 +175,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), pwFocussed(&wEditor), extende
 	callTipUseEscapes = false;
 	callTipIgnoreCase = false;
 	autoCCausedByOnlyOne = false;
+	autoCompleteVisibleItemCount = 9;
 	startCalltipWord = 0;
 	currentCallTip = 0;
 	maxCallTips = 1;
@@ -1757,9 +1758,11 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 		std::string acText = wl.GetNearestWords("", 0, autoCompleteIgnoreCase);
 		// Use \n as word separator
 		std::replace(acText.begin(), acText.end(), ' ', '\n');
+		const size_t wordCount = std::count(acText.begin(), acText.end(), '\n') + 1;
 		// Return spaces from \001
 		std::replace(acText.begin(), acText.end(), '\001', ' ');
 		wEditor.AutoCSetSeparator('\n');
+		wEditor.AutoCSetMaxHeight(std::min(static_cast<int>(wordCount), autoCompleteVisibleItemCount));
 		wEditor.AutoCShow(rootLength, acText.c_str());
 	} else {
 		wEditor.AutoCCancel();

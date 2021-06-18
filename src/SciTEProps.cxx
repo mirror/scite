@@ -1120,6 +1120,7 @@ void SciTEBase::ReadProperties() {
 		autoCompleteIgnoreCase = sval == "1";
 	wEditor.AutoCSetIgnoreCase(autoCompleteIgnoreCase);
 	wOutput.AutoCSetIgnoreCase(true);
+	autoCompleteVisibleItemCount = props.GetInt("autocomplete.visible.item.count", 9);
 
 	const int autoCChooseSingle = props.GetInt("autocomplete.choose.single");
 	wEditor.AutoCSetChooseSingle(autoCChooseSingle);
