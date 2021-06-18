@@ -263,3 +263,27 @@ std::string StringList::GetNearestWords(
 		return GetMatches(words.begin(), words.end(), wordStart, otherSeparator, exactLen, CompareString(searchLen));
 	}
 }
+
+bool AutoCompleteWordList::Add(const std::string& word) {
+	const auto [_, ok] = words.insert(word);
+	if (ok) {
+		const size_t length = word.length();
+		totalLength += 1 + length;
+		minWordLength = std::min(minWordLength, length);
+		return true;
+	}
+	return ok;
+}
+
+std::string AutoCompleteWordList::Get() const {
+	std::string result;
+	if (totalLength) {
+		result.reserve(totalLength + 2);
+		result.push_back('\n');
+		for (const std::string &word : words) {
+			result.append(word);
+			result.push_back('\n');
+		}
+	}
+	return result;
+}

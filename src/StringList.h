@@ -35,4 +35,19 @@ public:
 				    bool ignoreCase, char otherSeparator='\0', bool exactLen=false);
 };
 
+class AutoCompleteWordList {
+	std::set<std::string> words;
+	size_t totalLength = 0;
+	size_t minWordLength = SIZE_MAX;
+public:
+	size_t Count() const noexcept {
+		return words.size();
+	}
+	size_t MinWordLength() const noexcept {
+		return minWordLength;
+	}
+	bool Add(const std::string& word);
+	std::string Get() const;
+};
+
 #endif

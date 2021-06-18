@@ -1712,13 +1712,9 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	const SA::FindOption flags =
 		SA::FindOption::WordStart | (autoCompleteIgnoreCase ? SA::FindOption::None : SA::FindOption::MatchCase);
 	const SA::Position posCurrentWord = wEditor.CurrentPos() - rootLength;
-	SA::Position minWordLength = 0;
-	unsigned int nwords = 0;
 
-	// wordsNear contains a list of words separated by single spaces and with a space
-	// at the start and end. This makes it easy to search for words.
-	std::string wordsNear;
-	wordsNear.append("\n");
+	// wordList contains a list of words to display in an autocompletion list.
+	AutoCompleteWordList wordList;
 
 	wEditor.SetTarget(SA::Span(0, doclen));
 	wEditor.SetSearchFlags(flags);
@@ -1731,16 +1727,9 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 				wordEnd++;
 			const SA::Position wordLength = wordEnd - posFind;
 			if (wordLength > rootLength) {
-				std::string word = wEditor.StringOfSpan(SA::Span(posFind, wordEnd));
-				word.insert(0, "\n");
-				word.append("\n");
-				if (wordsNear.find(word) == std::string::npos) {	// add a new entry
-					wordsNear += word.c_str() + 1;
-					if (minWordLength < wordLength)
-						minWordLength = wordLength;
-
-					nwords++;
-					if (onlyOneWord && nwords > 1) {
+				const std::string word = wEditor.StringOfSpan(SA::Span(posFind, wordEnd));
+				if (wordList.Add(word)) {
+					if (onlyOneWord && wordList.Count() > 1) {
 						return true;
 					}
 				}
@@ -1749,20 +1738,19 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 		wEditor.SetTarget(SA::Span(wordEnd, doclen));
 		posFind = wEditor.SearchInTarget(root);
 	}
-	const size_t length = wordsNear.length();
-	if ((length > 2) && (!onlyOneWord || (minWordLength > rootLength))) {
+	if ((wordList.Count() != 0) && (!onlyOneWord || (wordList.MinWordLength() > static_cast<size_t>(rootLength)))) {
 		// Protect spaces by temporarily transforming to \001
+		std::string wordsNear = wordList.Get();
 		std::replace(wordsNear.begin(), wordsNear.end(), ' ', '\001');
 		StringList wl(true);
 		wl.Set(wordsNear.c_str());
 		std::string acText = wl.GetNearestWords("", 0, autoCompleteIgnoreCase);
 		// Use \n as word separator
 		std::replace(acText.begin(), acText.end(), ' ', '\n');
-		const size_t wordCount = std::count(acText.begin(), acText.end(), '\n') + 1;
 		// Return spaces from \001
 		std::replace(acText.begin(), acText.end(), '\001', ' ');
 		wEditor.AutoCSetSeparator('\n');
-		wEditor.AutoCSetMaxHeight(std::min(static_cast<int>(wordCount), autoCompleteVisibleItemCount));
+		wEditor.AutoCSetMaxHeight(std::min(static_cast<int>(wordList.Count()), autoCompleteVisibleItemCount));
 		wEditor.AutoCShow(rootLength, acText.c_str());
 	} else {
 		wEditor.AutoCCancel();
