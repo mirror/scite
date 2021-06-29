@@ -427,7 +427,8 @@ GUI::Point ClientFromScreen(HWND hWnd, GUI::Point ptScreen) noexcept;
 // Common minor conversions
 
 constexpr GUI::Point PointFromLong(LPARAM lPoint) noexcept {
-	return GUI::Point(LOWORD(lPoint), HIWORD(lPoint));
+	// static_cast<short> needed for negative coordinates
+	return GUI::Point(static_cast<short>(LOWORD(lPoint)), static_cast<short>(HIWORD(lPoint)));
 }
 
 constexpr int ControlIDOfWParam(WPARAM wParam) noexcept {
