@@ -1685,6 +1685,7 @@ bool SciTEBase::StartAutoComplete() {
 		if (!words.empty()) {
 			std::string wordsUnique = EliminateDuplicateWords(words);
 			wEditor.AutoCSetSeparator(' ');
+			wEditor.AutoCSetMaxHeight(autoCompleteVisibleItemCount);
 			wEditor.AutoCShow(root.length(), wordsUnique.c_str());
 		}
 	}
@@ -1750,7 +1751,7 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 		// Return spaces from \001
 		std::replace(acText.begin(), acText.end(), '\001', ' ');
 		wEditor.AutoCSetSeparator('\n');
-		wEditor.AutoCSetMaxHeight(std::min(static_cast<int>(wordList.Count()), autoCompleteVisibleItemCount));
+		wEditor.AutoCSetMaxHeight(autoCompleteVisibleItemCount);
 		wEditor.AutoCShow(rootLength, acText.c_str());
 	} else {
 		wEditor.AutoCCancel();
@@ -2735,6 +2736,7 @@ void SciTEBase::CharAddedOutput(int ch) {
 			std::string words = symList.GetNearestWords("", 0, true);
 			if (words.length()) {
 				wOutput.AutoCSetSeparator(' ');
+				wOutput.AutoCSetMaxHeight(autoCompleteVisibleItemCount);
 				wOutput.AutoCShow(0, words.c_str());
 			}
 		}
