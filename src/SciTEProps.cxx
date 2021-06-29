@@ -556,7 +556,6 @@ static const char *propertiesToForward[] = {
 	"lexer.json.escape.sequence",
 	"lexer.julia.highlight.lexerror",
 	"lexer.julia.highlight.typeannotation",
-	"lexer.julia.string.interpolation",
 	"lexer.metapost.comment.process",
 	"lexer.metapost.interface.default",
 	"lexer.nim.raw.strings.highlight.ident",

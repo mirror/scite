@@ -1235,6 +1235,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_JULIA_KEYWORD1",3},
 	{"SCE_JULIA_KEYWORD2",4},
 	{"SCE_JULIA_KEYWORD3",5},
+	{"SCE_JULIA_KEYWORD4",20},
 	{"SCE_JULIA_LEXERROR",19},
 	{"SCE_JULIA_MACRO",12},
 	{"SCE_JULIA_NUMBER",2},
@@ -1244,6 +1245,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_JULIA_STRINGLITERAL",15},
 	{"SCE_JULIA_SYMBOL",11},
 	{"SCE_JULIA_TYPEANNOT",18},
+	{"SCE_JULIA_TYPEOPERATOR",21},
 	{"SCE_KIX_COMMENT",1},
 	{"SCE_KIX_COMMENTSTREAM",10},
 	{"SCE_KIX_DEFAULT",0},
@@ -3697,7 +3699,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 321,
-	ifaceConstantCount = 2984,
+	ifaceConstantCount = 2986,
 	ifacePropertyCount = 255
 };
 
