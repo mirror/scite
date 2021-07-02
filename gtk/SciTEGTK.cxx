@@ -1431,6 +1431,8 @@ void SciTEGTK::CheckMenus() {
 	CheckAMenuItem(IDM_VIEWSTATUSBAR, sbVisible);
 	CheckAMenuItem(IDM_VIEWTABBAR, tabVisible);
 
+	EnableAMenuItem(IDM_FINDINFILES, !jobQueue.IsExecuting());
+
 	if (btnBuild) {
 		gtk_widget_set_sensitive(btnBuild, !jobQueue.IsExecuting());
 		gtk_widget_set_sensitive(btnCompile, !jobQueue.IsExecuting());
