@@ -42,7 +42,7 @@
 #include "GUI.h"
 #include "ScintillaWindow.h"
 
-#if defined(__unix__) || defined(__APPLE__)
+#if (defined(__unix__) || defined(__APPLE__)) && !defined(QT_QML)
 
 const GUI::gui_char menuAccessIndicator[] = GUI_TEXT("_");
 
