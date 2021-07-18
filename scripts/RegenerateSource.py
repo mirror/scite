@@ -36,7 +36,7 @@ sys.path.append(str(sciteBase))
 import win32.AppDepGen
 import gtk.AppDepGen
 
-neutralEncoding = "windows-1252"
+neutralEncoding = "cp437"	# Each byte value is valid in cp437
 
 def FindCredits(historyFile, removeLinks=True):
     credits = []
@@ -309,7 +309,7 @@ def RegenerateAll():
 
     for c in sciCredits + lexCredits:
         if c not in sciteCredits:
-            print("new: ", c)
+            sys.stdout.buffer.write(f"new: {c}\n".encode("utf-8"))
             sciteCredits.append(c)
     UpdateHistory(pathHistory, sciteCredits)
 

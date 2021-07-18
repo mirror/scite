@@ -16,6 +16,8 @@ propsFileName = srcDir / "SciTEGlobal.properties"
 localeFileName = srcRoot / "win32" / "locale.properties"
 resourceFileName = srcRoot / "win32" / "SciTERes.rc"
 
+neutralEncoding = "cp437"	# Each byte value is valid in cp437
+
 identCharacters = "_*." + string.ascii_letters + string.digits
 
 # These properties are for debugging or for optionally attached features or are archaic
@@ -80,7 +82,7 @@ propertiesPaths = [p for p in srcDir.glob("*.properties") if p.stem not in ["Sci
 
 propertyNames = set()
 for sourcePath in sourcePaths:
-	with sourcePath.open(encoding="windows-1252") as srcFile:
+	with sourcePath.open(encoding=neutralEncoding) as srcFile:
 		for srcLine in srcFile:
 			srcLine = stripComment(srcLine).strip()
 			# "[ .\)]Get.*(.*\".*\""
@@ -92,21 +94,21 @@ for sourcePath in sourcePaths:
 						propertyNames.add(propertyName)
 
 propertiesInDoc = set()
-with docFileName.open(encoding="windows-1252") as docFile:
+with docFileName.open(encoding=neutralEncoding) as docFile:
 	for docLine in docFile:
 		for word in depunctuate(docLine).split():
 			if word in propertyNames:
 				propertiesInDoc.add(word)
 
 propertiesAnchoredInDoc = set()
-docText = docFileName.read_text(encoding="windows-1252")
+docText = docFileName.read_text(encoding=neutralEncoding)
 for ident in re.findall(" id='property-([a-z0-9*.]+)'>", docText):
 	propertiesAnchoredInDoc.add(ident)
 for ident in re.findall("<a name='property-([a-z.]+)'>", docText):
 	propertiesAnchoredInDoc.add(ident)
 
 propertiesInGlobal = set()
-with propsFileName.open(encoding="windows-1252") as propsFile:
+with propsFileName.open(encoding=neutralEncoding) as propsFile:
 	for propLine in propsFile:
 		if propLine:
 			key = keyOfLine(propLine)
@@ -115,14 +117,14 @@ with propsFileName.open(encoding="windows-1252") as propsFile:
 					propertiesInGlobal.add(key)
 
 localeSet = set()
-with localeFileName.open(encoding="windows-1252") as localeFile:
+with localeFileName.open(encoding=neutralEncoding) as localeFile:
 	for line in localeFile:
 		if not line.startswith("#"):
 			line = line.strip().strip("=")
 			localeSet.add(line.lower())
 
 resourceSet = set()
-with resourceFileName.open(encoding="windows-1252") as resourceFile:
+with resourceFileName.open(encoding=neutralEncoding) as resourceFile:
 	for line in resourceFile:
 		line = line.strip()
 		if "VIRTKEY" not in line and \
@@ -144,7 +146,7 @@ with resourceFileName.open(encoding="windows-1252") as resourceFile:
 
 propertyToFiles = {}
 for propPath in propertiesPaths:
-	with propPath.open(encoding="windows-1252") as propsFile:
+	with propPath.open(encoding=neutralEncoding) as propsFile:
 		for propLine in propsFile:
 			if propLine and not propLine.startswith("#"):
 				key = keyOfLine(propLine)
