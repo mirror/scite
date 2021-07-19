@@ -110,6 +110,7 @@ public:
 	void Show(bool show=true);
 	void InvalidateAll();
 	void SetTitle(const gui_char *s);
+	void SetRedraw(bool redraw);
 };
 
 typedef void *MenuID;

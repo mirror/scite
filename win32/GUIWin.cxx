@@ -245,6 +245,14 @@ void Window::SetTitle(const gui_char *s) {
 	::SetWindowTextW(static_cast<HWND>(wid), s);
 }
 
+void Window::SetRedraw(bool redraw) {
+	::SendMessage(static_cast<HWND>(GetID()), WM_SETREDRAW, redraw, 0);
+	if (redraw) {
+		::RedrawWindow(static_cast<HWND>(GetID()), nullptr, {},
+			RDW_ERASE | RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN);
+	}
+}
+
 void Menu::CreatePopUp() {
 	Destroy();
 	mid = ::CreatePopupMenu();

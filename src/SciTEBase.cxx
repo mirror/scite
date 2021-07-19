@@ -1249,7 +1249,9 @@ intptr_t SciTEBase::DoReplaceAll(bool inSelection) {
 }
 
 intptr_t SciTEBase::ReplaceAll(bool inSelection) {
+	wEditor.SetRedraw(false);
 	const intptr_t replacements = DoReplaceAll(inSelection);
+	wEditor.SetRedraw(true);
 	props.Set("Replacements", std::to_string(replacements > 0 ? replacements : 0));
 	UpdateStatusBar(false);
 	if (replacements == -1) {
