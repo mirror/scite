@@ -87,20 +87,20 @@ POPUP "&Search"
 BEGIN
 	MENUITEM "&Find...\tCtrl+F",				IDM_FIND
 	MENUITEM "Find &Next\tF3",				IDM_FINDNEXT
-	MENUITEM "Find Previou&s\tShift+F3",		IDM_FINDNEXTBACK
+	MENUITEM "Find &Previous\tShift+F3",		IDM_FINDNEXTBACK
 	MENUITEM "F&ind in Files...\tCtrl+Shift+F",	IDM_FINDINFILES
-	MENUITEM "R&eplace...\tCtrl+H",			IDM_REPLACE
-	MENUITEM "Incrementa&l Search...\tCtrl+Alt+I",	IDM_INCSEARCH
-	MENUITEM "Selection A&dd Next\tCtrl+Shift+D",	IDM_SELECTIONADDNEXT
-	MENUITEM "Selection &Add Each",			IDM_SELECTIONADDEACH
+	MENUITEM "&Replace...\tCtrl+H",			IDM_REPLACE
+	MENUITEM "Incremental &Search...\tCtrl+Alt+I",	IDM_INCSEARCH
+	MENUITEM "Selection &Add Next\tCtrl+Shift+D",	IDM_SELECTIONADDNEXT
+	MENUITEM "Selection Add &Each",			IDM_SELECTIONADDEACH
 	MENUITEM SEPARATOR
 	MENUITEM "&Go to...\tCtrl+G",			IDM_GOTO
 	MENUITEM "Next Book&mark\tF2",			IDM_BOOKMARK_NEXT
 	MENUITEM "Pre&vious Bookmark\tShift+F2",	IDM_BOOKMARK_PREV
-	MENUITEM "Toggle Bookmar&k\tCtrl+F2",		IDM_BOOKMARK_TOGGLE
+	MENUITEM "&Toggle Bookmark\tCtrl+F2",		IDM_BOOKMARK_TOGGLE
 	MENUITEM "&Clear All Bookmarks",			IDM_BOOKMARK_CLEARALL
 	MENUITEM "Select All &Bookmarks",		IDM_BOOKMARK_SELECT_ALL
-END
+END // used(15): abcefgilmnprstv // Available: dhjkoquwxyz
 
 POPUP "&View"
 BEGIN
