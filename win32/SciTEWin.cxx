@@ -2367,7 +2367,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 #endif
 
 	uintptr_t result = 0;
-	{
+	try {
 #ifdef NO_EXTENSIONS
 		Extension *extender = 0;
 #else
@@ -2399,6 +2399,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 			::MessageBox({}, TEXT("Allocation failure"), TEXT("Failure in SciTE"), MB_OK | MB_ICONERROR | MB_APPLMODAL);
 		}
 		MainWind.Finalise();
+	} catch (std::bad_array_new_length &) {
+		::MessageBox({}, TEXT("Allocation failure"), TEXT("Failure to allocate SciTE at start up"), MB_OK | MB_ICONERROR | MB_APPLMODAL);
 	}
 
 #ifdef STATIC_BUILD

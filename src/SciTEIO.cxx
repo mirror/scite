@@ -346,7 +346,7 @@ void SciTEBase::TextRead(FileWorker *pFileWorker) {
 	FileLoader *pFileLoader = dynamic_cast<FileLoader *>(pFileWorker);
 	const int iBuffer = buffers.GetDocumentByWorker(pFileLoader);
 	// May not be found if load cancelled
-	if (iBuffer >= 0) {
+	if ((iBuffer >= 0) && pFileLoader) {
 		buffers.buffers[iBuffer].unicodeMode = pFileLoader->unicodeMode;
 		buffers.buffers[iBuffer].lifeState = Buffer::readAll;
 		if (pFileLoader->err) {
