@@ -398,6 +398,7 @@ protected:
 	SA::CharacterSet characterSet;
 	std::string language;
 	int lexLanguage;
+	std::vector<std::string> monospacedList;
 	std::string subStyleBases;
 	StringList apis;
 	std::string apisFileNames;

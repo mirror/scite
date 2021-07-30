@@ -325,8 +325,14 @@ void SciTEBase::SetOneStyle(GUI::ScintillaWindow &win, int style, const StyleDef
 		win.StyleSetItalic(style, sd.italics);
 	if (sd.specified & StyleDefinition::sdWeight)
 		win.StyleSetWeight(style, sd.weight);
-	if (sd.specified & StyleDefinition::sdFont)
+	if (sd.specified & StyleDefinition::sdFont) {
 		win.StyleSetFont(style, sd.font.c_str());
+		bool inMonospacedList = !monospacedList.empty() && (monospacedList.back() == "*");
+		if (!inMonospacedList) {
+			inMonospacedList = std::find(monospacedList.begin(), monospacedList.end(), sd.font) != monospacedList.end();
+		}
+		win.StyleSetCheckMonospaced(style, inMonospacedList);
+	}
 	if (sd.specified & StyleDefinition::sdFore)
 		win.StyleSetFore(style, sd.Fore());
 	if (sd.specified & StyleDefinition::sdBack)
@@ -1600,6 +1606,9 @@ void SciTEBase::ReadEditorConfig(const std::string &fileNameForExtension) {
 }
 
 void SciTEBase::ReadFontProperties() {
+	const std::string monospaceFonts = props.GetExpandedString("font.monospaced.list");
+	monospacedList = StringSplit(monospaceFonts, ';');
+
 	char key[200] = "";
 	const char *languageName = language.c_str();
 
