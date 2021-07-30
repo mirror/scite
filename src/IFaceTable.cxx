@@ -2900,6 +2900,8 @@ static IFaceConstant ifaceConstants[] = {
 	{"SC_ELEMENT_CARET",40},
 	{"SC_ELEMENT_CARET_ADDITIONAL",41},
 	{"SC_ELEMENT_CARET_LINE_BACK",50},
+	{"SC_ELEMENT_FOLD_LINE",80},
+	{"SC_ELEMENT_HIDDEN_LINE",81},
 	{"SC_ELEMENT_HOT_SPOT_ACTIVE",70},
 	{"SC_ELEMENT_HOT_SPOT_ACTIVE_BACK",71},
 	{"SC_ELEMENT_LIST",0},
@@ -3706,7 +3708,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 321,
-	ifaceConstantCount = 2991,
+	ifaceConstantCount = 2993,
 	ifacePropertyCount = 257
 };
 

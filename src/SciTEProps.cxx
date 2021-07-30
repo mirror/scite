@@ -1472,6 +1472,8 @@ void SciTEBase::ReadProperties() {
 	wOutput.IndicatorClearRange(0, wOutput.Length());
 	currentWordHighlight.statesOfDelay = currentWordHighlight.noDelay;
 
+	SetElementColour(SA::Element::FoldLine, "fold.line.colour");
+
 	currentWordHighlight.isEnabled = props.GetInt("highlight.current.word", 0) == 1;
 	if (currentWordHighlight.isEnabled) {
 		const std::string highlightCurrentWordIndicatorString = props.GetExpandedString("highlight.current.word.indicator");
