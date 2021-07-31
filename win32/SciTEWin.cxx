@@ -1960,19 +1960,18 @@ LRESULT SciTEWin::ContextMenuMessage(UINT iMessage, WPARAM wParam, LPARAM lParam
 	return 0;
 }
 
-void SciTEWin::CheckForScintillaFailure(SA::Status statusFailure) {
+void SciTEWin::CheckForScintillaFailure(SA::Status statusFailure) noexcept {
 	static int boxesVisible = 0;
 	if ((statusFailure > SA::Status::Ok) && (boxesVisible == 0)) {
 		boxesVisible++;
-		char buff[200] = "";
+		wchar_t buff[200] = L"";
 		if (statusFailure == SA::Status::BadAlloc) {
-			strcpy(buff, "Memory exhausted.");
+			wcscpy(buff, L"Memory exhausted.");
 		} else {
-			sprintf(buff, "Scintilla failed with status %d.", static_cast<int>(statusFailure));
+			swprintf(buff, std::size(buff), L"Scintilla failed with status %d.", static_cast<int>(statusFailure));
 		}
-		strcat(buff, " SciTE will now close.");
-		GUI::gui_string sMessage = GUI::StringFromUTF8(buff);
-		::MessageBox(MainHWND(), sMessage.c_str(), TEXT("Failure in Scintilla"), MB_OK | MB_ICONERROR | MB_APPLMODAL);
+		wcscat(buff, L" SciTE will now close.");
+		::MessageBox(MainHWND(), buff, TEXT("Failure in Scintilla"), MB_OK | MB_ICONERROR | MB_APPLMODAL);
 		exit(FALSE);
 	}
 }

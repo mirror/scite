@@ -399,7 +399,7 @@ public:
 	LRESULT KeyUp(WPARAM wParam);
 	void AddToPopUp(const char *label, int cmd=0, bool enabled=true) override;
 	LRESULT ContextMenuMessage(UINT iMessage, WPARAM wParam, LPARAM lParam);
-	void CheckForScintillaFailure(SA::Status statusFailure);
+	void CheckForScintillaFailure(SA::Status statusFailure) noexcept;
 	LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
 
 	std::string EncodeString(const std::string &s) override;
