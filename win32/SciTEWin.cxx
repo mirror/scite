@@ -202,7 +202,7 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 
 	flatterUI = UIShouldBeFlat();
 
-	appearance = CurrentAppearance();
+	appearance = WindowsAppearance();
 
 	cmdShow = 0;
 	heightBar = 7;
@@ -470,7 +470,7 @@ void SciTEWin::ReadEmbeddedProperties() {
 	}
 }
 
-SystemAppearance SciTEWin::CurrentAppearance() const noexcept {
+SystemAppearance SciTEWin::WindowsAppearance() const noexcept {
 	SystemAppearance currentAppearance{};
 
 	HKEY hkeyPersonalize{};
@@ -503,6 +503,10 @@ SystemAppearance SciTEWin::CurrentAppearance() const noexcept {
 	}
 
 	return currentAppearance;
+}
+
+SystemAppearance SciTEWin::CurrentAppearance() const noexcept {
+	return WindowsAppearance();
 }
 
 void SciTEWin::ReadPropertiesInitial() {

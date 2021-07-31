@@ -234,6 +234,7 @@ protected:
 	void ReadPropertiesInitial() override;
 	void ReadProperties() override;
 
+	SystemAppearance WindowsAppearance() const noexcept;
 	SystemAppearance CurrentAppearance() const noexcept override;
 
 	void TimerStart(int mask) override;
