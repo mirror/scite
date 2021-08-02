@@ -1025,12 +1025,12 @@ SA::Position SciTEBase::FindInTarget(const std::string &findWhatText, SA::Span r
 	return posFind;
 }
 
-void SciTEBase::SetFindText(const char *sFind) {
+void SciTEBase::SetFindText(std::string_view sFind) {
 	findWhat = sFind;
-	props.Set("find.what", findWhat.c_str());
+	props.Set("find.what", findWhat);
 }
 
-void SciTEBase::SetFind(const char *sFind) {
+void SciTEBase::SetFind(std::string_view sFind) {
 	SetFindText(sFind);
 	InsertFindInMemory();
 }
@@ -1039,7 +1039,7 @@ bool SciTEBase::FindHasText() const noexcept {
 	return !findWhat.empty();
 }
 
-void SciTEBase::SetReplace(const char *sReplace) {
+void SciTEBase::SetReplace(std::string_view sReplace) {
 	replaceWhat = sReplace;
 	memReplaces.Insert(replaceWhat);
 }

@@ -938,7 +938,7 @@ void SearchStrip::Next(bool select) {
 	if (select) {
 		pSearcher->MoveBack();
 	}
-	pSearcher->SetFindText(ControlText(wText).c_str());
+	pSearcher->SetFindText(ControlText(wText));
 	pSearcher->wholeWord = false;
 	if (pSearcher->FindHasText()) {
 		pSearcher->FindNext(false, false);
@@ -998,9 +998,9 @@ void FindReplaceStrip::NextIncremental(ChangingSource source) {
 	}
 
 	if (source == changingEdit) {
-		pSearcher->SetFindText(ControlText(wText).c_str());
+		pSearcher->SetFindText(ControlText(wText));
 	} else {
-		pSearcher->SetFindText(ComboSelectionText(wText).c_str());
+		pSearcher->SetFindText(ComboSelectionText(wText));
 	}
 
 	if (pSearcher->FindHasText()) {
@@ -1149,7 +1149,7 @@ bool FindStrip::KeyDown(WPARAM key) {
 }
 
 void FindStrip::Next(bool markAll, bool invertDirection) {
-	pSearcher->SetFind(ControlText(wText).c_str());
+	pSearcher->SetFind(ControlText(wText));
 	if (markAll) {
 		pSearcher->MarkAll(Searcher::MarkPurpose::withBookMarks);
 	}
@@ -1416,11 +1416,11 @@ void ReplaceStrip::ShowPopup() {
 }
 
 void ReplaceStrip::HandleReplaceCommand(int cmd, bool reverseFind) {
-	pSearcher->SetFind(ControlText(wText).c_str());
+	pSearcher->SetFind(ControlText(wText));
 	SetComboFromMemory(wText, pSearcher->memFinds);
 	SetComboText(wText, pSearcher->findWhat, ComboSelection::atEnd);
 	if (cmd != IDOK) {
-		pSearcher->SetReplace(ControlText(wReplace).c_str());
+		pSearcher->SetReplace(ControlText(wReplace));
 		SetComboFromMemory(wReplace, pSearcher->memReplaces);
 		SetComboText(wReplace, pSearcher->replaceWhat, ComboSelection::atEnd);
 	}

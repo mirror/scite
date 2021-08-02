@@ -304,11 +304,11 @@ public:
 
 	Searcher();
 
-	virtual void SetFindText(const char *sFind) = 0;
-	virtual void SetFind(const char *sFind) = 0;
+	virtual void SetFindText(std::string_view sFind) = 0;
+	virtual void SetFind(std::string_view sFind) = 0;
 	virtual bool FindHasText() const noexcept = 0;
 	void InsertFindInMemory();
-	virtual void SetReplace(const char *sReplace) = 0;
+	virtual void SetReplace(std::string_view sReplace) = 0;
 	virtual void SetCaretAsStart() = 0;
 	virtual void MoveBack() = 0;
 	virtual void ScrollEditorIfNeeded() = 0;
@@ -747,10 +747,10 @@ protected:
 	bool FindReplaceAdvanced() const;
 	SA::Position FindInTarget(const std::string &findWhatText, SA::Span range);
 	// Implement Searcher
-	void SetFindText(const char *sFind) override;
-	void SetFind(const char *sFind) override;
+	void SetFindText(std::string_view sFind) override;
+	void SetFind(std::string_view sFind) override;
 	bool FindHasText() const noexcept override;
-	void SetReplace(const char *sReplace) override;
+	void SetReplace(std::string_view sReplace) override;
 	void SetCaretAsStart() override;
 	void MoveBack() override;
 	void ScrollEditorIfNeeded() override;

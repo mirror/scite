@@ -897,9 +897,9 @@ public:
 };
 
 void DialogFindReplace::GrabFields() {
-	pSearcher->SetFind(ItemTextU(IDFINDWHAT).c_str());
+	pSearcher->SetFind(ItemTextU(IDFINDWHAT));
 	if (pSearcher->replacing) {
-		pSearcher->SetReplace(ItemTextU(IDREPLACEWITH).c_str());
+		pSearcher->SetReplace(ItemTextU(IDREPLACEWITH));
 	}
 	pSearcher->wholeWord = Checked(IDWHOLEWORD);
 	pSearcher->matchCase = Checked(IDMATCHCASE);
