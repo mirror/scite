@@ -349,7 +349,7 @@ bool Strip::KeyDown(WPARAM key) {
 	case VK_TAB:
 		if (IsChild(Hwnd(), ::GetFocus())) {
 			::SendMessage(Hwnd(), WM_UPDATEUISTATE, (UISF_HIDEACCEL|UISF_HIDEFOCUS) << 16 | UIS_CLEAR, 0);
-			Tab((::GetKeyState(VK_SHIFT) & 0x80000000) == 0);
+			Tab(IsKeyDown(VK_SHIFT));
 			return true;
 		} else {
 			return false;
@@ -358,7 +358,7 @@ bool Strip::KeyDown(WPARAM key) {
 		Close();
 		return true;
 	default:
-		if ((::GetKeyState(VK_MENU) & 0x80000000) != 0) {
+		if (IsKeyDown(VK_MENU) && !IsKeyDown(VK_CONTROL)) {
 			HWND wChild = GetFirstChild(Hwnd());
 			while (wChild) {
 				const GUI::gui_string className = ClassNameOfWindow(wChild);
