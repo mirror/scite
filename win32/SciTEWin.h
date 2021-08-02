@@ -23,9 +23,11 @@
 #include <map>
 #include <set>
 #include <optional>
+#include <initializer_list>
 #include <algorithm>
 #include <iterator>
 #include <memory>
+#include <numeric>
 #include <chrono>
 #include <sstream>
 #include <iomanip>
