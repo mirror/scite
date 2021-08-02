@@ -396,6 +396,7 @@ public:
 	void PostOnMainThread(int cmd, Worker *pWorker) override;
 	void WorkerCommand(int cmd, Worker *pWorker) override;
 
+	void CreateStrip(LPCWSTR stripName, LPVOID lpParam);
 	void Creation();
 	LRESULT KeyDown(WPARAM wParam);
 	LRESULT KeyUp(WPARAM wParam);

@@ -846,6 +846,22 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 	return retResult;
 }
 
+void SciTEWin::CreateStrip(LPCWSTR stripName, LPVOID lpParam) {
+	const HWND hwnd = ::CreateWindowExW(
+		0,
+		classNameInternal,
+		stripName,
+		WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+		0, 0,
+		100, 100,
+		MainHWND(),
+		HmenuID(2001),
+		hInstance,
+		lpParam);
+	if (!hwnd)
+		exit(FALSE);
+}
+
 /**
  * Create all the needed windows.
  */
@@ -991,75 +1007,11 @@ void SciTEWin::Creation() {
 
 	wTabBar.Show();
 
-	HWND hwnd = ::CreateWindowEx(
-			    0,
-			    classNameInternal,
-			    TEXT("userStrip"),
-			    WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-			    0, 0,
-			    100, 100,
-			    MainHWND(),
-			    HmenuID(2001),
-			    hInstance,
-			    &userStrip);
-	if (!hwnd)
-		exit(FALSE);
-
-	hwnd = ::CreateWindowEx(
-		       0,
-		       classNameInternal,
-		       TEXT("backgroundStrip"),
-		       WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-		       0, 0,
-		       100, 100,
-		       MainHWND(),
-		       HmenuID(2001),
-		       hInstance,
-		       &backgroundStrip);
-	if (!hwnd)
-		exit(FALSE);
-
-	hwnd = ::CreateWindowEx(
-		       0,
-		       classNameInternal,
-		       TEXT("searchStrip"),
-		       WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-		       0, 0,
-		       100, 100,
-		       MainHWND(),
-		       HmenuID(2001),
-		       hInstance,
-		       &searchStrip);
-	if (!hwnd)
-		exit(FALSE);
-
-	hwnd = ::CreateWindowEx(
-		       0,
-		       classNameInternal,
-		       TEXT("FindStrip"),
-		       WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-		       0, 0,
-		       100, 100,
-		       MainHWND(),
-		       HmenuID(2002),
-		       hInstance,
-		       &findStrip);
-	if (!hwnd)
-		exit(FALSE);
-
-	hwnd = ::CreateWindowEx(
-		       0,
-		       classNameInternal,
-		       TEXT("ReplaceStrip"),
-		       WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-		       0, 0,
-		       100, 100,
-		       MainHWND(),
-		       HmenuID(2003),
-		       hInstance,
-		       &replaceStrip);
-	if (!hwnd)
-		exit(FALSE);
+	CreateStrip(L"BackgroundStrip", &backgroundStrip);
+	CreateStrip(L"UserStrip", &userStrip);
+	CreateStrip(L"SearchStrip", &searchStrip);
+	CreateStrip(L"FindStrip", &findStrip);
+	CreateStrip(L"ReplaceStrip", &replaceStrip);
 
 	wStatusBar = ::CreateWindowEx(
 			     0,
