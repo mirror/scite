@@ -1704,7 +1704,7 @@ void UserStrip::SetDescription(const char *description) {
 			}
 		}
 	}
-	psd.reset(new StripDefinition(sDescription));
+	psd = std::make_unique<StripDefinition>(sDescription);
 	// Create all the controls but with arbitrary initial positions which will be fixed up later.
 	size_t controlID=0;
 	int top = space;
