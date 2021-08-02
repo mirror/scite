@@ -970,7 +970,7 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 				(ControlIDOfWParam(wParam) == IDMARKALL)) {
 			dlg.GrabFields();
 			if (ControlIDOfWParam(wParam) == IDMARKALL) {
-				MarkAll(markWithBookMarks);
+				MarkAll(MarkPurpose::withBookMarks);
 			}
 			// Holding the Shift key inverts the current reverse flag
 			const bool found = FindNext(reverseFind != IsKeyDown(VK_SHIFT)) >= 0;
@@ -1180,11 +1180,11 @@ void SciTEWin::PerformGrep() {
 		searchParams.append(props.GetString("find.files"));
 		searchParams.append("\0", 1);
 		searchParams.append(props.GetString("find.what"));
-		AddCommand(searchParams, props.GetString("find.directory"), jobGrep, findInput, flags);
+		AddCommand(searchParams, props.GetString("find.directory"), JobSubsystem::grep, findInput, flags);
 	} else {
 		AddCommand(findCommand,
 			   props.GetString("find.directory"),
-			   jobCLI, findInput, flags);
+			   JobSubsystem::cli, findInput, flags);
 	}
 	if (jobQueue.HasCommandToRun()) {
 		Execute();
@@ -1652,15 +1652,15 @@ SciTEBase::MessageBoxChoice SciTEWin::WindowMessageBox(GUI::Window &w, const GUI
 	dialogsOnScreen--;
 	switch (ret) {
 	case IDOK:
-		return mbOK;
+		return MessageBoxChoice::ok;
 	case IDCANCEL:
-		return mbCancel;
+		return MessageBoxChoice::cancel;
 	case IDYES:
-		return mbYes;
+		return MessageBoxChoice::yes;
 	case IDNO:
-		return mbNo;
+		return MessageBoxChoice::no;
 	default:
-		return mbOK;
+		return MessageBoxChoice::ok;
 	}
 }
 

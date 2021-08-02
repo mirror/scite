@@ -856,22 +856,22 @@ void SciTEWin::ExecuteNext() {
 DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 	DWORD exitcode = 0;
 
-	if (jobToRun.jobType == jobShell) {
+	if (jobToRun.jobType == JobSubsystem::shell) {
 		ShellExec(jobToRun.command, jobToRun.directory.AsUTF8().c_str());
 		return exitcode;
 	}
 
-	if (jobToRun.jobType == jobHelp) {
+	if (jobToRun.jobType == JobSubsystem::help) {
 		ExecuteHelp(jobToRun.command.c_str());
 		return exitcode;
 	}
 
-	if (jobToRun.jobType == jobOtherHelp) {
+	if (jobToRun.jobType == JobSubsystem::otherHelp) {
 		ExecuteOtherHelp(jobToRun.command.c_str());
 		return exitcode;
 	}
 
-	if (jobToRun.jobType == jobGrep) {
+	if (jobToRun.jobType == JobSubsystem::grep) {
 		// jobToRun.command is "(w|~)(c|~)(d|~)(b|~)\0files\0text"
 		const char *grepCmd = jobToRun.command.c_str();
 		if (*grepCmd) {
@@ -935,7 +935,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 	STARTUPINFOW si = {};
 	si.cb = sizeof(STARTUPINFO);
 	si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
-	if (jobToRun.jobType == jobCLI)
+	if (jobToRun.jobType == JobSubsystem::cli)
 		si.wShowWindow = SW_HIDE;
 	else
 		si.wShowWindow = SW_SHOW;
@@ -963,7 +963,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 
 	const DWORD errCode = ::GetLastError();
 	// if jobCLI "System can't find" - try calling with command processor
-	if ((!running) && (jobToRun.jobType == jobCLI) && (
+	if ((!running) && (jobToRun.jobType == JobSubsystem::cli) && (
 				(errCode == ERROR_FILE_NOT_FOUND) || (errCode == ERROR_BAD_EXE_FORMAT))) {
 
 		std::string runComLine = "cmd.exe /c ";
@@ -1297,7 +1297,7 @@ void SciTEWin::Execute() {
 	if (scrollOutput)
 		wOutput.GotoPos(wOutput.Length());
 
-	if (jobQueue.jobQueue[cmdWorker.icmd].jobType == jobExtension) {
+	if (jobQueue.jobQueue[cmdWorker.icmd].jobType == JobSubsystem::extension) {
 		// Execute extensions synchronously
 		if (jobQueue.jobQueue[cmdWorker.icmd].flags & jobGroupUndo)
 			wEditor.BeginUndoAction();
@@ -1344,7 +1344,7 @@ void SciTEWin::StopExecute() {
 
 void SciTEWin::AddCommand(const std::string &cmd, const std::string &dir, JobSubsystem jobType, const std::string &input, int flags) {
 	if (cmd.length()) {
-		if ((jobType == jobShell) && ((flags & jobForceQueue) == 0)) {
+		if ((jobType == JobSubsystem::shell) && ((flags & jobForceQueue) == 0)) {
 			std::string pCmd = cmd;
 			parameterisedCommand = "";
 			if (pCmd[0] == '*') {
@@ -1381,7 +1381,7 @@ void SciTEWin::WorkerCommand(int cmd, Worker *pWorker) {
 
 void SciTEWin::QuitProgram() {
 	quitting = false;
-	if (SaveIfUnsureAll() != saveCancelled) {
+	if (SaveIfUnsureAll() != SaveResult::cancelled) {
 		if (fullScreen)	// Ensure tray visible on exit
 			FullScreenToggle();
 		quitting = true;

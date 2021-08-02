@@ -907,7 +907,7 @@ void SciTEBase::SelectionAdd(AddSelection add) {
 	}
 	pwFocussed->TargetWholeDocument();
 	pwFocussed->SetSearchFlags(flags);
-	if (add == addNext) {
+	if (add == AddSelection::next) {
 		pwFocussed->MultipleSelectAddNext();
 	} else {
 		if (pwFocussed->SelectionEmpty()) {
@@ -964,7 +964,7 @@ SA::FindOption SciTEBase::SearchFlags(bool regularExpressions) const {
 void SciTEBase::MarkAll(MarkPurpose purpose) {
 	RemoveFindMarks();
 	wEditor.SetIndicatorCurrent(indicatorMatch);
-	if (purpose == markIncremental) {
+	if (purpose == MarkPurpose::incremental) {
 		CurrentBuffer()->findMarks = Buffer::fmTemporary;
 		SetOneIndicator(wEditor, indicatorMatch,
 				IndicatorDefinition(props.GetString("find.indicator.incremental")));
@@ -990,7 +990,7 @@ void SciTEBase::MarkAll(MarkPurpose purpose) {
 
 	findMarker.StartMatch(&wEditor, findTarget,
 			      SearchFlags(regExp), -1,
-			      indicatorMatch, (purpose == markWithBookMarks) ? markerBookmark : -1);
+			      indicatorMatch, (purpose == MarkPurpose::withBookMarks) ? markerBookmark : -1);
 	SetIdler(true);
 }
 
@@ -1348,7 +1348,7 @@ void SciTEBase::Execute() {
 		ParamGrab();
 	}
 	for (size_t ic = 0; ic < jobQueue.commandMax; ic++) {
-		if (jobQueue.jobQueue[ic].jobType != jobGrep) {
+		if (jobQueue.jobQueue[ic].jobType != JobSubsystem::grep) {
 			jobQueue.jobQueue[ic].command = props.Expand(jobQueue.jobQueue[ic].command);
 		}
 	}
@@ -2483,24 +2483,24 @@ static bool includes(const StyleAndWords &symbols, const std::string &value) {
 
 IndentationStatus SciTEBase::GetIndentState(SA::Line line) {
 	// C like language indentation defined by braces and keywords
-	IndentationStatus indentState = isNone;
+	IndentationStatus indentState = IndentationStatus::none;
 	const std::vector<std::string> controlIndents = GetLinePartsInStyle(line, statementIndent);
 	for (const std::string &sIndent : controlIndents) {
 		if (includes(statementIndent, sIndent))
-			indentState = isKeyWordStart;
+			indentState = IndentationStatus::keyWordStart;
 	}
 	const std::vector<std::string> controlEnds = GetLinePartsInStyle(line, statementEnd);
 	for (const std::string &sEnd : controlEnds) {
 		if (includes(statementEnd, sEnd))
-			indentState = isNone;
+			indentState = IndentationStatus::none;
 	}
 	// Braces override keywords
 	const std::vector<std::string> controlBlocks = GetLinePartsInStyle(line, blockEnd);
 	for (const std::string &sBlock : controlBlocks) {
 		if (includes(blockEnd, sBlock))
-			indentState = isBlockEnd;
+			indentState = IndentationStatus::blockEnd;
 		if (includes(blockStart, sBlock))
-			indentState = isBlockStart;
+			indentState = IndentationStatus::blockStart;
 	}
 	return indentState;
 }
@@ -2511,28 +2511,28 @@ int SciTEBase::IndentOfBlock(SA::Line line) {
 	const int indentSize = wEditor.Indent();
 	int indentBlock = GetLineIndentation(line);
 	SA::Line backLine = line;
-	IndentationStatus indentState = isNone;
+	IndentationStatus indentState = IndentationStatus::none;
 	if (statementIndent.IsEmpty() && blockStart.IsEmpty() && blockEnd.IsEmpty())
-		indentState = isBlockStart;	// Don't bother searching backwards
+		indentState = IndentationStatus::blockStart;	// Don't bother searching backwards
 
 	SA::Line lineLimit = line - statementLookback;
 	if (lineLimit < 0)
 		lineLimit = 0;
-	while ((backLine >= lineLimit) && (indentState == 0)) {
+	while ((backLine >= lineLimit) && (indentState == IndentationStatus::none)) {
 		indentState = GetIndentState(backLine);
-		if (indentState != 0) {
+		if (indentState != IndentationStatus::none) {
 			indentBlock = GetLineIndentation(backLine);
-			if (indentState == isBlockStart) {
+			if (indentState == IndentationStatus::blockStart) {
 				if (!indentOpening)
 					indentBlock += indentSize;
 			}
-			if (indentState == isBlockEnd) {
+			if (indentState == IndentationStatus::blockEnd) {
 				if (indentClosing)
 					indentBlock -= indentSize;
 				if (indentBlock < 0)
 					indentBlock = 0;
 			}
-			if ((indentState == isKeyWordStart) && (backLine == line))
+			if ((indentState == IndentationStatus::keyWordStart) && (backLine == line))
 				indentBlock += indentSize;
 		}
 		backLine--;
@@ -2610,10 +2610,10 @@ void SciTEBase::AutomaticIndentation(char ch) {
 			}
 		}
 	} else if (!blockEnd.IsSingleChar() && (ch == ' ')) {	// Dedent maybe
-		if (!indentClosing && (GetIndentState(curLine) == isBlockEnd)) {}
+		if (!indentClosing && (GetIndentState(curLine) == IndentationStatus::blockEnd)) {}
 	} else if (blockStart.IsSingleChar() && (ch == blockStart.words[0])) {
 		// Dedent maybe if first on line and previous line was starting keyword
-		if (!indentOpening && (GetIndentState(curLine - 1) == isKeyWordStart)) {
+		if (!indentOpening && (GetIndentState(curLine - 1) == IndentationStatus::keyWordStart)) {
 			if (RangeIsAllWhitespace(thisLineStart, selStart - 1)) {
 				SetLineIndentation(curLine, indentBlock - indentSize);
 			}
@@ -2993,7 +2993,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		WindowSetFocus(wEditor);
 		break;
 	case IDM_CLOSE:
-		if (SaveIfUnsure() != saveCancelled) {
+		if (SaveIfUnsure() != SaveResult::cancelled) {
 			Close();
 			WindowSetFocus(wEditor);
 		}
@@ -3191,11 +3191,11 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		break;
 
 	case IDM_SELECTIONADDNEXT:
-		SelectionAdd(addNext);
+		SelectionAdd(AddSelection::next);
 		break;
 
 	case IDM_SELECTIONADDEACH:
-		SelectionAdd(addEach);
+		SelectionAdd(AddSelection::each);
 		break;
 
 	case IDM_FINDNEXTBACKSEL:
@@ -3458,7 +3458,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		break;
 
 	case IDM_COMPILE: {
-			if (SaveIfUnsureForBuilt() != saveCancelled) {
+			if (SaveIfUnsureForBuilt() != SaveResult::cancelled) {
 				SelectionIntoProperties();
 				AddCommand(props.GetWild("command.compile.", FileNameExt().AsUTF8().c_str()), "",
 					   SubsystemType("command.compile.subsystem."));
@@ -3469,7 +3469,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		break;
 
 	case IDM_BUILD: {
-			if (SaveIfUnsureForBuilt() != saveCancelled) {
+			if (SaveIfUnsureForBuilt() != SaveResult::cancelled) {
 				SelectionIntoProperties();
 				AddCommand(
 					props.GetWild("command.build.", FileNameExt().AsUTF8().c_str()),
@@ -3484,7 +3484,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		break;
 
 	case IDM_CLEAN: {
-			if (SaveIfUnsureForBuilt() != saveCancelled) {
+			if (SaveIfUnsureForBuilt() != SaveResult::cancelled) {
 				SelectionIntoProperties();
 				AddCommand(props.GetWild("command.clean.", FileNameExt().AsUTF8().c_str()), "",
 					   SubsystemType("command.clean.subsystem."));
@@ -3495,7 +3495,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		break;
 
 	case IDM_GO: {
-			if (SaveIfUnsureForBuilt() != saveCancelled) {
+			if (SaveIfUnsureForBuilt() != SaveResult::cancelled) {
 				SelectionIntoProperties();
 				int flags = 0;
 
@@ -3831,7 +3831,7 @@ void SciTEBase::NewLineInOutput() {
 		cmd = cmd.substr(1);
 	}
 	returnOutputToCommand = false;
-	AddCommand(cmd, "", jobCLI);
+	AddCommand(cmd, "", JobSubsystem::cli);
 	Execute();
 }
 
@@ -4687,7 +4687,7 @@ bool SciTEBase::ProcessCommandLine(const GUI::gui_string &args, int phase) {
 					}
 				} else {
 					if (evaluate) {
-						props.ReadLine(GUI::UTF8FromString(arg).c_str(), PropSetFile::rlActive,
+						props.ReadLine(GUI::UTF8FromString(arg).c_str(), PropSetFile::ReadLineState::active,
 							       FilePath::GetWorkingDirectory(), filter, nullptr, 0);
 					}
 				}

@@ -1017,7 +1017,7 @@ void FindReplaceStrip::SetIncrementalBehaviour(int behaviour) noexcept {
 
 void FindReplaceStrip::MarkIncremental() {
 	if (incrementalBehaviour == showAllMatches) {
-		pSearcher->MarkAll(Searcher::markIncremental);
+		pSearcher->MarkAll(Searcher::MarkPurpose::incremental);
 	}
 }
 
@@ -1151,7 +1151,7 @@ bool FindStrip::KeyDown(WPARAM key) {
 void FindStrip::Next(bool markAll, bool invertDirection) {
 	pSearcher->SetFind(ControlText(wText).c_str());
 	if (markAll) {
-		pSearcher->MarkAll(Searcher::markWithBookMarks);
+		pSearcher->MarkAll(Searcher::MarkPurpose::withBookMarks);
 	}
 	const bool found = pSearcher->FindNext(pSearcher->reverseFind ^ invertDirection) >= 0;
 	if (pSearcher->ShouldClose(found)) {

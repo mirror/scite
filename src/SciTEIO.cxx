@@ -339,7 +339,7 @@ void SciTEBase::OpenCurrentFile(long long fileSize, bool suppressMessage, bool a
 			CurrentBuffer()->unicodeMode = umCodingCookie;
 		}
 
-		CompleteOpen(ocSynchronous);
+		CompleteOpen(OpenCompletion::synchronous);
 	}
 }
 
@@ -361,7 +361,7 @@ void SciTEBase::TextRead(FileWorker *pFileWorker) {
 		pFileLoader->pLoader = nullptr;
 		SwitchDocumentAt(iBuffer, pdocLoading);
 		if (iBuffer == buffers.Current()) {
-			CompleteOpen(ocCompleteCurrent);
+			CompleteOpen(OpenCompletion::completeCurrent);
 			if (extender)
 				extender->OnOpen(buffers.buffers[iBuffer].file.AsUTF8().c_str());
 			RestoreState(buffers.buffers[iBuffer], true);
@@ -382,7 +382,7 @@ void SciTEBase::PerformDeferredTasks() {
 void SciTEBase::CompleteOpen(OpenCompletion oc) {
 	wEditor.SetReadOnly(CurrentBuffer()->isReadOnly);
 
-	if (oc != ocSynchronous) {
+	if (oc != OpenCompletion::synchronous) {
 		ReadProperties();
 	}
 
@@ -396,7 +396,7 @@ void SciTEBase::CompleteOpen(OpenCompletion oc) {
 		}
 	}
 
-	if (oc != ocSynchronous) {
+	if (oc != OpenCompletion::synchronous) {
 		SetIndentSettings();
 		SetEol();
 		UpdateBuffersCurrent();
@@ -572,7 +572,7 @@ bool SciTEBase::Open(const FilePath &file, OpenFlags of) {
 						    "Do you still want to open it?",
 						    absPath.AsInternal(), sSize.c_str(), sMaxSize.c_str());
 			const MessageBoxChoice answer = WindowMessageBox(wSciTE, msg, mbsYesNo | mbsIconWarning);
-			if (answer != mbYes) {
+			if (answer != MessageBoxChoice::yes) {
 				return false;
 			}
 		}
@@ -661,7 +661,7 @@ bool SciTEBase::OpenSelected() {
 			StartsWith(selName, "news:") ||
 			StartsWith(selName, "mailto:")) {
 		std::string cmd = selName;
-		AddCommand(cmd, "", jobShell);
+		AddCommand(cmd, "", JobSubsystem::shell);
 		return false;	// Job is done
 	}
 #endif
@@ -796,7 +796,7 @@ void SciTEBase::CheckReload() {
 							      FileNameExt().AsInternal());
 					}
 					const MessageBoxChoice decision = WindowMessageBox(wSciTE, msg, mbsYesNo | mbsIconQuestion);
-					if (decision == mbYes) {
+					if (decision == MessageBoxChoice::yes) {
 						Open(filePath, static_cast<OpenFlags>(of | ofForceLoad));
 						DisplayAround(rf);
 					}
@@ -858,9 +858,9 @@ SciTEBase::SaveResult SciTEBase::SaveIfUnsure(bool forceQuestion, SaveFlags sf) 
 	if (CurrentBuffer()->pFileWorker) {
 		if (CurrentBuffer()->pFileWorker->IsLoading())
 			// In semi-loaded state so refuse to save
-			return saveCancelled;
+			return SaveResult::cancelled;
 		else
-			return saveCompleted;
+			return SaveResult::completed;
 	}
 	if ((CurrentBuffer()->isDirty) && (LengthDocument() || !filePath.IsUntitled() || forceQuestion)) {
 		if (props.GetInt("are.you.sure", 1) ||
@@ -873,22 +873,22 @@ SciTEBase::SaveResult SciTEBase::SaveIfUnsure(bool forceQuestion, SaveFlags sf) 
 				msg = LocaliseMessage("Save changes to (Untitled)?");
 			}
 			const MessageBoxChoice decision = WindowMessageBox(wSciTE, msg, mbsYesNoCancel | mbsIconQuestion);
-			if (decision == mbYes) {
+			if (decision == MessageBoxChoice::yes) {
 				if (!Save(sf))
-					return saveCancelled;
+					return SaveResult::cancelled;
 			}
-			return (decision == mbCancel) ? saveCancelled : saveCompleted;
+			return (decision == MessageBoxChoice::cancel) ? SaveResult::cancelled : SaveResult::completed;
 		} else {
 			if (!Save(sf))
-				return saveCancelled;
+				return SaveResult::cancelled;
 		}
 	}
-	return saveCompleted;
+	return SaveResult::completed;
 }
 
 SciTEBase::SaveResult SciTEBase::SaveIfUnsureAll() {
-	if (SaveAllBuffers(false) == saveCancelled) {
-		return saveCancelled;
+	if (SaveAllBuffers(false) == SaveResult::cancelled) {
+		return SaveResult::cancelled;
 	}
 	if (props.GetInt("save.recent")) {
 		for (int i = 0; i < buffers.lengthVisible; ++i) {
@@ -921,7 +921,7 @@ SciTEBase::SaveResult SciTEBase::SaveIfUnsureAll() {
 		}
 	}
 	// Initial document will be deleted when editor deleted
-	return saveCompleted;
+	return SaveResult::completed;
 }
 
 SciTEBase::SaveResult SciTEBase::SaveIfUnsureForBuilt() {
@@ -934,8 +934,9 @@ SciTEBase::SaveResult SciTEBase::SaveIfUnsureForBuilt() {
 
 		Save();
 	}
-	return saveCompleted;
+	return SaveResult::completed;
 }
+
 /**
 	Selection saver and restorer.
 
@@ -1206,7 +1207,7 @@ bool SciTEBase::Save(SaveFlags sf) {
 				msg = LocaliseMessage("The file '^0' has been modified outside SciTE. Should it be saved?",
 						      filePath.AsInternal());
 				const MessageBoxChoice decision = WindowMessageBox(wSciTE, msg, mbsYesNo | mbsIconQuestion);
-				if (decision == mbNo) {
+				if (decision == MessageBoxChoice::no) {
 					return false;
 				}
 			}
@@ -1229,7 +1230,7 @@ bool SciTEBase::Save(SaveFlags sf) {
 				msg = LocaliseMessage(
 					      "Could not save file '^0'. Save under a different name?", filePath.AsInternal());
 				const MessageBoxChoice decision = WindowMessageBox(wSciTE, msg, mbsYesNo | mbsIconWarning);
-				if (decision == mbYes) {
+				if (decision == MessageBoxChoice::yes) {
 					return SaveAsDialog();
 				}
 			}

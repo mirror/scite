@@ -570,7 +570,7 @@ protected:
 	GdkRectangle saved;
 
 	GtkWidget *AddMBButton(GtkWidget *dialog, const char *label,
-	                       int val, GtkAccelGroup *accel_group, bool isDefault = false);
+	                       MessageBoxChoice val, GtkAccelGroup *accel_group, bool isDefault = false);
 	void SetIcon();
 
 	void ReadLocalization() override;
@@ -887,10 +887,10 @@ static void messageBoxOK(GtkWidget *, gpointer p) {
 }
 
 GtkWidget *SciTEGTK::AddMBButton(GtkWidget *dialog, const char *label,
-	int val, GtkAccelGroup *accel_group, bool isDefault) {
+	MessageBoxChoice val, GtkAccelGroup *accel_group, bool isDefault) {
 	GUI::gui_string translated = localiser.Text(label);
 #if GTK_CHECK_VERSION(3,14,0)
-	GtkWidget *button = gtk_dialog_add_button(GTK_DIALOG(dialog), translated.c_str(), val);
+	GtkWidget *button = gtk_dialog_add_button(GTK_DIALOG(dialog), translated.c_str(), static_cast<int>(val));
 #else
 	GtkWidget *button = gtk_button_new_with_mnemonic(translated.c_str());
 #endif
@@ -2129,7 +2129,7 @@ void SciTEGTK::FRReplaceInBuffersCmd() {
 
 void SciTEGTK::FRMarkAllCmd() {
 	FindReplaceGrabFields();
-	MarkAll(markWithBookMarks);
+	MarkAll(MarkPurpose::withBookMarks);
 	const bool found = FindNext(reverseFind) >= 0;
 	if (ShouldClose(found))
 		dlgFindReplace.Destroy();
@@ -2199,7 +2199,7 @@ void SciTEGTK::FindInFilesCmd() {
 		findCommand += quotedForm;
 		findCommand += "\"";
 	}
-	AddCommand(findCommand, props.GetString("find.directory"), jobCLI);
+	AddCommand(findCommand, props.GetString("find.directory"), JobSubsystem::cli);
 	if (jobQueue.HasCommandToRun())
 		Execute();
 	if (dlgFindInFiles.Created()) {
@@ -2711,7 +2711,7 @@ void SciTEGTK::Execute() {
 	lastOutput = "";
 	lastFlags = jobQueue.jobQueue[icmd].flags;
 
-	if (jobQueue.jobQueue[icmd].jobType != jobExtension) {
+	if (jobQueue.jobQueue[icmd].jobType != JobSubsystem::extension) {
 		OutputAppendString(">");
 		OutputAppendString(jobQueue.jobQueue[icmd].command.c_str());
 		OutputAppendString("\n");
@@ -2721,11 +2721,11 @@ void SciTEGTK::Execute() {
 		jobQueue.jobQueue[icmd].directory.SetWorkingDirectory();
 	}
 
-	if (jobQueue.jobQueue[icmd].jobType == jobShell) {
+	if (jobQueue.jobQueue[icmd].jobType == JobSubsystem::shell) {
 		const gchar *argv[] = { "/bin/sh", "-c", jobQueue.jobQueue[icmd].command.c_str(), NULL };
 		g_spawn_async(NULL, const_cast<gchar**>(argv), NULL, GSpawnFlags(0), NULL, NULL, NULL, NULL);
 		ExecuteNext();
-	} else if (jobQueue.jobQueue[icmd].jobType == jobExtension) {
+	} else if (jobQueue.jobQueue[icmd].jobType == JobSubsystem::extension) {
 		if (extender)
 			extender->OnExecute(jobQueue.jobQueue[icmd].command.c_str());
 		ExecuteNext();
@@ -3181,16 +3181,16 @@ SciTEBase::MessageBoxChoice SciTEGTK::WindowMessageBox(GUI::Window &w, const GUI
 		g_signal_connect(G_OBJECT(messageBoxDialog),
 		                   "destroy", G_CALLBACK(messageBoxDestroy), &messageBoxDialog);
 
-		MessageBoxChoice escapeResult = mbOK;
+		MessageBoxChoice escapeResult = MessageBoxChoice::ok;
 		if ((style & 0xf) == mbsOK) {
-			AddMBButton(messageBoxDialog, "_OK", mbOK, accel_group, true);
+			AddMBButton(messageBoxDialog, "_OK", MessageBoxChoice::ok, accel_group, true);
 		} else {
-			AddMBButton(messageBoxDialog, "_Yes", mbYes, accel_group, true);
-			AddMBButton(messageBoxDialog, "_No", mbNo, accel_group);
-			escapeResult = mbNo;
+			AddMBButton(messageBoxDialog, "_Yes", MessageBoxChoice::yes, accel_group, true);
+			AddMBButton(messageBoxDialog, "_No", MessageBoxChoice::no, accel_group);
+			escapeResult = MessageBoxChoice::no;
 			if ((style & 0xf) == mbsYesNoCancel) {
-				AddMBButton(messageBoxDialog, "_Cancel", mbCancel, accel_group);
-				escapeResult = mbCancel;
+				AddMBButton(messageBoxDialog, "_Cancel", MessageBoxChoice::cancel, accel_group);
+				escapeResult = MessageBoxChoice::cancel;
 			}
 		}
 		g_signal_connect(G_OBJECT(messageBoxDialog),
@@ -3263,7 +3263,7 @@ void SciTEGTK::AboutDialog() {
 }
 
 void SciTEGTK::QuitProgram() {
-	if (SaveIfUnsureAll() != saveCancelled) {
+	if (SaveIfUnsureAll() != SaveResult::cancelled) {
 		quitting = true;
 		// If ongoing saves, wait for them to complete.
 		if (!buffers.SavingInBackground()) {
@@ -4087,7 +4087,7 @@ void FindReplaceStrip::SetIncrementalBehaviour(int behaviour) {
 
 void FindReplaceStrip::MarkIncremental() {
  	if (incrementalBehaviour == showAllMatches) {
-		pSearcher->MarkAll(Searcher::markIncremental);
+		pSearcher->MarkAll(Searcher::MarkPurpose::incremental);
 	}
 }
 
@@ -4296,7 +4296,7 @@ void FindStrip::FindNextCmd() {
 
 void FindStrip::MarkAllCmd() {
 	GrabFields();
-	pSearcher->MarkAll();
+	pSearcher->MarkAll(Searcher::MarkPurpose::withBookMarks);
 	const bool found = pSearcher->FindNext(pSearcher->reverseFind) >= 0;
 	if (pSearcher->ShouldClose(found))
 		Close();

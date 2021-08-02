@@ -414,7 +414,7 @@ void SciTEBase::SetDocumentAt(int index, bool updateStack) {
 	const bool restoreBookmarks = bufferNext.lifeState == Buffer::readAll;
 	PerformDeferredTasks();
 	if (bufferNext.lifeState == Buffer::readAll) {
-		CompleteOpen(ocCompleteSwitch);
+		CompleteOpen(OpenCompletion::completeSwitch);
 		if (extender)
 			extender->OnOpen(filePath.AsUTF8().c_str());
 	}
@@ -487,7 +487,7 @@ bool SciTEBase::CanMakeRoom(bool maySaveIfDirty) {
 		return true;
 	} else if (maySaveIfDirty) {
 		// All available buffers are taken, try and close the current one
-		if (SaveIfUnsure(true, static_cast<SaveFlags>(sfProgressVisible | sfSynchronous)) != saveCancelled) {
+		if (SaveIfUnsure(true, static_cast<SaveFlags>(sfProgressVisible | sfSynchronous)) != SaveResult::cancelled) {
 			// The file isn't dirty, or the user agreed to close the current one
 			return true;
 		}
@@ -973,7 +973,7 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 		PerformDeferredTasks();
 		if (bufferNext.lifeState == Buffer::readAll) {
 			//restoreBookmarks = true;
-			CompleteOpen(ocCompleteSwitch);
+			CompleteOpen(OpenCompletion::completeSwitch);
 			if (extender)
 				extender->OnOpen(filePath.AsUTF8().c_str());
 		}
@@ -1005,14 +1005,14 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 void SciTEBase::CloseTab(int tab) {
 	const int tabCurrent = buffers.Current();
 	if (tab == tabCurrent) {
-		if (SaveIfUnsure() != saveCancelled) {
+		if (SaveIfUnsure() != SaveResult::cancelled) {
 			Close();
 			WindowSetFocus(wEditor);
 		}
 	} else {
 		FilePath fpCurrent = buffers.buffers[tabCurrent].file.AbsolutePath();
 		SetDocumentAt(tab);
-		if (SaveIfUnsure() != saveCancelled) {
+		if (SaveIfUnsure() != SaveResult::cancelled) {
 			Close();
 			WindowSetFocus(wEditor);
 			// Return to the previous buffer
@@ -1022,7 +1022,7 @@ void SciTEBase::CloseTab(int tab) {
 }
 
 void SciTEBase::CloseAllBuffers(bool loadingSession) {
-	if (SaveAllBuffers(false) != saveCancelled) {
+	if (SaveAllBuffers(false) != SaveResult::cancelled) {
 		while (buffers.lengthVisible > 1)
 			Close(false, loadingSession);
 
@@ -1031,15 +1031,15 @@ void SciTEBase::CloseAllBuffers(bool loadingSession) {
 }
 
 SciTEBase::SaveResult SciTEBase::SaveAllBuffers(bool alwaysYes) {
-	SaveResult choice = saveCompleted;
+	SaveResult choice = SaveResult::completed;
 	UpdateBuffersCurrent();
 	const int currentBuffer = buffers.Current();
-	for (int i = 0; (i < buffers.lengthVisible) && (choice != saveCancelled); i++) {
+	for (int i = 0; (i < buffers.lengthVisible) && (choice != SaveResult::cancelled); i++) {
 		if (buffers.buffers[i].isDirty) {
 			SetDocumentAt(i);
 			if (alwaysYes) {
 				if (!Save()) {
-					choice = saveCancelled;
+					choice = SaveResult::cancelled;
 				}
 			} else {
 				choice = SaveIfUnsure(false);
@@ -1450,7 +1450,7 @@ bool SciTEBase::ToolIsImmediate(int item) {
 	std::string command = props.GetWild(propName.c_str(), FileNameExt().AsUTF8().c_str());
 	if (command.length()) {
 		JobMode jobMode(props, item, FileNameExt().AsUTF8().c_str());
-		return jobMode.jobType == jobImmediate;
+		return jobMode.jobType == JobSubsystem::immediate;
 	}
 	return false;
 }
@@ -1503,7 +1503,7 @@ void SciTEBase::SetToolsMenu() {
 
 JobSubsystem SciTEBase::SubsystemType(const char *cmd) {
 	std::string subsystem = props.GetNewExpandString(cmd, FileNameExt().AsUTF8().c_str());
-	return subsystem.empty() ? jobCLI : SubsystemFromChar(subsystem.at(0));
+	return subsystem.empty() ? JobSubsystem::cli : SubsystemFromChar(subsystem.at(0));
 }
 
 void SciTEBase::ToolsMenu(int item) {
@@ -1514,13 +1514,13 @@ void SciTEBase::ToolsMenu(int item) {
 	std::string command(props.GetWild(propName.c_str(), FileNameExt().AsUTF8().c_str()));
 	if (command.length()) {
 		JobMode jobMode(props, item, FileNameExt().AsUTF8().c_str());
-		if (jobQueue.IsExecuting() && (jobMode.jobType != jobImmediate))
+		if (jobQueue.IsExecuting() && (jobMode.jobType != JobSubsystem::immediate))
 			// Busy running a tool and running a second can cause failures.
 			return;
-		if (jobMode.saveBefore == 2 || (jobMode.saveBefore == 1 && (!(CurrentBuffer()->isDirty) || Save())) || SaveIfUnsure() != saveCancelled) {
+		if (jobMode.saveBefore == 2 || (jobMode.saveBefore == 1 && (!(CurrentBuffer()->isDirty) || Save())) || SaveIfUnsure() != SaveResult::cancelled) {
 			if (jobMode.isFilter)
 				CurrentBuffer()->fileModTime -= 1;
-			if (jobMode.jobType == jobImmediate) {
+			if (jobMode.jobType == JobSubsystem::immediate) {
 				if (extender) {
 					extender->OnExecute(command.c_str());
 				}

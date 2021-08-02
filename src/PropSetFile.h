@@ -46,7 +46,7 @@ public:
 	long long GetLongLong(const char *key, long long defaultValue=0) const;
 	void Clear() noexcept;
 
-	enum ReadLineState { rlActive, rlExcludedModule, rlConditionFalse };
+	enum class ReadLineState { active, excludedModule, conditionFalse };
 	ReadLineState ReadLine(const char *lineBuffer, ReadLineState rls, const FilePath &directoryForImports, const ImportFilter &filter,
 			       FilePathSet *imports, size_t depth);
 	void ReadFromMemory(const char *data, size_t len, const FilePath &directoryForImports, const ImportFilter &filter,

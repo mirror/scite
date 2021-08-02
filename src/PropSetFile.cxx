@@ -385,29 +385,29 @@ void PropSetFile::Import(const FilePath &filename, const FilePath &directoryForI
 PropSetFile::ReadLineState PropSetFile::ReadLine(const char *lineBuffer, ReadLineState rls, const FilePath &directoryForImports,
 		const ImportFilter &filter, FilePathSet *imports, size_t depth) {
 	//UnSlash(lineBuffer);
-	if ((rls == rlConditionFalse) && (!IsSpaceOrTab(lineBuffer[0])))    // If clause ends with first non-indented line
-		rls = rlActive;
+	if ((rls == ReadLineState::conditionFalse) && (!IsSpaceOrTab(lineBuffer[0])))    // If clause ends with first non-indented line
+		rls = ReadLineState::active;
 	if (isprefix(lineBuffer, "module ")) {
 		std::string module = lineBuffer + strlen("module") + 1;
 		if (module.empty() || filter.IsValid(module)) {
-			rls = rlActive;
+			rls = ReadLineState::active;
 		} else {
-			rls = rlExcludedModule;
+			rls = ReadLineState::excludedModule;
 		}
 		return rls;
 	}
-	if (rls != rlActive) {
+	if (rls != ReadLineState::active) {
 		return rls;
 	}
 	if (isprefix(lineBuffer, "if ")) {
 		const char *expr = lineBuffer + strlen("if") + 1;
 		std::string value = Expand(expr);
 		if (value == "0" || value == "") {
-			rls = rlConditionFalse;
+			rls = ReadLineState::conditionFalse;
 		} else if (value == "1") {
-			rls = rlActive;
+			rls = ReadLineState::active;
 		} else {
-			rls = (GetInt(value.c_str()) != 0) ? rlActive : rlConditionFalse;
+			rls = (GetInt(value.c_str()) != 0) ? ReadLineState::active : ReadLineState::conditionFalse;
 		}
 	} else if (isprefix(lineBuffer, "import ")) {
 		if (directoryForImports.IsSet()) {
@@ -441,7 +441,7 @@ void PropSetFile::ReadFromMemory(const char *data, size_t len, const FilePath &d
 				 const ImportFilter &filter, FilePathSet *imports, size_t depth) {
 	const char *pd = data;
 	std::vector<char> lineBuffer(len+1);	// +1 for NUL
-	ReadLineState rls = rlActive;
+	ReadLineState rls = ReadLineState::active;
 	while (len > 0) {
 		GetFullLine(pd, len, &lineBuffer[0], lineBuffer.size());
 		if (lowerKeys) {

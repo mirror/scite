@@ -229,11 +229,11 @@ enum {
 };
 
 /// Codes representing the effect a line has on indentation.
-enum IndentationStatus {
-	isNone,		// no effect on indentation
-	isBlockStart,	// indentation block begin such as "{" or VB "function"
-	isBlockEnd,	// indentation end indicator such as "}" or VB "end"
-	isKeyWordStart	// Keywords that cause indentation
+enum class IndentationStatus {
+	none,		// no effect on indentation
+	blockStart,	// indentation block begin such as "{" or VB "function"
+	blockEnd,	// indentation end indicator such as "}" or VB "end"
+	keyWordStart	// Keywords that cause indentation
 };
 
 struct StyleAndWords {
@@ -315,8 +315,8 @@ public:
 
 	virtual SA::Position FindNext(bool reverseDirection, bool showWarnings=true, bool allowRegExp=true) = 0;
 	virtual void HideMatch() = 0;
-	enum MarkPurpose { markWithBookMarks, markIncremental };
-	virtual void MarkAll(MarkPurpose purpose=markWithBookMarks) = 0;
+	enum class MarkPurpose { withBookMarks, incremental };
+	virtual void MarkAll(MarkPurpose purpose) = 0;
 	virtual intptr_t ReplaceAll(bool inSelection) = 0;
 	virtual void ReplaceOnce(bool showWarnings=true) = 0;
 	virtual void UIClosed() = 0;
@@ -651,7 +651,7 @@ protected:
 	void TextWritten(FileWorker *pFileWorker);
 	void UpdateProgress(Worker *pWorker);
 	void PerformDeferredTasks();
-	enum OpenCompletion { ocSynchronous, ocCompleteCurrent, ocCompleteSwitch };
+	enum class OpenCompletion { synchronous, completeCurrent, completeSwitch };
 	void CompleteOpen(OpenCompletion oc);
 	virtual bool PreOpenCheck(const GUI::gui_char *file);
 	bool Open(const FilePath &file, OpenFlags of = ofNone);
@@ -663,9 +663,9 @@ protected:
 		sfProgressVisible = 1, 	// Show in background save strip
 		sfSynchronous = 16	// Write synchronously blocking UI
 	};
-	enum SaveResult {
-		saveCompleted,
-		saveCancelled
+	enum class SaveResult {
+		completed,
+		cancelled
 	};
 	SaveResult SaveIfUnsure(bool forceQuestion = false, SaveFlags sf = sfProgressVisible);
 	SaveResult SaveIfUnsureAll();
@@ -722,15 +722,15 @@ protected:
 	std::string SelectionFilename();
 	void SelectionIntoProperties();
 	void SelectionIntoFind(bool stripEol = true);
-	enum AddSelection { addNext, addEach };
+	enum class AddSelection { next, each };
 	void SelectionAdd(AddSelection add);
 	virtual std::string EncodeString(const std::string &s);
 	virtual void Find() = 0;
-	enum MessageBoxChoice {
-		mbOK,
-		mbCancel,
-		mbYes,
-		mbNo
+	enum class MessageBoxChoice {
+		ok,
+		cancel,
+		yes,
+		no
 	};
 	typedef int MessageBoxStyle;
 	enum {
@@ -851,7 +851,7 @@ protected:
 
 	void RemoveFindMarks();
 	SA::FindOption SearchFlags(bool regularExpressions) const;
-	void MarkAll(MarkPurpose purpose=markWithBookMarks) override;
+	void MarkAll(MarkPurpose purpose) override;
 	void BookmarkAdd(SA::Line lineno = -1);
 	void BookmarkDelete(SA::Line lineno = -1);
 	bool BookmarkPresent(SA::Line lineno = -1);
