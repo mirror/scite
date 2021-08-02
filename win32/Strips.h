@@ -78,6 +78,7 @@ public:
 	virtual int Height() noexcept {
 		return lineHeight * Lines() + space - 1;
 	}
+	void CloseIfOpen();
 };
 
 class BackgroundStrip : public Strip {

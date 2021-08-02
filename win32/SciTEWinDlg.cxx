@@ -1095,11 +1095,17 @@ void SciTEWin::UIClosed() {
 	WindowSetFocus(wEditor);
 }
 
+void SciTEWin::CloseOtherFinders(int cmdID) {
+	if (cmdID != IDM_FIND)
+		findStrip.CloseIfOpen();
+	if (cmdID != IDM_REPLACE)
+		replaceStrip.CloseIfOpen();
+	if (cmdID != IDM_INCSEARCH)
+		searchStrip.CloseIfOpen();
+}
+
 void SciTEWin::FindIncrement() {
-	if (findStrip.visible)
-		findStrip.Close();
-	if (replaceStrip.visible)
-		replaceStrip.Close();
+	CloseOtherFinders(IDM_INCSEARCH);
 	searchStrip.visible = !searchStrip.visible;
 	failedfind = false;
 	SizeSubWindows();
@@ -1126,10 +1132,7 @@ void SciTEWin::Find() {
 	SelectionIntoFind();
 
 	if (props.GetInt("find.use.strip")) {
-		if (searchStrip.visible)
-			searchStrip.Close();
-		if (replaceStrip.visible)
-			replaceStrip.Close();
+		CloseOtherFinders(IDM_FIND);
 		findStrip.visible = true;
 		SizeSubWindows();
 		findStrip.SetIncrementalBehaviour(props.GetInt("find.strip.incremental"));
@@ -1359,10 +1362,7 @@ void SciTEWin::Replace() {
 	SelectionIntoFind(false); // don't strip EOL at end of selection
 
 	if (props.GetInt("replace.use.strip")) {
-		if (searchStrip.visible)
-			searchStrip.Close();
-		if (findStrip.visible)
-			findStrip.Close();
+		CloseOtherFinders(IDM_REPLACE);
 		replaceStrip.visible = true;
 		SizeSubWindows();
 		replaceStrip.SetIncrementalBehaviour(props.GetInt("replace.strip.incremental"));

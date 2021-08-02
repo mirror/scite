@@ -339,6 +339,7 @@ protected:
 	void FillCombosForGrep(Dialog &dlg);
 	BOOL GrepMessage(HWND hDlg, UINT message, WPARAM wParam);
 	static INT_PTR CALLBACK GrepDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	void CloseOtherFinders(int cmdID);
 	void FindIncrement() override;
 	void Find() override;
 	void FindInFiles() override;

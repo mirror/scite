@@ -745,6 +745,12 @@ void Strip::AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checke
 void Strip::ShowPopup() {
 }
 
+void Strip::CloseIfOpen() {
+	if (visible) {
+		Close();
+	}
+}
+
 void BackgroundStrip::Creation() {
 	Strip::Creation();
 	lineHeight = SizeText(fontText, GUI_TEXT("\u00C5Ay")).cy + space * 2 + 1;
