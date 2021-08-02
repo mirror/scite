@@ -79,7 +79,9 @@ Searcher::Searcher() {
 }
 
 void Searcher::InsertFindInMemory() {
-	memFinds.Insert(findWhat);
+	if (!findWhat.empty()) {
+		memFinds.Insert(findWhat);
+	}
 }
 
 // The find and replace dialogs and strips often manipulate boolean
