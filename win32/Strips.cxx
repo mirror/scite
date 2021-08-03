@@ -154,6 +154,19 @@ LRESULT PASCAL BaseWin::StWndProc(
 	}
 }
 
+namespace {
+
+bool MatchAccessKey(const std::string &caption, int key) noexcept {
+	for (size_t i = 0; i < caption.length() - 1; i++) {
+		if ((caption[i] == '&') && (MakeUpperCase(caption[i + 1]) == key)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+}
+
 static const char *textFindPrompt = "Fi&nd:";
 static const char *textReplacePrompt = "Rep&lace:";
 static const char *textFindNext = "&Find Next";
@@ -364,16 +377,14 @@ bool Strip::KeyDown(WPARAM key) {
 				const GUI::gui_string className = ClassNameOfWindow(wChild);
 				if ((className == TEXT("Button")) || (className == TEXT("Static"))) {
 					const std::string caption = GUI::UTF8FromString(TextOfWindow(wChild));
-					for (int i=0; caption[i]; i++) {
-						if ((caption[i] == L'&') && (MakeUpperCase(caption[i+1]) == static_cast<int>(key))) {
-							if (className == TEXT("Button")) {
-								::SendMessage(wChild, BM_CLICK, 0, 0);
-							} else {	// Static caption
-								wChild = GetNextSibling(wChild);
-								::SetFocus(wChild);
-							}
-							return true;
+					if (MatchAccessKey(caption, static_cast<int>(key))) {
+						if (className == TEXT("Button")) {
+							::SendMessage(wChild, BM_CLICK, 0, 0);
+						} else {	// Static caption
+							wChild = GetNextSibling(wChild);
+							::SetFocus(wChild);
 						}
+						return true;
 					}
 				}
 				wChild = GetNextSibling(wChild);
