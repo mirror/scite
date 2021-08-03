@@ -399,7 +399,7 @@ public:
 	virtual void Destruction();
 	void Show(int buttonHeight) override;
 	void Close() override;
-	bool KeyDown(GdkEventKey *event) override;
+	bool KeyDown(const GdkEventKey *event) override;
 	void MenuAction(guint action) override;
 	static void ActivateSignal(GtkWidget *w, FindStrip *pStrip);
 	static void FindComboChanged(GtkEditable *, FindStrip *pStrip);
@@ -433,7 +433,7 @@ public:
 	virtual void Destruction();
 	void Show(int buttonHeight) override;
 	void Close() override;
-	bool KeyDown(GdkEventKey *event) override;
+	bool KeyDown(const GdkEventKey *event) override;
 	void MenuAction(guint action) override;
 	static void ActivateSignal(GtkWidget *w, ReplaceStrip *pStrip);
 	static void FindComboChanged(GtkEditable *, ReplaceStrip *pStrip);
@@ -464,7 +464,7 @@ public:
 	virtual void Destruction();
 	void Show(int buttonHeight) override;
 	void Close() override;
-	bool KeyDown(GdkEventKey *event) override;
+	bool KeyDown(const GdkEventKey *event) override;
 	static void ActivateSignal(GtkWidget *w, UserStrip *pStrip);
 	static gboolean EscapeSignal(GtkWidget *w, GdkEventKey *event, UserStrip *pStrip);
 	void ClickThis(GtkWidget *w);
@@ -2430,7 +2430,7 @@ static const char * up_x_xpm[] = {
 
 const static SearchOption toggles[] = {
 	{"Match _whole word only", IDM_WHOLEWORD, IDWHOLEWORD},
-	{"Case sensiti_ve", IDM_MATCHCASE, IDMATCHCASE},
+	{"_Case sensitive", IDM_MATCHCASE, IDMATCHCASE},
 	{"Regular _expression", IDM_REGEXP, IDREGEXP},
 	{"Transform _backslash expressions", IDM_UNSLASH, IDUNSLASH},
 	{"Wrap ar_ound", IDM_WRAPAROUND, IDWRAP},
@@ -4203,14 +4203,14 @@ void FindStrip::Close() {
 	}
 }
 
-bool FindStrip::KeyDown(GdkEventKey *event) {
+bool FindStrip::KeyDown(const GdkEventKey *event) {
 	if (visible) {
 		if (Strip::KeyDown(event))
 			return true;
 		if (event->state & GDK_MOD1_MASK) {
 			for (int i=SearchOption::tWord; i<=SearchOption::tUp; i++) {
-				GUI::gui_string localised = localiser->Text(toggles[i].label);
-				char key = KeyFromLabel(localised);
+				const GUI::gui_string localised = localiser->Text(toggles[i].label);
+				const char key = KeyFromLabel(localised);
 				if (static_cast<unsigned int>(key) == event->keyval) {
 					wCheck[i].Toggle();
 					return true;
@@ -4474,14 +4474,14 @@ void ReplaceStrip::Close() {
 	}
 }
 
-bool ReplaceStrip::KeyDown(GdkEventKey *event) {
+bool ReplaceStrip::KeyDown(const GdkEventKey *event) {
 	if (visible) {
 		if (Strip::KeyDown(event))
 			return true;
 		if (event->state & GDK_MOD1_MASK) {
 			for (int i=SearchOption::tWord; i<=SearchOption::tWrap; i++) {
-				GUI::gui_string localised = localiser->Text(toggles[i].label);
-				char key = KeyFromLabel(localised);
+				const GUI::gui_string localised = localiser->Text(toggles[i].label);
+				const char key = KeyFromLabel(localised);
 				if (static_cast<unsigned int>(key) == event->keyval) {
 					wCheck[i].Toggle();
 					return true;
@@ -4645,7 +4645,7 @@ void UserStrip::Close() {
 	}
 }
 
-bool UserStrip::KeyDown(GdkEventKey *event) {
+bool UserStrip::KeyDown(const GdkEventKey *event) {
 	if (visible) {
 		if (Strip::KeyDown(event))
 			return true;

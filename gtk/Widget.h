@@ -150,7 +150,7 @@ public:
 	virtual void Creation(GtkWidget *container);
 	virtual void Show(int buttonHeight);
 	virtual void Close();
-	virtual bool KeyDown(GdkEventKey *event);
+	virtual bool KeyDown(const GdkEventKey *event);
 	virtual void ShowPopup() {}
 	virtual void MenuAction(guint /* action */) {}
 	static void MenuSignal(GtkMenuItem *menuItem, Strip *pStrip);

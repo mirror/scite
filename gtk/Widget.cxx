@@ -348,8 +348,10 @@ void WTable::NextLine() {
 
 GUI::gui_char KeyFromLabel(GUI::gui_string label) {
 	if (!label.empty()) {
-		size_t posMnemonic = label.find('_');
-		return MakeLowerCase(label[posMnemonic + 1]);
+		const size_t posMnemonic = label.find('_');
+		if (posMnemonic != GUI::gui_string::npos) {
+			return MakeLowerCase(label[posMnemonic + 1]);
+		}
 	}
 	return 0;
 }
@@ -411,7 +413,7 @@ void Strip::Close() {
 	visible = false;
 }
 
-bool Strip::KeyDown(GdkEventKey *event) {
+bool Strip::KeyDown(const GdkEventKey *event) {
 	bool retVal = false;
 
 	if (visible) {
@@ -424,14 +426,14 @@ bool Strip::KeyDown(GdkEventKey *event) {
 			GList *childWidgets = gtk_container_get_children(GTK_CONTAINER(GetID()));
 			for (GList *child = g_list_first(childWidgets); child; child = g_list_next(child)) {
 				GtkWidget **w = (GtkWidget **)child;
-				std::string name = gtk_widget_get_name(*w);
+				const std::string name = gtk_widget_get_name(*w);
 				std::string label;
 				if (name == "GtkButton" || name == "GtkCheckButton") {
 					label = gtk_button_get_label(GTK_BUTTON(*w));
 				} else if (name == "GtkLabel") {
 					label = gtk_label_get_label(GTK_LABEL(*w));
 				}
-				char key = KeyFromLabel(label);
+				const char key = KeyFromLabel(label);
 				if (static_cast<unsigned int>(key) == event->keyval) {
 					//fprintf(stderr, "%p %s %s %c\n", *w, name.c_str(), label.c_str(), key);
 					if (name == "GtkButton" || name == "GtkCheckButton") {
