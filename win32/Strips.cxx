@@ -156,6 +156,38 @@ LRESULT PASCAL BaseWin::StWndProc(
 
 namespace {
 
+constexpr RECT RECTFromRectangle(GUI::Rectangle r) noexcept {
+	RECT rc = { r.left, r.top, r.right, r.bottom };
+	return rc;
+}
+
+struct Interval {
+	int start = 0;
+	int end = 0;
+	Interval(int start_, int end_) noexcept : start(start_), end(end_) {
+	}
+};
+
+std::vector<Interval> Distribute(GUI::Rectangle rcArea, int gap, std::initializer_list<int> widths) {
+	int totalWidth = std::accumulate(widths.begin(), widths.end(), 0);
+	totalWidth += gap * (static_cast<int>(std::size(widths)) - 1);
+	const int resizerWidth = rcArea.Width() - totalWidth;
+	std::vector<Interval> positions;
+	int position = rcArea.left;
+	for (const int width : widths) {
+		const int widthElement = width ? width : resizerWidth;
+		positions.push_back(Interval(position, position + widthElement));
+		position += widthElement + gap;
+	}
+	return positions;
+}
+
+void SetWindowPosition(GUI::Window &w, Interval intervalHorizontal, Interval verticalInterval) {
+	const GUI::Rectangle rc(intervalHorizontal.start, verticalInterval.start,
+		intervalHorizontal.end, verticalInterval.end);
+	w.SetPosition(rc);
+}
+
 bool MatchAccessKey(const std::string &caption, int key) noexcept {
 	for (size_t i = 0; i < caption.length() - 1; i++) {
 		if ((caption[i] == '&') && (MakeUpperCase(caption[i + 1]) == key)) {
@@ -399,15 +431,6 @@ bool Strip::Command(WPARAM) {
 }
 
 void Strip::Size() {
-}
-
-namespace {
-
-constexpr RECT RECTFromRectangle(GUI::Rectangle r) noexcept {
-	RECT rc = { r.left, r.top, r.right, r.bottom };
-	return rc;
-}
-
 }
 
 void Strip::Paint(HDC hDC) {
@@ -1088,56 +1111,37 @@ void FindStrip::Size() {
 	if (!visible)
 		return;
 	Strip::Size();
-	const GUI::Rectangle rcArea = LineArea(0);
+	GUI::Rectangle rcArea = LineArea(0);
+	rcArea.left += space;
 
-	GUI::Rectangle rcButton = rcArea;
-	rcButton.top -= 1;
-	rcButton.bottom += 1;
+	const Interval verticalButton(rcArea.top - 1, rcArea.bottom);
+	const Interval verticalCheck(rcArea.top, rcArea.bottom);
 
-	const int checkWidth = rcButton.Height() - 2;	// Using height to make square
-	rcButton.left = rcButton.right - checkWidth;
-	wCheckUp.SetPosition(rcButton);
+	const int checkWidth = rcArea.Height() - 1;	// Using height to make square
 
-	rcButton.right = rcButton.left - 4;
-	rcButton.left = rcButton.right - checkWidth;
-	wCheckWrap.SetPosition(rcButton);
+	const std::vector<Interval> positions = Distribute(rcArea, 4, {
+		WidthControl(wStaticFind),
+		0,
+		WidthControl(wButton),
+		WidthControl(wButtonMarkAll),
+		checkWidth,
+		checkWidth,
+		checkWidth,
+		checkWidth,
+		checkWidth,
+		checkWidth,
+	});
 
-	rcButton.right = rcButton.left - 4;
-	rcButton.left = rcButton.right - checkWidth;
-	wCheckBE.SetPosition(rcButton);
-
-	rcButton.right = rcButton.left - 4;
-	rcButton.left = rcButton.right - checkWidth;
-	wCheckRE.SetPosition(rcButton);
-
-	rcButton.right = rcButton.left - 4;
-	rcButton.left = rcButton.right - checkWidth;
-	wCheckCase.SetPosition(rcButton);
-
-	rcButton.right = rcButton.left - 4;
-	rcButton.left = rcButton.right - checkWidth;
-	wCheckWord.SetPosition(rcButton);
-
-	rcButton.right = rcButton.left - 4;
-	rcButton.left = rcButton.right - WidthControl(wButtonMarkAll);
-	wButtonMarkAll.SetPosition(rcButton);
-
-	rcButton.right = rcButton.left - 4;
-	rcButton.left = rcButton.right - WidthControl(wButton);
-	wButton.SetPosition(rcButton);
-
-	GUI::Rectangle rcText = rcArea;
-	rcText.bottom += 60;
-	rcText.left = WidthControl(wStaticFind) + 8;
-	rcText.right = rcButton.left - 4;
-	wText.SetPosition(rcText);
-	wText.Show();
-
-	rcText.right = rcText.left - 4;
-	rcText.left = 4;
-	rcText.top = rcArea.top + 3;
-	rcText.bottom = rcArea.bottom;
-	wStaticFind.SetPosition(rcText);
+	SetWindowPosition(wStaticFind, positions[0], Interval(rcArea.top + 3, rcArea.bottom));
+	SetWindowPosition(wText, positions[1], Interval(rcArea.top, rcArea.bottom + 60));
+	SetWindowPosition(wButton, positions[2], verticalButton);
+	SetWindowPosition(wButtonMarkAll, positions[3], verticalButton);
+	SetWindowPosition(wCheckWord, positions[4], verticalCheck);
+	SetWindowPosition(wCheckCase, positions[5], verticalCheck);
+	SetWindowPosition(wCheckRE, positions[6], verticalCheck);
+	SetWindowPosition(wCheckBE, positions[7], verticalCheck);
+	SetWindowPosition(wCheckWrap, positions[8], verticalCheck);
+	SetWindowPosition(wCheckUp, positions[9], verticalCheck);
 
 	Redraw();
 }
@@ -1312,80 +1316,45 @@ void ReplaceStrip::Size() {
 	const int widthCaption = std::max(WidthControl(wStaticFind), WidthControl(wStaticReplace));
 
 	GUI::Rectangle rcLine = LineArea(0);
+	rcLine.left += space;
 
 	const int widthButtons = std::max(WidthControl(wButtonFind), WidthControl(wButtonReplace));
 	const int widthLastButtons = std::max(WidthControl(wButtonReplaceAll), WidthControl(wButtonReplaceInSelection));
 
-	GUI::Rectangle rcButton = rcLine;
-	rcButton.top -= 1;
+	const int checkWidth = rcLine.Height() - 1;	// Using height to make square
 
-	const int checkWidth = rcButton.Height() - 2;	// Using height to make square
+	const std::vector<Interval> positions = Distribute(rcLine, 4, {
+		widthCaption,
+		0,
+		widthButtons,
+		widthLastButtons,
+		checkWidth,
+		checkWidth,
+		checkWidth,
+	});
 
-	// Allow empty slot to match wrap button on next line
-	rcButton.right = rcButton.right - (checkWidth + 4);
+	Interval verticalButton(rcLine.top - 1, rcLine.bottom);
+	Interval verticalCheck(rcLine.top, rcLine.bottom);
 
-	rcButton.left = rcButton.right - checkWidth;
-	wCheckCase.SetPosition(rcButton);
-
-	rcButton.right = rcButton.left - 4;
-	rcButton.left = rcButton.right - checkWidth;
-	wCheckWord.SetPosition(rcButton);
-
-	rcButton.right = rcButton.left - 4;
-	rcButton.left = rcButton.right - widthLastButtons;
-	wButtonReplaceAll.SetPosition(rcButton);
-
-	rcButton.right = rcButton.left - 4;
-	rcButton.left = rcButton.right - widthButtons;
-	wButtonFind.SetPosition(rcButton);
-
-	GUI::Rectangle rcText = rcLine;
-	rcText.bottom += 60;
-	rcText.left = widthCaption + 8;
-	rcText.right = rcButton.left - 4;
-	wText.SetPosition(rcText);
-
-	GUI::Rectangle rcStatic = rcLine;
-	rcStatic.right = rcText.left - 4;
-	rcStatic.left = 4;
-	rcStatic.top = rcLine.top + 3;
-	wStaticFind.SetPosition(rcStatic);
+	SetWindowPosition(wStaticFind, positions[0], Interval(rcLine.top + 3, rcLine.bottom));
+	SetWindowPosition(wText, positions[1], Interval(rcLine.top, 60));
+	SetWindowPosition(wButtonFind, positions[2], verticalButton);
+	SetWindowPosition(wButtonReplaceAll, positions[3], verticalButton);
+	SetWindowPosition(wCheckWord, positions[4], verticalCheck);
+	SetWindowPosition(wCheckCase, positions[5], verticalCheck);
 
 	rcLine = LineArea(1);
 
-	rcButton = rcLine;
-	rcButton.top -= 1;
+	verticalButton = Interval(rcLine.top - 1, rcLine.bottom);
+	verticalCheck = Interval(rcLine.top, rcLine.bottom);
 
-	rcButton.left = rcButton.right - checkWidth;
-	wCheckWrap.SetPosition(rcButton);
-
-	rcButton.right = rcButton.left - 4;
-	rcButton.left = rcButton.right - checkWidth;
-	wCheckBE.SetPosition(rcButton);
-
-	rcButton.right = rcButton.left - 4;
-	rcButton.left = rcButton.right - checkWidth;
-	wCheckRE.SetPosition(rcButton);
-
-	rcButton.right = rcButton.left - 4;
-	rcButton.left = rcButton.right - widthLastButtons;
-	wButtonReplaceInSelection.SetPosition(rcButton);
-
-	rcButton.right = rcButton.left - 4;
-	rcButton.left = rcButton.right - widthButtons;
-	wButtonReplace.SetPosition(rcButton);
-
-	GUI::Rectangle rcReplace = rcLine;
-	rcReplace.bottom += 60;
-	rcReplace.left = rcText.left;
-	rcReplace.right = rcText.right;
-	wReplace.SetPosition(rcReplace);
-
-	rcStatic = rcLine;
-	rcStatic.right = rcReplace.left - 4;
-	rcStatic.left = 4;
-	rcStatic.top = rcLine.top + 3;
-	wStaticReplace.SetPosition(rcStatic);
+	SetWindowPosition(wStaticReplace, positions[0], Interval(rcLine.top + 3, rcLine.bottom));
+	SetWindowPosition(wReplace, positions[1], Interval(rcLine.top, 60));
+	SetWindowPosition(wButtonReplace, positions[2], verticalButton);
+	SetWindowPosition(wButtonReplaceInSelection, positions[3], verticalButton);
+	SetWindowPosition(wCheckRE, positions[4], verticalCheck);
+	SetWindowPosition(wCheckBE, positions[5], verticalCheck);
+	SetWindowPosition(wCheckWrap, positions[6], verticalCheck);
 
 	Redraw();
 }
