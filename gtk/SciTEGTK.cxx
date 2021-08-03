@@ -4658,7 +4658,7 @@ void UserStrip::ActivateSignal(GtkWidget *, UserStrip *pStrip) {
 	for (const std::vector<UserControl> &line : pStrip->psd->controls) {
 		for (const UserControl &ctl : line) {
 			if (ctl.controlType == UserControl::ucDefaultButton) {
-				pStrip->extender->OnUserStrip(ctl.item, scClicked);
+				pStrip->extender->OnUserStrip(ctl.item, static_cast<int>(StripCommand::clicked));
 				return;
 			}
 		}
@@ -4677,7 +4677,7 @@ void UserStrip::ClickThis(GtkWidget *w) {
 	for (const std::vector<UserControl> &line : psd->controls) {
 		for (const UserControl &ctl : line) {
 			if (w == GTK_WIDGET(ctl.w.GetID())) {
-				extender->OnUserStrip(ctl.item, scClicked);
+				extender->OnUserStrip(ctl.item, static_cast<int>(StripCommand::clicked));
 			}
 		}
 	}

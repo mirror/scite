@@ -1641,7 +1641,7 @@ bool UserStrip::KeyDown(WPARAM key) {
 			for (const std::vector<UserControl> &line : psd->controls) {
 				for (const UserControl &ctl : line) {
 					if (ctl.controlType == UserControl::ucDefaultButton) {
-						extender->OnUserStrip(ctl.item, scClicked);
+						extender->OnUserStrip(ctl.item, static_cast<int>(StripCommand::clicked));
 						return true;
 					}
 				}
@@ -1655,20 +1655,20 @@ bool UserStrip::KeyDown(WPARAM key) {
 static StripCommand NotificationToStripCommand(int notification) noexcept {
 	switch (notification) {
 	case BN_CLICKED:
-		return scClicked;
+		return StripCommand::clicked;
 	case EN_CHANGE:
 	case CBN_EDITCHANGE:
-		return scChange;
+		return StripCommand::change;
 	case EN_UPDATE:
-		return scUnknown;
+		return StripCommand::unknown;
 	case CBN_SETFOCUS:
 	case EN_SETFOCUS:
-		return scFocusIn;
+		return StripCommand::focusIn;
 	case CBN_KILLFOCUS:
 	case EN_KILLFOCUS:
-		return scFocusOut;
+		return StripCommand::focusOut;
 	default:
-		return scUnknown;
+		return StripCommand::unknown;
 	}
 }
 
@@ -1679,8 +1679,8 @@ bool UserStrip::Command(WPARAM wParam) {
 	const int notification = HIWORD(wParam);
 	if (extender) {
 		const StripCommand sc = NotificationToStripCommand(notification);
-		if (sc != scUnknown)
-			return extender->OnUserStrip(control, sc);
+		if (sc != StripCommand::unknown)
+			return extender->OnUserStrip(control, static_cast<int>(sc));
 	}
 	return false;
 }

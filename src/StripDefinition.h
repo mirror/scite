@@ -155,6 +155,6 @@ public:
 	}
 };
 
-enum StripCommand { scUnknown, scClicked, scChange, scFocusIn, scFocusOut };
+enum class StripCommand { unknown, clicked, change, focusIn, focusOut };
 
 #endif
