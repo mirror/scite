@@ -210,7 +210,7 @@ static const char *textInSelection = "In &Selection";
 
 static SearchOption toggles[] = {
 	{"Match &whole word only", IDM_WHOLEWORD, IDWHOLEWORD},
-	{"Case sensiti&ve", IDM_MATCHCASE, IDMATCHCASE},
+	{"&Case sensitive", IDM_MATCHCASE, IDMATCHCASE},
 	{"Regular &expression", IDM_REGEXP, IDREGEXP},
 	{"Transform &backslash expressions", IDM_UNSLASH, IDUNSLASH},
 	{"Wrap ar&ound", IDM_WRAPAROUND, IDWRAP},
