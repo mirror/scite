@@ -476,6 +476,10 @@ void Strip::InvalidateClose() {
 	::InvalidateRect(Hwnd(), &rc, TRUE);
 }
 
+void Strip::Redraw() {
+	::InvalidateRect(Hwnd(), nullptr, TRUE);
+}
+
 bool Strip::MouseInClose(GUI::Point pt) {
 	const GUI::Rectangle rcClose = CloseArea();
 	return rcClose.Contains(pt);
@@ -797,7 +801,7 @@ void BackgroundStrip::Size() {
 	rcExplanation.bottom += 1;
 	wExplanation.SetPosition(rcExplanation);
 
-	::InvalidateRect(Hwnd(), nullptr, TRUE);
+	Redraw();
 }
 
 bool BackgroundStrip::HasClose() const noexcept {
@@ -913,7 +917,7 @@ void SearchStrip::Size() {
 
 	wStaticFind.SetPosition(rcText);
 
-	::InvalidateRect(Hwnd(), nullptr, TRUE);
+	Redraw();
 }
 
 void SearchStrip::Paint(HDC hDC) {
@@ -1120,7 +1124,7 @@ void FindStrip::Size() {
 	rcText.bottom = rcArea.bottom;
 	wStaticFind.SetPosition(rcText);
 
-	::InvalidateRect(Hwnd(), nullptr, TRUE);
+	Redraw();
 }
 
 void FindStrip::Paint(HDC hDC) {
@@ -1368,7 +1372,7 @@ void ReplaceStrip::Size() {
 	rcStatic.top = rcLine.top + 3;
 	wStaticReplace.SetPosition(rcStatic);
 
-	::InvalidateRect(Hwnd(), nullptr, TRUE);
+	Redraw();
 }
 
 void ReplaceStrip::Paint(HDC hDC) {
@@ -1608,7 +1612,7 @@ void UserStrip::Size() {
 		top += lineHeight;
 	}
 
-	::InvalidateRect(Hwnd(), nullptr, TRUE);
+	Redraw();
 }
 
 bool UserStrip::HasClose() const noexcept {

@@ -60,6 +60,7 @@ protected:
 	GUI::Rectangle LineArea(int line);
 	virtual int Lines() const noexcept;
 	void InvalidateClose();
+	void Redraw();
 	bool MouseInClose(GUI::Point pt);
 	void TrackMouse(GUI::Point pt);
 	void SetTheme() noexcept;
