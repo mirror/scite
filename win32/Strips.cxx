@@ -1000,6 +1000,14 @@ LRESULT FindReplaceStrip::EditColour(HWND hwnd, HDC hdc) noexcept {
 	return Strip::EditColour(hwnd, hdc);
 }
 
+void FindReplaceStrip::SetFindFromSource(ChangingSource source) {
+	if (source == ChangingSource::edit) {
+		pSearcher->SetFindText(ControlText(wText).c_str());
+	} else {
+		pSearcher->SetFindText(ComboSelectionText(wText).c_str());
+	}
+}
+
 void FindReplaceStrip::NextIncremental(ChangingSource source) {
 	if (incrementalBehaviour == simple)
 		return;
@@ -1007,11 +1015,7 @@ void FindReplaceStrip::NextIncremental(ChangingSource source) {
 		pSearcher->MoveBack();
 	}
 
-	if (source == changingEdit) {
-		pSearcher->SetFindText(ControlText(wText));
-	} else {
-		pSearcher->SetFindText(ComboSelectionText(wText));
-	}
+	SetFindFromSource(source);
 
 	if (pSearcher->FindHasText()) {
 		pSearcher->FindNext(pSearcher->reverseFind, false, true);
@@ -1204,15 +1208,15 @@ bool FindStrip::Command(WPARAM wParam) {
 		return true;
 	} else if (control == IDFINDWHAT) {
 		if (subCommand == CBN_EDITCHANGE) {
-			NextIncremental(changingEdit);
+			NextIncremental(ChangingSource::edit);
 			return true;
 		} else if (subCommand == CBN_SELCHANGE) {
-			NextIncremental(changingCombo);
+			NextIncremental(ChangingSource::combo);
 			return true;
 		}
 	} else {
 		pSearcher->FlagFromCmd(control) = !pSearcher->FlagFromCmd(control);
-		NextIncremental(changingEdit);
+		NextIncremental(ChangingSource::edit);
 		CheckButtons();
 	}
 	return false;
@@ -1441,11 +1445,11 @@ void ReplaceStrip::HandleReplaceCommand(int cmd, bool reverseFind) {
 		}
 	} else if (cmd == IDREPLACE) {
 		pSearcher->ReplaceOnce(incrementalBehaviour == simple);
-		NextIncremental(changingEdit);	// Show not found colour if no more matches.
+		NextIncremental(ChangingSource::edit);	// Show not found colour if no more matches.
 	} else if ((cmd == IDREPLACEALL) || (cmd == IDREPLACEINSEL)) {
 		//~ replacements = pSciTEWin->ReplaceAll(cmd == IDREPLACEINSEL);
 		pSearcher->ReplaceAll(cmd == IDREPLACEINSEL);
-		NextIncremental(changingEdit);	// Show not found colour if no more matches.
+		NextIncremental(ChangingSource::edit);	// Show not found colour if no more matches.
 	}
 	//GUI::gui_string replDone = GUI::StringFromInteger(replacements);
 	//dlg.SetItemText(IDREPLDONE, replDone.c_str());
@@ -1464,10 +1468,10 @@ bool ReplaceStrip::Command(WPARAM wParam) {
 		case CBN_SELENDCANCEL:
 			return false;
 		case CBN_EDITCHANGE:
-			NextIncremental(changingEdit);
+			NextIncremental(ChangingSource::edit);
 			return true;
 		case CBN_SELCHANGE:
-			NextIncremental(changingCombo);
+			NextIncremental(ChangingSource::combo);
 			return true;
 		default:
 			return false;
@@ -1491,7 +1495,7 @@ bool ReplaceStrip::Command(WPARAM wParam) {
 	case IDM_WRAPAROUND:
 	case IDM_UNSLASH:
 		pSearcher->FlagFromCmd(control) = !pSearcher->FlagFromCmd(control);
-		NextIncremental(changingEdit);
+		NextIncremental(ChangingSource::edit);
 		break;
 
 	default:

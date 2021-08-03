@@ -152,7 +152,8 @@ protected:
 	FindReplaceStrip() noexcept : incrementalBehaviour(simple) {
 	}
 	LRESULT EditColour(HWND hwnd, HDC hdc) noexcept override;
-	enum ChangingSource { changingEdit, changingCombo };
+	enum class ChangingSource { edit, combo };
+	void SetFindFromSource(ChangingSource source);
 	void NextIncremental(ChangingSource source);
 public:
 	virtual ~FindReplaceStrip() = default;
