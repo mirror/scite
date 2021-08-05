@@ -14,7 +14,7 @@ void SciTEWin::SetFileProperties(
 	PropSetFile &ps) {			///< Property set to update.
 
 	constexpr int TEMP_LEN = 100;
-	char temp[TEMP_LEN] = "";
+	wchar_t temp[TEMP_LEN] = L"";
 	HANDLE hf = ::CreateFileW(filePath.AsInternal(), GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hf != INVALID_HANDLE_VALUE) {
 		FILETIME ft = FILETIME();
@@ -25,15 +25,15 @@ void SciTEWin::SetFileProperties(
 		SYSTEMTIME st = SYSTEMTIME();
 		if (::FileTimeToSystemTime(&lft, &st) == 0)
 			st = SYSTEMTIME();
-		::GetTimeFormatA(LOCALE_USER_DEFAULT,
+		::GetTimeFormatW(LOCALE_USER_DEFAULT,
 				 0, &st,
 				 nullptr, temp, TEMP_LEN);
-		ps.Set("FileTime", temp);
+		ps.Set("FileTime", GUI::UTF8FromString(temp));
 
-		::GetDateFormatA(LOCALE_USER_DEFAULT,
+		::GetDateFormatW(LOCALE_USER_DEFAULT,
 				 DATE_SHORTDATE, &st,
 				 nullptr, temp, TEMP_LEN);
-		ps.Set("FileDate", temp);
+		ps.Set("FileDate", GUI::UTF8FromString(temp));
 
 		const DWORD attr = ::GetFileAttributesW(filePath.AsInternal());
 		std::string fa;
@@ -54,15 +54,15 @@ void SciTEWin::SetFileProperties(
 		ps.Set("FileAttr", "");
 	}
 
-	::GetDateFormatA(LOCALE_USER_DEFAULT,
+	::GetDateFormatW(LOCALE_USER_DEFAULT,
 			 DATE_SHORTDATE, nullptr,     	// Current date
 			 nullptr, temp, TEMP_LEN);
-	ps.Set("CurrentDate", temp);
+	ps.Set("CurrentDate", GUI::UTF8FromString(temp));
 
-	::GetTimeFormatA(LOCALE_USER_DEFAULT,
+	::GetTimeFormatW(LOCALE_USER_DEFAULT,
 			 0, nullptr,     	// Current time
 			 nullptr, temp, TEMP_LEN);
-	ps.Set("CurrentTime", temp);
+	ps.Set("CurrentTime", GUI::UTF8FromString(temp));
 }
 
 /**
