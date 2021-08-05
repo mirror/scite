@@ -666,7 +666,6 @@ protected:
 	void ShowStatusBar() override;
 	void ActivateWindow(const char *timestamp) override;
 	void CopyPath() override;
-	bool &FlagFromCmd(int cmd);
 	void Command(unsigned long wParam, long lParam = 0);
 	void ContinueExecute(int fromPoll);
 
@@ -1105,33 +1104,6 @@ void SciTEGTK::ActivateWindow(const char *timestamp) {
 void SciTEGTK::CopyPath() {
 	gtk_clipboard_set_text(gtk_clipboard_get(GDK_SELECTION_CLIPBOARD),
 		filePath.AsInternal(), -1);
-}
-
-// The find and replace dialogs and strips often manipulate boolean
-// flags based on dialog control IDs and menu IDs.
-bool &SciTEGTK::FlagFromCmd(int cmd) {
-	static bool notFound;
-	switch (cmd) {
-		case IDWHOLEWORD:
-		case IDM_WHOLEWORD:
-			return wholeWord;
-		case IDMATCHCASE:
-		case IDM_MATCHCASE:
-			return matchCase;
-		case IDREGEXP:
-		case IDM_REGEXP:
-			return regExp;
-		case IDUNSLASH:
-		case IDM_UNSLASH:
-			return unSlash;
-		case IDWRAP:
-		case IDM_WRAPAROUND:
-			return wrapFind;
-		case IDDIRECTIONUP:
-		case IDM_DIRECTIONUP:
-			return reverseFind;
-	}
-	return notFound;
 }
 
 void SciTEGTK::Command(unsigned long wParam, long) {
