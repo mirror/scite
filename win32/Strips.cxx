@@ -135,6 +135,10 @@ void SetComboFromMemory(GUI::Window w, const ComboMemory &mem) {
 	}
 }
 
+constexpr WPARAM SubCommandOfWParam(WPARAM wParam) noexcept {
+	return wParam >> 16;
+}
+
 }
 
 LRESULT PASCAL BaseWin::StWndProc(
@@ -997,7 +1001,7 @@ bool SearchStrip::Command(WPARAM wParam) {
 	if (entered)
 		return false;
 	const int control = ControlIDOfWParam(wParam);
-	const int subCommand = static_cast<int>(wParam >> 16);
+	const WPARAM subCommand = SubCommandOfWParam(wParam);
 	if (((control == IDC_INCFINDTEXT) && (subCommand == EN_CHANGE)) ||
 			(control == IDC_INCFINDBTNOK)) {
 		Next(control != IDC_INCFINDBTNOK);
@@ -1159,8 +1163,7 @@ bool FindStrip::KeyDown(WPARAM key) {
 		return false;
 	if (Strip::KeyDown(key))
 		return true;
-	switch (key) {
-	case VK_RETURN:
+	if (key == VK_RETURN) {
 		if (IsChild(Hwnd(), ::GetFocus())) {
 			if (incrementalBehaviour == simple) {
 				Next(false, IsKeyDown(VK_SHIFT));
@@ -1206,7 +1209,7 @@ bool FindStrip::Command(WPARAM wParam) {
 	if (entered)
 		return false;
 	const int control = ControlIDOfWParam(wParam);
-	const int subCommand = static_cast<int>(wParam >> 16);
+	const WPARAM subCommand = SubCommandOfWParam(wParam);
 	if (control == IDOK) {
 		if (incrementalBehaviour == simple) {
 			Next(false, false);
@@ -1377,8 +1380,7 @@ bool ReplaceStrip::KeyDown(WPARAM key) {
 		return false;
 	if (Strip::KeyDown(key))
 		return true;
-	switch (key) {
-	case VK_RETURN:
+	if (key == VK_RETURN) {
 		if (IsChild(Hwnd(), ::GetFocus())) {
 			if (IsSameOrChild(wButtonFind, ::GetFocus()))
 				HandleReplaceCommand(IDOK, IsKeyDown(VK_SHIFT));
