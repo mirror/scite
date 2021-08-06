@@ -21,7 +21,6 @@ class WBase : public GUI::Window {
 public:
 	operator GtkWidget*() const;
 	GtkWidget *Pointer();
-	GtkStyle *Style();
 	bool Sensitive();
 };
 
@@ -86,7 +85,7 @@ private:
 public:
 	WCheckDraw();
 	~WCheckDraw();
-	void Create(const char **xpmImage, const GUI::gui_string &toolTip, GtkStyle *pStyle_);
+	void Create(const char **xpmImage, const GUI::gui_string &toolTip);
 	bool Active();
 	void SetActive(bool active);
 	void Toggle();

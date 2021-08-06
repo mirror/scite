@@ -38,16 +38,6 @@ GtkWidget *WBase::Pointer() {
 	return GTK_WIDGET(GetID());
 }
 
-GtkStyle *WBase::Style() {
-#if GTK_CHECK_VERSION(3,4,0)
-	return nullptr;
-#elif GTK_CHECK_VERSION(3,0,0)
-	return gtk_widget_get_style(Pointer());
-#else
-	return Pointer()->style;
-#endif
-}
-
 bool WBase::Sensitive() {
 	return gtk_widget_get_sensitive(GTK_WIDGET(Pointer()));
 }
@@ -220,7 +210,7 @@ static void GreyToAlpha(GdkPixbuf *ppb, GdkColor fore) {
 	}
 }
 
-void WCheckDraw::Create(const char **xpmImage, const GUI::gui_string &toolTip, GtkStyle *pStyle_) {
+void WCheckDraw::Create(const char **xpmImage, const GUI::gui_string &toolTip) {
 	GtkWidget *button = gtk_toggle_button_new();
 	gtk_button_set_relief(GTK_BUTTON(button), GTK_RELIEF_NONE);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), FALSE);
@@ -228,10 +218,10 @@ void WCheckDraw::Create(const char **xpmImage, const GUI::gui_string &toolTip, G
 	GdkPixbuf *pbGrey = gdk_pixbuf_new_from_xpm_data(xpmImage);
 	GdkPixbuf *pbAlpha = gdk_pixbuf_add_alpha(pbGrey, TRUE, 0xff, 0xff, 0);
 	g_object_unref(pbGrey);
-#if GTK_CHECK_VERSION(3, 4, 0)
-	(void)pStyle_;
-	GdkRGBA rgbaFore;
+
+#if GTK_CHECK_VERSION(3, 0, 0)
 	GtkStyleContext *context = gtk_widget_get_style_context(button);
+	GdkRGBA rgbaFore;
 	gtk_style_context_get_color(context, gtk_style_context_get_state(context), &rgbaFore);
 	GdkColor fore;
 	fore.red = rgbaFore.red * 65535;
@@ -239,8 +229,11 @@ void WCheckDraw::Create(const char **xpmImage, const GUI::gui_string &toolTip, G
 	fore.blue = rgbaFore.blue * 65535;
 	fore.pixel = 0;
 #else
-	GdkColor fore = pStyle_->fg[gtk_widget_get_state(button)];
+	gtk_widget_ensure_style(button);
+	GtkStyle *pStyle = button->style;
+	GdkColor fore = pStyle->fg[gtk_widget_get_state(button)];
 #endif
+
 	// Convert the grey to alpha and make black
 	GreyToAlpha(pbAlpha, fore);
 	GtkWidget *image = gtk_image_new_from_pixbuf(pbAlpha);
