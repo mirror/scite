@@ -455,12 +455,12 @@ public:
 
 class UserStrip : public Strip {
 public:
-	StripDefinition *psd;
+	std::unique_ptr<StripDefinition> psd;
 	Extension *extender;
 	SciTEGTK *pSciTEGTK;
 	WTable tableUser;
 
-	UserStrip() : psd(0), extender(0), pSciTEGTK(0), tableUser(1, 1){
+	UserStrip() : extender(0), pSciTEGTK(0), tableUser(1, 1){
 	}
 	void Creation(GtkWidget *container) override;
 	virtual void Destruction();
@@ -4658,8 +4658,7 @@ void UserStrip::SetDescription(const char *description) {
 			}
 		}
 	}
-	delete psd;
-	psd = new StripDefinition(description);
+	psd = std::make_unique<StripDefinition>(description);
 	tableUser.Resize(psd->controls.size(), psd->columns);
 
 	bool hasSetFocus = false;
