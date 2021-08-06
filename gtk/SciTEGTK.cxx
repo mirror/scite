@@ -371,7 +371,7 @@ public:
 	void FillCombosInDialog() override;
 };
 
-class FindReplaceStrip : public Strip, public SearchUI {
+class FindReplaceStrip : public Strip, public SearchUI, public CheckDrawWatcher {
 public:
 	WComboBoxEntry wComboFind;
 	bool initializingSearch;
@@ -382,6 +382,14 @@ public:
 	void SetIncrementalBehaviour(int behaviour);
 	void MarkIncremental();
 	void NextIncremental();
+	virtual void GrabToggles()=0;
+	virtual void FindNextCmd()=0;
+	void ConnectCombo();
+	void CheckChanged() override;
+
+	static void ActivateSignal(GtkWidget *w, FindReplaceStrip *pStrip);
+	static void FindComboChanged(GtkEditable *, FindReplaceStrip *pStrip);
+	static gboolean EscapeSignal(GtkWidget *w, GdkEventKey *event, FindReplaceStrip *pStrip);
 };
 
 
@@ -401,15 +409,12 @@ public:
 	void Close() override;
 	bool KeyDown(const GdkEventKey *event) override;
 	void MenuAction(guint action) override;
-	static void ActivateSignal(GtkWidget *w, FindStrip *pStrip);
-	static void FindComboChanged(GtkEditable *, FindStrip *pStrip);
-	static void ToggleChanged(WCheckDraw *, void *user);
-	static gboolean EscapeSignal(GtkWidget *w, GdkEventKey *event, FindStrip *pStrip);
+
 	void GrabFields();
-	void GrabToggles();
+	void GrabToggles() override;
 	void SetToggles();
 	void ShowPopup() override;
-	void FindNextCmd();
+	void FindNextCmd() override;
 	void MarkAllCmd();
 	void ChildFocus(GtkWidget *widget) override;
 	gboolean Focus(GtkDirectionType direction) override;
@@ -435,14 +440,11 @@ public:
 	void Close() override;
 	bool KeyDown(const GdkEventKey *event) override;
 	void MenuAction(guint action) override;
-	static void ActivateSignal(GtkWidget *w, ReplaceStrip *pStrip);
-	static void FindComboChanged(GtkEditable *, ReplaceStrip *pStrip);
-	static void ToggleChanged(WCheckDraw *, void *user);
-	static gboolean EscapeSignal(GtkWidget *w, GdkEventKey *event, ReplaceStrip *pStrip);
+
 	void GrabFields();
-	void GrabToggles();
+	void GrabToggles() override;
 	void SetToggles();
-	void FindCmd();
+	void FindNextCmd() override;
 	void ReplaceAllCmd();
 	void ReplaceCmd();
 	void ReplaceInSelectionCmd();
@@ -4085,6 +4087,39 @@ void FindReplaceStrip::NextIncremental() {
 	wComboFind.InvalidateAll();
 }
 
+void FindReplaceStrip::ConnectCombo() {
+	g_signal_connect(G_OBJECT(wComboFind.Entry()), "activate",
+		G_CALLBACK(ActivateSignal), this);
+
+	g_signal_connect(G_OBJECT(wComboFind.Entry()), "changed",
+		G_CALLBACK(FindComboChanged), this);
+
+	g_signal_connect(G_OBJECT(wComboFind.Entry()), "key-press-event",
+		G_CALLBACK(EscapeSignal), this);
+}
+
+void FindReplaceStrip::ActivateSignal(GtkWidget *, FindReplaceStrip *pStrip) {
+	pStrip->FindNextCmd();
+}
+
+void FindReplaceStrip::FindComboChanged(GtkEditable *, FindReplaceStrip *pStrip) {
+	pStrip->GrabToggles();
+	pStrip->NextIncremental();
+}
+
+gboolean FindReplaceStrip::EscapeSignal(GtkWidget *w, GdkEventKey *event, FindReplaceStrip *pStrip) {
+	if (event->keyval == GKEY_Escape) {
+		g_signal_stop_emission_by_name(G_OBJECT(w), "key-press-event");
+		pStrip->Close();
+	}
+	return FALSE;
+}
+
+void FindReplaceStrip::CheckChanged() {
+	GrabToggles();
+	NextIncremental();
+}
+
 void FindStrip::Creation(GtkWidget *container) {
 	WTable table(1, 10);
 	SetID(table);
@@ -4104,14 +4139,7 @@ void FindStrip::Creation(GtkWidget *container) {
 
 	gtk_widget_show(GTK_WIDGET(GetID()));
 
-	g_signal_connect(G_OBJECT(wComboFind.Entry()),"changed",
-		G_CALLBACK(FindComboChanged), this);
-
-	g_signal_connect(G_OBJECT(wComboFind.Entry()), "key-press-event",
-		G_CALLBACK(EscapeSignal), this);
-
-	g_signal_connect(G_OBJECT(wComboFind.Entry()), "activate",
-		G_CALLBACK(ActivateSignal), this);
+	ConnectCombo();
 
 	gtk_label_set_mnemonic_widget(GTK_LABEL(wStaticFind.GetID()), GTK_WIDGET(wComboFind.Entry()));
 
@@ -4131,7 +4159,7 @@ void FindStrip::Creation(GtkWidget *container) {
 		wCheck[i].Create(xpmImages[i], localiser->Text(toggles[i].label), wButton.Style());
 		wCheck[i].SetActive(pSearcher->FlagFromCmd(toggles[i].cmd));
 		table.Add(wCheck[i], 1, false, 0, 0);
-		wCheck[i].SetChangeFunction(ToggleChanged, this);
+		wCheck[i].SetChangeWatcher(this);
 	}
 }
 
@@ -4194,29 +4222,6 @@ void FindStrip::MenuAction(guint action) {
 		SetToggles();
 		InvalidateAll();
 	}
-}
-
-void FindStrip::ActivateSignal(GtkWidget *, FindStrip *pStrip) {
-	pStrip->FindNextCmd();
-}
-
-void FindStrip::FindComboChanged(GtkEditable *, FindStrip *pStrip) {
-	pStrip->GrabToggles();
-	pStrip->NextIncremental();
-}
-
-void FindStrip::ToggleChanged(WCheckDraw *, void *user) {
-	FindStrip *pStrip = static_cast<FindStrip *>(user);
-	pStrip->GrabToggles();
-	pStrip->NextIncremental();
-}
-
-gboolean FindStrip::EscapeSignal(GtkWidget *w, GdkEventKey *event, FindStrip *pStrip) {
-	if (event->keyval == GKEY_Escape) {
-		g_signal_stop_emission_by_name(G_OBJECT(w), "key-press-event");
-		pStrip->Close();
-	}
-	return FALSE;
 }
 
 void FindStrip::GrabFields() {
@@ -4304,18 +4309,11 @@ void ReplaceStrip::Creation(GtkWidget *container) {
 	tableReplace.Add(wComboFind, 1, true, 0, 0);
 	wComboFind.Show();
 
-	g_signal_connect(G_OBJECT(wComboFind.Entry()),"changed",
-		G_CALLBACK(FindComboChanged), this);
-
-	g_signal_connect(G_OBJECT(wComboFind.Entry()), "key-press-event",
-		G_CALLBACK(EscapeSignal), this);
-
-	g_signal_connect(G_OBJECT(wComboFind.Entry()), "activate",
-		G_CALLBACK(ActivateSignal), this);
+	ConnectCombo();
 
 	gtk_label_set_mnemonic_widget(GTK_LABEL(wStaticFind.GetID()), GTK_WIDGET(wComboFind.Entry()));
 
-	static ObjectSignal<ReplaceStrip, &ReplaceStrip::FindCmd> sigFindNext;
+	static ObjectSignal<ReplaceStrip, &ReplaceStrip::FindNextCmd> sigFindNext;
 	wButtonFind.Create(localiser->Text(textFindNext),
 			G_CALLBACK(sigFindNext.Function), this);
 	tableReplace.Add(wButtonFind, 1, false, 0, 0);
@@ -4332,7 +4330,7 @@ void ReplaceStrip::Creation(GtkWidget *container) {
 	for (int i=0;i<checks;i++) {
 		wCheck[i].Create(xpmImages[i], localiser->Text(toggles[i].label), wButtonFind.Style());
 		wCheck[i].SetActive(pSearcher->FlagFromCmd(toggles[i].cmd));
-		wCheck[i].SetChangeFunction(ToggleChanged, this);
+		wCheck[i].SetChangeWatcher(this);
 	}
 
 	tableReplace.Add(wCheck[SearchOption::tWord], 1, false, 0, 0);
@@ -4461,29 +4459,6 @@ void ReplaceStrip::MenuAction(guint action) {
 	}
 }
 
-void ReplaceStrip::ActivateSignal(GtkWidget *, ReplaceStrip *pStrip) {
-	pStrip->FindCmd();
-}
-
-void ReplaceStrip::FindComboChanged(GtkEditable *, ReplaceStrip *pStrip) {
-	pStrip->GrabToggles();
-	pStrip->NextIncremental();
-}
-
-void ReplaceStrip::ToggleChanged(WCheckDraw *, void *user) {
-	ReplaceStrip *pStrip = static_cast<ReplaceStrip *>(user);
-	pStrip->GrabToggles();
-	pStrip->NextIncremental();
-}
-
-gboolean ReplaceStrip::EscapeSignal(GtkWidget *w, GdkEventKey *event, ReplaceStrip *pStrip) {
-	if (event->keyval == GKEY_Escape) {
-		g_signal_stop_emission_by_name(G_OBJECT(w), "key-press-event");
-		pStrip->Close();
-	}
-	return FALSE;
-}
-
 void ReplaceStrip::GrabFields() {
 	pSearcher->SetFind(wComboFind.Text());
 	pSearcher->SetReplace(wComboReplace.Text());
@@ -4504,7 +4479,7 @@ void ReplaceStrip::SetToggles() {
 	}
 }
 
-void ReplaceStrip::FindCmd() {
+void ReplaceStrip::FindNextCmd() {
 	GrabFields();
 	if (pSearcher->FindHasText()) {
 		pSearcher->FindNext(pSearcher->reverseFind);

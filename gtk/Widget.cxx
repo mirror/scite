@@ -196,7 +196,7 @@ void WProgress::Create() {
 	SetID(gtk_progress_bar_new());
 }
 
-WCheckDraw::WCheckDraw() : cdfn(NULL), user(NULL) {
+WCheckDraw::WCheckDraw() {
 }
 
 WCheckDraw::~WCheckDraw() {
@@ -260,8 +260,8 @@ void WCheckDraw::Create(const char **xpmImage, const GUI::gui_string &toolTip, G
 }
 
 void WCheckDraw::Toggled(GtkWidget *, WCheckDraw *pcd) {
-	if (pcd->cdfn)
-		pcd->cdfn(pcd, pcd->user);
+	if (pcd->watcher)
+		pcd->watcher->CheckChanged();
 }
 
 GtkToggleButton *WCheckDraw::ToggleButton() {
@@ -280,9 +280,8 @@ void WCheckDraw::Toggle() {
 	SetActive(!Active());
 }
 
-void WCheckDraw::SetChangeFunction(ChangeFunction cdfn_, void *user_) {
-	cdfn = cdfn_;
-	user = user_;
+void WCheckDraw::SetChangeWatcher(CheckDrawWatcher *watcher_) {
+	watcher = watcher_;
 }
 
 #if GTK_CHECK_VERSION(3,4,0)

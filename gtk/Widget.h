@@ -73,12 +73,14 @@ public:
 	void SetActive(bool active);
 };
 
-class WCheckDraw : public WBase {
+class CheckDrawWatcher {
 public:
-	typedef void (*ChangeFunction)(WCheckDraw *cd, void *user);
+	virtual void CheckChanged() = 0;
+};
+
+class WCheckDraw : public WBase {
 private:
-	ChangeFunction cdfn;
-	void *user;
+	CheckDrawWatcher *watcher = nullptr;
 	static void Toggled(GtkWidget *widget, WCheckDraw *pcd);
 	GtkToggleButton *ToggleButton();
 public:
@@ -88,7 +90,7 @@ public:
 	bool Active();
 	void SetActive(bool active);
 	void Toggle();
-	void SetChangeFunction(ChangeFunction cdfn_, void *user_);
+	void SetChangeWatcher(CheckDrawWatcher *watcher_);
 	enum {  checkIconWidth = 16, checkButtonWidth = 16 + 3 * 2 + 1};
 };
 
