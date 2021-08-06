@@ -568,9 +568,6 @@ protected:
 	GtkPageSetup *pageSetup;
 	std::vector<int> pageStarts;
 
-	// Fullscreen handling
-	GdkRectangle saved;
-
 	GtkWidget *AddMBButton(GtkWidget *dialog, const char *label,
 	                       MessageBoxChoice val, GtkAccelGroup *accel_group, bool isDefault = false);
 	void SetIcon();
