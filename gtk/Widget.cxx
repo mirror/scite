@@ -34,8 +34,18 @@ WBase::operator GtkWidget*() const {
 	return GTK_WIDGET(GetID());
 }
 
-GtkWidget* WBase::Pointer() {
+GtkWidget *WBase::Pointer() {
 	return GTK_WIDGET(GetID());
+}
+
+GtkStyle *WBase::Style() {
+#if GTK_CHECK_VERSION(3,4,0)
+	return nullptr;
+#elif GTK_CHECK_VERSION(3,0,0)
+	return gtk_widget_get_style(Pointer());
+#else
+	return Pointer()->style;
+#endif
 }
 
 bool WBase::Sensitive() {

@@ -20,7 +20,8 @@ public:
 class WBase : public GUI::Window {
 public:
 	operator GtkWidget*() const;
-	GtkWidget* Pointer();
+	GtkWidget *Pointer();
+	GtkStyle *Style();
 	bool Sensitive();
 };
 
