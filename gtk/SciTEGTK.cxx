@@ -637,6 +637,7 @@ protected:
 	void UIClosed() override;
 	void UIHasFocus() override;
 	GtkWidget *TranslatedLabel(const char *original);
+	void CloseOtherFinders(int cmdID);
 	void FindIncrement() override;
 	void FindInFilesResponse(int responseID);
 	void FindInFiles() override;
@@ -1930,7 +1931,7 @@ void SciTEGTK::Find() {
 	}
 	SelectionIntoFind();
 	if (props.GetInt("find.use.strip")) {
-		replaceStrip.Close();
+		CloseOtherFinders(IDM_FIND);
 		findStrip.SetIncrementalBehaviour(props.GetInt("find.strip.incremental"));
 		findStrip.Show(props.GetInt("strip.button.height", -1));
 	} else {
@@ -2524,7 +2525,7 @@ void SciTEGTK::Replace() {
 	}
 	SelectionIntoFind();
 	if (props.GetInt("replace.use.strip")) {
-		findStrip.Close();
+		CloseOtherFinders(IDM_REPLACE);
 		replaceStrip.SetIncrementalBehaviour(props.GetInt("replace.strip.incremental"));
 		replaceStrip.Show(props.GetInt("strip.button.height", -1));
 	} else {
@@ -5120,6 +5121,15 @@ void SciTEGTK::CreateUI() {
 	UIAvailable();
 }
 
+void SciTEGTK::CloseOtherFinders(int cmdID) {
+	if (cmdID != IDM_FIND)
+		findStrip.Close();
+	if (cmdID != IDM_REPLACE)
+		replaceStrip.Close();
+	if (cmdID != IDM_INCSEARCH)
+		gtk_widget_hide(wIncrementPanel);
+}
+
 void SciTEGTK::FindIncrementSetColour(bool valid) {
 	WEntry::SetValid(GTK_ENTRY(IncSearchEntry), valid);
 }
@@ -5167,8 +5177,7 @@ gboolean SciTEGTK::FindIncrementFocusOutSignal(GtkWidget *) {
 }
 
 void SciTEGTK::FindIncrement() {
-	findStrip.Close();
-	replaceStrip.Close();
+	CloseOtherFinders(IDM_INCSEARCH);
 	FindIncrementSetColour(true);
 	failedfind = false;
 	gtk_widget_show(wIncrementPanel);
