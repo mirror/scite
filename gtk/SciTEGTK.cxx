@@ -3308,12 +3308,12 @@ gint SciTEGTK::QuitSignal(GtkWidget *, GdkEventAny *, SciTEGTK *scitew) {
 }
 
 void SciTEGTK::ButtonSignal(GtkWidget *, gpointer data) {
-	instance->Command((guint)(long)data);
+	instance->Command(GPOINTER_TO_UINT(data));
 }
 
 void SciTEGTK::MenuSignal(GtkMenuItem *menuitem, SciTEGTK *scitew) {
 	if (scitew->allowMenuActions) {
-		gint action = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(menuitem), "CmdNum"));
+		guint action = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(menuitem), "CmdNum"));
 		scitew->Command(action);
 	}
 }
@@ -3457,7 +3457,7 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 }
 
 void SciTEGTK::PopUpCmd(GtkMenuItem *menuItem, SciTEGTK *scitew) {
-	sptr_t cmd = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(menuItem), "CmdNum"));
+	guint cmd = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(menuItem), "CmdNum"));
 	scitew->Command(cmd);
 }
 
