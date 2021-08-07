@@ -84,8 +84,6 @@
 
 #endif
 
-enum { mbsAboutBox = 0x100000 };
-
 // Key names are longer for GTK 3
 #if GTK_CHECK_VERSION(3,0,0)
 #define GKEY_Escape GDK_KEY_Escape
@@ -113,19 +111,72 @@ enum { mbsAboutBox = 0x100000 };
 #define GKEY_F4 GDK_F4
 #endif
 
-static GdkWindow *WindowFromWidget(GtkWidget *w) {
-	return gtk_widget_get_window(w);
-}
-
 const char appName[] = "SciTE";
-
-static GtkWidget *PWidget(const GUI::Window &w) {
-	return static_cast<GtkWidget *>(w.GetID());
-}
 
 class SciTEGTK;
 
-typedef void (*SigFunction)(GtkWidget *w, SciTEGTK *app);
+namespace {
+
+enum { mbsAboutBox = 0x100000 };
+
+GdkWindow *WindowFromWidget(GtkWidget *w) noexcept {
+	return gtk_widget_get_window(w);
+}
+
+GtkWidget *PWidget(const GUI::Window &w) noexcept {
+	return static_cast<GtkWidget *>(w.GetID());
+}
+
+std::string GtkFromWinCaption(const char *text) {
+	std::string sCaption(text);
+	// Escape underlines
+	Substitute(sCaption, "_", "__");
+	// Replace Windows-style ampersands with GTK underlines
+	size_t posFound = sCaption.find("&");
+	while (posFound != std::string::npos) {
+		std::string nextChar = sCaption.substr(posFound + 1, 1);
+		if (nextChar == "&") {
+			// Escaped, move on
+			posFound += 2;
+		} else {
+			sCaption.erase(posFound, 1);
+			sCaption.insert(posFound, "_", 1);
+			posFound += 1;
+		}
+		posFound = sCaption.find("&", posFound);
+	}
+	// Unescape ampersands
+	Substitute(sCaption, "&&", "&");
+	return sCaption;
+}
+
+std::string WithoutUnderscore(const char *s) {
+	std::string ret;
+	while (*s) {
+		if (*s != '_')
+			ret += *s;
+		s++;
+	}
+	return ret;
+}
+
+void SetCairoColour(cairo_t *cr, SA::Colour co) noexcept {
+	cairo_set_source_rgb(cr,
+		(co & 0xff) / 255.0,
+		((co >> 8) & 0xff) / 255.0,
+		((co >> 16) & 0xff) / 255.0);
+}
+
+GtkWidget *pixmap_new(gchar **xpm) {
+	GdkPixbuf *pixbuf = gdk_pixbuf_new_from_xpm_data((const char **)(char **)xpm);
+	return gtk_image_new_from_pixbuf(pixbuf);
+}
+
+void AddToolSpace(GtkToolbar *toolbar) {
+	GtkToolItem *space = gtk_separator_tool_item_new();
+	gtk_widget_show(GTK_WIDGET(space));
+	gtk_toolbar_insert(toolbar, space, -1);
+}
 
 // Callback thunk class connects GTK signals to a SciTEGTK instance method.
 template< void (SciTEGTK::*method)() >
@@ -159,6 +210,8 @@ struct SciTEItemFactoryEntry {
 	int callback_action;
 	const char *item_type;
 };
+
+}
 
 long SciTEKeys::ParseKeyCode(const char *mnemonic) {
 	int modsInKey = 0;
@@ -1280,29 +1333,6 @@ GtkWidget *SciTEGTK::MenuItemFromAction(int itemID) {
 		return it->second;
 }
 
-static std::string GtkFromWinCaption(const char *text) {
-	std::string sCaption(text);
-	// Escape underlines
-	Substitute(sCaption, "_", "__");
-	// Replace Windows-style ampersands with GTK underlines
-	size_t posFound = sCaption.find("&");
-	while (posFound != std::string::npos) {
-		std::string nextChar = sCaption.substr(posFound + 1, 1);
-		if (nextChar == "&") {
-			// Escaped, move on
-			posFound += 2;
-		} else {
-			sCaption.erase(posFound, 1);
-			sCaption.insert(posFound, "_", 1);
-			posFound += 1;
-		}
-		posFound = sCaption.find("&", posFound);
-	}
-	// Unescape ampersands
-	Substitute(sCaption, "&&", "&");
-	return sCaption;
-}
-
 void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *mnemonic) {
 	DestroyMenuItem(0, itemID);
 
@@ -1794,13 +1824,6 @@ void SciTEGTK::BeginPrint(GtkPrintOperation *operation, GtkPrintContext *context
 	scitew->BeginPrintThis(operation, context);
 }
 
-static void SetCairoColour(cairo_t *cr, SA::Colour co) {
-	cairo_set_source_rgb(cr,
-		(co & 0xff) / 255.0,
-		((co >> 8) & 0xff) / 255.0,
-		((co >> 16) & 0xff) / 255.0);
-}
-
 void SciTEGTK::DrawPageThis(GtkPrintOperation * /* operation */, GtkPrintContext *context, gint page_nr) {
 	Sci_RangeToFormat frPrint;
 	SetupFormat(frPrint, context) ;
@@ -2205,20 +2228,22 @@ void SciTEGTK::FindInFilesBrowse() {
 	gtk_widget_destroy(dialog);
 }
 
-static const char *textFindPrompt = "Fi_nd:";
-static const char *textReplacePrompt = "Rep_lace:";
-static const char *textFindNext = "_Find Next";
-static const char *textMarkAll = "_Mark All";
+namespace {
 
-static const char *textFind = "F_ind";
-static const char *textReplace = "_Replace";
-static const char *textReplaceAll = "Replace _All";
-static const char *textInSelection = "In _Selection";
-static const char *textReplaceInBuffers = "Replace In _Buffers";
-static const char *textClose = "_Close";
+const char *textFindPrompt = "Fi_nd:";
+const char *textReplacePrompt = "Rep_lace:";
+const char *textFindNext = "_Find Next";
+const char *textMarkAll = "_Mark All";
+
+const char *textFind = "F_ind";
+const char *textReplace = "_Replace";
+const char *textReplaceAll = "Replace _All";
+const char *textInSelection = "In _Selection";
+const char *textReplaceInBuffers = "Replace In _Buffers";
+const char *textClose = "_Close";
 
 /* XPM */
-static const char * word1_x_xpm[] = {
+const char * word1_x_xpm[] = {
 "16 16 15 1",
 " 	c #FFFFFF",
 ".	c #000000",
@@ -2253,7 +2278,7 @@ static const char * word1_x_xpm[] = {
 "................"};
 
 /* XPM */
-static const char * case_x_xpm[] = {
+const char * case_x_xpm[] = {
 "16 16 12 1",
 " 	c #FFFFFF",
 ".	c #BDBDBD",
@@ -2285,7 +2310,7 @@ static const char * case_x_xpm[] = {
 "                "};
 
 /* XPM */
-static const char * regex_x_xpm[] = {
+const char * regex_x_xpm[] = {
 "16 16 11 1",
 " 	c #FFFFFF",
 ".	c #888888",
@@ -2316,7 +2341,7 @@ static const char * regex_x_xpm[] = {
 "                "};
 
 /* XPM */
-static const char * backslash_x_xpm[] = {
+const char * backslash_x_xpm[] = {
 "16 16 15 1",
 " 	c #FFFFFF",
 ".	c #141414",
@@ -2351,7 +2376,7 @@ static const char * backslash_x_xpm[] = {
 "                "};
 
 /* XPM */
-static const char * around_x_xpm[] = {
+const char * around_x_xpm[] = {
 "16 16 2 1",
 " 	c #FFFFFF",
 ".	c #000000",
@@ -2373,7 +2398,7 @@ static const char * around_x_xpm[] = {
 "                "};
 
 /* XPM */
-static const char * up_x_xpm[] = {
+const char * up_x_xpm[] = {
 "16 16 8 1",
 " 	c None",
 ".	c #FFFFFF",
@@ -2400,7 +2425,7 @@ static const char * up_x_xpm[] = {
 ".......#@&......",
 "................"};
 
-const static SearchOption toggles[] = {
+const SearchOption toggles[] = {
 	{"Match _whole word only", IDM_WHOLEWORD, IDWHOLEWORD},
 	{"_Case sensitive", IDM_MATCHCASE, IDMATCHCASE},
 	{"Regular _expression", IDM_REGEXP, IDREGEXP},
@@ -2411,7 +2436,7 @@ const static SearchOption toggles[] = {
 };
 
 // Has to be in same order as toggles
-static const char **xpmImages[] = {
+const char **xpmImages[] = {
 	word1_x_xpm,
 	case_x_xpm,
 	regex_x_xpm,
@@ -2419,6 +2444,8 @@ static const char **xpmImages[] = {
 	around_x_xpm,
 	up_x_xpm,
 };
+
+}
 
 void SciTEGTK::FindInFilesResponse(int responseID) {
 	switch (responseID) {
@@ -3334,6 +3361,8 @@ gint SciTEGTK::MousePress(GtkWidget * /*widget*/, GdkEventButton *event, SciTEGT
 	return scitew->Mouse(event);
 }
 
+namespace {
+
 // Translate key strokes that are not in a menu into commands
 class KeyToCommand {
 public:
@@ -3349,7 +3378,7 @@ enum {
     mSC = GDK_SHIFT_MASK | GDK_CONTROL_MASK
 };
 
-static KeyToCommand kmap[] = {
+KeyToCommand kmap[] = {
                                  {m_C, GKEY_Tab, IDM_NEXTFILESTACK},
                                  {mSC, GKEY_ISO_Left_Tab, IDM_PREVFILESTACK},
                                  {m_C, GKEY_KP_Enter, IDM_COMPLETEWORD},
@@ -3366,9 +3395,11 @@ static KeyToCommand kmap[] = {
                                  {0, 0, 0},
                              };
 
-inline bool KeyMatch(const char *menuKey, int keyval, int modifiers) {
+bool KeyMatch(const char *menuKey, int keyval, int modifiers) {
 	return SciTEKeys::MatchKeyCode(
 		SciTEKeys::ParseKeyCode(menuKey), keyval, modifiers);
+}
+
 }
 
 gint SciTEGTK::Key(GdkEventKey *event) {
@@ -3557,11 +3588,6 @@ gint SciTEGTK::TabBarScroll(GdkEventScroll *event) {
 	return TRUE;
 }
 
-static GtkWidget *pixmap_new(gchar **xpm) {
-	GdkPixbuf *pixbuf = gdk_pixbuf_new_from_xpm_data((const char **)(char **)xpm);
-	return gtk_image_new_from_pixbuf(pixbuf);
-}
-
 GtkWidget *SciTEGTK::AddToolButton(const char *text, int cmd, GtkWidget *toolbar_icon) {
 	gtk_widget_show(GTK_WIDGET(toolbar_icon));
 	GUI::gui_string localised = localiser.Text(text);
@@ -3574,12 +3600,6 @@ GtkWidget *SciTEGTK::AddToolButton(const char *text, int cmd, GtkWidget *toolbar
 	                   G_CALLBACK(ButtonSignal),
 	                   GINT_TO_POINTER(cmd));
 	return GTK_WIDGET(button);
-}
-
-static void AddToolSpace(GtkToolbar *toolbar) {
-	GtkToolItem *space = gtk_separator_tool_item_new();
-	gtk_widget_show(GTK_WIDGET(space));
-	gtk_toolbar_insert(toolbar, space, -1);
 }
 
 void SciTEGTK::AddToolBar() {
@@ -3663,16 +3683,6 @@ std::string SciTEGTK::TranslatePath(const char *path) {
 	} else {
 		return path ? path : std::string();
 	}
-}
-
-static std::string WithoutUnderscore(const char *s) {
-	std::string ret;
-	while (*s) {
-		if (*s != '_')
-			ret += *s;
-		s++;
-	}
-	return ret;
 }
 
 void SciTEGTK::CreateTranslatedMenu(int n, const SciTEItemFactoryEntry items[],
@@ -5152,7 +5162,8 @@ struct CallbackData {
 	SciTEGTK *pSciTE;
 	int cmd;
 	Worker *pWorker;
-	CallbackData(SciTEGTK *pSciTE_, int cmd_, Worker *pWorker_) : pSciTE(pSciTE_), cmd(cmd_), pWorker(pWorker_) {
+	CallbackData(SciTEGTK *pSciTE_, int cmd_, Worker *pWorker_) noexcept :
+		pSciTE(pSciTE_), cmd(cmd_), pWorker(pWorker_) {
 	}
 };
 
