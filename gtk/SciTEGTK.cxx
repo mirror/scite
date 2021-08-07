@@ -167,8 +167,8 @@ void SetCairoColour(cairo_t *cr, SA::Colour co) noexcept {
 		((co >> 16) & 0xff) / 255.0);
 }
 
-GtkWidget *pixmap_new(gchar **xpm) {
-	GdkPixbuf *pixbuf = gdk_pixbuf_new_from_xpm_data((const char **)(char **)xpm);
+GtkWidget *pixmap_new(const char **xpm) {
+	GdkPixbuf *pixbuf = gdk_pixbuf_new_from_xpm_data(xpm);
 	return gtk_image_new_from_pixbuf(pixbuf);
 }
 
@@ -3634,34 +3634,34 @@ void SciTEGTK::AddToolBar() {
 		AddToolButton("Next Buffer", IDM_NEXTFILE, gtk_image_new_from_icon_name("go-next", GTK_ICON_SIZE_LARGE_TOOLBAR));
 		return;
 	}
-	AddToolButton("New", IDM_NEW, pixmap_new((gchar**)filenew_xpm));
-	AddToolButton("Open", IDM_OPEN, pixmap_new((gchar**)fileopen_xpm));
-	AddToolButton("Save", IDM_SAVE, pixmap_new((gchar**)filesave_xpm));
-	AddToolButton("Close", IDM_CLOSE, pixmap_new((gchar**)close_xpm));
+	AddToolButton("New", IDM_NEW, pixmap_new(filenew_xpm));
+	AddToolButton("Open", IDM_OPEN, pixmap_new(fileopen_xpm));
+	AddToolButton("Save", IDM_SAVE, pixmap_new(filesave_xpm));
+	AddToolButton("Close", IDM_CLOSE, pixmap_new(close_xpm));
 
 	AddToolSpace(GTK_TOOLBAR(PWidget(wToolBar)));
-	AddToolButton("Undo", IDM_UNDO, pixmap_new((gchar**)undo_xpm));
-	AddToolButton("Redo", IDM_REDO, pixmap_new((gchar**)redo_xpm));
+	AddToolButton("Undo", IDM_UNDO, pixmap_new(undo_xpm));
+	AddToolButton("Redo", IDM_REDO, pixmap_new(redo_xpm));
 
 	AddToolSpace(GTK_TOOLBAR(PWidget(wToolBar)));
-	AddToolButton("Cut", IDM_CUT, pixmap_new((gchar**)editcut_xpm));
-	AddToolButton("Copy", IDM_COPY, pixmap_new((gchar**)editcopy_xpm));
-	AddToolButton("Paste", IDM_PASTE, pixmap_new((gchar**)editpaste_xpm));
+	AddToolButton("Cut", IDM_CUT, pixmap_new(editcut_xpm));
+	AddToolButton("Copy", IDM_COPY, pixmap_new(editcopy_xpm));
+	AddToolButton("Paste", IDM_PASTE, pixmap_new(editpaste_xpm));
 
 	AddToolSpace(GTK_TOOLBAR(PWidget(wToolBar)));
-	AddToolButton("Find in Files", IDM_FINDINFILES, pixmap_new((gchar**)findinfiles_xpm));
-	AddToolButton("Find", IDM_FIND, pixmap_new((gchar**)search_xpm));
-	AddToolButton("Find Next", IDM_FINDNEXT, pixmap_new((gchar**)findnext_xpm));
-	AddToolButton("Replace", IDM_REPLACE, pixmap_new((gchar**)replace_xpm));
+	AddToolButton("Find in Files", IDM_FINDINFILES, pixmap_new(findinfiles_xpm));
+	AddToolButton("Find", IDM_FIND, pixmap_new(search_xpm));
+	AddToolButton("Find Next", IDM_FINDNEXT, pixmap_new(findnext_xpm));
+	AddToolButton("Replace", IDM_REPLACE, pixmap_new(replace_xpm));
 
 	AddToolSpace(GTK_TOOLBAR(PWidget(wToolBar)));
-	btnCompile = AddToolButton("Compile", IDM_COMPILE, pixmap_new((gchar**)compile_xpm));
-	btnBuild = AddToolButton("Build", IDM_BUILD, pixmap_new((gchar**)build_xpm));
-	btnStop = AddToolButton("Stop", IDM_STOPEXECUTE, pixmap_new((gchar**)stop_xpm));
+	btnCompile = AddToolButton("Compile", IDM_COMPILE, pixmap_new(compile_xpm));
+	btnBuild = AddToolButton("Build", IDM_BUILD, pixmap_new(build_xpm));
+	btnStop = AddToolButton("Stop", IDM_STOPEXECUTE, pixmap_new(stop_xpm));
 
 	AddToolSpace(GTK_TOOLBAR(PWidget(wToolBar)));
-	AddToolButton("Previous", IDM_PREVFILE, pixmap_new((gchar**)prev_xpm));
-	AddToolButton("Next Buffer", IDM_NEXTFILE, pixmap_new((gchar**)next_xpm));
+	AddToolButton("Previous", IDM_PREVFILE, pixmap_new(prev_xpm));
+	AddToolButton("Next Buffer", IDM_NEXTFILE, pixmap_new(next_xpm));
 }
 
 std::string SciTEGTK::TranslatePath(const char *path) {
