@@ -240,7 +240,7 @@ long SciTEKeys::ParseKeyCode(const char *mnemonic) {
 		} else if ((sKey.length() > 1)) {
 			if ((sKey[0] == 'F') && (IsADigit(sKey[1]))) {
 				sKey.erase(0, 1);
-				int fkeyNum = atoi(sKey.c_str());
+				const int fkeyNum = atoi(sKey.c_str());
 				if (fkeyNum >= 1 && fkeyNum <= 12)
 #if GTK_CHECK_VERSION(3,0,0)
 					keyval = fkeyNum - 1 + GDK_KEY_F1;
@@ -951,10 +951,10 @@ GtkWidget *SciTEGTK::AddMBButton(GtkWidget *dialog, const char *label,
 	GtkWidget *button = gtk_button_new_with_mnemonic(translated.c_str());
 #endif
 	gtk_widget_set_can_default(button, TRUE);
-	size_t posMnemonic = translated.find('_');
+	const size_t posMnemonic = translated.find('_');
 	if (posMnemonic != GUI::gui_string::npos) {
 		// With a "Yes" button want to respond to pressing "y" as well as standard "Alt+y"
-		guint key = MakeLowerCase(translated[posMnemonic + 1]);
+		const guint key = MakeLowerCase(translated[posMnemonic + 1]);
 		gtk_widget_add_accelerator(button, "clicked", accel_group,
 	                           key, GdkModifierType{}, GtkAccelFlags{});
 	}
@@ -1072,14 +1072,14 @@ void SciTEGTK::RemoveAllTabs() {
 void SciTEGTK::SetFileProperties(PropSetFile &ps) {
 	char timeBuffer[200];
 
-	time_t timeNow = time(NULL);
+	const time_t timeNow = time(NULL);
 
 	strftime(timeBuffer, sizeof(timeBuffer), "%x", localtime(&timeNow));
 	ps.Set("CurrentDate", timeBuffer);
 	strftime(timeBuffer, sizeof(timeBuffer), "%X", localtime(&timeNow));
 	ps.Set("CurrentTime", timeBuffer);
 
-	time_t timeFileModified = filePath.ModifiedTime();
+	const time_t timeFileModified = filePath.ModifiedTime();
 	strftime(timeBuffer, sizeof(timeBuffer), "%x", localtime(&timeFileModified));
 	ps.Set("FileDate", timeBuffer);
 	strftime(timeBuffer, sizeof(timeBuffer), "%X", localtime(&timeFileModified));
@@ -1150,7 +1150,7 @@ void SciTEGTK::ActivateWindow(const char *timestamp) {
 	char *end;
 	// Reset errno so we can reliably test it
 	errno = 0;
-	gulong ts = strtoul(timestamp, &end, 0);
+	const gulong ts = strtoul(timestamp, &end, 0);
 	if (end != timestamp && errno == 0) {
 		gtk_window_present_with_time(GTK_WINDOW(PWidget(wSciTE)), ts);
 	} else {
@@ -1164,7 +1164,7 @@ void SciTEGTK::CopyPath() {
 }
 
 void SciTEGTK::Command(unsigned long wParam, long) {
-	int cmdID = ControlIDOfCommand(wParam);
+	const int cmdID = ControlIDOfCommand(wParam);
 	switch (cmdID) {
 
 	case IDM_FULLSCREEN:
@@ -1214,7 +1214,7 @@ void SciTEGTK::ReadLocalization() {
 			gsize inLeft = strlen(val);
 			char *pout = converted;
 			gsize outLeft = sizeof(converted);
-			gsize conversions = g_iconv(iconvh, &pin, &inLeft, &pout, &outLeft);
+			const gsize conversions = g_iconv(iconvh, &pin, &inLeft, &pout, &outLeft);
 			if (conversions != static_cast<gsize>(-1)) {
 				*pout = '\0';
 				localiser.Set(key, converted);
@@ -1251,7 +1251,7 @@ gboolean SciTEGTK::TimerTick(gpointer pSciTE) {
 }
 
 void SciTEGTK::TimerStart(int mask) {
-	int maskNew = timerMask | mask;
+	const int maskNew = timerMask | mask;
 	if (timerMask != maskNew) {
 		if (timerMask == 0) {
 			// Create a 1 second ticker
@@ -1262,7 +1262,7 @@ void SciTEGTK::TimerStart(int mask) {
 }
 
 void SciTEGTK::TimerEnd(int mask) {
-	int maskNew = timerMask & ~mask;
+	const int maskNew = timerMask & ~mask;
 	if (timerMask != maskNew) {
 		if (maskNew == 0) {
 			g_source_remove(timerID);
@@ -1758,8 +1758,8 @@ void SciTEGTK::SetupFormat(Sci_RangeToFormat &frPrint, GtkPrintContext *context)
 	frPrint.hdc = cr;
 	frPrint.hdcTarget = cr;
 
-	gdouble width = gtk_print_context_get_width(context);
-	gdouble height = gtk_print_context_get_height(context);
+	const gdouble width = gtk_print_context_get_width(context);
+	const gdouble height = gtk_print_context_get_height(context);
 
 	frPrint.rc.left = 0;
 	frPrint.rc.top = 0;
@@ -1811,7 +1811,7 @@ void SciTEGTK::BeginPrintThis(GtkPrintOperation *operation, GtkPrintContext *con
 	Sci_RangeToFormat frPrint;
 	SetupFormat(frPrint, context) ;
 
-	SA::Position lengthDoc = wEditor.Length();
+	const SA::Position lengthDoc = wEditor.Length();
 	SA::Position lengthPrinted = 0;
 	while (lengthPrinted < lengthDoc) {
 		pageStarts.push_back(lengthPrinted);
@@ -1884,7 +1884,7 @@ void SciTEGTK::DrawPageThis(GtkPrintOperation * /* operation */, GtkPrintContext
 		cairo_stroke(cr);
 	}
 
-	SA::Position lengthDoc = wEditor.Length();
+	const SA::Position lengthDoc = wEditor.Length();
 	frPrint.chrg.cpMin = pageStarts[page_nr];
 	frPrint.chrg.cpMax = pageStarts[page_nr+1];
 	if (frPrint.chrg.cpMax < lengthDoc)
@@ -1912,7 +1912,7 @@ void SciTEGTK::Print(bool) {
 	g_signal_connect(printOp, "begin_print", G_CALLBACK(BeginPrint), this);
 	g_signal_connect(printOp, "draw_page", G_CALLBACK(DrawPage), this);
 
-	GtkPrintOperationResult res = gtk_print_operation_run(
+	const GtkPrintOperationResult res = gtk_print_operation_run(
 		printOp, GTK_PRINT_OPERATION_ACTION_PRINT_DIALOG,
 		GTK_WINDOW(PWidget(wSciTE)), NULL);
 
@@ -2009,7 +2009,7 @@ static void FillComboFromMemory(WComboBoxEntry *combo, const ComboMemory &mem, b
 
 std::string SciTEGTK::EncodeString(const std::string &s) {
 	wEditor.SetLengthForEncode(s.length());
-	SA::Position len = wEditor.EncodedFromUTF8(s.c_str(), nullptr);
+	const SA::Position len = wEditor.EncodedFromUTF8(s.c_str(), nullptr);
 	std::vector<char> ret(len+1);
 	wEditor.EncodedFromUTF8(s.c_str(), &ret[0]);
 	return std::string(&ret[0], len);
@@ -2085,7 +2085,7 @@ void SciTEGTK::FindReplaceGrabFields() {
 
 void SciTEGTK::FRFindCmd() {
 	FindReplaceGrabFields();
-	bool isFindDialog = !dlgFindReplace.wComboReplace;
+	const bool isFindDialog = !dlgFindReplace.wComboReplace;
 	bool found = false;
 	if (findWhat[0]) {
 		found = FindNext(isFindDialog && reverseFind) >= 0;
@@ -2607,7 +2607,7 @@ void SciTEGTK::ContinueExecute(int fromPoll) {
 		}
 		if ((lastFlags & jobRepSelYes)
 			|| ((lastFlags & jobRepSelAuto) && !exitStatus)) {
-			int cpMin = wEditor.Send(SCI_GETSELECTIONSTART, 0, 0);
+			const int cpMin = wEditor.Send(SCI_GETSELECTIONSTART, 0, 0);
 			wEditor.Send(SCI_REPLACESEL,0,(sptr_t)(lastOutput.c_str()));
 			wEditor.Send(SCI_SETSEL, cpMin, cpMin+lastOutput.length());
 		}
@@ -2772,7 +2772,7 @@ void SciTEGTK::StopExecute() {
 }
 
 void SciTEGTK::GotoCmd() {
-	int lineNo = dlgGoto.entryGoto.Value();
+	const SA::Line lineNo = dlgGoto.entryGoto.Value();
 	GotoLineEnsureVisible(lineNo - 1);
 	dlgGoto.Destroy();
 }
@@ -2866,7 +2866,7 @@ void SciTEGTK::TabSizeSet(int &tabSize, bool &useTabs) {
 	tabSize = dlgTabSize.entryTabSize.Value();
 	if (tabSize > 0)
 		wEditor.SetTabWidth(tabSize);
-	int indentSize = dlgTabSize.entryIndentSize.Value();
+	const int indentSize = dlgTabSize.entryIndentSize.Value();
 	if (indentSize > 0)
 		wEditor.SetIndent(indentSize);
 	useTabs = dlgTabSize.toggleUseTabs.Active();
@@ -2934,7 +2934,7 @@ void SciTEGTK::TabSizeDialog() {
 	dlgTabSize.entryIndentSize.ActivatesDefault();
 	gtk_label_set_mnemonic_widget(GTK_LABEL(labelIndentSize), dlgTabSize.entryIndentSize);
 
-	bool useTabs = wEditor.UseTabs();
+	const bool useTabs = wEditor.UseTabs();
 	dlgTabSize.toggleUseTabs.Create(localiser.Text("_Use Tabs"));
 	dlgTabSize.toggleUseTabs.SetActive(useTabs);
 	table.Add();
@@ -3276,7 +3276,7 @@ void SciTEGTK::QuitProgram() {
 }
 
 void SciTEGTK::PanePositionChanged(GObject *, GParamSpec *, SciTEGTK *scitew) {
-	bool sizeForced = scitew->UpdateOutputSize();
+	const bool sizeForced = scitew->UpdateOutputSize();
 
 	if (sizeForced) {
 		// Calling SizeContentWindows sets position on the H/VPaned and thus
@@ -3344,7 +3344,7 @@ void SciTEGTK::ButtonSignal(GtkWidget *, gpointer data) {
 
 void SciTEGTK::MenuSignal(GtkMenuItem *menuitem, SciTEGTK *scitew) {
 	if (scitew->allowMenuActions) {
-		guint action = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(menuitem), "CmdNum"));
+		const guint action = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(menuitem), "CmdNum"));
 		scitew->Command(action);
 	}
 }
@@ -3419,9 +3419,9 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 		}
 	}
 
-	int modifiers = event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK | GDK_MOD4_MASK);
+	const int modifiers = event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK | GDK_MOD4_MASK);
 
-	int cmodifiers = // modifier mask for Lua extension
+	const int cmodifiers = // modifier mask for Lua extension
 		((event->state & GDK_SHIFT_MASK)   ? SCMOD_SHIFT : 0) |
 		((event->state & GDK_CONTROL_MASK) ? SCMOD_CTRL  : 0) |
 		((event->state & GDK_MOD1_MASK)    ? SCMOD_ALT   : 0);
@@ -3458,7 +3458,7 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 	for (int tool_i = 0; tool_i < toolMax; ++tool_i) {
 		GtkWidget *item = MenuItemFromAction(IDM_TOOLS + tool_i);
 		if (item) {
-			long keycode = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item), "key"));
+			const long keycode = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item), "key"));
 			if (keycode && SciTEKeys::MatchKeyCode(keycode, event->keyval, modifiers)) {
 				SciTEBase::MenuCommand(IDM_TOOLS + tool_i);
 				return 1;
@@ -3492,7 +3492,7 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 }
 
 void SciTEGTK::PopUpCmd(GtkMenuItem *menuItem, SciTEGTK *scitew) {
-	guint cmd = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(menuItem), "CmdNum"));
+	const guint cmd = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(menuItem), "CmdNum"));
 	scitew->Command(cmd);
 }
 
@@ -3732,7 +3732,7 @@ void SciTEGTK::CreateTranslatedMenu(int n, const SciTEItemFactoryEntry items[],
 
 	}
 	for (; i < dim; i++) {
-		int suffix = i - n + startNum;
+		const int suffix = i - n + startNum;
 		std::string ssnum = StdStringFromInteger(suffix);
 		translatedText[i] = TranslatePath(prefix);
 		translatedText[i] += ssnum;
@@ -4256,8 +4256,8 @@ void FindStrip::ShowPopup() {
 	for (int i=SearchOption::tWord; i<=SearchOption::tUp; i++) {
 		AddToPopUp(popup, toggles[i].label, toggles[i].cmd, pSearcher->FlagFromCmd(toggles[i].cmd));
 	}
-	GUI::Rectangle rcButton = wCheck[0].GetPosition();
-	GUI::Point pt(rcButton.left, rcButton.bottom);
+	const GUI::Rectangle rcButton = wCheck[0].GetPosition();
+	const GUI::Point pt(rcButton.left, rcButton.bottom);
 	popup.Show(pt, *this);
 }
 
@@ -4524,8 +4524,8 @@ void ReplaceStrip::ShowPopup() {
 	for (int i=SearchOption::tWord; i<=SearchOption::tWrap; i++) {
 		AddToPopUp(popup, toggles[i].label, toggles[i].cmd, pSearcher->FlagFromCmd(toggles[i].cmd));
 	}
-	GUI::Rectangle rcButton = wCheck[0].GetPosition();
-	GUI::Point pt(rcButton.left, rcButton.bottom);
+	const GUI::Rectangle rcButton = wCheck[0].GetPosition();
+	const GUI::Point pt(rcButton.left, rcButton.bottom);
 	popup.Show(pt, *this);
 }
 
@@ -5191,7 +5191,7 @@ void SciTEGTK::SetStartupTime(const char *timestamp) {
 		char *end;
 		// Reset errno from any previous errors
 		errno = 0;
-		gulong ts = strtoul(timestamp, &end, 0);
+		const gulong ts = strtoul(timestamp, &end, 0);
 		if (end != timestamp && errno == 0) {
 			startupTimestamp = ts;
 		}
@@ -5277,7 +5277,7 @@ bool SciTEGTK::CheckForRunningInstance(int argc, char *argv[]) {
 			pipeFileName = g_build_filename(tmpdir, filename, NULL);
 
 			// Attempt to open the pipe as a writer to send out data.
-			int sendPipe = open(pipeFileName, O_WRONLY | O_NONBLOCK);
+			const int sendPipe = open(pipeFileName, O_WRONLY | O_NONBLOCK);
 
 			// If open succeeded, write filename data.
 			if (sendPipe != -1) {
