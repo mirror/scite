@@ -4654,12 +4654,14 @@ gboolean UserStrip::Focus(GtkDirectionType direction) {
 			}
 		}
 	}
-	if ((direction == GTK_DIR_TAB_BACKWARD) && WidgetHasFocus(ctlFirstFocus)) {
-		gtk_widget_grab_focus(GTK_WIDGET(ctlLastFocus->w.GetID()));
-		return TRUE;
-	} else if ((direction == GTK_DIR_TAB_FORWARD) && WidgetHasFocus(ctlLastFocus)) {
-		gtk_widget_grab_focus(GTK_WIDGET(ctlFirstFocus->w.GetID()));
-		return TRUE;
+	if (ctlFirstFocus && ctlLastFocus) {
+		if ((direction == GTK_DIR_TAB_BACKWARD) && WidgetHasFocus(ctlFirstFocus)) {
+			gtk_widget_grab_focus(GTK_WIDGET(ctlLastFocus->w.GetID()));
+			return TRUE;
+		} else if ((direction == GTK_DIR_TAB_FORWARD) && WidgetHasFocus(ctlLastFocus)) {
+			gtk_widget_grab_focus(GTK_WIDGET(ctlFirstFocus->w.GetID()));
+			return TRUE;
+		}
 	}
 	return FALSE;
 }
