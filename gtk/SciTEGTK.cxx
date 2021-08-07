@@ -538,10 +538,10 @@ public:
 class ThreadLockMinder {
 public:
 #ifndef GDK_VERSION_3_6
-	ThreadLockMinder() {
+	ThreadLockMinder() noexcept {
 		gdk_threads_enter();
 	}
-	~ThreadLockMinder() {
+	~ThreadLockMinder() noexcept {
 		gdk_threads_leave();
 	}
 #endif
