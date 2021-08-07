@@ -17,8 +17,5 @@ nullPointerRedundantCheck:scite/src/SciTEBase.cxx
 // Doesn't understand Win32 SetClipboardData is not leak
 memleak:scite/win32/SciTEWin.cxx
 
-// AddToPopUp is currently const but is not logically const and may change
-constParameter:scite/gtk/Widget.cxx
-
 // Suppress everything in lua as that comes from the Lua distribution
 *:scite/lua/*
