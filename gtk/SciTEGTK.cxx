@@ -952,7 +952,7 @@ GtkWidget *SciTEGTK::AddMBButton(GtkWidget *dialog, const char *label,
 		// With a "Yes" button want to respond to pressing "y" as well as standard "Alt+y"
 		guint key = MakeLowerCase(translated[posMnemonic + 1]);
 		gtk_widget_add_accelerator(button, "clicked", accel_group,
-	                           key, GdkModifierType(0), (GtkAccelFlags)0);
+	                           key, GdkModifierType{}, GtkAccelFlags{});
 	}
 	g_signal_connect(G_OBJECT(button), "clicked",
 		G_CALLBACK(messageBoxOK), GINT_TO_POINTER(val));
@@ -2722,7 +2722,7 @@ void SciTEGTK::Execute() {
 
 	if (jobQueue.jobQueue[icmd].jobType == JobSubsystem::shell) {
 		const gchar *argv[] = { "/bin/sh", "-c", jobQueue.jobQueue[icmd].command.c_str(), NULL };
-		g_spawn_async(NULL, const_cast<gchar**>(argv), NULL, GSpawnFlags(0), NULL, NULL, NULL, NULL);
+		g_spawn_async(NULL, const_cast<gchar**>(argv), NULL, GSpawnFlags{}, NULL, NULL, NULL, NULL);
 		ExecuteNext();
 	} else if (jobQueue.jobQueue[icmd].jobType == JobSubsystem::extension) {
 		if (extender)
