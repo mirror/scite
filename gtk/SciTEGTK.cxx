@@ -167,6 +167,10 @@ void SetCairoColour(cairo_t *cr, SA::Colour co) noexcept {
 		((co >> 16) & 0xff) / 255.0);
 }
 
+constexpr double doubleFromPangoUnits(int pu) noexcept {
+	return static_cast<double>(pu) / PANGO_SCALE;
+}
+
 GtkWidget *pixmap_new(const char **xpm) {
 	GdkPixbuf *pixbuf = gdk_pixbuf_new_from_xpm_data(xpm);
 	return gtk_image_new_from_pixbuf(pixbuf);
@@ -1211,7 +1215,7 @@ void SciTEGTK::ReadLocalization() {
 			char *pout = converted;
 			gsize outLeft = sizeof(converted);
 			gsize conversions = g_iconv(iconvh, &pin, &inLeft, &pout, &outLeft);
-			if (conversions != ((gsize)(-1))) {
+			if (conversions != static_cast<gsize>(-1)) {
 				*pout = '\0';
 				localiser.Set(key, converted);
 			}
@@ -1786,7 +1790,7 @@ void SciTEGTK::SetupFormat(Sci_RangeToFormat &frPrint, GtkPrintContext *context)
 		pango_layout_set_text(layout, "Xg", -1);
 		gint layoutHeight;
 		pango_layout_get_size(layout, NULL, &layoutHeight);
-		frPrint.rc.top += ((gdouble)layoutHeight / PANGO_SCALE) * 1.5;
+		frPrint.rc.top += doubleFromPangoUnits(layoutHeight) * 1.5;
 		g_object_unref(layout);
 	}
 
@@ -1797,7 +1801,7 @@ void SciTEGTK::SetupFormat(Sci_RangeToFormat &frPrint, GtkPrintContext *context)
 		pango_layout_set_text(layout, "Xg", -1);
 		gint layoutHeight;
 		pango_layout_get_size(layout, NULL, &layoutHeight);
-		frPrint.rc.bottom -= ((gdouble)layoutHeight / PANGO_SCALE) * 1.5;
+		frPrint.rc.bottom -= doubleFromPangoUnits(layoutHeight) * 1.5;
 		g_object_unref(layout);
 	}
 }
@@ -1848,7 +1852,7 @@ void SciTEGTK::DrawPageThis(GtkPrintOperation * /* operation */, GtkPrintContext
 
 		gint layout_height;
 		pango_layout_get_size(layout, NULL, &layout_height);
-		gdouble text_height = (gdouble)layout_height / PANGO_SCALE;
+		const gdouble text_height = doubleFromPangoUnits(layout_height);
 		cairo_move_to(cr, frPrint.rc.left, frPrint.rc.top - text_height * 1.5);
 		pango_cairo_show_layout(cr, layout);
 		g_object_unref(layout);
@@ -1870,7 +1874,7 @@ void SciTEGTK::DrawPageThis(GtkPrintOperation * /* operation */, GtkPrintContext
 
 		gint layout_height;
 		pango_layout_get_size(layout, NULL, &layout_height);
-		gdouble text_height = (gdouble)layout_height / PANGO_SCALE;
+		const gdouble text_height = doubleFromPangoUnits(layout_height);
 		cairo_move_to(cr, frPrint.rc.left, frPrint.rc.bottom + text_height * 0.5);
 		pango_cairo_show_layout(cr, layout);
 		g_object_unref(layout);
@@ -3717,10 +3721,10 @@ void SciTEGTK::CreateTranslatedMenu(int n, const SciTEItemFactoryEntry items[],
 			itemAccel = userDefinedAccels[i].c_str();
 		}
 
-		translatedItems[i].path = (gchar*) items[i].path;
-		translatedItems[i].accelerator = (gchar*) itemAccel;
+		translatedItems[i].path = items[i].path;
+		translatedItems[i].accelerator = itemAccel;
 		translatedItems[i].callback_action = items[i].callback_action;
-		translatedItems[i].item_type = (gchar*) items[i].item_type;
+		translatedItems[i].item_type = items[i].item_type;
 		translatedText[i] = TranslatePath(translatedItems[i].path);
 		translatedItems[i].path = translatedText[i].c_str();
 		translatedRadios[i] = TranslatePath(translatedItems[i].item_type);
