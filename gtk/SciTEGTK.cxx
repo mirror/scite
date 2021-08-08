@@ -2015,7 +2015,7 @@ void BackgroundStrip::Creation(GtkWidget *container) {
 	WTable table(1, 2);
 	SetID(table);
 	Strip::Creation(container);
-	gtk_container_set_border_width(GTK_CONTAINER(GetID()), 1);
+	gtk_container_set_border_width(GTK_CONTAINER(GetID()), 2);
 	gtk_box_pack_start(GTK_BOX(container), GTK_WIDGET(GetID()), FALSE, FALSE, 0);
 
 	wProgress.Create();
@@ -4063,7 +4063,6 @@ SystemAppearance SciTEGTK::CurrentAppearance() const noexcept {
 }
 
 void FindReplaceStrip::CreateChecks(std::initializer_list<int> checks) {
-	//wCheck.resize(checks.size());
 	size_t i = 0;
 	for (const int check : checks) {
 		wCheck.push_back(std::make_unique<WCheckDraw>());
@@ -4172,7 +4171,7 @@ void FindStrip::Creation(GtkWidget *container) {
 	WTable table(1, 10);
 	SetID(table);
 	Strip::Creation(container);
-	gtk_container_set_border_width(GTK_CONTAINER(GetID()), 1);
+	gtk_container_set_border_width(GTK_CONTAINER(GetID()), 2);
 	gtk_box_pack_start(GTK_BOX(container), GTK_WIDGET(GetID()), FALSE, FALSE, 0);
 	wStaticFind.Create(localiser->Text(textFindPrompt).c_str());
 	table.Label(wStaticFind);
@@ -4308,6 +4307,7 @@ void ReplaceStrip::Creation(GtkWidget *container) {
 	WTable tableReplace(2, 7);
 	SetID(tableReplace);
 	Strip::Creation(container);
+	gtk_container_set_border_width(GTK_CONTAINER(GetID()), 2);
 	tableReplace.PackInto(GTK_BOX(container), false);
 
 	wStaticFind.Create(localiser->Text(textFindPrompt));
@@ -4517,7 +4517,7 @@ gboolean ReplaceStrip::Focus(GtkDirectionType direction) {
 void UserStrip::Creation(GtkWidget *container) {
 	SetID(tableUser);
 	Strip::Creation(container);
-	gtk_container_set_border_width(GTK_CONTAINER(GetID()), 1);
+	gtk_container_set_border_width(GTK_CONTAINER(GetID()), 2);
 	tableUser.PackInto(GTK_BOX(container), false);
 	g_signal_connect(G_OBJECT(GetID()), "set-focus-child", G_CALLBACK(ChildFocusSignal), this);
 	g_signal_connect(G_OBJECT(GetID()), "focus", G_CALLBACK(FocusSignal), this);

@@ -303,6 +303,8 @@ WTable::WTable(int rows_, int columns_) :
 	rows(rows_), columns(columns_), next(0) {
 #if USE_GRID
 	SetID(gtk_grid_new());
+	gtk_grid_set_column_spacing(GTK_GRID(GetID()), 2);
+	gtk_grid_set_row_spacing(GTK_GRID(GetID()), 2);
 #else
 	SetID(gtk_table_new(rows, columns, FALSE));
 #endif
