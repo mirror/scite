@@ -175,7 +175,7 @@ void WButton::Create(GUI::gui_string text) {
 void WToggle::Create(const GUI::gui_string &text) {
 	SetID(gtk_check_button_new_with_mnemonic(text.c_str()));
 }
-bool WToggle::Active() {
+bool WToggle::Active() const {
 	return gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(GetID()));
 }
 void WToggle::SetActive(bool active) {
@@ -210,7 +210,9 @@ static void GreyToAlpha(GdkPixbuf *ppb, GdkColor fore) {
 	}
 }
 
-void WCheckDraw::Create(const char **xpmImage, const GUI::gui_string &toolTip) {
+void WCheckDraw::Create(int cmd_, const char **xpmImage, const GUI::gui_string &toolTip) {
+	cmd = cmd_;
+
 	GtkWidget *button = gtk_toggle_button_new();
 	gtk_button_set_relief(GTK_BUTTON(button), GTK_RELIEF_NONE);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), FALSE);
@@ -252,16 +254,20 @@ void WCheckDraw::Create(const char **xpmImage, const GUI::gui_string &toolTip) {
 	gtk_widget_set_tooltip_text(Pointer(), toolTipNoMnemonic.c_str());
 }
 
+int WCheckDraw::Command() const {
+	return cmd;
+}
+
 void WCheckDraw::Toggled(GtkWidget *, WCheckDraw *pcd) {
 	if (pcd->watcher)
 		pcd->watcher->CheckChanged();
 }
 
-GtkToggleButton *WCheckDraw::ToggleButton() {
+GtkToggleButton *WCheckDraw::ToggleButton() const {
 	return reinterpret_cast<GtkToggleButton*>(GetID());
 }
 
-bool WCheckDraw::Active() {
+bool WCheckDraw::Active() const {
 	return gtk_toggle_button_get_active(ToggleButton());
 }
 

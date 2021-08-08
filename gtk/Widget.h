@@ -68,7 +68,7 @@ public:
 class WToggle : public WBase {
 public:
 	void Create(const GUI::gui_string &text);
-	bool Active();
+	bool Active() const;
 	void SetActive(bool active);
 };
 
@@ -81,12 +81,14 @@ class WCheckDraw : public WBase {
 private:
 	CheckDrawWatcher *watcher = nullptr;
 	static void Toggled(GtkWidget *widget, WCheckDraw *pcd);
-	GtkToggleButton *ToggleButton();
+	GtkToggleButton *ToggleButton() const;
+	int cmd;
 public:
 	WCheckDraw();
 	~WCheckDraw();
-	void Create(const char **xpmImage, const GUI::gui_string &toolTip);
-	bool Active();
+	void Create(int cmd_, const char **xpmImage, const GUI::gui_string &toolTip);
+	int Command() const;
+	bool Active() const;
 	void SetActive(bool active);
 	void Toggle();
 	void SetChangeWatcher(CheckDrawWatcher *watcher_);

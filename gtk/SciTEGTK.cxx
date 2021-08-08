@@ -19,6 +19,7 @@
 #include <map>
 #include <set>
 #include <optional>
+#include <initializer_list>
 #include <algorithm>
 #include <memory>
 #include <chrono>
@@ -431,15 +432,18 @@ public:
 class FindReplaceStrip : public Strip, public SearchUI, public CheckDrawWatcher {
 public:
 	WComboBoxEntry wComboFind;
+	std::vector<WCheckDraw> wCheck;
 	bool initializingSearch;
 	enum IncrementalBehaviour { simple, incremental, showAllMatches };
 	IncrementalBehaviour incrementalBehaviour;
 	FindReplaceStrip() : initializingSearch(false), incrementalBehaviour(simple) {
 	}
+	void CreateChecks(std::initializer_list<int> widths);
 	void SetIncrementalBehaviour(int behaviour);
 	void MarkIncremental();
 	void NextIncremental();
-	virtual void GrabToggles()=0;
+	void GrabToggles();
+	void SetToggles();
 	virtual void FindNextCmd()=0;
 	void ConnectCombo();
 	void CheckChanged() override;
@@ -455,8 +459,6 @@ public:
 	WStatic wStaticFind;
 	WButton wButton;
 	WButton wButtonMarkAll;
-	enum { checks = 6 };
-	WCheckDraw wCheck[checks];
 
 	FindStrip() {
 	}
@@ -468,8 +470,6 @@ public:
 	void MenuAction(guint action) override;
 
 	void GrabFields();
-	void GrabToggles() override;
-	void SetToggles();
 	void ShowPopup() override;
 	void FindNextCmd() override;
 	void MarkAllCmd();
@@ -486,8 +486,6 @@ public:
 	WComboBoxEntry wComboReplace;
 	WButton wButtonReplace;
 	WButton wButtonReplaceInSelection;
-	enum { checks = 5 };
-	WCheckDraw wCheck[checks];
 
 	ReplaceStrip() {
 	}
@@ -499,8 +497,6 @@ public:
 	void MenuAction(guint action) override;
 
 	void GrabFields();
-	void GrabToggles() override;
-	void SetToggles();
 	void FindNextCmd() override;
 	void ReplaceAllCmd();
 	void ReplaceCmd();
@@ -2436,7 +2432,6 @@ const SearchOption toggles[] = {
 	{"Transform _backslash expressions", IDM_UNSLASH, IDUNSLASH},
 	{"Wrap ar_ound", IDM_WRAPAROUND, IDWRAP},
 	{"_Up", IDM_DIRECTIONUP, IDDIRECTIONUP},
-	{0, 0, 0},
 };
 
 // Has to be in same order as toggles
@@ -4067,6 +4062,18 @@ SystemAppearance SciTEGTK::CurrentAppearance() const noexcept {
 	return currentAppearance;
 }
 
+void FindReplaceStrip::CreateChecks(std::initializer_list<int> checks) {
+	wCheck.resize(checks.size());
+	size_t i = 0;
+	for (const int check : checks) {
+		const int optionCommand = toggles[check].cmd;
+		wCheck[i].Create(optionCommand, xpmImages[check], localiser->Text(toggles[check].label));
+		wCheck[i].SetActive(pSearcher->FlagFromCmd(optionCommand));
+		wCheck[i].SetChangeWatcher(this);
+		i++;
+	}
+}
+
 void FindReplaceStrip::SetIncrementalBehaviour(int behaviour) {
 	incrementalBehaviour = static_cast<IncrementalBehaviour>(behaviour);
 }
@@ -4096,6 +4103,20 @@ void FindReplaceStrip::NextIncremental() {
 	MarkIncremental();
 	WEntry::SetValid(wComboFind.Entry(), !pSearcher->FindHasText() || !pSearcher->failedfind);
 	wComboFind.InvalidateAll();
+}
+
+void FindReplaceStrip::GrabToggles() {
+	if (!initializingSearch) {
+		for (const WCheckDraw &check : wCheck) {
+			pSearcher->FlagFromCmd(check.Command()) = check.Active();
+		}
+	}
+}
+
+void FindReplaceStrip::SetToggles() {
+	for (WCheckDraw &check : wCheck) {
+		check.SetActive(pSearcher->FlagFromCmd(check.Command()));
+	}
 }
 
 void FindReplaceStrip::ConnectCombo() {
@@ -4162,11 +4183,10 @@ void FindStrip::Creation(GtkWidget *container) {
 	wButtonMarkAll.Create(localiser->Text(textMarkAll), G_CALLBACK(sigMarkAll.Function), this);
 	table.Add(wButtonMarkAll, 1, false, 0, 0);
 
-	for (int i=0;i<checks;i++) {
-		wCheck[i].Create(xpmImages[i], localiser->Text(toggles[i].label));
-		wCheck[i].SetActive(pSearcher->FlagFromCmd(toggles[i].cmd));
-		table.Add(wCheck[i], 1, false, 0, 0);
-		wCheck[i].SetChangeWatcher(this);
+	CreateChecks({0,1,2,3,4,5});
+
+	for (const WCheckDraw &check : wCheck) {
+		table.Add(check, 1, false, 0, 0);
 	}
 }
 
@@ -4234,20 +4254,6 @@ void FindStrip::MenuAction(guint action) {
 void FindStrip::GrabFields() {
 	pSearcher->SetFind(wComboFind.Text());
 	GrabToggles();
-}
-
-void FindStrip::GrabToggles() {
-	if (!initializingSearch) {
-		for (int i=0;i<checks;i++) {
-			pSearcher->FlagFromCmd(toggles[i].cmd) = wCheck[i].Active();
-		}
-	}
-}
-
-void FindStrip::SetToggles() {
-	for (int i=0;i<checks;i++) {
-		wCheck[i].SetActive(pSearcher->FlagFromCmd(toggles[i].cmd));
-	}
 }
 
 void FindStrip::ShowPopup() {
@@ -4330,11 +4336,7 @@ void ReplaceStrip::Creation(GtkWidget *container) {
 			G_CALLBACK(sigReplaceAll.Function), this);
 	tableReplace.Add(wButtonReplaceAll, 1, false, 0, 0);
 
-	for (int i=0;i<checks;i++) {
-		wCheck[i].Create(xpmImages[i], localiser->Text(toggles[i].label));
-		wCheck[i].SetActive(pSearcher->FlagFromCmd(toggles[i].cmd));
-		wCheck[i].SetChangeWatcher(this);
-	}
+	CreateChecks({0,1,2,3,4});
 
 	tableReplace.Add(wCheck[SearchOption::tWord], 1, false, 0, 0);
 	tableReplace.Add(wCheck[SearchOption::tCase], 1, false, 0, 0);
@@ -4466,20 +4468,6 @@ void ReplaceStrip::GrabFields() {
 	pSearcher->SetFind(wComboFind.Text());
 	pSearcher->SetReplace(wComboReplace.Text());
 	GrabToggles();
-}
-
-void ReplaceStrip::GrabToggles() {
-	if (!initializingSearch) {
-		for (int i=0;i<checks;i++) {
-			pSearcher->FlagFromCmd(toggles[i].cmd) = wCheck[i].Active();
-		}
-	}
-}
-
-void ReplaceStrip::SetToggles() {
-	for (int i=0;i<checks;i++) {
-		wCheck[i].SetActive(pSearcher->FlagFromCmd(toggles[i].cmd));
-	}
 }
 
 void ReplaceStrip::FindNextCmd() {
