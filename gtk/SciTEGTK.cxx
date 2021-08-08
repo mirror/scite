@@ -432,16 +432,18 @@ public:
 class FindReplaceStrip : public Strip, public SearchUI, public CheckDrawWatcher {
 public:
 	WComboBoxEntry wComboFind;
-	std::vector<WCheckDraw> wCheck;
+	std::vector<std::unique_ptr<WCheckDraw>> wCheck;
 	bool initializingSearch;
 	enum IncrementalBehaviour { simple, incremental, showAllMatches };
 	IncrementalBehaviour incrementalBehaviour;
+
 	FindReplaceStrip() : initializingSearch(false), incrementalBehaviour(simple) {
 	}
 	void CreateChecks(std::initializer_list<int> widths);
 	void SetIncrementalBehaviour(int behaviour);
 	void MarkIncremental();
 	void NextIncremental();
+	bool KeyDown(const GdkEventKey *event) override;
 	void GrabToggles();
 	void SetToggles();
 	virtual void FindNextCmd()=0;
@@ -466,7 +468,6 @@ public:
 	virtual void Destruction();
 	void Show(int buttonHeight) override;
 	void Close() override;
-	bool KeyDown(const GdkEventKey *event) override;
 	void MenuAction(guint action) override;
 
 	void GrabFields();
@@ -493,7 +494,6 @@ public:
 	virtual void Destruction();
 	void Show(int buttonHeight) override;
 	void Close() override;
-	bool KeyDown(const GdkEventKey *event) override;
 	void MenuAction(guint action) override;
 
 	void GrabFields();
@@ -4063,13 +4063,14 @@ SystemAppearance SciTEGTK::CurrentAppearance() const noexcept {
 }
 
 void FindReplaceStrip::CreateChecks(std::initializer_list<int> checks) {
-	wCheck.resize(checks.size());
+	//wCheck.resize(checks.size());
 	size_t i = 0;
 	for (const int check : checks) {
+		wCheck.push_back(std::make_unique<WCheckDraw>());
 		const int optionCommand = toggles[check].cmd;
-		wCheck[i].Create(optionCommand, xpmImages[check], localiser->Text(toggles[check].label));
-		wCheck[i].SetActive(pSearcher->FlagFromCmd(optionCommand));
-		wCheck[i].SetChangeWatcher(this);
+		wCheck[i]->Create(optionCommand, xpmImages[check], localiser->Text(toggles[check].label));
+		wCheck[i]->SetActive(pSearcher->FlagFromCmd(optionCommand));
+		wCheck[i]->SetChangeWatcher(this);
 		i++;
 	}
 }
@@ -4105,17 +4106,32 @@ void FindReplaceStrip::NextIncremental() {
 	wComboFind.InvalidateAll();
 }
 
+bool FindReplaceStrip::KeyDown(const GdkEventKey *event) {
+	if (visible) {
+		if (Strip::KeyDown(event))
+			return true;
+		if (event->state & GDK_MOD1_MASK) {
+			for (std::unique_ptr<WCheckDraw> &check : wCheck) {
+				if (check->ToggleMatchKey(event->keyval)) {
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
 void FindReplaceStrip::GrabToggles() {
 	if (!initializingSearch) {
-		for (const WCheckDraw &check : wCheck) {
-			pSearcher->FlagFromCmd(check.Command()) = check.Active();
+		for (const std::unique_ptr<WCheckDraw> &check : wCheck) {
+			pSearcher->FlagFromCmd(check->Command()) = check->Active();
 		}
 	}
 }
 
 void FindReplaceStrip::SetToggles() {
-	for (WCheckDraw &check : wCheck) {
-		check.SetActive(pSearcher->FlagFromCmd(check.Command()));
+	for (std::unique_ptr<WCheckDraw> &check : wCheck) {
+		check->SetActive(pSearcher->FlagFromCmd(check->Command()));
 	}
 }
 
@@ -4185,8 +4201,8 @@ void FindStrip::Creation(GtkWidget *container) {
 
 	CreateChecks({0,1,2,3,4,5});
 
-	for (const WCheckDraw &check : wCheck) {
-		table.Add(check, 1, false, 0, 0);
+	for (std::unique_ptr<WCheckDraw> &check : wCheck) {
+		table.Add(*check, 1, false, 0, 0);
 	}
 }
 
@@ -4225,24 +4241,6 @@ void FindStrip::Close() {
 	}
 }
 
-bool FindStrip::KeyDown(const GdkEventKey *event) {
-	if (visible) {
-		if (Strip::KeyDown(event))
-			return true;
-		if (event->state & GDK_MOD1_MASK) {
-			for (int i=SearchOption::tWord; i<=SearchOption::tUp; i++) {
-				const GUI::gui_string localised = localiser->Text(toggles[i].label);
-				const char key = KeyFromLabel(localised);
-				if (static_cast<unsigned int>(key) == event->keyval) {
-					wCheck[i].Toggle();
-					return true;
-				}
-			}
-		}
-	}
-	return false;
-}
-
 void FindStrip::MenuAction(guint action) {
 	if (allowMenuActions) {
 		pSearcher->FlagFromCmd(action) = !pSearcher->FlagFromCmd(action);
@@ -4262,7 +4260,7 @@ void FindStrip::ShowPopup() {
 	for (int i=SearchOption::tWord; i<=SearchOption::tUp; i++) {
 		AddToPopUp(popup, toggles[i].label, toggles[i].cmd, pSearcher->FlagFromCmd(toggles[i].cmd));
 	}
-	const GUI::Rectangle rcButton = wCheck[0].GetPosition();
+	const GUI::Rectangle rcButton = wCheck[0]->GetPosition();
 	const GUI::Point pt(rcButton.left, rcButton.bottom);
 	popup.Show(pt, *this);
 }
@@ -4297,9 +4295,9 @@ void FindStrip::ChildFocus(GtkWidget *widget) {
 gboolean FindStrip::Focus(GtkDirectionType direction) {
 	const int lastFocusCheck = 5;
 	if ((direction == GTK_DIR_TAB_BACKWARD) && wComboFind.HasFocusOnSelfOrChild()) {
-		gtk_widget_grab_focus(wCheck[lastFocusCheck]);
+		gtk_widget_grab_focus(*wCheck[lastFocusCheck]);
 		return TRUE;
-	} else if ((direction == GTK_DIR_TAB_FORWARD) && wCheck[lastFocusCheck].HasFocus()) {
+	} else if ((direction == GTK_DIR_TAB_FORWARD) && wCheck[lastFocusCheck]->HasFocus()) {
 		gtk_widget_grab_focus(GTK_WIDGET(wComboFind.Entry()));
 		return TRUE;
 	}
@@ -4338,9 +4336,9 @@ void ReplaceStrip::Creation(GtkWidget *container) {
 
 	CreateChecks({0,1,2,3,4});
 
-	tableReplace.Add(wCheck[SearchOption::tWord], 1, false, 0, 0);
-	tableReplace.Add(wCheck[SearchOption::tCase], 1, false, 0, 0);
-	tableReplace.Add(wCheck[SearchOption::tRegExp], 1, false, 0, 0);
+	tableReplace.Add(*wCheck[0], 1, false, 0, 0);
+	tableReplace.Add(*wCheck[1], 1, false, 0, 0);
+	tableReplace.Add(*wCheck[2], 1, false, 0, 0);
 
 	wStaticReplace.Create(localiser->Text(textReplacePrompt));
 	tableReplace.Label(wStaticReplace);
@@ -4366,8 +4364,8 @@ void ReplaceStrip::Creation(GtkWidget *container) {
 			G_CALLBACK(sigReplaceInSelection.Function), this);
 	tableReplace.Add(wButtonReplaceInSelection, 1, false, 0, 0);
 
-	tableReplace.Add(wCheck[SearchOption::tBackslash], 1, false, 0, 0);
-	tableReplace.Add(wCheck[SearchOption::tWrap], 1, false, 0, 0);
+	tableReplace.Add(*wCheck[3], 1, false, 0, 0);
+	tableReplace.Add(*wCheck[4], 1, false, 0, 0);
 
 	// Make the fccus chain move down before moving right
 	GList *focusChain = nullptr;
@@ -4377,11 +4375,11 @@ void ReplaceStrip::Creation(GtkWidget *container) {
 	focusChain = g_list_append(focusChain, wButtonReplace.Pointer());
 	focusChain = g_list_append(focusChain, wButtonReplaceAll.Pointer());
 	focusChain = g_list_append(focusChain, wButtonReplaceInSelection.Pointer());
-	focusChain = g_list_append(focusChain, wCheck[SearchOption::tWord].Pointer());
-	focusChain = g_list_append(focusChain, wCheck[SearchOption::tBackslash].Pointer());
-	focusChain = g_list_append(focusChain, wCheck[SearchOption::tCase].Pointer());
-	focusChain = g_list_append(focusChain, wCheck[SearchOption::tWrap].Pointer());
-	focusChain = g_list_append(focusChain, wCheck[SearchOption::tRegExp].Pointer());
+	focusChain = g_list_append(focusChain, wCheck[0]->Pointer());
+	focusChain = g_list_append(focusChain, wCheck[3]->Pointer());
+	focusChain = g_list_append(focusChain, wCheck[1]->Pointer());
+	focusChain = g_list_append(focusChain, wCheck[4]->Pointer());
+	focusChain = g_list_append(focusChain, wCheck[2]->Pointer());
 
 	// gtk_container_set_focus_chain was deprecated in GTK 3.24 to prepare for GTK 4.
 	// Replacing it with a focus signal handler is significant work so won't be done, and isn't
@@ -4436,24 +4434,6 @@ void ReplaceStrip::Close() {
 		Strip::Close();
 		pSearcher->UIClosed();
 	}
-}
-
-bool ReplaceStrip::KeyDown(const GdkEventKey *event) {
-	if (visible) {
-		if (Strip::KeyDown(event))
-			return true;
-		if (event->state & GDK_MOD1_MASK) {
-			for (int i=SearchOption::tWord; i<=SearchOption::tWrap; i++) {
-				const GUI::gui_string localised = localiser->Text(toggles[i].label);
-				const char key = KeyFromLabel(localised);
-				if (static_cast<unsigned int>(key) == event->keyval) {
-					wCheck[i].Toggle();
-					return true;
-				}
-			}
-		}
-	}
-	return false;
 }
 
 void ReplaceStrip::MenuAction(guint action) {
@@ -4512,7 +4492,7 @@ void ReplaceStrip::ShowPopup() {
 	for (int i=SearchOption::tWord; i<=SearchOption::tWrap; i++) {
 		AddToPopUp(popup, toggles[i].label, toggles[i].cmd, pSearcher->FlagFromCmd(toggles[i].cmd));
 	}
-	const GUI::Rectangle rcButton = wCheck[0].GetPosition();
+	const GUI::Rectangle rcButton = wCheck[0]->GetPosition();
 	const GUI::Point pt(rcButton.left, rcButton.bottom);
 	popup.Show(pt, *this);
 }
@@ -4525,9 +4505,9 @@ void ReplaceStrip::ChildFocus(GtkWidget *widget) {
 gboolean ReplaceStrip::Focus(GtkDirectionType direction) {
 	const int lastFocusCheck = 2;	// Due to last column starting with the thirs checkbox
 	if ((direction == GTK_DIR_TAB_BACKWARD) && wComboFind.HasFocusOnSelfOrChild()) {
-		gtk_widget_grab_focus(wCheck[lastFocusCheck]);
+		gtk_widget_grab_focus(*wCheck[lastFocusCheck]);
 		return TRUE;
-	} else if ((direction == GTK_DIR_TAB_FORWARD) && wCheck[lastFocusCheck].HasFocus()) {
+	} else if ((direction == GTK_DIR_TAB_FORWARD) && wCheck[lastFocusCheck]->HasFocus()) {
 		gtk_widget_grab_focus(GTK_WIDGET(wComboFind.Entry()));
 		return TRUE;
 	}

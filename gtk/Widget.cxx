@@ -252,6 +252,8 @@ void WCheckDraw::Create(int cmd_, const char **xpmImage, const GUI::gui_string &
 	if (posMnemonic != GUI::gui_string::npos)
 		toolTipNoMnemonic.replace(posMnemonic, 1, "");
 	gtk_widget_set_tooltip_text(Pointer(), toolTipNoMnemonic.c_str());
+
+	key = KeyFromLabel(toolTip);
 }
 
 int WCheckDraw::Command() const {
@@ -281,6 +283,14 @@ void WCheckDraw::Toggle() {
 
 void WCheckDraw::SetChangeWatcher(CheckDrawWatcher *watcher_) {
 	watcher = watcher_;
+}
+
+bool WCheckDraw::ToggleMatchKey(int key_) {
+	if (key == key_) {
+		Toggle();
+		return true;
+	}
+	return false;
 }
 
 #if GTK_CHECK_VERSION(3,4,0)

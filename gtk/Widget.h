@@ -80,9 +80,10 @@ public:
 class WCheckDraw : public WBase {
 private:
 	CheckDrawWatcher *watcher = nullptr;
+	int cmd = 0;
+	int key = 0;
 	static void Toggled(GtkWidget *widget, WCheckDraw *pcd);
 	GtkToggleButton *ToggleButton() const;
-	int cmd;
 public:
 	WCheckDraw();
 	~WCheckDraw();
@@ -92,6 +93,7 @@ public:
 	void SetActive(bool active);
 	void Toggle();
 	void SetChangeWatcher(CheckDrawWatcher *watcher_);
+	bool ToggleMatchKey(int key_);
 	enum {  checkIconWidth = 16, checkButtonWidth = 16 + 3 * 2 + 1};
 };
 
@@ -107,7 +109,7 @@ private:
 	int next;
 public:
 	WTable(int rows_, int columns_);
-	void Add(GtkWidget *child=0, int width=1, bool expand=false,
+	void Add(GtkWidget *child=nullptr, int width=1, bool expand=false,
 		int xpadding=5, int ypadding=5);
 	void Label(GtkWidget *child);
 	void PackInto(GtkBox *box, gboolean expand=TRUE);
