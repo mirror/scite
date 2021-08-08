@@ -446,6 +446,7 @@ public:
 	bool KeyDown(const GdkEventKey *event) override;
 	void GrabToggles();
 	void SetToggles();
+	void ShowPopup() override;
 	virtual void FindNextCmd()=0;
 	void ConnectCombo();
 	void CheckChanged() override;
@@ -471,7 +472,6 @@ public:
 	void MenuAction(guint action) override;
 
 	void GrabFields();
-	void ShowPopup() override;
 	void FindNextCmd() override;
 	void MarkAllCmd();
 	void ChildFocus(GtkWidget *widget) override;
@@ -501,7 +501,6 @@ public:
 	void ReplaceAllCmd();
 	void ReplaceCmd();
 	void ReplaceInSelectionCmd();
-	void ShowPopup() override;
 	void ChildFocus(GtkWidget *widget) override;
 	gboolean Focus(GtkDirectionType direction) override;
 };
@@ -4134,6 +4133,17 @@ void FindReplaceStrip::SetToggles() {
 	}
 }
 
+void FindReplaceStrip::ShowPopup() {
+	GUI::Menu popup;
+	popup.CreatePopUp();
+	for (std::unique_ptr<WCheckDraw> &check : wCheck) {
+		AddToPopUp(popup, check->Label(), check->Command(), pSearcher->FlagFromCmd(check->Command()));
+	}
+	const GUI::Rectangle rcButton = wCheck[0]->GetPosition();
+	const GUI::Point pt(rcButton.left, rcButton.bottom);
+	popup.Show(pt, *this);
+}
+
 void FindReplaceStrip::ConnectCombo() {
 	g_signal_connect(G_OBJECT(wComboFind.Entry()), "activate",
 		G_CALLBACK(ActivateSignal), this);
@@ -4251,17 +4261,6 @@ void FindStrip::MenuAction(guint action) {
 void FindStrip::GrabFields() {
 	pSearcher->SetFind(wComboFind.Text());
 	GrabToggles();
-}
-
-void FindStrip::ShowPopup() {
-	GUI::Menu popup;
-	popup.CreatePopUp();
-	for (int i=SearchOption::tWord; i<=SearchOption::tUp; i++) {
-		AddToPopUp(popup, toggles[i].label, toggles[i].cmd, pSearcher->FlagFromCmd(toggles[i].cmd));
-	}
-	const GUI::Rectangle rcButton = wCheck[0]->GetPosition();
-	const GUI::Point pt(rcButton.left, rcButton.bottom);
-	popup.Show(pt, *this);
 }
 
 void FindStrip::FindNextCmd() {
@@ -4484,17 +4483,6 @@ void ReplaceStrip::ReplaceInSelectionCmd() {
 		wComboReplace.FillFromMemory(pSearcher->memReplaces.AsVector());
 		wComboFind.FillFromMemory(pSearcher->memFinds.AsVector());
 	}
-}
-
-void ReplaceStrip::ShowPopup() {
-	GUI::Menu popup;
-	popup.CreatePopUp();
-	for (int i=SearchOption::tWord; i<=SearchOption::tWrap; i++) {
-		AddToPopUp(popup, toggles[i].label, toggles[i].cmd, pSearcher->FlagFromCmd(toggles[i].cmd));
-	}
-	const GUI::Rectangle rcButton = wCheck[0]->GetPosition();
-	const GUI::Point pt(rcButton.left, rcButton.bottom);
-	popup.Show(pt, *this);
 }
 
 void ReplaceStrip::ChildFocus(GtkWidget *widget) {

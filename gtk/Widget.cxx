@@ -212,6 +212,7 @@ static void GreyToAlpha(GdkPixbuf *ppb, GdkColor fore) {
 
 void WCheckDraw::Create(int cmd_, const char **xpmImage, const GUI::gui_string &toolTip) {
 	cmd = cmd_;
+	label = toolTip;
 
 	GtkWidget *button = gtk_toggle_button_new();
 	gtk_button_set_relief(GTK_BUTTON(button), GTK_RELIEF_NONE);
@@ -258,6 +259,10 @@ void WCheckDraw::Create(int cmd_, const char **xpmImage, const GUI::gui_string &
 
 int WCheckDraw::Command() const {
 	return cmd;
+}
+
+const char *WCheckDraw::Label() const {
+	return label.c_str();
 }
 
 void WCheckDraw::Toggled(GtkWidget *, WCheckDraw *pcd) {

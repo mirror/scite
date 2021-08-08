@@ -82,6 +82,7 @@ private:
 	CheckDrawWatcher *watcher = nullptr;
 	int cmd = 0;
 	int key = 0;
+	std::string label;
 	static void Toggled(GtkWidget *widget, WCheckDraw *pcd);
 	GtkToggleButton *ToggleButton() const;
 public:
@@ -89,6 +90,7 @@ public:
 	~WCheckDraw();
 	void Create(int cmd_, const char **xpmImage, const GUI::gui_string &toolTip);
 	int Command() const;
+	const char *Label() const;
 	bool Active() const;
 	void SetActive(bool active);
 	void Toggle();
