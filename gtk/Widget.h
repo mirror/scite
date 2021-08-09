@@ -6,8 +6,6 @@
 #ifndef WIDGET_H
 #define WIDGET_H
 
-// Callback thunk class connects GTK signals to a simple command method.
-
 // Callback thunk class connects GTK signals to an instance method.
 template< class T, void (T::*method)() >
 class ObjectSignal {
@@ -16,6 +14,15 @@ public:
 		(object->*method)();
 	}
 };
+
+// Key names are longer for GTK 3
+#if GTK_CHECK_VERSION(3,0,0)
+#define GKEY_Escape GDK_KEY_Escape
+#define GKEY_Void GDK_KEY_VoidSymbol
+#else
+#define GKEY_Escape GDK_Escape
+#define GKEY_Void GDK_VoidSymbol
+#endif
 
 class WBase : public GUI::Window {
 public:
@@ -120,6 +127,7 @@ public:
 };
 
 GUI::gui_char KeyFromLabel(GUI::gui_string label);
+std::string GtkFromWinCaption(const char *text);
 
 class Dialog : public GUI::Window {
 public:

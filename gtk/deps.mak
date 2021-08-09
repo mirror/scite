@@ -20,6 +20,7 @@ DirectorExtension.o: \
 	../src/Cookie.h \
 	../src/Worker.h \
 	../src/MatchMarker.h \
+	../src/Searcher.h \
 	../src/SciTEBase.h \
 	DirectorExtension.h
 GUIGTK.o: \
@@ -55,12 +56,26 @@ SciTEGTK.o: \
 	../src/Cookie.h \
 	../src/Worker.h \
 	../src/MatchMarker.h \
+	../src/Searcher.h \
 	../src/SciTEBase.h \
 	../src/StripDefinition.h \
+	Strips.h \
 	../src/SciTEKeys.h \
 	../src/MultiplexExtension.h \
 	DirectorExtension.h \
 	../src/LuaExtension.h
+Strips.o: \
+	Strips.cxx \
+	../../scintilla/include/ScintillaTypes.h \
+	../../scintilla/include/ScintillaCall.h \
+	../src/GUI.h \
+	../src/StringHelpers.h \
+	../src/Extender.h \
+	../src/SciTE.h \
+	Widget.h \
+	../src/Searcher.h \
+	../src/StripDefinition.h \
+	Strips.h
 Widget.o: \
 	Widget.cxx \
 	../../scintilla/include/Scintilla.h \
@@ -93,6 +108,7 @@ Credits.o: \
 	../src/Cookie.h \
 	../src/Worker.h \
 	../src/MatchMarker.h \
+	../src/Searcher.h \
 	../src/SciTEBase.h
 EditorConfig.o: \
 	../src/EditorConfig.cxx \
@@ -120,6 +136,7 @@ ExportHTML.o: \
 	../src/Cookie.h \
 	../src/Worker.h \
 	../src/MatchMarker.h \
+	../src/Searcher.h \
 	../src/SciTEBase.h
 ExportPDF.o: \
 	../src/ExportPDF.cxx \
@@ -141,6 +158,7 @@ ExportPDF.o: \
 	../src/Cookie.h \
 	../src/Worker.h \
 	../src/MatchMarker.h \
+	../src/Searcher.h \
 	../src/SciTEBase.h
 ExportRTF.o: \
 	../src/ExportRTF.cxx \
@@ -162,6 +180,7 @@ ExportRTF.o: \
 	../src/Cookie.h \
 	../src/Worker.h \
 	../src/MatchMarker.h \
+	../src/Searcher.h \
 	../src/SciTEBase.h
 ExportTEX.o: \
 	../src/ExportTEX.cxx \
@@ -183,6 +202,7 @@ ExportTEX.o: \
 	../src/Cookie.h \
 	../src/Worker.h \
 	../src/MatchMarker.h \
+	../src/Searcher.h \
 	../src/SciTEBase.h
 ExportXML.o: \
 	../src/ExportXML.cxx \
@@ -204,6 +224,7 @@ ExportXML.o: \
 	../src/Cookie.h \
 	../src/Worker.h \
 	../src/MatchMarker.h \
+	../src/Searcher.h \
 	../src/SciTEBase.h
 FilePath.o: \
 	../src/FilePath.cxx \
@@ -302,6 +323,7 @@ SciTEBase.o: \
 	../src/FileWorker.h \
 	../src/MatchMarker.h \
 	../src/EditorConfig.h \
+	../src/Searcher.h \
 	../src/SciTEBase.h
 SciTEBuffers.o: \
 	../src/SciTEBuffers.cxx \
@@ -325,6 +347,7 @@ SciTEBuffers.o: \
 	../src/Worker.h \
 	../src/FileWorker.h \
 	../src/MatchMarker.h \
+	../src/Searcher.h \
 	../src/SciTEBase.h
 SciTEIO.o: \
 	../src/SciTEIO.cxx \
@@ -347,6 +370,7 @@ SciTEIO.o: \
 	../src/Worker.h \
 	../src/FileWorker.h \
 	../src/MatchMarker.h \
+	../src/Searcher.h \
 	../src/SciTEBase.h \
 	../src/Utf8_16.h
 SciTEProps.o: \
@@ -375,6 +399,7 @@ SciTEProps.o: \
 	../src/Worker.h \
 	../src/MatchMarker.h \
 	../src/EditorConfig.h \
+	../src/Searcher.h \
 	../src/SciTEBase.h \
 	../src/IFaceTable.h
 StringHelpers.o: \

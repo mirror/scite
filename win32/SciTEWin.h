@@ -97,6 +97,7 @@ typedef void *HTHEME;
 #include "Worker.h"
 #include "FileWorker.h"
 #include "MatchMarker.h"
+#include "Searcher.h"
 #include "SciTEBase.h"
 #include "UniqueInstance.h"
 #include "StripDefinition.h"

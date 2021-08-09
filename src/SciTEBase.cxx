@@ -57,6 +57,7 @@
 #include "FileWorker.h"
 #include "MatchMarker.h"
 #include "EditorConfig.h"
+#include "Searcher.h"
 #include "SciTEBase.h"
 
 Searcher::Searcher() {

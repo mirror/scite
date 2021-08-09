@@ -18,6 +18,7 @@ DirectorExtension.obj: \
 	../src/Cookie.h \
 	../src/Worker.h \
 	../src/MatchMarker.h \
+	../src/Searcher.h \
 	../src/SciTEBase.h \
 	DirectorExtension.h
 GUIWin.obj: \
@@ -51,6 +52,7 @@ SciTEWin.obj: \
 	../src/Worker.h \
 	../src/FileWorker.h \
 	../src/MatchMarker.h \
+	../src/Searcher.h \
 	../src/SciTEBase.h \
 	UniqueInstance.h \
 	../src/StripDefinition.h \
@@ -87,6 +89,7 @@ Sc1.obj: \
 	../src/Worker.h \
 	../src/FileWorker.h \
 	../src/MatchMarker.h \
+	../src/Searcher.h \
 	../src/SciTEBase.h \
 	UniqueInstance.h \
 	../src/StripDefinition.h \
@@ -123,6 +126,7 @@ SciTEWinBar.obj: \
 	../src/Worker.h \
 	../src/FileWorker.h \
 	../src/MatchMarker.h \
+	../src/Searcher.h \
 	../src/SciTEBase.h \
 	UniqueInstance.h \
 	../src/StripDefinition.h \
@@ -155,6 +159,7 @@ SciTEWinDlg.obj: \
 	../src/Worker.h \
 	../src/FileWorker.h \
 	../src/MatchMarker.h \
+	../src/Searcher.h \
 	../src/SciTEBase.h \
 	UniqueInstance.h \
 	../src/StripDefinition.h \
@@ -187,6 +192,7 @@ Strips.obj: \
 	../src/Worker.h \
 	../src/FileWorker.h \
 	../src/MatchMarker.h \
+	../src/Searcher.h \
 	../src/SciTEBase.h \
 	UniqueInstance.h \
 	../src/StripDefinition.h \
@@ -219,6 +225,7 @@ UniqueInstance.obj: \
 	../src/Worker.h \
 	../src/FileWorker.h \
 	../src/MatchMarker.h \
+	../src/Searcher.h \
 	../src/SciTEBase.h \
 	UniqueInstance.h \
 	../src/StripDefinition.h \
@@ -249,6 +256,7 @@ Credits.obj: \
 	../src/Cookie.h \
 	../src/Worker.h \
 	../src/MatchMarker.h \
+	../src/Searcher.h \
 	../src/SciTEBase.h
 EditorConfig.obj: \
 	../src/EditorConfig.cxx \
@@ -276,6 +284,7 @@ ExportHTML.obj: \
 	../src/Cookie.h \
 	../src/Worker.h \
 	../src/MatchMarker.h \
+	../src/Searcher.h \
 	../src/SciTEBase.h
 ExportPDF.obj: \
 	../src/ExportPDF.cxx \
@@ -297,6 +306,7 @@ ExportPDF.obj: \
 	../src/Cookie.h \
 	../src/Worker.h \
 	../src/MatchMarker.h \
+	../src/Searcher.h \
 	../src/SciTEBase.h
 ExportRTF.obj: \
 	../src/ExportRTF.cxx \
@@ -318,6 +328,7 @@ ExportRTF.obj: \
 	../src/Cookie.h \
 	../src/Worker.h \
 	../src/MatchMarker.h \
+	../src/Searcher.h \
 	../src/SciTEBase.h
 ExportTEX.obj: \
 	../src/ExportTEX.cxx \
@@ -339,6 +350,7 @@ ExportTEX.obj: \
 	../src/Cookie.h \
 	../src/Worker.h \
 	../src/MatchMarker.h \
+	../src/Searcher.h \
 	../src/SciTEBase.h
 ExportXML.obj: \
 	../src/ExportXML.cxx \
@@ -360,6 +372,7 @@ ExportXML.obj: \
 	../src/Cookie.h \
 	../src/Worker.h \
 	../src/MatchMarker.h \
+	../src/Searcher.h \
 	../src/SciTEBase.h
 FilePath.obj: \
 	../src/FilePath.cxx \
@@ -459,6 +472,7 @@ SciTEBase.obj: \
 	../src/FileWorker.h \
 	../src/MatchMarker.h \
 	../src/EditorConfig.h \
+	../src/Searcher.h \
 	../src/SciTEBase.h
 SciTEBuffers.obj: \
 	../src/SciTEBuffers.cxx \
@@ -482,6 +496,7 @@ SciTEBuffers.obj: \
 	../src/Worker.h \
 	../src/FileWorker.h \
 	../src/MatchMarker.h \
+	../src/Searcher.h \
 	../src/SciTEBase.h
 SciTEIO.obj: \
 	../src/SciTEIO.cxx \
@@ -504,6 +519,7 @@ SciTEIO.obj: \
 	../src/Worker.h \
 	../src/FileWorker.h \
 	../src/MatchMarker.h \
+	../src/Searcher.h \
 	../src/SciTEBase.h \
 	../src/Utf8_16.h
 SciTEProps.obj: \
@@ -532,6 +548,7 @@ SciTEProps.obj: \
 	../src/Worker.h \
 	../src/MatchMarker.h \
 	../src/EditorConfig.h \
+	../src/Searcher.h \
 	../src/SciTEBase.h \
 	../src/IFaceTable.h
 StringHelpers.obj: \

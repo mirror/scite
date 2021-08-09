@@ -123,6 +123,7 @@
 #include "FileWorker.h"
 #include "MatchMarker.h"
 #include "EditorConfig.h"
+#include "Searcher.h"
 #include "SciTEBase.h"
 #include "UniqueInstance.h"
 #include "StripDefinition.h"

@@ -125,16 +125,16 @@ make "$JOBS"
 make distclean
 )
 
-(
-cd ScintillaEditPy || exit
-python2 sepbuild.py
-cd ../../test || exit
-python2 simpleTests.py
-python2 lexTests.py
-python2 performanceTests.py
-cd ../qt/ScintillaEditPy || exit
-python2 sepbuild.py --clean
-)
+#~ (
+#~ cd ScintillaEditPy || exit
+#~ python2 sepbuild.py
+#~ cd ../../test || exit
+#~ python2 simpleTests.py
+#~ python2 lexTests.py
+#~ python2 performanceTests.py
+#~ cd ../qt/ScintillaEditPy || exit
+#~ python2 sepbuild.py --clean
+#~ )
 
 )
 

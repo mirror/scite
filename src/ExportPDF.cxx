@@ -48,6 +48,7 @@
 #include "Cookie.h"
 #include "Worker.h"
 #include "MatchMarker.h"
+#include "Searcher.h"
 #include "SciTEBase.h"
 
 //---------- Save to PDF ----------

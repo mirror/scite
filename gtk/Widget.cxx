@@ -21,15 +21,6 @@
 #include "StringHelpers.h"
 #include "Widget.h"
 
-// Key names are longer for GTK 3
-#if GTK_CHECK_VERSION(3,0,0)
-#define GKEY_Escape GDK_KEY_Escape
-#define GKEY_Void GDK_KEY_VoidSymbol
-#else
-#define GKEY_Escape GDK_Escape
-#define GKEY_Void GDK_VoidSymbol
-#endif
-
 WBase::operator GtkWidget*() const {
 	return GTK_WIDGET(GetID());
 }
@@ -381,6 +372,29 @@ GUI::gui_char KeyFromLabel(GUI::gui_string label) {
 		}
 	}
 	return 0;
+}
+
+std::string GtkFromWinCaption(const char *text) {
+	std::string sCaption(text);
+	// Escape underlines
+	Substitute(sCaption, "_", "__");
+	// Replace Windows-style ampersands with GTK underlines
+	size_t posFound = sCaption.find("&");
+	while (posFound != std::string::npos) {
+		std::string nextChar = sCaption.substr(posFound + 1, 1);
+		if (nextChar == "&") {
+			// Escaped, move on
+			posFound += 2;
+		} else {
+			sCaption.erase(posFound, 1);
+			sCaption.insert(posFound, "_", 1);
+			posFound += 1;
+		}
+		posFound = sCaption.find("&", posFound);
+	}
+	// Unescape ampersands
+	Substitute(sCaption, "&&", "&");
+	return sCaption;
 }
 
 void Dialog::Create(const GUI::gui_string &title) {

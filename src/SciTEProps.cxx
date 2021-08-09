@@ -65,6 +65,7 @@ const GUI::gui_char menuAccessIndicator[] = GUI_TEXT("&");
 #include "Worker.h"
 #include "MatchMarker.h"
 #include "EditorConfig.h"
+#include "Searcher.h"
 #include "SciTEBase.h"
 #include "IFaceTable.h"
 

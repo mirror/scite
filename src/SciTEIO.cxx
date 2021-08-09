@@ -51,6 +51,7 @@
 #include "Worker.h"
 #include "FileWorker.h"
 #include "MatchMarker.h"
+#include "Searcher.h"
 #include "SciTEBase.h"
 #include "Utf8_16.h"
 

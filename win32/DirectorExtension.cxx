@@ -44,6 +44,7 @@
 #include "Cookie.h"
 #include "Worker.h"
 #include "MatchMarker.h"
+#include "Searcher.h"
 #include "SciTEBase.h"
 #include "DirectorExtension.h"
 
