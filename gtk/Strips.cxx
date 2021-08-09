@@ -402,7 +402,7 @@ void FindStrip::Creation(GtkWidget *container) {
 	Strip::Creation(container);
 	gtk_container_set_border_width(GTK_CONTAINER(GetID()), 2);
 	gtk_box_pack_start(GTK_BOX(container), GTK_WIDGET(GetID()), FALSE, FALSE, 0);
-	wStaticFind.Create(localiser->Text(textFindPrompt).c_str());
+	wStaticFind.Create(localiser->Text(textFindPrompt));
 	table.Label(wStaticFind);
 
 	g_signal_connect(G_OBJECT(GetID()), "set-focus-child", G_CALLBACK(ChildFocusSignal), this);
@@ -857,11 +857,11 @@ void UserStrip::SetDescription(const char *description) {
 	for (std::vector<UserControl> &line : psd->controls) {
 		for (UserControl &ctl : line) {
 			UserControl *puc = &ctl;
-			std::string sCaption = GtkFromWinCaption(puc->text.c_str());
+			std::string sCaption = GtkFromWinCaption(puc->text);
 			switch (puc->controlType) {
 			case UserControl::ucEdit: {
 					WEntry we;
-					we.Create(puc->text.c_str());
+					we.Create(puc->text);
 					puc->w.SetID(we.GetID());
 					tableUser.Add(we, 1, true, 0, 0);
 					break;
@@ -869,7 +869,7 @@ void UserStrip::SetDescription(const char *description) {
 			case UserControl::ucCombo: {
 					WComboBoxEntry wc;
 					wc.Create();
-					wc.SetText(puc->text.c_str());
+					wc.SetText(puc->text);
 					puc->w.SetID(wc.GetID());
 					tableUser.Add(wc, 1, true, 0, 0);
 					break;
@@ -877,7 +877,7 @@ void UserStrip::SetDescription(const char *description) {
 			case UserControl::ucButton:
 			case UserControl::ucDefaultButton: {
 					WButton wb;
-					wb.Create(sCaption.c_str(), G_CALLBACK(UserStrip::ClickSignal), this);
+					wb.Create(sCaption, G_CALLBACK(UserStrip::ClickSignal), this);
 					puc->w.SetID(wb.GetID());
 					tableUser.Add(wb, 1, false, 0, 0);
 					if (puc->controlType == UserControl::ucDefaultButton) {
@@ -887,7 +887,7 @@ void UserStrip::SetDescription(const char *description) {
 				}
 			default: {
 					WStatic ws;
-					ws.Create(sCaption.c_str());
+					ws.Create(sCaption);
 					puc->w.SetID(ws.GetID());
 #if GTK_CHECK_VERSION(3,14,0)
 					gtk_widget_set_halign(GTK_WIDGET(puc->w.GetID()), GTK_ALIGN_END);

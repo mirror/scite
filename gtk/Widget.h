@@ -37,18 +37,18 @@ inline GtkWidget *Widget(const GUI::Window &w) {
 
 class WStatic : public WBase {
 public:
-	void Create(GUI::gui_string text);
+	void Create(const GUI::gui_string &text);
 	bool HasMnemonic();
 	void SetMnemonicFor(WBase &w);
 };
 
 class WEntry : public WBase {
 public:
-	void Create(const GUI::gui_char *text=0);
+	void Create(const GUI::gui_string &text);
 	void ActivatesDefault();
 	const GUI::gui_char *Text();
 	int Value();
-	void SetText(const GUI::gui_char *text);
+	void SetText(GUI::gui_string text);
 	static void SetValid(GtkEntry *entry, bool valid);
 };
 
@@ -58,18 +58,18 @@ public:
 	GtkEntry *Entry();
 	void ActivatesDefault();
 	const GUI::gui_char *Text();
-	void SetText(const GUI::gui_char *text);
+	void SetText(const GUI::gui_string &text);
 	bool HasFocusOnSelfOrChild();
 	void ClearList();
 	void RemoveText(int position);
-	void AppendText(const char *text);
+	void AppendText(const GUI::gui_string &text);
 	void FillFromMemory(const std::vector<std::string> &mem, bool useTop = false);
 };
 
 class WButton : public WBase {
 public:
-	void Create(GUI::gui_string text, GCallback func, gpointer data);
-	void Create(GUI::gui_string text);
+	void Create(const GUI::gui_string &text, GCallback func, gpointer data);
+	void Create(const GUI::gui_string &text);
 };
 
 class WToggle : public WBase {
@@ -126,8 +126,8 @@ public:
 	void NextLine();
 };
 
-GUI::gui_char KeyFromLabel(GUI::gui_string label);
-std::string GtkFromWinCaption(const char *text);
+GUI::gui_char KeyFromLabel(const GUI::gui_string &label);
+std::string GtkFromWinCaption(const GUI::gui_string &text);
 
 class Dialog : public GUI::Window {
 public:
@@ -170,7 +170,7 @@ public:
 	virtual void ShowPopup() {}
 	virtual void MenuAction(guint /* action */) {}
 	static void MenuSignal(GtkMenuItem *menuItem, Strip *pStrip);
-	void AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked);
+	void AddToPopUp(GUI::Menu &popup, const GUI::gui_string &label, int cmd, bool checked);
 	virtual void ChildFocus(GtkWidget *widget);
 	static gboolean ChildFocusSignal(GtkContainer *container, GtkWidget *widget, Strip *pStrip);
 	virtual gboolean Focus(GtkDirectionType /* direction*/ ) { return false; }

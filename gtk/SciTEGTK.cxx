@@ -1860,7 +1860,7 @@ static void FillComboFromMemory(WComboBoxEntry *combo, const ComboMemory &mem, b
 		combo->AppendText(mem.At(i).c_str());
 	}
 	if (useTop) {
-		combo->SetText(mem.At(0).c_str());
+		combo->SetText(mem.At(0));
 	}
 }
 
@@ -2433,7 +2433,7 @@ void SciTEGTK::GoLineDialog() {
 	GtkWidget *labelGoto = TranslatedLabel("_Destination Line Number:");
 	table.Label(labelGoto);
 
-	dlgGoto.entryGoto.Create();
+	dlgGoto.entryGoto.Create("");
 	table.Add(dlgGoto.entryGoto);
 	dlgGoto.entryGoto.ActivatesDefault();
 	gtk_widget_grab_focus(dlgGoto.entryGoto);
@@ -2551,7 +2551,7 @@ void SciTEGTK::TabSizeDialog() {
 	table.Label(labelTabSize);
 
 	std::string tabSize = StdStringFromInteger(wEditor.TabWidth());
-	dlgTabSize.entryTabSize.Create(tabSize.c_str());
+	dlgTabSize.entryTabSize.Create(tabSize);
 	table.Add(dlgTabSize.entryTabSize);
 	dlgTabSize.entryTabSize.ActivatesDefault();
 	gtk_widget_grab_focus(dlgTabSize.entryTabSize);
@@ -2561,7 +2561,7 @@ void SciTEGTK::TabSizeDialog() {
 	table.Label(labelIndentSize);
 
 	std::string indentSize = StdStringFromInteger(wEditor.Indent());
-	dlgTabSize.entryIndentSize.Create(indentSize.c_str());
+	dlgTabSize.entryIndentSize.Create(indentSize);
 	table.Add(dlgTabSize.entryIndentSize);
 	dlgTabSize.entryIndentSize.ActivatesDefault();
 	gtk_label_set_mnemonic_widget(GTK_LABEL(labelIndentSize), dlgTabSize.entryIndentSize);
@@ -2650,7 +2650,7 @@ bool SciTEGTK::ParametersDialog(bool modal) {
 		GtkWidget *label = gtk_label_new_with_mnemonic(paramText.c_str());
 		table.Label(label);
 
-		dlgParameters.entryParam[param].Create(paramTextVal.c_str());
+		dlgParameters.entryParam[param].Create(paramTextVal);
 		table.Add(dlgParameters.entryParam[param]);
 		dlgParameters.entryParam[param].ActivatesDefault();
 
@@ -2725,7 +2725,7 @@ void SciTEGTK::FindReplace(bool replace) {
 	dlgFindReplace.wComboFind.Create();
 	table.Add(dlgFindReplace.wComboFind, 1, true);
 
-	dlgFindReplace.wComboFind.SetText(findWhat.c_str());
+	dlgFindReplace.wComboFind.SetText(findWhat);
 	gtk_entry_set_width_chars(dlgFindReplace.wComboFind.Entry(), 40);
 	dlgFindReplace.wComboFind.ActivatesDefault();
 	dlgFindReplace.labelFind.SetMnemonicFor(dlgFindReplace.wComboFind);

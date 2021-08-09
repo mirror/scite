@@ -33,7 +33,7 @@ bool WBase::Sensitive() {
 	return gtk_widget_get_sensitive(GTK_WIDGET(Pointer()));
 }
 
-void WStatic::Create(GUI::gui_string text) {
+void WStatic::Create(const GUI::gui_string &text) {
 	SetID(gtk_label_new_with_mnemonic(text.c_str()));
 }
 
@@ -45,10 +45,10 @@ void WStatic::SetMnemonicFor(WBase &w) {
 	gtk_label_set_mnemonic_widget(GTK_LABEL(Pointer()), w);
 }
 
-void WEntry::Create(const GUI::gui_char *text) {
+void WEntry::Create(const GUI::gui_string &text) {
 	SetID(gtk_entry_new());
-	if (text)
-		gtk_entry_set_text(GTK_ENTRY(GetID()), text);
+	if (!text.empty())
+		gtk_entry_set_text(GTK_ENTRY(GetID()), text.c_str());
 }
 
 void WEntry::ActivatesDefault() {
@@ -63,8 +63,8 @@ int WEntry::Value() {
 	return atoi(Text());
 }
 
-void WEntry::SetText(const GUI::gui_char *text) {
-	return gtk_entry_set_text(GTK_ENTRY(GetID()), text);
+void WEntry::SetText(GUI::gui_string text) {
+	return gtk_entry_set_text(GTK_ENTRY(GetID()), text.c_str());
 }
 
 void WEntry::SetValid(GtkEntry *entry, bool valid) {
@@ -102,8 +102,8 @@ const GUI::gui_char *WComboBoxEntry::Text() {
 	return gtk_entry_get_text(Entry());
 }
 
-void WComboBoxEntry::SetText(const GUI::gui_char *text) {
-	return gtk_entry_set_text(Entry(), text);
+void WComboBoxEntry::SetText(const GUI::gui_string &text) {
+	return gtk_entry_set_text(Entry(), text.c_str());
 }
 
 bool WComboBoxEntry::HasFocusOnSelfOrChild() {
@@ -118,14 +118,14 @@ void WComboBoxEntry::RemoveText(int position) {
 #endif
 }
 
-void WComboBoxEntry::AppendText(const char *text) {
+void WComboBoxEntry::AppendText(const GUI::gui_string &text) {
 #if GTK_CHECK_VERSION(3,0,0)
-	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(GetID()), text);
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(GetID()), text.c_str());
 #if GTK_CHECK_VERSION(3,14,0)
 	gtk_combo_box_set_button_sensitivity(GTK_COMBO_BOX(GetID()), GTK_SENSITIVITY_ON);
 #endif
 #else
-	gtk_combo_box_append_text(GTK_COMBO_BOX(GetID()), text);
+	gtk_combo_box_append_text(GTK_COMBO_BOX(GetID()), text.c_str());
 #endif
 }
 
@@ -145,20 +145,20 @@ void WComboBoxEntry::ClearList() {
 void WComboBoxEntry::FillFromMemory(const std::vector<std::string> &mem, bool useTop) {
 	ClearList();
 	for (const std::string &s : mem) {
-		AppendText(s.c_str());
+		AppendText(s);
 	}
 	if (useTop) {
 		gtk_entry_set_text(Entry(), mem[0].c_str());
 	}
 }
 
-void WButton::Create(GUI::gui_string text, GCallback func, gpointer data) {
+void WButton::Create(const GUI::gui_string &text, GCallback func, gpointer data) {
 	SetID(gtk_button_new_with_mnemonic(text.c_str()));
 	gtk_widget_set_can_default(GTK_WIDGET(GetID()), TRUE);
 	g_signal_connect(G_OBJECT(GetID()), "clicked", func, data);
 }
 
-void WButton::Create(GUI::gui_string text) {
+void WButton::Create(const GUI::gui_string &text) {
 	SetID(gtk_button_new_with_mnemonic(text.c_str()));
 	gtk_widget_set_can_default(GTK_WIDGET(GetID()), TRUE);
 }
@@ -364,7 +364,7 @@ void WTable::NextLine() {
 	next = ((next - 1) / columns + 1) * columns;
 }
 
-GUI::gui_char KeyFromLabel(GUI::gui_string label) {
+GUI::gui_char KeyFromLabel(const GUI::gui_string &label) {
 	if (!label.empty()) {
 		const size_t posMnemonic = label.find('_');
 		if (posMnemonic != GUI::gui_string::npos) {
@@ -374,7 +374,7 @@ GUI::gui_char KeyFromLabel(GUI::gui_string label) {
 	return 0;
 }
 
-std::string GtkFromWinCaption(const char *text) {
+std::string GtkFromWinCaption(const GUI::gui_string &text) {
 	std::string sCaption(text);
 	// Escape underlines
 	Substitute(sCaption, "_", "__");
@@ -501,9 +501,9 @@ void Strip::MenuSignal(GtkMenuItem *menuItem, Strip *pStrip) {
 	pStrip->MenuAction(cmd);
 }
 
-void Strip::AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked) {
+void Strip::AddToPopUp(GUI::Menu &popup, const GUI::gui_string &label, int cmd, bool checked) {
 	allowMenuActions = false;
-	GUI::gui_string localised = localiser->Text(label);
+	GUI::gui_string localised = localiser->Text(label.c_str());
 	GtkWidget *menuItem = gtk_check_menu_item_new_with_mnemonic(localised.c_str());
 	gtk_menu_shell_append(GTK_MENU_SHELL(popup.GetID()), menuItem);
 	g_object_set_data(G_OBJECT(menuItem), "CmdNum", GINT_TO_POINTER(cmd));
