@@ -1725,10 +1725,10 @@ void SciTEBase::SetPropertiesInitial() {
 	focusOnReplace = props.GetInt("find.replacewith.focus", 1);
 }
 
-GUI::gui_string Localization::Text(const char *s, bool retainIfNotFound) {
+GUI::gui_string Localization::Text(std::string_view sv, bool retainIfNotFound) const {
 	const std::string sEllipse("...");	// An ASCII ellipse
 	const std::string utfEllipse("\xe2\x80\xa6");	// A UTF-8 ellipse
-	std::string translation = s;
+	std::string translation(sv);
 	const int ellipseIndicator = Remove(translation, sEllipse);
 	const int utfEllipseIndicator = Remove(translation, utfEllipse);
 	const std::string menuAccessIndicatorChar(1, static_cast<char>(menuAccessIndicator[0]));
@@ -1764,7 +1764,7 @@ GUI::gui_string Localization::Text(const char *s, bool retainIfNotFound) {
 	if ((translation.length() > 0) || !retainIfNotFound) {
 		return GUI::StringFromUTF8(translation);
 	}
-	return GUI::StringFromUTF8(s);
+	return GUI::StringFromUTF8(std::string(sv));
 }
 
 GUI::gui_string SciTEBase::LocaliseMessage(const char *s, const GUI::gui_char *param0, const GUI::gui_char *param1, const GUI::gui_char *param2) {

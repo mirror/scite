@@ -271,7 +271,7 @@ public:
 	bool read;
 	Localization() : PropSetFile(true), read(false) {
 	}
-	GUI::gui_string Text(const char *s, bool retainIfNotFound=true) override;
+	GUI::gui_string Text(std::string_view sv, bool retainIfNotFound=true) const override;
 	void SetMissing(const std::string &missing_) {
 		missing = missing_;
 	}

@@ -143,11 +143,11 @@ private:
 
 class BaseWin : public GUI::Window {
 protected:
-	ILocalize *localiser;
+	const ILocalize *localiser;
 public:
 	BaseWin() : localiser(0) {
 	}
-	void SetLocalizer(ILocalize *localiser_) {
+	void SetLocalizer(const ILocalize *localiser_) {
 		localiser = localiser_;
 	}
 };

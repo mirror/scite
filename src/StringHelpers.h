@@ -141,7 +141,7 @@ std::string UnicodeUnEscape(std::string_view s);
 
 class ILocalize {
 public:
-	virtual GUI::gui_string Text(const char *s, bool retainIfNotFound=true) = 0;
+	virtual GUI::gui_string Text(std::string_view sv, bool retainIfNotFound=true) const = 0;
 };
 
 /**

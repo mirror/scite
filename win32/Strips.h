@@ -17,11 +17,11 @@ void ComboBoxAppend(HWND hWnd, const GUI::gui_string &gs) noexcept;
 
 class BaseWin : public GUI::Window {
 protected:
-	ILocalize *localiser = nullptr;
+	const ILocalize *localiser = nullptr;
 public:
 	BaseWin() noexcept {
 	}
-	void SetLocalizer(ILocalize *localiser_) noexcept {
+	void SetLocalizer(const ILocalize *localiser_) noexcept {
 		localiser = localiser_;
 	}
 	HWND Hwnd() const noexcept {
