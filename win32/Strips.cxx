@@ -398,7 +398,7 @@ bool Strip::KeyDown(WPARAM key) {
 	case VK_TAB:
 		if (IsChild(Hwnd(), ::GetFocus())) {
 			::SendMessage(Hwnd(), WM_UPDATEUISTATE, (UISF_HIDEACCEL|UISF_HIDEFOCUS) << 16 | UIS_CLEAR, 0);
-			Tab(IsKeyDown(VK_SHIFT));
+			Tab(!IsKeyDown(VK_SHIFT));
 			return true;
 		} else {
 			return false;
