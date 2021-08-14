@@ -572,10 +572,7 @@ void SciTEWin::CheckAMenuItem(int wIDCheckItem, bool val) {
 }
 
 void EnableButton(HWND wTools, int id, bool enable) noexcept {
-	if (wTools) {
-		::SendMessage(wTools, TB_ENABLEBUTTON, id,
-			      IntFromTwoShorts(enable ? TRUE : FALSE, 0));
-	}
+	::SendMessage(wTools, TB_ENABLEBUTTON, id, IntFromTwoShorts(enable, 0));
 }
 
 void SciTEWin::EnableAMenuItem(int wIDCheckItem, bool val) {
