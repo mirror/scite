@@ -396,6 +396,8 @@ protected:
 	Extension *extender;
 	bool needReadProperties;
 	bool quitting;
+	bool canUndo;
+	bool canRedo;
 
 	int timerMask;
 	enum { timerAutoSave=1 };
@@ -773,6 +775,8 @@ protected:
 	void NewLineInOutput();
 	virtual void SetStatusBarText(const char *s) = 0;
 	void UpdateUI(const SCNotification *notification);
+	void SetCanUndoRedo(bool canUndo_, bool canRedo_);
+	void CheckCanUndoRedo();
 	void Modified(const SCNotification *notification);
 	virtual void Notify(SCNotification *notification);
 	virtual void ShowToolBar() = 0;

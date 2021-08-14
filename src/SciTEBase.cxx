@@ -209,6 +209,8 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), pwFocussed(&wEditor), extende
 
 	needReadProperties = false;
 	quitting = false;
+	canUndo = false;
+	canRedo = false;
 
 	timerMask = 0;
 	delayBeforeAutoSave = 0;
@@ -3865,6 +3867,30 @@ void SciTEBase::UpdateUI(const SCNotification *notification) {
 	}
 }
 
+void SciTEBase::SetCanUndoRedo(bool canUndo_, bool canRedo_) {
+	if (canUndo != canUndo_) {
+		EnableAMenuItem(IDM_UNDO, canUndo_);
+		canUndo = canUndo_;
+	}
+	if (canRedo != canRedo_) {
+		EnableAMenuItem(IDM_REDO, canRedo_);
+		canRedo = canRedo_;
+	}
+}
+
+void SciTEBase::CheckCanUndoRedo() {
+	bool canUndoNow = true;
+	bool canRedoNow = true;
+	if (wEditor.HasFocus()) {
+		canUndoNow = wEditor.CanUndo();
+		canRedoNow = wEditor.CanRedo();
+	} else if (wOutput.HasFocus()) {
+		canUndoNow = wOutput.CanUndo();
+		canRedoNow = wOutput.CanRedo();
+	}
+	SetCanUndoRedo(canUndoNow, canRedoNow);
+}
+
 void SciTEBase::Modified(const SCNotification *notification) {
 	const SA::ModificationFlags modificationType =
 		static_cast<SA::ModificationFlags>(notification->modificationType);
@@ -3875,15 +3901,13 @@ void SciTEBase::Modified(const SCNotification *notification) {
 	if (FlagIsSet(modificationType, SA::ModificationFlags::LastStepInUndoRedo)) {
 		// When the user hits undo or redo, several normal insert/delete
 		// notifications may fire, but we will end up here in the end
-		EnableAMenuItem(IDM_UNDO, CallFocusedElseDefault(true, SA::Message::CanUndo));
-		EnableAMenuItem(IDM_REDO, CallFocusedElseDefault(true, SA::Message::CanRedo));
+		CheckCanUndoRedo();
 	} else if (textWasModified) {
 		if ((notification->nmhdr.idFrom == IDM_SRCWIN) == (pwFocussed == &wEditor)) {
 			currentWordHighlight.textHasChanged = true;
 		}
 		// This will be called a lot, and usually means "typing".
-		EnableAMenuItem(IDM_UNDO, true);
-		EnableAMenuItem(IDM_REDO, false);
+		SetCanUndoRedo(true, false);
 		if (CurrentBuffer()->findMarks == Buffer::fmMarked) {
 			CurrentBuffer()->findMarks = Buffer::fmModified;
 		}
@@ -4090,8 +4114,7 @@ void SciTEBase::CheckMenusClipboard() {
 
 void SciTEBase::CheckMenus() {
 	CheckMenusClipboard();
-	EnableAMenuItem(IDM_UNDO, CallFocusedElseDefault(true, SA::Message::CanUndo));
-	EnableAMenuItem(IDM_REDO, CallFocusedElseDefault(true, SA::Message::CanRedo));
+	CheckCanUndoRedo();
 	EnableAMenuItem(IDM_DUPLICATE, !CurrentBuffer()->isReadOnly);
 	EnableAMenuItem(IDM_SHOWCALLTIP, apis != 0);
 	EnableAMenuItem(IDM_COMPLETE, apis != 0);
