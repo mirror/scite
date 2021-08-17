@@ -356,7 +356,7 @@ protected:
 
 	BOOL AbbrevMessage(HWND hDlg, UINT message, WPARAM wParam);
 	static INT_PTR CALLBACK AbbrevDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-	bool AbbrevDialog() override;
+	void AbbrevDialog() override;
 
 	BOOL TabSizeMessage(HWND hDlg, UINT message, WPARAM wParam);
 	static INT_PTR CALLBACK TabSizeDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);

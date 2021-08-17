@@ -702,7 +702,7 @@ protected:
 	void UIHasFocus() override;
 	virtual void DestroyFindReplace() = 0;
 	virtual void GoLineDialog() = 0;
-	virtual bool AbbrevDialog() = 0;
+	virtual void AbbrevDialog() = 0;
 	virtual void TabSizeDialog() = 0;
 	virtual bool ParametersOpen() = 0;
 	virtual void ParamGrab() = 0;
@@ -728,7 +728,6 @@ protected:
 	virtual bool StartAutoCompleteWord(bool onlyOneWord);
 	virtual bool StartExpandAbbreviation();
 	bool PerformInsertAbbreviation();
-	virtual bool StartInsertAbbreviation();
 	virtual bool StartBlockComment();
 	virtual bool StartBoxComment();
 	virtual bool StartStreamComment();

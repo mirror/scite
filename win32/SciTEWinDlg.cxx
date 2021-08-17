@@ -1483,6 +1483,7 @@ BOOL SciTEWin::AbbrevMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			return FALSE;
 		} else if (ControlIDOfWParam(wParam) == IDOK) {
 			abbrevInsert = dlg.ItemTextU(IDABBREV);
+			PerformInsertAbbreviation();
 			::EndDialog(hDlg, IDOK);
 			return TRUE;
 		}
@@ -1495,8 +1496,8 @@ INT_PTR CALLBACK SciTEWin::AbbrevDlg(HWND hDlg, UINT message, WPARAM wParam, LPA
 	return Caller(hDlg, message, lParam)->AbbrevMessage(hDlg, message, wParam);
 }
 
-bool SciTEWin::AbbrevDialog() {
-	return DoDialog(TEXT("InsAbbrev"), AbbrevDlg) == IDOK;
+void SciTEWin::AbbrevDialog() {
+	DoDialog(TEXT("InsAbbrev"), AbbrevDlg);
 }
 
 BOOL SciTEWin::TabSizeMessage(HWND hDlg, UINT message, WPARAM wParam) {

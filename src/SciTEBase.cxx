@@ -1884,14 +1884,6 @@ bool SciTEBase::PerformInsertAbbreviation() {
 	return true;
 }
 
-bool SciTEBase::StartInsertAbbreviation() {
-	if (!AbbrevDialog()) {
-		return true;
-	}
-
-	return PerformInsertAbbreviation();
-}
-
 bool SciTEBase::StartExpandAbbreviation() {
 	const SA::Position currentPos = GetCaretInLine();
 	const SA::Position position = wEditor.CurrentPos(); // from the beginning
@@ -3268,7 +3260,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 
 	case IDM_INS_ABBREV:
 		wEditor.Cancel();
-		StartInsertAbbreviation();
+		AbbrevDialog();
 		break;
 
 	case IDM_BLOCK_COMMENT:

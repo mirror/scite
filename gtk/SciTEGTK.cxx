@@ -559,7 +559,7 @@ protected:
 	void FindReplace(bool replace) override;
 	void DestroyFindReplace() override;
 	void GoLineDialog() override;
-	bool AbbrevDialog() override;
+	void AbbrevDialog() override;
 	void TabSizeDialog() override;
 	bool ParametersDialog(bool modal) override;
 
@@ -2449,6 +2449,7 @@ void SciTEGTK::GoLineDialog() {
 
 void SciTEGTK::AbbrevCmd() {
 	abbrevInsert = dlgAbbrev.comboAbbrev.Text();
+	PerformInsertAbbreviation();
 	dlgAbbrev.Destroy();
 }
 
@@ -2459,13 +2460,12 @@ void SciTEGTK::AbbrevResponse(int responseID) {
 			break;
 
 		case GTK_RESPONSE_CANCEL:
-			abbrevInsert = "";
 			dlgAbbrev.Destroy();
 			break;
 	}
 }
 
-bool SciTEGTK::AbbrevDialog() {
+void SciTEGTK::AbbrevDialog() {
 	dlgAbbrev.Create(localiser.Text("Insert Abbreviation"));
 
 	gtk_container_set_border_width(GTK_CONTAINER(PWidget(dlgAbbrev)), 0);
@@ -2480,6 +2480,7 @@ bool SciTEGTK::AbbrevDialog() {
 	gtk_entry_set_width_chars(dlgAbbrev.comboAbbrev.Entry(), 35);
 	FillComboFromProps(&dlgAbbrev.comboAbbrev, propsAbbrev);
 	table.Add(dlgAbbrev.comboAbbrev, 2, true);
+	dlgAbbrev.comboAbbrev.ActivatesDefault();
 
 	gtk_widget_grab_focus(dlgAbbrev.comboAbbrev);
 	gtk_label_set_mnemonic_widget(GTK_LABEL(labelAbbrev), dlgAbbrev.comboAbbrev);
@@ -2490,8 +2491,6 @@ bool SciTEGTK::AbbrevDialog() {
 	gtk_dialog_set_default_response(GTK_DIALOG(PWidget(dlgAbbrev)), GTK_RESPONSE_OK);
 
 	dlgAbbrev.Display(PWidget(wSciTE));
-
-	return TRUE;
 }
 
 void SciTEGTK::TabSizeSet(int &tabSize, bool &useTabs) {
