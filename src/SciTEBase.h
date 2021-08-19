@@ -51,11 +51,6 @@ public:
 	RecentFile(const FilePath &path_, SelectedRange selection_, SA::Line scrollPosition_) :
 		FilePath(path_), selection(selection_), scrollPosition(scrollPosition_) {
 	}
-	RecentFile(RecentFile const &) = default;
-	RecentFile(RecentFile &&) = default;
-	RecentFile &operator=(RecentFile const &) = default;
-	RecentFile &operator=(RecentFile &&) = default;
-	~RecentFile() override = default;
 	void Init() noexcept override {
 		FilePath::Init();
 		selection.position = SA::InvalidPosition;
@@ -104,7 +99,6 @@ public:
 		unicodeMode(uni8Bit), fileModTime(0), fileModLastAsk(0), documentModTime(0),
 		findMarks(fmNone), pFileWorker(nullptr), futureDo(fdNone) {}
 
-	~Buffer() = default;
 	void Init() {
 		file.Init();
 		isDirty = false;
@@ -165,7 +159,6 @@ public:
 	bool initialised;
 
 	BufferList();
-	~BufferList();
 	int size() const noexcept {
 		return static_cast<int>(buffers.size());
 	}

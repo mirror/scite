@@ -100,9 +100,6 @@ void Buffer::CancelLoad() {
 
 BufferList::BufferList() : current(0), stackcurrent(0), stack(0), buffers(0), length(0), lengthVisible(0), initialised(false) {}
 
-BufferList::~BufferList() {
-}
-
 void BufferList::Allocate(int maxSize) {
 	length = 1;
 	lengthVisible = 1;

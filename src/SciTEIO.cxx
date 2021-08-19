@@ -1449,8 +1449,6 @@ public:
 	}
 	// Deleted so FileReader objects can not be copied.
 	FileReader(const FileReader &) = delete;
-	~FileReader() {
-	}
 	const char *Next() {
 		if (bf->Exhausted()) {
 			return nullptr;
