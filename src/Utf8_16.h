@@ -30,6 +30,36 @@ public:
 	static const utf8 k_Boms[eLast][3];
 };
 
+// Reads UTF-16 and outputs UTF-8
+class Utf16_Iter : public Utf8_16 {
+public:
+	Utf16_Iter() noexcept;
+	void set(const ubyte *pBuf, size_t nLen, encodingType eEncoding, ubyte *endSurrogate) noexcept;
+	utf8 get() const noexcept {
+		return m_nCur;
+	}
+	void operator++() noexcept;
+	operator bool() const noexcept { return m_pRead <= m_pEnd; }
+	utf16 read(const ubyte *pRead) const noexcept;
+
+protected:
+	enum eState {
+		eStart,
+		eSecondOf4Bytes,
+		ePenultimate,
+		eFinal
+	};
+protected:
+	encodingType m_eEncoding;
+	eState m_eState;
+	utf8 m_nCur;
+	int m_nCur16;
+	// These 3 pointers are for externally allocated memory passed to set
+	const ubyte *m_pBuf;
+	const ubyte *m_pRead;
+	const ubyte *m_pEnd;
+};
+
 // Reads UTF16 and outputs UTF8
 class Utf8_16_Read : public Utf8_16 {
 public:
@@ -53,6 +83,7 @@ private:
 	bool m_bFirstRead;
 	ubyte m_leadSurrogate[2];
 	size_t m_nLen;
+	Utf16_Iter m_Iter16;
 };
 
 // Read in a UTF-8 buffer and write out to UTF-16 or UTF-8

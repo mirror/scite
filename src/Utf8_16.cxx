@@ -32,42 +32,10 @@ enum { SURROGATE_FIRST_VALUE = 0x10000 };
 
 namespace {
 
-// Reads UTF-16 and outputs UTF-8
-class Utf16_Iter : public Utf8_16 {
-public:
-	Utf16_Iter() noexcept;
-	void reset() noexcept;
-	void set(const ubyte *pBuf, size_t nLen, encodingType eEncoding, ubyte *endSurrogate) noexcept;
-	utf8 get() const noexcept {
-		return m_nCur;
-	}
-	void operator++() noexcept;
-	operator bool() const noexcept { return m_pRead <= m_pEnd; }
-	utf16 read(const ubyte *pRead) const noexcept;
-
-protected:
-	enum eState {
-		eStart,
-		eSecondOf4Bytes,
-		ePenultimate,
-		eFinal
-	};
-protected:
-	encodingType m_eEncoding;
-	eState m_eState;
-	utf8 m_nCur;
-	int m_nCur16;
-	// These 3 pointers are for externally allocated memory passed to set
-	const ubyte *m_pBuf;
-	const ubyte *m_pRead;
-	const ubyte *m_pEnd;
-};
-
 // Reads UTF-8 and outputs UTF-16
 class Utf8_Iter : public Utf8_16 {
 public:
 	Utf8_Iter() noexcept;
-	void reset() noexcept;
 	void set(const ubyte *pBuf, size_t nLen, encodingType eEncoding) noexcept;
 	int get() const noexcept {
 		assert(m_eState == eStart);
@@ -153,7 +121,6 @@ size_t Utf8_16_Read::convert(char *buf, size_t len) {
 
 	ubyte endSurrogate[2] = { 0, 0 };
 	ubyte *pbufPrependSurrogate = nullptr;
-	Utf16_Iter m_Iter16;
 	if (m_leadSurrogate[0]) {
 		pbufPrependSurrogate = new ubyte[len - nSkip + 2];
 		memcpy(pbufPrependSurrogate, m_leadSurrogate, 2);
@@ -301,10 +268,6 @@ void Utf8_16_Write::setEncoding(Utf8_16::encodingType eType) noexcept {
 
 //=================================================================
 Utf8_Iter::Utf8_Iter() noexcept {
-	reset();
-}
-
-void Utf8_Iter::reset() noexcept {
 	m_pBuf = nullptr;
 	m_pRead = nullptr;
 	m_pEnd = nullptr;
@@ -362,10 +325,6 @@ void Utf8_Iter::toStart() noexcept {
 
 //==================================================
 Utf16_Iter::Utf16_Iter() noexcept {
-	reset();
-}
-
-void Utf16_Iter::reset() noexcept {
 	m_pBuf = nullptr;
 	m_pRead = nullptr;
 	m_pEnd = nullptr;
