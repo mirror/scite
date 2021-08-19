@@ -306,9 +306,9 @@ void SciTEBase::OpenCurrentFile(long long fileSize, bool suppressMessage, bool a
 			wEditor.SetStatus(SA::Status::Ok);
 			return;
 		}
-		CurrentBuffer()->pFileWorker = new FileLoader(this, pdocLoad, filePath, static_cast<size_t>(fileSize), fp);
+		CurrentBuffer()->pFileWorker = std::make_unique<FileLoader>(this, pdocLoad, filePath, static_cast<size_t>(fileSize), fp);
 		CurrentBuffer()->pFileWorker->sleepTime = props.GetInt("asynchronous.sleep");
-		PerformOnNewThread(CurrentBuffer()->pFileWorker);
+		PerformOnNewThread(CurrentBuffer()->pFileWorker.get());
 	} else {
 		wEditor.Allocate(static_cast<SA::Position>(fileSize) + 1000);
 
@@ -893,7 +893,7 @@ SciTEBase::SaveResult SciTEBase::SaveIfUnsureAll() {
 	}
 	if (props.GetInt("save.recent")) {
 		for (int i = 0; i < buffers.lengthVisible; ++i) {
-			Buffer buff = buffers.buffers[i];
+			const Buffer &buff = buffers.buffers[i];
 			AddFileToStack(buff.file);
 		}
 	}
@@ -1118,9 +1118,9 @@ bool SciTEBase::SaveBuffer(const FilePath &saveName, SaveFlags sf) {
 			if (!(sf & sfSynchronous)) {
 				wEditor.SetReadOnly(true);
 				const char *documentBytes = static_cast<const char *>(wEditor.CharacterPointer());
-				CurrentBuffer()->pFileWorker = new FileStorer(this, documentBytes, saveName, lengthDoc, fp, CurrentBuffer()->unicodeMode, (sf & sfProgressVisible));
+				CurrentBuffer()->pFileWorker = std::make_unique<FileStorer>(this, documentBytes, saveName, lengthDoc, fp, CurrentBuffer()->unicodeMode, (sf & sfProgressVisible));
 				CurrentBuffer()->pFileWorker->sleepTime = props.GetInt("asynchronous.sleep");
-				if (PerformOnNewThread(CurrentBuffer()->pFileWorker)) {
+				if (PerformOnNewThread(CurrentBuffer()->pFileWorker.get())) {
 					retVal = true;
 				} else {
 					GUI::gui_string msg = LocaliseMessage("Failed to save file '^0' as thread could not be started.", saveName.AsInternal());

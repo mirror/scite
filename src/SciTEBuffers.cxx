@@ -54,6 +54,30 @@
 
 const GUI::gui_char defaultSessionFileName[] = GUI_TEXT("SciTE.session");
 
+Buffer::Buffer() :
+	file(), doc(nullptr), isDirty(false), isReadOnly(false), failedSave(false), useMonoFont(false), lifeState(empty),
+	unicodeMode(uni8Bit), fileModTime(0), fileModLastAsk(0), documentModTime(0),
+	findMarks(fmNone), futureDo(fdNone) {}
+
+void Buffer::Init() {
+	file.Init();
+	isDirty = false;
+	isReadOnly = false;
+	failedSave = false;
+	useMonoFont = false;
+	lifeState = empty;
+	unicodeMode = uni8Bit;
+	fileModTime = 0;
+	fileModLastAsk = 0;
+	documentModTime = 0;
+	findMarks = fmNone;
+	overrideExtension = "";
+	foldState.clear();
+	bookmarks.clear();
+	pFileWorker.reset();
+	futureDo = fdNone;
+}
+
 void Buffer::DocumentModified() noexcept {
 	documentModTime = time(nullptr);
 }
@@ -66,22 +90,20 @@ bool Buffer::NeedsSave(int delayBeforeSave) const {
 void Buffer::CompleteLoading() noexcept {
 	lifeState = opened;
 	if (pFileWorker && pFileWorker->IsLoading()) {
-		delete pFileWorker;
-		pFileWorker = nullptr;
+		pFileWorker.reset();
 	}
 }
 
 void Buffer::CompleteStoring() {
 	if (pFileWorker && !pFileWorker->IsLoading()) {
-		delete pFileWorker;
-		pFileWorker = nullptr;
+		pFileWorker.reset();
 	}
 	SetTimeFromFile();
 }
 
 void Buffer::AbandonAutomaticSave() {
 	if (pFileWorker && !pFileWorker->IsLoading()) {
-		const FileStorer *pFileStorer = dynamic_cast<FileStorer *>(pFileWorker);
+		const FileStorer *pFileStorer = dynamic_cast<FileStorer *>(pFileWorker.get());
 		if (pFileStorer && !pFileStorer->visibleProgress) {
 			pFileWorker->Cancel();
 			// File is in partially saved state so may be better to remove
@@ -123,7 +145,7 @@ int BufferList::Add() {
 
 int BufferList::GetDocumentByWorker(const FileWorker *pFileWorker) const {
 	for (int i = 0; i < length; i++) {
-		if (buffers[i].pFileWorker == pFileWorker) {
+		if (buffers[i].pFileWorker.get() == pFileWorker) {
 			return i;
 		}
 	}
@@ -160,7 +182,7 @@ void BufferList::RemoveCurrent() {
 	void *currentDoc = buffers[current].doc;
 	buffers[current].CompleteLoading();
 	for (int i = current; i < length - 1; i++) {
-		buffers[i] = buffers[i + 1];
+		buffers[i] = std::move(buffers[i + 1]);
 	}
 	buffers[length - 1].doc = currentDoc;
 
@@ -247,12 +269,12 @@ void BufferList::ShiftTo(int indexFrom, int indexTo) {
 			indexFrom < 0 || indexFrom >= length ||
 			indexTo < 0 || indexTo >= length) return;
 	int step = (indexFrom > indexTo) ? -1 : 1;
-	Buffer tmp = buffers[indexFrom];
+	Buffer tmp = std::move(buffers[indexFrom]);
 	int i;
 	for (i = indexFrom; i != indexTo; i += step) {
-		buffers[i] = buffers[i+step];
+		buffers[i] = std::move(buffers[i+step]);
 	}
-	buffers[indexTo] = tmp;
+	buffers[indexTo] = std::move(tmp);
 	// update stack indexes
 	for (i = 0; i < length; i++) {
 		if (stack[i] == indexFrom) {
@@ -270,9 +292,7 @@ void BufferList::Swap(int indexA, int indexB) {
 	if (indexA == indexB ||
 			indexA < 0 || indexA >= length ||
 			indexB < 0 || indexB >= length) return;
-	Buffer tmp = buffers[indexA];
-	buffers[indexA] = buffers[indexB];
-	buffers[indexB] = tmp;
+	std::swap(buffers[indexA], buffers[indexB]);
 	// update stack indexes
 	for (int i = 0; i < length; i++) {
 		if (stack[i] == indexA) {
@@ -293,7 +313,7 @@ BackgroundActivities BufferList::CountBackgroundActivities() const {
 		if (buffers[i].pFileWorker) {
 			if (!buffers[i].pFileWorker->FinishedJob()) {
 				if (!buffers[i].pFileWorker->IsLoading()) {
-					const FileStorer *fstorer = dynamic_cast<FileStorer *>(buffers[i].pFileWorker);
+					const FileStorer *fstorer = dynamic_cast<FileStorer *>(buffers[i].pFileWorker.get());
 					if (fstorer && !fstorer->visibleProgress)
 						continue;
 				}

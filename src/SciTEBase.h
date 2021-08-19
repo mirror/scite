@@ -91,32 +91,12 @@ public:
 	std::string overrideExtension;	///< User has chosen to use a particular language
 	std::vector<SA::Line> foldState;
 	std::vector<SA::Line> bookmarks;
-	FileWorker *pFileWorker;
+	std::unique_ptr<FileWorker> pFileWorker;
 	PropSetFile props;
 	enum FutureDo { fdNone=0, fdFinishSave=1 } futureDo;
-	Buffer() :
-		file(), doc(nullptr), isDirty(false), isReadOnly(false), failedSave(false), useMonoFont(false), lifeState(empty),
-		unicodeMode(uni8Bit), fileModTime(0), fileModLastAsk(0), documentModTime(0),
-		findMarks(fmNone), pFileWorker(nullptr), futureDo(fdNone) {}
+	Buffer();
 
-	void Init() {
-		file.Init();
-		isDirty = false;
-		isReadOnly = false;
-		failedSave = false;
-		useMonoFont = false;
-		lifeState = empty;
-		unicodeMode = uni8Bit;
-		fileModTime = 0;
-		fileModLastAsk = 0;
-		documentModTime = 0;
-		findMarks = fmNone;
-		overrideExtension = "";
-		foldState.clear();
-		bookmarks.clear();
-		pFileWorker = nullptr;
-		futureDo = fdNone;
-	}
+	void Init();
 
 	void SetTimeFromFile() {
 		fileModTime = file.ModifiedTime();
