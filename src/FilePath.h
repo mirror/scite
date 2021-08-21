@@ -53,9 +53,9 @@ public:
 	bool operator==(const FilePath &other) const noexcept;
 	bool operator<(const FilePath &other) const noexcept;
 	bool IsSet() const noexcept;
-	bool IsUntitled() const;
-	bool IsAbsolute() const;
-	bool IsRoot() const;
+	bool IsUntitled() const noexcept;
+	bool IsAbsolute() const noexcept;
+	bool IsRoot() const noexcept;
 	static int RootLength() noexcept;
 	const GUI::gui_char *AsInternal() const noexcept;
 	std::string AsUTF8() const;
@@ -72,7 +72,7 @@ public:
 	FILE *Open(const GUI::gui_char *mode) const noexcept;
 	std::string Read() const;
 	void Remove() const noexcept;
-	time_t ModifiedTime() const;
+	time_t ModifiedTime() const noexcept;
 	long long GetFileLength() const noexcept;
 	bool Exists() const noexcept;
 	bool IsDirectory() const noexcept;

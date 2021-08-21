@@ -132,12 +132,12 @@ bool FilePath::IsSet() const noexcept {
 	return fileName.length() > 0;
 }
 
-bool FilePath::IsUntitled() const {
+bool FilePath::IsUntitled() const noexcept {
 	const size_t dirEnd = fileName.rfind(pathSepChar);
 	return (dirEnd == GUI::gui_string::npos) || (!fileName[dirEnd+1]);
 }
 
-bool FilePath::IsAbsolute() const {
+bool FilePath::IsAbsolute() const noexcept {
 	if (fileName.length() == 0)
 		return false;
 #if defined(__unix__) || defined(__APPLE__)
@@ -152,7 +152,7 @@ bool FilePath::IsAbsolute() const {
 	return false;
 }
 
-bool FilePath::IsRoot() const {
+bool FilePath::IsRoot() const noexcept {
 #ifdef WIN32
 	if ((fileName[0] == pathSepChar) && (fileName[1] == pathSepChar) && (fileName.find(pathSepString, 2) == GUI::gui_string::npos))
 		return true; // UNC path like \\server
@@ -320,8 +320,7 @@ FilePath FilePath::AbsolutePath() const {
 #ifdef WIN32
 	// The runtime libraries for GCC and Visual C++ give different results for _fullpath
 	// so use the OS.
-	GUI::gui_char absPath[2000];
-	absPath[0] = '\0';
+	GUI::gui_char absPath[2000] {};
 	GUI::gui_char *fileBit = nullptr;
 	::GetFullPathNameW(AsInternal(), sizeof(absPath)/sizeof(absPath[0]), absPath, &fileBit);
 	return FilePath(absPath);
@@ -441,7 +440,7 @@ void FilePath::Remove() const noexcept {
 #define R_OK 4
 #endif
 
-time_t FilePath::ModifiedTime() const {
+time_t FilePath::ModifiedTime() const noexcept {
 	if (IsUntitled())
 		return 0;
 	if (access(AsInternal(), R_OK) == -1)
@@ -465,7 +464,7 @@ long long FilePath::GetFileLength() const noexcept {
 #ifdef WIN32
 	// Using Win32 API as stat variants are complex and there were problems with stat
 	// working on XP when compiling with XP compatibility flag.
-	WIN32_FILE_ATTRIBUTE_DATA fad;
+	WIN32_FILE_ATTRIBUTE_DATA fad {};
 	if (!GetFileAttributesEx(AsInternal(), GetFileExInfoStandard, &fad))
 		return 0;
 	return (static_cast<unsigned long long>(fad.nFileSizeHigh) << 32) + fad.nFileSizeLow;
@@ -588,10 +587,11 @@ static bool MakeLongPath(const GUI::gui_char *shortPath, GUI::gui_string &longPa
 
 	if (!kernelTried) {
 		kernelTried = true;
-		HMODULE hModule = ::GetModuleHandle(TEXT("kernel32.dll"));
+		HMODULE hModule = ::GetModuleHandleW(L"kernel32.dll");
 		if (hModule) {
-			// attempt to get GetLongPathNameW implemented in Windows 2000 or newer
-			pfnGetLong = reinterpret_cast<GetLongSig>(::GetProcAddress(hModule, "GetLongPathNameW"));
+			// Attempt to get GetLongPathNameW implemented in Windows 2000 or newer.
+			FARPROC function = ::GetProcAddress(hModule, "GetLongPathNameW");
+			memcpy(&pfnGetLong, &function, sizeof(pfnGetLong));
 		}
 	}
 
@@ -701,7 +701,7 @@ std::string CommandExecute(const GUI::gui_char *command, const GUI::gui_char *di
 
 		DWORD bytesRead = 0;
 		DWORD bytesAvail = 0;
-		char buffer[8 * 1024];
+		char buffer[8 * 1024] {};
 
 		if (::PeekNamedPipe(hPipeRead, buffer, sizeof(buffer), &bytesRead, &bytesAvail, nullptr)) {
 			if (bytesAvail > 0) {
