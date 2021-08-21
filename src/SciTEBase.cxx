@@ -1776,43 +1776,37 @@ bool SciTEBase::PerformInsertAbbreviation() {
 	const std::string expbuf = UnSlashString(data.c_str());
 	const size_t expbuflen = expbuf.length();
 
-	SA::Position caretPos = wEditor.SelectionStart();
-	SA::Position selStart = caretPos;
+	const SA::Position selStart = wEditor.SelectionStart();
 	SA::Position selLength = wEditor.SelectionEnd() - selStart;
-	bool atStart = true;
-	bool doublePipe = false;
-	size_t lastPipe = expbuflen;
-	SA::Line currentLineNumber = wEditor.LineFromPosition(caretPos);
+	SA::Position caretPos = -1; // caret position
+	SA::Line currentLineNumber = wEditor.LineFromPosition(selStart);
 	int indent = 0;
 	const int indentSize = wEditor.Indent();
-	const int indentChars = (wEditor.UseTabs() && wEditor.TabWidth() ? wEditor.TabWidth() : 1);
+	const int indentChars = wEditor.UseTabs() ? wEditor.TabWidth() : 1;
 	int indentExtra = 0;
 	bool isIndent = true;
 	const SA::EndOfLine eolMode = wEditor.EOLMode();
+
+	wEditor.BeginUndoAction();
+
+	// add temporary characters around the selection for correct line indentation
+	// if there are tabs or spaces at the beginning or end of the selection
+	wEditor.InsertText(selStart, "|");
+	selLength++;
+	wEditor.InsertText(selStart + selLength, "|");
 	if (props.GetInt("indent.automatic")) {
 		indent = GetLineIndentation(currentLineNumber);
 	}
 
-	// find last |, can't be strrchr(exbuf, '|') because of ||
-	for (size_t i = expbuflen; i--;) {
-		if (expbuf[i] == '|' && (i == 0 || expbuf[i-1] != '|')) {
-			lastPipe = i;
-			break;
-		}
-	}
-
-	wEditor.BeginUndoAction();
+	wEditor.GotoPos(selStart);
 
 	// add the abbreviation one character at a time
 	for (size_t i = 0; i < expbuflen; i++) {
 		const char c = expbuf[i];
 		std::string abbrevText;
 		if (isIndent && c == '\t') {
-			if (props.GetInt("indent.automatic")) {
-				indentExtra++;
-				SetLineIndentation(currentLineNumber, indent + indentSize * indentExtra);
-				caretPos += indentSize / indentChars;
-			}
+			SetLineIndentation(currentLineNumber, GetLineIndentation(currentLineNumber) + indentSize);
+			indentExtra += indentSize;
 		} else {
 			switch (c) {
 			case '|':
@@ -1821,23 +1815,19 @@ bool SciTEBase::PerformInsertAbbreviation() {
 					// put '|' into the line
 					abbrevText += c;
 					i++;
-				} else if (i != lastPipe) {
-					doublePipe = true;
-				} else {
+				} else if (caretPos == -1) {
+					caretPos = wEditor.CurrentPos();
+
 					// indent on multiple lines
 					SA::Line j = currentLineNumber + 1; // first line indented as others
 					currentLineNumber = wEditor.LineFromPosition(caretPos + selLength);
 					for (; j <= currentLineNumber; j++) {
-						SetLineIndentation(j, GetLineIndentation(j) + indentSize * indentExtra);
-						caretPos += indentExtra * indentSize / indentChars;
+						SetLineIndentation(j, GetLineIndentation(j) + indentExtra);
+						selLength += indentExtra / indentChars;
 					}
 
-					atStart = false;
-					caretPos += selLength;
+					wEditor.GotoPos(caretPos + selLength);
 				}
-				break;
-			case '\r':
-				// backward compatibility
 				break;
 			case '\n':
 				if (eolMode == SA::EndOfLine::CrLf || eolMode == SA::EndOfLine::Cr) {
@@ -1851,34 +1841,32 @@ bool SciTEBase::PerformInsertAbbreviation() {
 				abbrevText += c;
 				break;
 			}
-			if (caretPos > wEditor.Length()) {
-				caretPos = wEditor.Length();
-			}
-			wEditor.InsertText(caretPos, abbrevText.c_str());
-			if (!doublePipe && atStart) {
-				selStart += abbrevText.length();
-			}
-			caretPos += abbrevText.length();
+			wEditor.ReplaceSel(abbrevText.c_str());
 			if (c == '\n') {
 				isIndent = true;
 				indentExtra = 0;
 				currentLineNumber++;
 				SetLineIndentation(currentLineNumber, indent);
-				caretPos += indent / indentChars;
-				if (!doublePipe && atStart) {
-					selStart += indent / indentChars;
-				}
 			} else {
 				isIndent = false;
 			}
 		}
 	}
 
-	// set the caret to the desired position
-	if (doublePipe) {
-		selLength = 0;
+	// make sure the caret is set before the last temporary character and remove it
+	if (caretPos == -1) {
+		caretPos = wEditor.CurrentPos();
+		wEditor.GotoPos(caretPos + selLength);
 	}
-	wEditor.SetSel(selStart, selStart + selLength);
+	wEditor.DeleteRange(wEditor.CurrentPos(), 1);
+
+	// set the caret before the first temporary character and remove it
+	wEditor.GotoPos(caretPos);
+	wEditor.DeleteRange(wEditor.CurrentPos(), 1);
+	selLength--;
+
+	// restore selection
+	wEditor.SetSelectionEnd(caretPos + selLength);
 
 	wEditor.EndUndoAction();
 	return true;
@@ -1917,14 +1905,18 @@ bool SciTEBase::StartExpandAbbreviation() {
 	SA::Line currentLineNumber = GetCurrentLineNumber();
 	int indent = 0;
 	const int indentSize = wEditor.Indent();
-	int indentExtra = 0;
 	bool isIndent = true;
 	const SA::EndOfLine eolMode = wEditor.EOLMode();
+
+	wEditor.BeginUndoAction();
+
+	// add a temporary character for correct line indentation
+	// if there are tabs or spaces after the caret
+	wEditor.InsertText(position, "|");
 	if (props.GetInt("indent.automatic")) {
 		indent = GetLineIndentation(currentLineNumber);
 	}
 
-	wEditor.BeginUndoAction();
 	wEditor.SetSel(position - abbrevLength, position);
 
 	// add the abbreviation one character at a time
@@ -1932,8 +1924,7 @@ bool SciTEBase::StartExpandAbbreviation() {
 		const char c = expbuf[i];
 		std::string abbrevText;
 		if (isIndent && c == '\t') {
-			indentExtra++;
-			SetLineIndentation(currentLineNumber, indent + indentSize * indentExtra);
+			SetLineIndentation(currentLineNumber, GetLineIndentation(currentLineNumber) + indentSize);
 		} else {
 			switch (c) {
 			case '|':
@@ -1966,7 +1957,6 @@ bool SciTEBase::StartExpandAbbreviation() {
 			wEditor.ReplaceSel(abbrevText.c_str());
 			if (c == '\n') {
 				isIndent = true;
-				indentExtra = 0;
 				currentLineNumber++;
 				SetLineIndentation(currentLineNumber, indent);
 			} else {
@@ -1974,6 +1964,9 @@ bool SciTEBase::StartExpandAbbreviation() {
 			}
 		}
 	}
+
+	// remove the temporary character
+	wEditor.DeleteRange(wEditor.CurrentPos(), 1);
 
 	// set the caret to the desired position
 	if (caretPos != -1) {
