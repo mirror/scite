@@ -1379,7 +1379,7 @@ void SciTEBase::OpenFilesFromStdin() {
 }
 
 class BufferedFile {
-	FILE *fp;
+	FileHolder fp;
 	bool readAll;
 	bool exhausted;
 	enum {bufLen = 64 * 1024};
@@ -1391,7 +1391,7 @@ class BufferedFile {
 			if (readAll || !fp) {
 				exhausted = true;
 			} else {
-				valid = fread(buffer, 1, bufLen, fp);
+				valid = fread(buffer, 1, bufLen, fp.get());
 				if (valid < bufLen) {
 					readAll = true;
 				}
@@ -1400,19 +1400,12 @@ class BufferedFile {
 		}
 	}
 public:
-	explicit BufferedFile(const FilePath &fPath) {
-		fp = fPath.Open(fileRead);
+	explicit BufferedFile(const FilePath &fPath) : fp(fPath.Open(fileRead)) {
 		readAll = false;
-		exhausted = fp == nullptr;
+		exhausted = !fp;
 		buffer[0] = 0;
 		pos = 0;
 		valid = 0;
-	}
-	~BufferedFile() {
-		if (fp) {
-			fclose(fp);
-		}
-		fp = nullptr;
 	}
 	bool Exhausted() const noexcept {
 		return exhausted;

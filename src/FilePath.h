@@ -19,6 +19,17 @@ class FilePath;
 
 typedef std::vector<FilePath> FilePathSet;
 
+struct FileCloser {
+	// Called by unique_ptr to close the file
+	void operator()(FILE *file) noexcept {
+		if (file) {
+			fclose(file);
+		}
+	}
+};
+
+using FileHolder = std::unique_ptr<FILE, FileCloser>;
+
 class FilePath {
 	GUI::gui_string fileName;
 public:

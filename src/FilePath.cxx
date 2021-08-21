@@ -15,6 +15,7 @@
 #include <string_view>
 #include <vector>
 #include <algorithm>
+#include <memory>
 #include <chrono>
 
 #include <fcntl.h>
@@ -419,15 +420,14 @@ static constexpr size_t readBlockSize = 64 * 1024;
 
 std::string FilePath::Read() const {
 	std::string data;
-	FILE *fp = Open(fileRead);
+	FileHolder fp(Open(fileRead));
 	if (fp) {
 		std::string block(readBlockSize, '\0');
-		size_t lenBlock = fread(&block[0], 1, block.size(), fp);
+		size_t lenBlock = fread(&block[0], 1, block.size(), fp.get());
 		while (lenBlock > 0) {
 			data.append(block, 0, lenBlock);
-			lenBlock = fread(&block[0], 1, block.size(), fp);
+			lenBlock = fread(&block[0], 1, block.size(), fp.get());
 		}
-		fclose(fp);
 	}
 	return data;
 }
@@ -478,15 +478,11 @@ long long FilePath::GetFileLength() const noexcept {
 }
 
 bool FilePath::Exists() const noexcept {
-	bool ret = false;
 	if (IsSet()) {
-		FILE *fp = Open(fileRead);
-		if (fp) {
-			ret = true;
-			fclose(fp);
-		}
+		FileHolder fp(Open(fileRead));
+		return fp.operator bool();
 	}
-	return ret;
+	return false;
 }
 
 bool FilePath::IsDirectory() const noexcept {

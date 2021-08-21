@@ -20,6 +20,7 @@
 #include <map>
 #include <set>
 #include <algorithm>
+#include <memory>
 #include <chrono>
 #include <sstream>
 
