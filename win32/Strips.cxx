@@ -6,6 +6,7 @@
 // The License.txt file describes the conditions under which this software may be distributed.
 
 #include "SciTEWin.h"
+#include "DLLFunction.h"
 
 void *PointerFromWindow(HWND hWnd) noexcept {
 	return reinterpret_cast<void *>(::GetWindowLongPtr(hWnd, 0));
@@ -52,6 +53,8 @@ namespace {
 HINSTANCE ApplicationInstance() noexcept {
 	return ::GetModuleHandle(nullptr);
 }
+
+constexpr COLORREF colourNoMatch = RGB(0xff, 0x66, 0x66);
 
 void SetFontHandle(const GUI::Window &w, HFONT hfont) noexcept {
 	SetWindowFont(HwndOf(w), hfont, 0);
@@ -139,6 +142,11 @@ constexpr WPARAM SubCommandOfWParam(WPARAM wParam) noexcept {
 	return wParam >> 16;
 }
 
+bool IsSameOrChild(const GUI::Window &wParent, HWND wChild) noexcept {
+	HWND hwnd = HwndOf(wParent);
+	return (wChild == hwnd) || IsChild(hwnd, wChild);
+}
+
 }
 
 LRESULT PASCAL BaseWin::StWndProc(
@@ -201,6 +209,38 @@ bool MatchAccessKey(const std::string &caption, int key) noexcept {
 	return false;
 }
 
+#define PACKVERSION(major,minor) MAKELONG(minor,major)
+
+DWORD GetVersion(LPCWSTR lpszDllName) noexcept {
+	DWORD dwVersion = 0;
+	HINSTANCE hinstDll = ::LoadLibraryW(lpszDllName);
+	if (hinstDll) {
+		DLLGETVERSIONPROC pDllGetVersion = DLLFunction<DLLGETVERSIONPROC>(
+			hinstDll, "DllGetVersion");
+
+		if (pDllGetVersion) {
+			DLLVERSIONINFO dvi{};
+			dvi.cbSize = sizeof(dvi);
+
+			const HRESULT hr = (*pDllGetVersion)(&dvi);
+			if (SUCCEEDED(hr)) {
+				dwVersion = PACKVERSION(dvi.dwMajorVersion, dvi.dwMinorVersion);
+			}
+		}
+		::FreeLibrary(hinstDll);
+	}
+	return dwVersion;
+}
+
+DWORD versionComctl = 0;
+
+bool HideKeyboardCues() noexcept {
+	BOOL b = FALSE;
+	if (::SystemParametersInfo(SPI_GETKEYBOARDCUES, 0, &b, 0) == 0)
+		return FALSE;
+	return !b;
+}
+
 }
 
 static const char *textFindPrompt = "Fi&nd:";
@@ -233,30 +273,6 @@ GUI::Window Strip::CreateText(const char *text) {
 	SetFontHandle(w, fontText);
 	w.Show();
 	return w;
-}
-
-#define PACKVERSION(major,minor) MAKELONG(minor,major)
-
-static DWORD GetVersion(LPCTSTR lpszDllName) noexcept {
-	DWORD dwVersion = 0;
-	HINSTANCE hinstDll = ::LoadLibrary(lpszDllName);
-	if (hinstDll) {
-		DLLGETVERSIONPROC pDllGetVersion = reinterpret_cast<DLLGETVERSIONPROC>(
-				::GetProcAddress(hinstDll, "DllGetVersion"));
-
-		if (pDllGetVersion) {
-			DLLVERSIONINFO dvi;
-			::ZeroMemory(&dvi, sizeof(dvi));
-			dvi.cbSize = sizeof(dvi);
-
-			const HRESULT hr = (*pDllGetVersion)(&dvi);
-			if (SUCCEEDED(hr)) {
-				dwVersion = PACKVERSION(dvi.dwMajorVersion, dvi.dwMinorVersion);
-			}
-		}
-		::FreeLibrary(hinstDll);
-	}
-	return dwVersion;
 }
 
 GUI::Window Strip::CreateButton(const char *text, size_t ident, bool check) {
@@ -318,7 +334,10 @@ GUI::Window Strip::CreateButton(const char *text, size_t ident, bool check) {
 			break;
 		}
 
-		const UINT flags = (GetVersion(TEXT("COMCTL32")) >= PACKVERSION(6, 0)) ?
+		if (!versionComctl) {
+			versionComctl = GetVersion(L"COMCTL32");
+		}
+		const UINT flags = (versionComctl >= PACKVERSION(6, 0)) ?
 				   (LR_DEFAULTSIZE) : (LR_DEFAULTSIZE|LR_LOADMAP3DCOLORS);
 		HBITMAP bm = static_cast<HBITMAP>(::LoadImage(
 				::ApplicationInstance(), MAKEINTRESOURCE(resNum + resDifference), IMAGE_BITMAP,
@@ -570,13 +589,6 @@ void Strip::SetTheme() noexcept {
 		closeSize.cy = closeSize.cy * scale / 96;
 	}
 #endif
-}
-
-static bool HideKeyboardCues() noexcept {
-	BOOL b=FALSE;
-	if (::SystemParametersInfo(SPI_GETKEYBOARDCUES, 0, &b, 0) == 0)
-		return FALSE;
-	return !b;
 }
 
 LRESULT Strip::EditColour(HWND hwnd, HDC hdc) noexcept {
@@ -880,8 +892,6 @@ void BackgroundStrip::SetProgress(const GUI::gui_string &explanation, size_t siz
 	::SendMessage(HwndOf(wProgress), PBM_SETRANGE32, 0, size/scaleProgress);
 	::SendMessage(HwndOf(wProgress), PBM_SETPOS, progress/scaleProgress, 0);
 }
-
-static constexpr COLORREF colourNoMatch = RGB(0xff, 0x66, 0x66);
 
 void SearchStripBase::Creation() {
 	Strip::Creation();
@@ -1370,11 +1380,6 @@ void ReplaceStrip::Focus() noexcept {
 	::SetFocus(HwndOf(wText));
 }
 
-static bool IsSameOrChild(const GUI::Window &wParent, HWND wChild) noexcept {
-	HWND hwnd = HwndOf(wParent);
-	return (wChild == hwnd) || IsChild(hwnd, wChild);
-}
-
 bool ReplaceStrip::KeyDown(WPARAM key) {
 	if (!visible)
 		return false;
@@ -1638,7 +1643,9 @@ bool UserStrip::KeyDown(WPARAM key) {
 	return false;
 }
 
-static StripCommand NotificationToStripCommand(int notification) noexcept {
+namespace {
+
+StripCommand NotificationToStripCommand(int notification) noexcept {
 	switch (notification) {
 	case BN_CLICKED:
 		return StripCommand::clicked;
@@ -1656,6 +1663,8 @@ static StripCommand NotificationToStripCommand(int notification) noexcept {
 	default:
 		return StripCommand::unknown;
 	}
+}
+
 }
 
 bool UserStrip::Command(WPARAM wParam) {
