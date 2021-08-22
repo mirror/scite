@@ -54,8 +54,18 @@
 
 const GUI::gui_char defaultSessionFileName[] = GUI_TEXT("SciTE.session");
 
+void BufferDocReleaser::operator()(void *pDoc) noexcept {
+	if (pDoc) {
+		try {
+			pSci->ReleaseDocument(pDoc);
+		} catch (...) {
+			// ReleaseDocument must not throw, ignore if it does.
+		}
+	}
+}
+
 Buffer::Buffer() :
-	file(), doc(nullptr), isDirty(false), isReadOnly(false), failedSave(false), useMonoFont(false), lifeState(empty),
+	file(), isDirty(false), isReadOnly(false), failedSave(false), useMonoFont(false), lifeState(empty),
 	unicodeMode(uni8Bit), fileModTime(0), fileModLastAsk(0), documentModTime(0),
 	findMarks(fmNone), futureDo(fdNone) {}
 
@@ -76,6 +86,7 @@ void Buffer::Init() {
 	bookmarks.clear();
 	pFileWorker.reset();
 	futureDo = fdNone;
+	doc.reset();
 }
 
 void Buffer::DocumentModified() noexcept {
@@ -178,13 +189,11 @@ void BufferList::RemoveInvisible(int index) {
 }
 
 void BufferList::RemoveCurrent() {
-	// Delete and move up to fill gap but ensure doc pointer is saved.
-	void *currentDoc = buffers[current].doc;
+	// Delete and move up to fill gap.
 	buffers[current].CompleteLoading();
 	for (int i = current; i < length - 1; i++) {
 		buffers[i] = std::move(buffers[i + 1]);
 	}
-	buffers[length - 1].doc = currentDoc;
 
 	if (length > 1) {
 		CommitStackSelection();
@@ -379,24 +388,20 @@ void *SciTEBase::GetDocumentAt(int index) {
 	if (index < 0 || index >= buffers.size()) {
 		return nullptr;
 	}
-	if (buffers.buffers[index].doc == nullptr) {
+	if (!buffers.buffers[index].doc) {
 		// Create a new document buffer
-		buffers.buffers[index].doc = wEditor.CreateDocument(0, SA::DocumentOption::Default);
+		buffers.buffers[index].doc = BufferDoc(wEditor.CreateDocument(0, SA::DocumentOption::Default), docReleaser);
 	}
-	return buffers.buffers[index].doc;
+	return buffers.buffers[index].doc.get();
 }
 
 void SciTEBase::SwitchDocumentAt(int index, void *pdoc) {
 	if (index < 0 || index >= buffers.size()) {
 		return;
 	}
-	void *pdocOld = buffers.buffers[index].doc;
-	buffers.buffers[index].doc = pdoc;
-	if (pdocOld) {
-		wEditor.ReleaseDocument(pdocOld);
-	}
+	buffers.buffers[index].doc = BufferDoc(pdoc, docReleaser);
 	if (index == buffers.Current()) {
-		wEditor.SetDocPointer(buffers.buffers[index].doc);
+		wEditor.SetDocPointer(buffers.buffers[index].doc.get());
 	}
 }
 
@@ -540,8 +545,8 @@ void SciTEBase::InitialiseBuffers() {
 	if (!buffers.initialised) {
 		buffers.initialised = true;
 		// First document is the default from creation of control
-		buffers.buffers[0].doc = wEditor.DocPointer();
-		wEditor.AddRefDocument(buffers.buffers[0].doc); // We own this reference
+		buffers.buffers[0].doc = BufferDoc(wEditor.DocPointer(), docReleaser);
+		wEditor.AddRefDocument(buffers.buffers[0].doc.get()); // We own this reference
 		if (buffers.size() == 1) {
 			// Single buffer mode, delete the Buffers main menu entry
 			DestroyMenuItem(menuBuffers, 0);

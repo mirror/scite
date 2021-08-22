@@ -912,13 +912,12 @@ SciTEBase::SaveResult SciTEBase::SaveIfUnsureAll() {
 	// Definitely going to exit now, so delete all documents
 	// Set editor back to initial document
 	if (buffers.lengthVisible > 0) {
-		wEditor.SetDocPointer(buffers.buffers[0].doc);
+		wEditor.SetDocPointer(buffers.buffers[0].doc.get());
 	}
 	// Release all the extra documents
 	for (int j = 0; j < buffers.size(); j++) {
 		if (buffers.buffers[j].doc && !buffers.buffers[j].pFileWorker) {
-			wEditor.ReleaseDocument(buffers.buffers[j].doc);
-			buffers.buffers[j].doc = nullptr;
+			buffers.buffers[j].doc.reset();
 		}
 	}
 	// Initial document will be deleted when editor deleted

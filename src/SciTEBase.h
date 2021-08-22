@@ -74,10 +74,19 @@ public:
 
 struct FileWorker;
 
+// Scintilla documents can only be released by calling a method on a Scintilla
+// instance so store a Scintilla instance in the release functor
+struct BufferDocReleaser {
+	GUI::ScintillaWindow *pSci = nullptr;	// Non-owning
+	void operator()(void *pDoc) noexcept;
+};
+
+using BufferDoc = std::unique_ptr<void, BufferDocReleaser>;
+
 class Buffer {
 public:
 	RecentFile file;
-	void *doc;
+	BufferDoc doc;
 	bool isDirty;
 	bool isReadOnly;
 	bool failedSave;
@@ -307,6 +316,7 @@ protected:
 	StringList apis;
 	std::string apisFileNames;
 	std::string functionDefinition;
+	BufferDocReleaser docReleaser;
 
 	int diagnosticStyleStart;
 	enum { diagnosticStyles=4};
