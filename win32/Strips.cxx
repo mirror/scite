@@ -36,7 +36,7 @@ GUI::gui_string TextOfWindow(HWND hWnd) {
 GUI::gui_string ClassNameOfWindow(HWND hWnd) {
 	// In the documentation of WNDCLASS:
 	// "The maximum length for lpszClassName is 256."
-	constexpr size_t maxClassNameLength = 256+1;	// +1 for NUL
+	constexpr int maxClassNameLength = 256+1;	// +1 for NUL
 	GUI::gui_char className[maxClassNameLength];
 	if (::GetClassNameW(hWnd, className, maxClassNameLength))
 		return GUI::gui_string(className);
@@ -332,6 +332,8 @@ GUI::Window Strip::CreateButton(const char *text, size_t ident, bool check) {
 		case IDDIRECTIONUP:
 			resNum = IDBM_UP;
 			break;
+		default:
+			break;
 		}
 
 		if (!versionComctl) {
@@ -469,9 +471,9 @@ void Strip::Paint(HDC hDC) {
 		if (hTheme) {
 #ifdef THEME_AVAILABLE
 			int closeAppearence = CBS_NORMAL;
-			if (closeState == csOver) {
+			if (closeState == StripCloseState::over) {
 				closeAppearence = CBS_HOT;
-			} else if (closeState == csClickedOver) {
+			} else if (closeState == StripCloseState::clickedOver) {
 				closeAppearence = CBS_PUSHED;
 			}
 			::DrawThemeBackground(hTheme, hDC, WP_SMALLCLOSEBUTTON, closeAppearence,
@@ -479,9 +481,9 @@ void Strip::Paint(HDC hDC) {
 #endif
 		} else {
 			int closeAppearence = 0;
-			if (closeState == csOver) {
+			if (closeState == StripCloseState::over) {
 				closeAppearence = DFCS_HOT;
-			} else if (closeState == csClickedOver) {
+			} else if (closeState == StripCloseState::clickedOver) {
 				closeAppearence = DFCS_PUSHED;
 			}
 
@@ -533,7 +535,7 @@ void Strip::InvalidateClose() {
 	::InvalidateRect(Hwnd(), &rc, TRUE);
 }
 
-void Strip::Redraw() {
+void Strip::Redraw() noexcept {
 	::InvalidateRect(Hwnd(), nullptr, TRUE);
 }
 
@@ -543,19 +545,19 @@ bool Strip::MouseInClose(GUI::Point pt) {
 }
 
 void Strip::TrackMouse(GUI::Point pt) {
-	const stripCloseState closeStateStart = closeState;
+	const StripCloseState closeStateStart = closeState;
 	if (MouseInClose(pt)) {
-		if (closeState == csNone)
-			closeState = csOver;
-		if (closeState == csClicked)
-			closeState = csClickedOver;
+		if (closeState == StripCloseState::none)
+			closeState = StripCloseState::over;
+		if (closeState == StripCloseState::clicked)
+			closeState = StripCloseState::clickedOver;
 	} else {
-		if (closeState == csOver)
-			closeState = csNone;
-		if (closeState == csClickedOver)
-			closeState = csClicked;
+		if (closeState == StripCloseState::over)
+			closeState = StripCloseState::none;
+		if (closeState == StripCloseState::clickedOver)
+			closeState = StripCloseState::clicked;
 	}
-	if ((closeState != csNone) && !capturedMouse) {
+	if ((closeState != StripCloseState::none) && !capturedMouse) {
 		TRACKMOUSEEVENT tme {};
 		tme.cbSize = sizeof(tme);
 		tme.dwFlags = TME_LEAVE;
@@ -722,7 +724,7 @@ LRESULT Strip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 
 	case WM_LBUTTONDOWN:
 		if (MouseInClose(PointFromLong(lParam))) {
-			closeState = csClickedOver;
+			closeState = StripCloseState::clickedOver;
 			InvalidateClose();
 			capturedMouse = true;
 			::SetCapture(Hwnd());
@@ -739,7 +741,7 @@ LRESULT Strip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 				Close();
 			}
 			capturedMouse = false;
-			closeState = csNone;
+			closeState = StripCloseState::none;
 			InvalidateClose();
 			::ReleaseCapture();
 		}
@@ -747,7 +749,7 @@ LRESULT Strip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 
 	case WM_MOUSELEAVE:
 		if (!capturedMouse) {
-			closeState = csNone;
+			closeState = StripCloseState::none;
 			InvalidateClose();
 		}
 		break;
@@ -1040,7 +1042,7 @@ LRESULT SearchStrip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 LRESULT FindReplaceStrip::EditColour(HWND hwnd, HDC hdc) noexcept {
 	if (GetDlgItem(static_cast<HWND>(GetID()), IDFINDWHAT) == ::GetParent(hwnd)) {
 		if (pSearcher->FindHasText() &&
-				(incrementalBehaviour != simple) &&
+				(incrementalBehaviour != IncrementalBehaviour::simple) &&
 				pSearcher->failedfind) {
 			return NoMatchColour(hdc);
 		}
@@ -1057,7 +1059,7 @@ void FindReplaceStrip::SetFindFromSource(ChangingSource source) {
 }
 
 void FindReplaceStrip::NextIncremental(ChangingSource source) {
-	if (incrementalBehaviour == simple)
+	if (incrementalBehaviour == IncrementalBehaviour::simple)
 		return;
 	if (pSearcher->findWhat.length()) {
 		pSearcher->MoveBack();
@@ -1078,7 +1080,7 @@ void FindReplaceStrip::SetIncrementalBehaviour(int behaviour) noexcept {
 }
 
 void FindReplaceStrip::MarkIncremental() {
-	if (incrementalBehaviour == showAllMatches) {
+	if (incrementalBehaviour == IncrementalBehaviour::showAllMatches) {
 		pSearcher->MarkAll(Searcher::MarkPurpose::incremental);
 	}
 }
@@ -1175,7 +1177,7 @@ bool FindStrip::KeyDown(WPARAM key) {
 		return true;
 	if (key == VK_RETURN) {
 		if (IsChild(Hwnd(), ::GetFocus())) {
-			if (incrementalBehaviour == simple) {
+			if (incrementalBehaviour == IncrementalBehaviour::simple) {
 				Next(false, IsKeyDown(VK_SHIFT));
 			} else {
 				if (pSearcher->closeFind == Searcher::CloseFind::closePrevent) {
@@ -1221,7 +1223,7 @@ bool FindStrip::Command(WPARAM wParam) {
 	const int control = ControlIDOfWParam(wParam);
 	const WPARAM subCommand = SubCommandOfWParam(wParam);
 	if (control == IDOK) {
-		if (incrementalBehaviour == simple) {
+		if (incrementalBehaviour == IncrementalBehaviour::simple) {
 			Next(false, false);
 		} else {
 			if (pSearcher->closeFind == Searcher::CloseFind::closePrevent) {
@@ -1431,7 +1433,7 @@ void ReplaceStrip::HandleReplaceCommand(int cmd, bool reverseFind) {
 			pSearcher->FindNext(reverseFind);
 		}
 	} else if (cmd == IDREPLACE) {
-		pSearcher->ReplaceOnce(incrementalBehaviour == simple);
+		pSearcher->ReplaceOnce(incrementalBehaviour == IncrementalBehaviour::simple);
 		NextIncremental(ChangingSource::edit);	// Show not found colour if no more matches.
 	} else if ((cmd == IDREPLACEALL) || (cmd == IDREPLACEINSEL)) {
 		//~ replacements = pSciTEWin->ReplaceAll(cmd == IDREPLACEINSEL);

@@ -40,7 +40,7 @@ protected:
 	int space;
 	bool capturedMouse;
 	SIZE closeSize;
-	enum stripCloseState { csNone, csOver, csClicked, csClickedOver } closeState;
+	enum class StripCloseState { none, over, clicked, clickedOver } closeState;
 	GUI::Window wToolTip;
 	int entered;
 	int lineHeight;
@@ -60,7 +60,7 @@ protected:
 	GUI::Rectangle LineArea(int line);
 	virtual int Lines() const noexcept;
 	void InvalidateClose();
-	void Redraw();
+	void Redraw() noexcept;
 	bool MouseInClose(GUI::Point pt);
 	void TrackMouse(GUI::Point pt);
 	void SetTheme() noexcept;
@@ -71,7 +71,7 @@ protected:
 	virtual void ShowPopup();
 public:
 	bool visible;
-	Strip() : fontText(0), hTheme(0), scale(96), space(2), capturedMouse(false), closeState(csNone), entered(0), lineHeight(20), visible(false) {
+	Strip() noexcept : fontText(0), hTheme(0), scale(96), space(2), capturedMouse(false), closeState(StripCloseState::none), entered(0), lineHeight(20), visible(false) {
 		closeSize.cx = 11;
 		closeSize.cy = 11;
 	}
@@ -86,9 +86,6 @@ class BackgroundStrip : public Strip {
 	GUI::Window wExplanation;
 	GUI::Window wProgress;
 public:
-	BackgroundStrip() {
-	}
-	virtual ~BackgroundStrip() = default;
 	void Creation() override;
 	void Destruction() noexcept override;
 	void Close() override;
@@ -106,9 +103,6 @@ protected:
 	Searcher *pSearcher = nullptr;
 	HBRUSH hbrNoMatch {};
 public:
-	SearchStripBase() {
-	}
-	virtual ~SearchStripBase() = default;
 	void SetSearcher(Searcher *pSearcher_) noexcept {
 		pSearcher = pSearcher_;
 	}
@@ -122,9 +116,6 @@ class SearchStrip : public SearchStripBase {
 	GUI::Window wText;
 	GUI::Window wButton;
 public:
-	SearchStrip() {
-	}
-	virtual ~SearchStrip() = default;
 	void Creation() override;
 	void Destruction() noexcept override;
 	void Close() override;
@@ -147,16 +138,15 @@ protected:
 	GUI::Window wCheckRE;
 	GUI::Window wCheckBE;
 	GUI::Window wCheckWrap;
-	enum IncrementalBehaviour { simple, incremental, showAllMatches };
+	enum class IncrementalBehaviour { simple, incremental, showAllMatches };
 	IncrementalBehaviour incrementalBehaviour;
-	FindReplaceStrip() noexcept : incrementalBehaviour(simple) {
+	FindReplaceStrip() noexcept : incrementalBehaviour(IncrementalBehaviour::simple) {
 	}
 	LRESULT EditColour(HWND hwnd, HDC hdc) noexcept override;
 	enum class ChangingSource { edit, combo };
 	void SetFindFromSource(ChangingSource source);
 	void NextIncremental(ChangingSource source);
 public:
-	virtual ~FindReplaceStrip() = default;
 	void Close() override;
 	void SetIncrementalBehaviour(int behaviour) noexcept;
 	void MarkIncremental();
@@ -169,7 +159,6 @@ class FindStrip : public FindReplaceStrip {
 public:
 	FindStrip() noexcept {
 	}
-	virtual ~FindStrip() = default;
 	void Creation() override;
 	void Destruction() noexcept override;
 	void Focus() noexcept;
@@ -193,7 +182,6 @@ class ReplaceStrip : public FindReplaceStrip {
 public:
 	ReplaceStrip() noexcept {
 	}
-	virtual ~ReplaceStrip() = default;
 	void Creation() override;
 	void Destruction() noexcept override;
 	int Lines() const noexcept override;
@@ -218,7 +206,6 @@ public:
 	UserStrip() noexcept : extender(nullptr), pSciTEWin(nullptr) {
 		lineHeight = 26;
 	}
-	virtual ~UserStrip() = default;
 	void Creation() override;
 	void Destruction() noexcept override;
 	void Close() override;
