@@ -36,7 +36,6 @@ struct ECForDirectory {
 class EditorConfig : public IEditorConfig {
 	std::vector<ECForDirectory> config;
 public:
-	~EditorConfig() override;
 	void ReadFromDirectory(const FilePath &dirStart) override;
 	std::map<std::string, std::string> MapFromAbsolutePath(const FilePath &absolutePath) const override;
 	void Clear() noexcept override;
@@ -211,8 +210,6 @@ void ECForDirectory::ReadOneDirectory(const FilePath &dir) {
 		}
 	}
 }
-
-EditorConfig::~EditorConfig() = default;
 
 void EditorConfig::ReadFromDirectory(const FilePath &dirStart) {
 	FilePath dir = dirStart;
