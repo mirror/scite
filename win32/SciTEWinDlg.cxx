@@ -841,12 +841,16 @@ static void FillComboFromProps(HWND combo, PropSetFile &props) {
 	const char *key = nullptr;
 	const char *val = nullptr;
 	if (props.GetFirst(key, val)) {
+		SetWindowRedraw(combo, FALSE);
 		GUI::gui_string wkey = GUI::StringFromUTF8(key);
 		ComboBoxAppend(combo, wkey);
 		while (props.GetNext(key, val)) {
 			wkey = GUI::StringFromUTF8(key);
 			ComboBoxAppend(combo, wkey);
 		}
+		SetWindowRedraw(combo, TRUE);
+		::RedrawWindow(combo, nullptr, {},
+			RDW_ERASE | RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN);
 	}
 }
 
