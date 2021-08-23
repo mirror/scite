@@ -196,7 +196,7 @@ void UniqueInstance::SendCommands(const char *cmdLine) {
 	// Send 3 messages:
 	// 1) first the cwd, so paths relative to the new instance can be
 	// resolved in the old instance,
-	// 2) then the real command line, 
+	// 2) then the real command line,
 	// 3) then setdefaultcwd to set a reasonable default cwd and prevent
 	// locking of directories.
 	std::string cwdCmd("\"-cwd:");

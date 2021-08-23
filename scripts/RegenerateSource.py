@@ -281,7 +281,7 @@ def RegenerateAll():
     Regenerate(pathSciTE / "win32" / "scite.mak", "#", propFiles)
     Regenerate(pathSciTE / "src" / "SciTEProps.cxx", "//", lex.lexerProperties)
     Regenerate(pathSciTE / "doc" / "SciTEDoc.html", "<!--", propertiesHTML)
-    
+
     sciHistory = sciDirectory / "doc" / "ScintillaHistory.html"
     sciCredits = ScintillaData.FindCredits(sciHistory, False)
     sciItems = ExtractItems(sciHistory)

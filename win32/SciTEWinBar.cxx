@@ -84,7 +84,7 @@ void SciTEWin::UpdateTabs(const std::vector<GUI::gui_string> &tabNames) {
 	size_t tabChange = std::distance(tabNames.begin(), misNames);
 
 	if (tabNames.size() == tabNamesCurrent.size() && tabNames.size() == tabChange) {
-		// Most updates change nothing on the tabs so return early. 
+		// Most updates change nothing on the tabs so return early.
 		return;
 	}
 
