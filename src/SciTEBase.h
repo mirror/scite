@@ -295,7 +295,10 @@ protected:
 	       indicatorSpellingMistake,
 	       indicatorSentinel
 	     };
-	enum { markerBookmark = 1 };
+
+	static constexpr int markerBookmark = 1;
+	static constexpr int markerFilterMatch = 2;
+
 	ComboMemory memFiles;
 	ComboMemory memDirectory;
 	std::string parameterisedCommand;
@@ -472,6 +475,8 @@ protected:
 	// Handle buffers
 	void *GetDocumentAt(int index);
 	void SwitchDocumentAt(int index, void *pdoc);
+	void SaveFolds(std::vector<SA::Line> &folds);
+	void RestoreFolds(const std::vector<SA::Line> &folds);
 	void UpdateBuffersCurrent();
 	bool IsBufferAvailable() const noexcept;
 	bool CanMakeRoom(bool maySaveIfDirty = true);
@@ -674,6 +679,9 @@ protected:
 	void HideMatch() override;
 	virtual void FindIncrement() = 0;
 	int IncrementSearchMode();
+	virtual void Filter() = 0;
+	virtual bool FilterShowing() { return false; }
+	int FilterSearch();
 	virtual void FindInFiles() = 0;
 	virtual void Replace() = 0;
 	void ReplaceOnce(bool showWarnings=true) override;
@@ -744,6 +752,7 @@ protected:
 	void SaveTitledBuffers();
 	virtual void CopyAsRTF() {}
 	virtual void CopyPath() {}
+	void SetFoldWidth();
 	void SetLineNumberWidth();
 	void MenuCommand(int cmdID, int source = 0);
 	void FoldChanged(SA::Line line, SA::FoldLevel levelNow, SA::FoldLevel levelPrev);
@@ -769,6 +778,7 @@ protected:
 	void RemoveFindMarks();
 	SA::FindOption SearchFlags(bool regularExpressions) const;
 	void MarkAll(MarkPurpose purpose) override;
+	void FilterAll(bool showMatches) override;
 	void BookmarkAdd(SA::Line lineno = -1);
 	void BookmarkDelete(SA::Line lineno = -1);
 	bool BookmarkPresent(SA::Line lineno = -1);

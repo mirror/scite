@@ -259,6 +259,59 @@ const char * up_x_xpm[] = {
 ".......#@&......",
 "................"};
 
+/* XPM */
+static const char *filter_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 3 1 ",
+"@ c #000000",
+". c #808080",
+"  c #FFFFFF",
+/* pixels */
+"      @   @     ",
+" ......@.@..... ",
+" .      @     . ",
+" ......@.@..... ",
+"      @   @     ",
+"                ",
+" @@@@@@@@@@@@@@ ",
+" @            @ ",
+" @@@@@@@@@@@@@@ ",
+"                ",
+"      @   @     ",
+" ......@.@..... ",
+" .      @     . ",
+" ......@.@..... ",
+"      @   @     ",
+"                "
+};
+
+/* XPM */
+static const char *context_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 4 1 ",
+"@ c #000000",
+". c #808080",
+"X c #C1C1C1",
+"  c #FFFFFF",
+/* pixels */
+"                ",
+"                ",
+" .........      ",
+"                ",
+" ............   ",
+"                ",
+" ........       ",
+"                ",
+" @@@@@@@@@@@@   ",
+"                ",
+" .........      ",
+"                ",
+" .............. ",
+"                ",
+" ...........    ",
+"                "
+};
+
 const SearchOption toggles[] = {
 	{"Match _whole word only", IDM_WHOLEWORD, IDWHOLEWORD},
 	{"_Case sensitive", IDM_MATCHCASE, IDMATCHCASE},
@@ -266,6 +319,8 @@ const SearchOption toggles[] = {
 	{"Transform _backslash expressions", IDM_UNSLASH, IDUNSLASH},
 	{"Wrap ar_ound", IDM_WRAPAROUND, IDWRAP},
 	{"_Up", IDM_DIRECTIONUP, IDDIRECTIONUP},
+	{"Fil_ter", IDM_FILTERSTATE, IDFILTERSTATE},
+	{"Conte_xt", IDM_CONTEXTVISIBLE, IDCONTEXTVISIBLE},
 };
 
 // Has to be in same order as toggles
@@ -276,6 +331,8 @@ const char **xpmImages[] = {
 	backslash_x_xpm,
 	around_x_xpm,
 	up_x_xpm,
+	filter_xpm,
+	context_xpm,
 };
 
 }
@@ -306,7 +363,10 @@ void FindReplaceStrip::NextIncremental() {
 	if (initializingSearch)
 		return;
 
-	if (incrementalBehaviour == simple)
+	if (!pSearcher->filterState) {
+		pSearcher->FilterAll(false);
+	}
+	if ((incrementalBehaviour == simple) && !pSearcher->filterState)
 		return;
 	if (pSearcher->findWhat.length()) {
 		pSearcher->MoveBack();
@@ -318,7 +378,11 @@ void FindReplaceStrip::NextIncremental() {
 		pSearcher->FindNext(pSearcher->reverseFind, false, true);
 		pSearcher->SetCaretAsStart();
 	}
-	MarkIncremental();
+	if (pSearcher->filterState) {
+		pSearcher->FilterAll(true);
+	} else {
+		MarkIncremental();
+	}
 	WEntry::SetValid(wComboFind.Entry(), !pSearcher->FindHasText() || !pSearcher->failedfind);
 	wComboFind.InvalidateAll();
 }
@@ -522,7 +586,7 @@ gboolean FindStrip::Focus(GtkDirectionType direction) {
 }
 
 void ReplaceStrip::Creation(GtkWidget *container) {
-	WTable tableReplace(2, 7);
+	WTable tableReplace(2, 8);
 	SetID(tableReplace);
 	Strip::Creation(container);
 	gtk_container_set_border_width(GTK_CONTAINER(GetID()), 2);
@@ -552,12 +616,13 @@ void ReplaceStrip::Creation(GtkWidget *container) {
 			G_CALLBACK(sigReplaceAll.Function), this);
 	tableReplace.Add(wButtonReplaceAll, 1, false, 0, 0);
 
-	CreateChecks({0,1,2,3,4});
+	CreateChecks({ 0, 1, 2, 3, 4, 6, 7 });
 
 	tableReplace.Add(*wCheck[0], 1, false, 0, 0);
 	tableReplace.Add(*wCheck[1], 1, false, 0, 0);
-	tableReplace.Add(*wCheck[2], 1, false, 0, 0);
-
+	tableReplace.Add(*wCheck[5], 1, false, 0, 0);
+	tableReplace.Add(*wCheck[6], 1, false, 0, 0);
+	
 	wStaticReplace.Create(localiser->Text(textReplacePrompt));
 	tableReplace.Label(wStaticReplace);
 
@@ -582,6 +647,7 @@ void ReplaceStrip::Creation(GtkWidget *container) {
 			G_CALLBACK(sigReplaceInSelection.Function), this);
 	tableReplace.Add(wButtonReplaceInSelection, 1, false, 0, 0);
 
+	tableReplace.Add(*wCheck[2], 1, false, 0, 0);
 	tableReplace.Add(*wCheck[3], 1, false, 0, 0);
 	tableReplace.Add(*wCheck[4], 1, false, 0, 0);
 
@@ -650,6 +716,7 @@ void ReplaceStrip::Close() {
 			pSearcher->InsertFindInMemory();
 		}
 		Strip::Close();
+		pSearcher->FilterAll(false);
 		pSearcher->UIClosed();
 	}
 }
@@ -719,6 +786,96 @@ gboolean ReplaceStrip::Focus(GtkDirectionType direction) {
 		return TRUE;
 	}
 	return FALSE;
+}
+
+void FilterStrip::Creation(GtkWidget *container) {
+	WTable table(1, 10);
+	SetID(table);
+	Strip::Creation(container);
+	gtk_container_set_border_width(GTK_CONTAINER(GetID()), 1);
+	gtk_box_pack_start(GTK_BOX(container), GTK_WIDGET(GetID()), FALSE, FALSE, 0);
+	wStaticFind.Create(localiser->Text(textFindPrompt).c_str());
+	table.Label(wStaticFind);
+
+	g_signal_connect(G_OBJECT(GetID()), "set-focus-child", G_CALLBACK(ChildFocusSignal), this);
+	g_signal_connect(G_OBJECT(GetID()), "focus", G_CALLBACK(FocusSignal), this);
+
+	wComboFind.Create();
+	table.Add(wComboFind, 1, true, 0, 0);
+
+	gtk_widget_show(wComboFind);
+
+	gtk_widget_show(GTK_WIDGET(GetID()));
+
+	ConnectCombo();
+
+	gtk_label_set_mnemonic_widget(GTK_LABEL(wStaticFind.GetID()), GTK_WIDGET(wComboFind.Entry()));
+
+	CreateChecks({ 0, 1, 2, 3, 7 });
+
+	for (std::unique_ptr<WCheckDraw> &check : wCheck) {
+		table.Add(*check, 1, false, 0, 0);
+	}
+}
+
+void FilterStrip::Destruction() {
+}
+
+void FilterStrip::Show(int buttonHeight) {
+	pSearcher->failedfind = false;
+	WEntry::SetValid(wComboFind.Entry(), true);
+	pSearcher->SetCaretAsStart();
+	Strip::Show(buttonHeight);
+
+	gtk_widget_set_size_request(wComboFind, widthCombo, buttonHeight);
+	gtk_widget_set_size_request(GTK_WIDGET(wComboFind.Entry()), -1, buttonHeight);
+	gtk_widget_set_size_request(wStaticFind, -1, heightStatic);
+
+	initializingSearch = true;	// Avoid search for initial value in search entry
+	wComboFind.FillFromMemory(pSearcher->memFinds.AsVector());
+	gtk_entry_set_text(wComboFind.Entry(), pSearcher->findWhat.c_str());
+	SetToggles();
+	initializingSearch = false;
+	if (pSearcher->FindHasText()) {
+		pSearcher->FilterAll(true);
+	}
+
+	gtk_widget_grab_focus(GTK_WIDGET(wComboFind.Entry()));
+}
+
+void FilterStrip::Close() {
+	if (visible) {
+		if (pSearcher->havefound) {
+			pSearcher->InsertFindInMemory();
+		}
+		Strip::Close();
+		pSearcher->FilterAll(false);
+		pSearcher->UIClosed();
+	}
+}
+
+void FilterStrip::MenuAction(guint action) {
+	if (allowMenuActions) {
+		pSearcher->FlagFromCmd(action) = !pSearcher->FlagFromCmd(action);
+		SetToggles();
+		InvalidateAll();
+	}
+}
+
+void FilterStrip::GrabFields() {
+	pSearcher->SetFind(wComboFind.Text());
+	GrabToggles();
+}
+
+void FilterStrip::NextIncremental() {
+	GrabFields();
+	pSearcher->FilterAll(pSearcher->FindHasText());
+}
+
+void FilterStrip::FindNextCmd() {
+	GrabFields();
+	pSearcher->FilterAll(pSearcher->FindHasText());
+	wComboFind.FillFromMemory(pSearcher->memFinds.AsVector());
 }
 
 void UserStrip::Creation(GtkWidget *container) {

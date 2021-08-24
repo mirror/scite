@@ -259,6 +259,8 @@ static SearchOption toggles[] = {
 	{"Transform &backslash expressions", IDM_UNSLASH, IDUNSLASH},
 	{"Wrap ar&ound", IDM_WRAPAROUND, IDWRAP},
 	{"&Up", IDM_DIRECTIONUP, IDDIRECTIONUP},
+	{"Fil&ter", IDM_FILTERSTATE, IDFILTERSTATE},
+	{"Conte&xt", IDM_CONTEXTVISIBLE, IDCONTEXTVISIBLE},
 	{nullptr, 0, 0},
 };
 
@@ -331,6 +333,12 @@ GUI::Window Strip::CreateButton(const char *text, size_t ident, bool check) {
 			break;
 		case IDDIRECTIONUP:
 			resNum = IDBM_UP;
+			break;
+		case IDFILTERSTATE:
+			resNum = IDBM_FILTER;
+			break;
+		case IDCONTEXTVISIBLE:
+			resNum = IDBM_CONTEXT;
 			break;
 		default:
 			break;
@@ -1059,7 +1067,10 @@ void FindReplaceStrip::SetFindFromSource(ChangingSource source) {
 }
 
 void FindReplaceStrip::NextIncremental(ChangingSource source) {
-	if (incrementalBehaviour == IncrementalBehaviour::simple)
+	if (!pSearcher->filterState) {
+		pSearcher->FilterAll(false);
+	}
+	if ((incrementalBehaviour == IncrementalBehaviour::simple) && !pSearcher->filterState)
 		return;
 	if (pSearcher->findWhat.length()) {
 		pSearcher->MoveBack();
@@ -1071,7 +1082,11 @@ void FindReplaceStrip::NextIncremental(ChangingSource source) {
 		pSearcher->FindNext(pSearcher->reverseFind, false, true);
 		pSearcher->SetCaretAsStart();
 	}
-	MarkIncremental();	// Mark all secondary hits
+	if (pSearcher->filterState) {
+		pSearcher->FilterAll(true);
+	} else {
+		MarkIncremental();	// Mark all secondary hits
+	}
 	wText.InvalidateAll();
 }
 
@@ -1313,6 +1328,9 @@ void ReplaceStrip::Creation() {
 	wCheckBE = CreateButton(toggles[SearchOption::tBackslash].label, toggles[SearchOption::tBackslash].id, true);
 
 	wCheckWrap = CreateButton(toggles[SearchOption::tWrap].label, toggles[SearchOption::tWrap].id, true);
+
+	wCheckFilter = CreateButton(toggles[SearchOption::tFilter].label, toggles[SearchOption::tFilter].id, true);
+	wCheckContext = CreateButton(toggles[SearchOption::tContext].label, toggles[SearchOption::tContext].id, true);
 }
 
 void ReplaceStrip::Destruction() noexcept {
@@ -1346,6 +1364,7 @@ void ReplaceStrip::Size() {
 		checkWidth,
 		checkWidth,
 		checkWidth,
+		checkWidth,
 	});
 
 	Interval verticalButton(rcLine.top - 1, rcLine.bottom);
@@ -1357,6 +1376,8 @@ void ReplaceStrip::Size() {
 	SetWindowPosition(wButtonReplaceAll, positions[3], verticalButton);
 	SetWindowPosition(wCheckWord, positions[4], verticalCheck);
 	SetWindowPosition(wCheckCase, positions[5], verticalCheck);
+	SetWindowPosition(wCheckFilter, positions[6], verticalCheck);
+	SetWindowPosition(wCheckContext, positions[7], verticalCheck);
 
 	rcLine = LineArea(1);
 
@@ -1410,8 +1431,10 @@ bool ReplaceStrip::KeyDown(WPARAM key) {
 void ReplaceStrip::ShowPopup() {
 	GUI::Menu popup;
 	popup.CreatePopUp();
-	for (int i=SearchOption::tWord; i<=SearchOption::tWrap; i++) {
-		AddToPopUp(popup, toggles[i].label, toggles[i].cmd, pSearcher->FlagFromCmd(toggles[i].cmd));
+	for (int i = SearchOption::tWord; i <= SearchOption::tContext; i++) {
+		if (i != SearchOption::tUp) {
+			AddToPopUp(popup, toggles[i].label, toggles[i].cmd, pSearcher->FlagFromCmd(toggles[i].cmd));
+		}
 	}
 	const GUI::Rectangle rcButton = wCheckWord.GetPosition();
 	const GUI::Point pt(rcButton.left, rcButton.bottom);
@@ -1440,6 +1463,7 @@ void ReplaceStrip::HandleReplaceCommand(int cmd, bool reverseFind) {
 		pSearcher->ReplaceAll(cmd == IDREPLACEINSEL);
 		NextIncremental(ChangingSource::edit);	// Show not found colour if no more matches.
 	}
+
 	//GUI::gui_string replDone = GUI::StringFromInteger(replacements);
 	//dlg.SetItemText(IDREPLDONE, replDone.c_str());
 }
@@ -1478,11 +1502,22 @@ bool ReplaceStrip::Command(WPARAM wParam) {
 	case IDREGEXP:
 	case IDUNSLASH:
 	case IDWRAP:
+	case IDCONTEXTVISIBLE:
 	case IDM_WHOLEWORD:
 	case IDM_MATCHCASE:
 	case IDM_REGEXP:
 	case IDM_WRAPAROUND:
 	case IDM_UNSLASH:
+	case IDM_CONTEXTVISIBLE:
+		pSearcher->FlagFromCmd(control) = !pSearcher->FlagFromCmd(control);
+		NextIncremental(ChangingSource::edit);
+		break;
+
+	case IDM_FILTERSTATE:
+	case IDFILTERSTATE:
+		if (pSearcher->filterState) {
+			// Expand all folds
+		}
 		pSearcher->FlagFromCmd(control) = !pSearcher->FlagFromCmd(control);
 		NextIncremental(ChangingSource::edit);
 		break;
@@ -1501,6 +1536,8 @@ void ReplaceStrip::CheckButtons() noexcept {
 	CheckButton(wCheckRE, pSearcher->regExp);
 	CheckButton(wCheckWrap, pSearcher->wrapFind);
 	CheckButton(wCheckBE, pSearcher->unSlash);
+	CheckButton(wCheckFilter, pSearcher->filterState);
+	CheckButton(wCheckContext, pSearcher->contextVisible);
 	entered--;
 }
 
@@ -1520,6 +1557,156 @@ void ReplaceStrip::ShowStrip() {
 
 	pSearcher->ScrollEditorIfNeeded();
 	MarkIncremental();
+}
+
+void FilterStrip::Creation() {
+	SearchStripBase::Creation();
+
+	wStaticFind = CreateText(textFindPrompt);
+
+	wText = CreateWindowEx(0, TEXT("ComboBox"), TEXT(""),
+		WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | CBS_DROPDOWN | CBS_AUTOHSCROLL,
+		50, 2, 300, 80,
+		Hwnd(), HmenuID(IDFINDWHAT), ::ApplicationInstance(), nullptr);
+	SetFontHandle(wText, fontText);
+	wText.Show();
+
+	const GUI::Rectangle rcCombo = wText.GetPosition();
+	lineHeight = rcCombo.Height() + space + 1;
+
+	wCheckWord = CreateButton(toggles[SearchOption::tWord].label, toggles[SearchOption::tWord].id, true);
+	wCheckCase = CreateButton(toggles[SearchOption::tCase].label, toggles[SearchOption::tCase].id, true);
+	wCheckRE = CreateButton(toggles[SearchOption::tRegExp].label, toggles[SearchOption::tRegExp].id, true);
+	wCheckBE = CreateButton(toggles[SearchOption::tBackslash].label, toggles[SearchOption::tBackslash].id, true);
+	wCheckContext = CreateButton(toggles[SearchOption::tContext].label, toggles[SearchOption::tContext].id, true);
+}
+
+void FilterStrip::Destruction() noexcept {
+	SearchStripBase::Destruction();
+}
+
+void FilterStrip::Size() {
+	if (!visible)
+		return;
+	Strip::Size();
+	GUI::Rectangle rcArea = LineArea(0);
+	rcArea.left += space;
+
+	const Interval verticalButton(rcArea.top - 1, rcArea.bottom);
+	const Interval verticalCheck(rcArea.top, rcArea.bottom);
+
+	const int checkWidth = rcArea.Height() - 1;	// Using height to make square
+
+	const std::vector<Interval> positions = Distribute(rcArea, 4, {
+		WidthControl(wStaticFind),
+		0,
+		checkWidth,
+		checkWidth,
+		checkWidth,
+		checkWidth,
+		checkWidth,
+		});
+
+	SetWindowPosition(wStaticFind, positions[0], Interval(rcArea.top + 3, rcArea.bottom));
+	SetWindowPosition(wText, positions[1], Interval(rcArea.top, rcArea.bottom + 60));
+	SetWindowPosition(wCheckWord, positions[2], verticalCheck);
+	SetWindowPosition(wCheckCase, positions[3], verticalCheck);
+	SetWindowPosition(wCheckRE, positions[4], verticalCheck);
+	SetWindowPosition(wCheckBE, positions[5], verticalCheck);
+	SetWindowPosition(wCheckContext, positions[6], verticalCheck);
+
+	Redraw();
+}
+
+void FilterStrip::Paint(HDC hDC) {
+	Strip::Paint(hDC);
+}
+
+void FilterStrip::Focus() noexcept {
+	::SetFocus(HwndOf(wText));
+}
+
+bool FilterStrip::KeyDown(WPARAM key) {
+	if (!visible)
+		return false;
+	if (Strip::KeyDown(key))
+		return true;
+	if (key == VK_RETURN) {
+		if (IsChild(Hwnd(), ::GetFocus())) {
+			Filter(ChangingSource::edit);
+			return true;
+		}
+	}
+	return false;
+}
+
+void FilterStrip::Filter(ChangingSource source) {
+	SetFindFromSource(source);
+	pSearcher->FilterAll(true);
+}
+
+void FilterStrip::ShowPopup() {
+	GUI::Menu popup;
+	popup.CreatePopUp();
+	for (int i = SearchOption::tWord; i <= SearchOption::tContext; i++) {
+		if ((i != SearchOption::tWrap) && (i != SearchOption::tUp) && (i != SearchOption::tFilter)) {
+			AddToPopUp(popup, toggles[i].label, toggles[i].cmd, pSearcher->FlagFromCmd(toggles[i].cmd));
+		}
+	}
+	const GUI::Rectangle rcButton = wCheckContext.GetPosition();
+	const GUI::Point pt(rcButton.left, rcButton.bottom);
+	popup.Show(pt, *this);
+}
+
+bool FilterStrip::Command(WPARAM wParam) {
+	if (entered)
+		return false;
+	const int control = ControlIDOfWParam(wParam);
+	const WPARAM subCommand = SubCommandOfWParam(wParam);
+	if (control == IDOK) {
+		Filter(ChangingSource::edit);
+		return true;
+	} else if (control == IDFINDWHAT) {
+		if (subCommand == CBN_EDITCHANGE) {
+			Filter(ChangingSource::edit);
+			return true;
+		} else if (subCommand == CBN_SELCHANGE) {
+			Filter(ChangingSource::combo);
+			return true;
+		}
+	} else {
+		pSearcher->FlagFromCmd(control) = !pSearcher->FlagFromCmd(control);
+		Filter(ChangingSource::edit);
+		CheckButtons();
+	}
+	return false;
+}
+
+void FilterStrip::CheckButtons() noexcept {
+	entered++;
+	CheckButton(wCheckWord, pSearcher->wholeWord);
+	CheckButton(wCheckCase, pSearcher->matchCase);
+	CheckButton(wCheckRE, pSearcher->regExp);
+	CheckButton(wCheckBE, pSearcher->unSlash);
+	CheckButton(wCheckContext, pSearcher->contextVisible);
+	entered--;
+}
+
+void FilterStrip::ShowStrip() {
+	pSearcher->failedfind = false;
+	Focus();
+	pSearcher->SetCaretAsStart();
+	pSearcher->InsertFindInMemory();
+	SetComboFromMemory(wText, pSearcher->memFinds);
+	SetComboText(wText, pSearcher->findWhat, ComboSelection::all);
+	CheckButtons();
+	pSearcher->ScrollEditorIfNeeded();
+	Filter(ChangingSource::edit);
+}
+
+void FilterStrip::Close() {
+	pSearcher->FilterAll(false);
+	FindReplaceStrip::Close();
 }
 
 void UserStrip::Creation() {

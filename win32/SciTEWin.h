@@ -222,10 +222,11 @@ protected:
 	BackgroundStrip backgroundStrip;
 	UserStrip userStrip;
 	SearchStrip searchStrip;
+	FilterStrip filterStrip;
 	FindStrip findStrip;
 	ReplaceStrip replaceStrip;
 
-	enum { bandTool, bandTab, bandContents, bandUser, bandBackground, bandSearch, bandFind, bandReplace, bandStatus };
+	enum { bandTool, bandTab, bandContents, bandUser, bandBackground, bandSearch, bandFind, bandReplace, bandFilter, bandStatus };
 	std::vector<Band> bands;
 
 	void ReadLocalization() override;
@@ -344,6 +345,9 @@ protected:
 	static INT_PTR CALLBACK GrepDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	void CloseOtherFinders(int cmdID);
 	void FindIncrement() override;
+	void Filter() override;
+	bool FilterShowing() override;
+
 	void Find() override;
 	void FindInFiles() override;
 	void Replace() override;

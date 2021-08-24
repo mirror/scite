@@ -459,6 +459,7 @@ protected:
 
 	FindStrip findStrip;
 	ReplaceStrip replaceStrip;
+	FilterStrip filterStrip;
 
 	DialogFindReplace dlgFindReplace;
 	DialogParameters dlgParameters;
@@ -552,6 +553,8 @@ protected:
 	GtkWidget *TranslatedLabel(const char *original);
 	void CloseOtherFinders(int cmdID);
 	void FindIncrement() override;
+	void Filter() override;
+	bool FilterShowing() override;
 	void FindInFilesResponse(int responseID);
 	void FindInFiles() override;
 	void Replace() override;
@@ -1818,7 +1821,7 @@ void SciTEGTK::Find() {
 		findStrip.SetIncrementalBehaviour(props.GetInt("find.strip.incremental"));
 		findStrip.Show(props.GetInt("strip.button.height", -1));
 	} else {
-		if (findStrip.visible || replaceStrip.visible)
+		if (findStrip.visible || replaceStrip.visible || filterStrip.visible)
 			return;
 		FindReplace(false);
 	}
@@ -2191,7 +2194,7 @@ void SciTEGTK::Replace() {
 		replaceStrip.SetIncrementalBehaviour(props.GetInt("replace.strip.incremental"));
 		replaceStrip.Show(props.GetInt("strip.button.height", -1));
 	} else {
-		if (findStrip.visible || replaceStrip.visible)
+		if (findStrip.visible || replaceStrip.visible || filterStrip.visible)
 			return;
 		FindReplace(true);
 	}
@@ -3114,7 +3117,7 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 		}
 	}
 
-	if (findStrip.KeyDown(event) || replaceStrip.KeyDown(event) || userStrip.KeyDown(event)) {
+	if (findStrip.KeyDown(event) || replaceStrip.KeyDown(event) || filterStrip.KeyDown(event) || userStrip.KeyDown(event)) {
 		g_signal_stop_emission_by_name(G_OBJECT(PWidget(wSciTE)), "key_press_event");
 		return 1;
 	}
@@ -3514,6 +3517,7 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/Search/F_ind in Files...", "<control><shift>F", menuSig, IDM_FINDINFILES, 0},
 	                                      {"/Search/_Replace...", "<control>H", menuSig, IDM_REPLACE, 0},
 	                                      {"/Search/Incremental _Search", "<control><alt>I", menuSig, IDM_INCSEARCH, 0},
+	                                      {"/Search/Fi_lter", "<control><alt>F", menuSig, IDM_FILTER, 0},
 	                                      {"/Search/Selection _Add Next", "<control><shift>D", menuSig, IDM_SELECTIONADDNEXT, 0},
 	                                      {"/Search/Selection Add _Each", "", menuSig, IDM_SELECTIONADDEACH, 0},
 	                                      {"/Search/sep3", NULL, NULL, 0, "<Separator>"},
@@ -3714,10 +3718,14 @@ void SciTEGTK::CreateStrips(GtkWidget *boxMain) {
 	replaceStrip.SetLocalizer(&localiser);
 	replaceStrip.SetSearcher(this);
 	replaceStrip.Creation(boxMain);
+
+	filterStrip.SetLocalizer(&localiser);
+	filterStrip.SetSearcher(this);
+	filterStrip.Creation(boxMain);
 }
 
 bool SciTEGTK::StripHasFocus() const {
-	return findStrip.VisibleHasFocus() || replaceStrip.VisibleHasFocus() || userStrip.VisibleHasFocus();
+	return findStrip.VisibleHasFocus() || replaceStrip.VisibleHasFocus() || filterStrip.VisibleHasFocus() || userStrip.VisibleHasFocus();
 }
 
 void SciTEGTK::LayoutUI() {
@@ -3955,6 +3963,7 @@ void SciTEGTK::CreateUI() {
 	gtk_widget_hide(wIncrementPanel);
 	gtk_widget_hide(PWidget(findStrip));
 	gtk_widget_hide(PWidget(replaceStrip));
+	gtk_widget_hide(PWidget(filterStrip));
 
 #if GTK_CHECK_VERSION(3,0,0)
 	// Create a named style "entryInvalid" that can be applied to a search entry
@@ -3988,6 +3997,8 @@ void SciTEGTK::CloseOtherFinders(int cmdID) {
 		replaceStrip.Close();
 	if (cmdID != IDM_INCSEARCH)
 		gtk_widget_hide(wIncrementPanel);
+	if (cmdID != IDM_FILTER)
+		filterStrip.Close();
 }
 
 void SciTEGTK::FindIncrementSetColour(bool valid) {
@@ -4043,6 +4054,25 @@ void SciTEGTK::FindIncrement() {
 	gtk_widget_show(wIncrementPanel);
 	gtk_widget_grab_focus(GTK_WIDGET(IncSearchEntry));
 	gtk_entry_set_text(GTK_ENTRY(IncSearchEntry), "");
+}
+
+void SciTEGTK::Filter() {
+	if (!FilterShowing()) {
+		// Save current folds
+		SaveFolds(CurrentBuffer()->foldState);
+		// Then unfold them all so filtering is only source of line hiding
+		wEditor.FoldAll(SA::FoldAction::Expand);
+	}
+	SelectionIntoFind();
+	CloseOtherFinders(IDM_FILTER);
+	filterStrip.visible = true;
+	failedfind = false;
+	SizeSubWindows();
+	filterStrip.Show(props.GetInt("strip.button.height", -1));
+}
+
+bool SciTEGTK::FilterShowing() {
+	return filterStrip.visible || (replaceStrip.visible && filterState);
 }
 
 void SciTEGTK::SetIcon() {

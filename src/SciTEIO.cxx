@@ -427,6 +427,10 @@ void SciTEBase::CompleteOpen(OpenCompletion oc) {
 	}
 	wEditor.GotoPos(0);
 
+	if (FilterShowing()) {
+		FilterAll(true);
+	}
+
 	CurrentBuffer()->CompleteLoading();
 
 	Redraw();

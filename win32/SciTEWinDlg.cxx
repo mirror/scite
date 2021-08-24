@@ -153,6 +153,8 @@ bool SciTEWin::ModelessHandler(MSG *pmsg) {
 			return true;
 		if (replaceStrip.KeyDown(pmsg->wParam))
 			return true;
+		if (filterStrip.KeyDown(pmsg->wParam))
+			return true;
 		if (userStrip.KeyDown(pmsg->wParam))
 			return true;
 	}
@@ -913,6 +915,8 @@ void DialogFindReplace::GrabFields() {
 	if (!pSearcher->replacing) {
 		pSearcher->reverseFind = Checked(IDDIRECTIONUP);
 	}
+	pSearcher->filterState = Checked(IDFILTERSTATE);
+	pSearcher->contextVisible = Checked(IDCONTEXTVISIBLE);
 	if (advanced) {
 		pSearcher->findInStyle = Checked(IDFINDINSTYLE);
 		pSearcher->findStyle = atoi(ItemTextU(IDFINDSTYLE).c_str());
@@ -1094,6 +1098,8 @@ void SciTEWin::UIClosed() {
 		bands[SciTEWin::bandFind].visible = false;
 	if (!replaceStrip.visible)
 		bands[SciTEWin::bandReplace].visible = false;
+	if (!filterStrip.visible)
+		bands[SciTEWin::bandFilter].visible = false;
 	UpdateStatusBar(false);
 	SizeSubWindows();
 	WindowSetFocus(wEditor);
@@ -1106,6 +1112,8 @@ void SciTEWin::CloseOtherFinders(int cmdID) {
 		replaceStrip.CloseIfOpen();
 	if (cmdID != IDM_INCSEARCH)
 		searchStrip.CloseIfOpen();
+	if (cmdID != IDM_FILTER)
+		filterStrip.CloseIfOpen();
 }
 
 void SciTEWin::FindIncrement() {
@@ -1120,6 +1128,29 @@ void SciTEWin::FindIncrement() {
 	} else {
 		WindowSetFocus(wEditor);
 	}
+}
+
+void SciTEWin::Filter() {
+	if (!FilterShowing()) {
+		// Save current folds
+		SaveFolds(CurrentBuffer()->foldState);
+		// Then unfold them all so filtering is only source of line hiding
+		wEditor.FoldAll(SA::FoldAction::Expand);
+	}
+	SelectionIntoFind();
+	CloseOtherFinders(IDM_FILTER);
+	filterStrip.visible = true;
+	failedfind = false;
+	SizeSubWindows();
+	if (filterStrip.visible) {
+		filterStrip.ShowStrip();
+	} else {
+		WindowSetFocus(wEditor);
+	}
+}
+
+bool SciTEWin::FilterShowing() {
+	return filterStrip.visible || (replaceStrip.visible && filterState);
 }
 
 void SciTEWin::Find() {
@@ -1367,6 +1398,9 @@ void SciTEWin::Replace() {
 
 	if (props.GetInt("replace.use.strip")) {
 		CloseOtherFinders(IDM_REPLACE);
+		if (filterState) {
+			wEditor.FoldAll(SA::FoldAction::Expand);
+		}
 		replaceStrip.visible = true;
 		SizeSubWindows();
 		replaceStrip.SetIncrementalBehaviour(props.GetInt("replace.strip.incremental"));

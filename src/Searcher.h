@@ -20,6 +20,8 @@ public:
 	bool unSlash;
 	bool wrapFind;
 	bool reverseFind;
+	bool filterState;
+	bool contextVisible;
 
 	Scintilla::Position searchStartPosition;
 	bool replacing;
@@ -46,8 +48,9 @@ public:
 
 	virtual Scintilla::Position FindNext(bool reverseDirection, bool showWarnings=true, bool allowRegExp=true) = 0;
 	virtual void HideMatch() = 0;
-	enum class MarkPurpose { withBookMarks, incremental };
+	enum class MarkPurpose { withBookMarks, incremental, filter };
 	virtual void MarkAll(MarkPurpose purpose) = 0;
+	virtual void FilterAll(bool showMatches) = 0;
 	virtual intptr_t ReplaceAll(bool inSelection) = 0;
 	virtual void ReplaceOnce(bool showWarnings=true) = 0;
 	virtual void UIClosed() = 0;
@@ -60,7 +63,7 @@ public:
 
 // User interface for search options implemented as both buttons and popup menu items
 struct SearchOption {
-	enum { tWord, tCase, tRegExp, tBackslash, tWrap, tUp };
+	enum { tWord, tCase, tRegExp, tBackslash, tWrap, tUp, tFilter, tContext };
 	const char *label;
 	int cmd;	// Menu item
 	int id;	// Control in dialog

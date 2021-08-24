@@ -1335,8 +1335,7 @@ void SciTEBase::ReadProperties() {
 	foldMarginWidth = props.GetInt("fold.margin.width");
 	if (foldMarginWidth == 0)
 		foldMarginWidth = foldMarginWidthDefault;
-	wEditor.SetMarginWidthN(2, foldMargin ? foldMarginWidth : 0);
-
+	SetFoldWidth();
 	wEditor.SetMarginMaskN(2, SA::MaskFolders);
 	wEditor.SetMarginSensitiveN(2, true);
 
@@ -1460,6 +1459,12 @@ void SciTEBase::ReadProperties() {
 		wEditor.MarkerDefinePixmap(markerBookmark, reinterpret_cast<const char *>(bookmarkBluegem));
 	}
 
+	wEditor.MarkerDefine(markerFilterMatch, SA::MarkerSymbol::Background);
+	wEditor.MarkerSetLayer(markerFilterMatch, Scintilla::Layer::UnderText);
+	const SA::ColourAlpha filterMatch = ColourAlphaOfProperty(props, "filter.match.back", ColourRGBA(0xff, 0xe0, 0, 0x20));
+	wEditor.MarkerSetBackTranslucent(markerFilterMatch, filterMatch);
+	wEditor.MarkerSetAlpha(markerFilterMatch, static_cast<SA::Alpha>(filterMatch >> 24));
+
 	wEditor.SetScrollWidth(props.GetInt("horizontal.scroll.width", 2000));
 	wEditor.SetScrollWidthTracking(props.GetInt("horizontal.scroll.width.tracking", 1));
 	wOutput.SetScrollWidth(props.GetInt("output.horizontal.scroll.width", 2000));
@@ -1480,6 +1485,7 @@ void SciTEBase::ReadProperties() {
 	currentWordHighlight.statesOfDelay = currentWordHighlight.noDelay;
 
 	SetElementColour(SA::Element::FoldLine, "fold.line.colour");
+	SetElementColour(SA::Element::HiddenLine, "hidden.line.colour");
 
 	currentWordHighlight.isEnabled = props.GetInt("highlight.current.word", 0) == 1;
 	if (currentWordHighlight.isEnabled) {

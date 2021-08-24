@@ -23,12 +23,14 @@ class MatchMarker {
 	Scintilla::FindOption flagsMatch;
 	int indicator;
 	int bookMark;
+	std::optional<Scintilla::Line> showContext;
 	std::vector<LineRange> lineRanges;
+	std::set<Scintilla::Line> matches;
 public:
 	MatchMarker();	// Not noexcept as std::vector constructor throws
 	void StartMatch(Scintilla::ScintillaCall *pSci_,
 			const std::string &textMatch_, Scintilla::FindOption flagsMatch_, int styleMatch_,
-			int indicator_, int bookMark_);
+			int indicator_, int bookMark_, std::optional<Scintilla::Line> showContext_={});
 	bool Complete() const noexcept;
 	void Continue();
 	void Stop() noexcept;

@@ -199,6 +199,8 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	findStrip.SetSearcher(this);
 	replaceStrip.SetLocalizer(&localiser);
 	replaceStrip.SetSearcher(this);
+	filterStrip.SetLocalizer(&localiser);
+	filterStrip.SetSearcher(this);
 
 	flatterUI = UIShouldBeFlat();
 
@@ -2132,6 +2134,8 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 					findStrip.Focus();
 				else if (replaceStrip.visible)
 					replaceStrip.Focus();
+				else if (filterStrip.visible)
+					filterStrip.Focus();
 				else if (userStrip.visible)
 					userStrip.Focus();
 				else

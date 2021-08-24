@@ -464,6 +464,23 @@ void SciTEBase::SetDocumentAt(int index, bool updateStack) {
 	}
 }
 
+void SciTEBase::SaveFolds(std::vector<SA::Line> &folds) {
+	folds.clear();
+
+	for (SA::Line line = 0; ; line++) {
+		const SA::Line lineNext = wEditor.ContractedFoldNext(line);
+		if ((line < 0) || (lineNext < line))
+			break;
+		line = lineNext;
+		folds.push_back(line);
+	}
+}
+void SciTEBase::RestoreFolds(const std::vector<SA::Line> &folds) {
+	for (const SA::Line fold : folds) {
+		wEditor.ToggleFold(fold);
+	}
+}
+
 void SciTEBase::UpdateBuffersCurrent() {
 	const int currentbuf = buffers.Current();
 
@@ -477,17 +494,8 @@ void SciTEBase::UpdateBuffersCurrent() {
 
 			// Retrieve fold state and store in buffer state info
 
-			std::vector<SA::Line> *f = &bufferCurrent.foldState;
-			f->clear();
-
-			if (props.GetInt("fold")) {
-				for (SA::Line line = 0; ; line++) {
-					const SA::Line lineNext = wEditor.ContractedFoldNext(line);
-					if ((line < 0) || (lineNext < line))
-						break;
-					line = lineNext;
-					f->push_back(line);
-				}
+			if (!FilterShowing() && props.GetInt("fold")) {
+				SaveFolds(bufferCurrent.foldState);
 			}
 
 			if (props.GetInt("session.bookmarks")) {
@@ -925,17 +933,19 @@ void SciTEBase::RestoreState(const Buffer &buffer, bool restoreBookmarks) {
 		wEditor.SetCodePage(codePage);
 	}
 
+	RemoveFindMarks();
 	// check to see whether there is saved fold state, restore
-	if (!buffer.foldState.empty()) {
+	if (!buffer.foldState.empty() && !FilterShowing()) {
 		wEditor.ColouriseAll();
-		for (const SA::Line fold : buffer.foldState) {
-			wEditor.ToggleFold(fold);
-		}
+		RestoreFolds(buffer.foldState);
 	}
 	if (restoreBookmarks) {
 		for (const SA::Line bookmark : buffer.bookmarks) {
 			wEditor.MarkerAdd(bookmark, markerBookmark);
 		}
+	}
+	if (FilterShowing()) {
+		FilterAll(true);
 	}
 }
 

@@ -30,7 +30,7 @@ public:
 	void CreateChecks(std::initializer_list<int> widths);
 	void SetIncrementalBehaviour(int behaviour);
 	void MarkIncremental();
-	void NextIncremental();
+	virtual void NextIncremental();
 	bool KeyDown(const GdkEventKey *event) override;
 	void GrabToggles();
 	void SetToggles();
@@ -90,6 +90,22 @@ public:
 	void ReplaceInSelectionCmd();
 	void ChildFocus(GtkWidget *widget) override;
 	gboolean Focus(GtkDirectionType direction) override;
+};
+
+class FilterStrip : public FindReplaceStrip {
+public:
+	WStatic wStaticFind;
+
+	FilterStrip() {
+	}
+	void Creation(GtkWidget *container) override;
+	virtual void Destruction();
+	void Show(int buttonHeight) override;
+	void Close() override;
+	void MenuAction(guint action) override;
+	void GrabFields();
+	void NextIncremental() override;
+	void FindNextCmd() override;
 };
 
 class UserStripWatcher {

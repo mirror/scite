@@ -67,6 +67,8 @@ Searcher::Searcher() {
 	unSlash = false;
 	wrapFind = true;
 	reverseFind = false;
+	filterState = false;
+	contextVisible = false;
 
 	searchStartPosition = 0;
 	replacing = false;
@@ -108,6 +110,12 @@ bool &Searcher::FlagFromCmd(int cmd) noexcept {
 	case IDDIRECTIONUP:
 	case IDM_DIRECTIONUP:
 		return reverseFind;
+	case IDFILTERSTATE:
+	case IDM_FILTERSTATE:
+		return filterState;
+	case IDCONTEXTVISIBLE:
+	case IDM_CONTEXTVISIBLE:
+		return contextVisible;
 	}
 	return notFound;
 }
@@ -754,7 +762,7 @@ bool SciTEBase::islexerwordcharforsel(char ch) {
 void SciTEBase::HighlightCurrentWord(bool highlight) {
 	if (!currentWordHighlight.isEnabled)
 		return;
-	if (!wEditor.HasFocus() && !wOutput.HasFocus()) {
+	if (!wEditor.HasFocus() && !wOutput.HasFocus() && highlight) {
 		// Neither text window has focus, possibly app is inactive so do not highlight
 		return;
 	}
@@ -765,6 +773,9 @@ void SciTEBase::HighlightCurrentWord(bool highlight) {
 	wCurrent.IndicatorClearRange(0, lenDoc);
 	if (!highlight)
 		return;
+	if (FilterShowing()) {
+		return;
+	}
 	// Get start & end selection.
 	SA::Span sel = wCurrent.SelectionSpan();
 	const bool noUserSelection = sel.start == sel.end;
@@ -949,6 +960,7 @@ void SciTEBase::RemoveFindMarks() {
 		wEditor.IndicatorClearRange(0, LengthDocument());
 		CurrentBuffer()->findMarks = Buffer::fmNone;
 	}
+	wEditor.MarkerDeleteAll(markerFilterMatch);
 	wEditor.AnnotationClearAll();
 }
 
@@ -970,10 +982,20 @@ SA::FindOption SciTEBase::SearchFlags(bool regularExpressions) const {
 void SciTEBase::MarkAll(MarkPurpose purpose) {
 	RemoveFindMarks();
 	wEditor.SetIndicatorCurrent(indicatorMatch);
+
+	int bookMark = -1;
+	std::optional<SA::Line> contextLines;
+
 	if (purpose == MarkPurpose::incremental) {
 		CurrentBuffer()->findMarks = Buffer::fmTemporary;
 		SetOneIndicator(wEditor, indicatorMatch,
-				IndicatorDefinition(props.GetString("find.indicator.incremental")));
+			IndicatorDefinition(props.GetString("find.indicator.incremental")));
+	} else if (purpose == MarkPurpose::filter) {
+		CurrentBuffer()->findMarks = Buffer::fmTemporary;
+		SetOneIndicator(wEditor, indicatorMatch,
+				IndicatorDefinition(props.GetString("filter.match.indicator")));
+		bookMark = markerFilterMatch;
+		contextLines = contextVisible ? props.GetInt("filter.context", 2) : 0;
 	} else {
 		CurrentBuffer()->findMarks = Buffer::fmMarked;
 		std::string findIndicatorString = props.GetString("find.mark.indicator");
@@ -987,6 +1009,7 @@ void SciTEBase::MarkAll(MarkPurpose purpose) {
 			findIndicator.under = underIndicator;
 		}
 		SetOneIndicator(wEditor, indicatorMatch, findIndicator);
+		bookMark = markerBookmark;
 	}
 
 	const std::string findTarget = UnSlashAsNeeded(EncodeString(findWhat), unSlash, regExp);
@@ -996,12 +1019,44 @@ void SciTEBase::MarkAll(MarkPurpose purpose) {
 
 	findMarker.StartMatch(&wEditor, findTarget,
 			      SearchFlags(regExp), -1,
-			      indicatorMatch, (purpose == MarkPurpose::withBookMarks) ? markerBookmark : -1);
+			      indicatorMatch, bookMark, contextLines);
 	SetIdler(true);
+}
+
+void SciTEBase::FilterAll(bool showMatches) {
+
+	HighlightCurrentWord(false);
+	wEditor.MarkerDeleteAll(markerFilterMatch);
+
+	if (!showMatches || findWhat.empty()) {
+		RemoveFindMarks();
+		// Show all lines
+		wEditor.ShowLines(0, wEditor.LineFromPosition(wEditor.Length()));
+		// Restore fold margin
+		wEditor.SetMarginWidthN(2, foldMargin ? foldMarginWidth : 0);
+		// May have selected something in filter so scroll to it
+		wEditor.ScrollCaret();
+		RestoreFolds(CurrentBuffer()->foldState);
+		return;
+	}
+
+	// Hide fold margin as the shapes will overlap hidden lines and not make sense
+	wEditor.SetMarginWidthN(2, 0);
+
+	wEditor.SetRedraw(false);
+	wEditor.SetSearchFlags(SearchFlags(regExp));
+
+	MarkAll(Searcher::MarkPurpose::filter);
+	wEditor.SetRedraw(true);
 }
 
 int SciTEBase::IncrementSearchMode() {
 	FindIncrement();
+	return 0;
+}
+
+int SciTEBase::FilterSearch() {
+	Filter();
 	return 0;
 }
 
@@ -2920,6 +2975,10 @@ void WindowSetFocus(GUI::ScintillaWindow &w) {
 	w.Send(SCI_GRABFOCUS);
 }
 
+void SciTEBase::SetFoldWidth() {
+	wEditor.SetMarginWidthN(2, (foldMargin && !FilterShowing()) ? foldMarginWidth : 0);
+}
+
 void SciTEBase::SetLineNumberWidth() {
 	if (lineNumbers) {
 		int lineNumWidth = lineNumbersWidth;
@@ -3164,6 +3223,10 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		IncrementSearchMode();
 		break;
 
+	case IDM_FILTER:
+		FilterSearch();
+		break;
+
 	case IDM_FINDNEXT:
 		FindNext(reverseFind);
 		break;
@@ -3345,7 +3408,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 
 	case IDM_FOLDMARGIN:
 		foldMargin = !foldMargin;
-		wEditor.SetMarginWidthN(2, foldMargin ? foldMarginWidth : 0);
+		SetFoldWidth();
 		CheckMenus();
 		break;
 
@@ -4245,7 +4308,9 @@ void SciTEBase::SetIdler(bool on) {
 
 void SciTEBase::OnIdle() {
 	if (!findMarker.Complete()) {
+		wEditor.SetRedraw(false);
 		findMarker.Continue();
+		wEditor.SetRedraw(true);
 		return;
 	}
 	if (!matchMarker.Complete()) {

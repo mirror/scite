@@ -137,7 +137,6 @@ protected:
 	GUI::Window wCheckCase;
 	GUI::Window wCheckRE;
 	GUI::Window wCheckBE;
-	GUI::Window wCheckWrap;
 	enum class IncrementalBehaviour { simple, incremental, showAllMatches };
 	IncrementalBehaviour incrementalBehaviour;
 	FindReplaceStrip() noexcept : incrementalBehaviour(IncrementalBehaviour::simple) {
@@ -155,6 +154,7 @@ public:
 class FindStrip : public FindReplaceStrip {
 	GUI::Window wButton;
 	GUI::Window wButtonMarkAll;
+	GUI::Window wCheckWrap;
 	GUI::Window wCheckUp;
 public:
 	FindStrip() noexcept {
@@ -179,6 +179,9 @@ class ReplaceStrip : public FindReplaceStrip {
 	GUI::Window wReplace;
 	GUI::Window wButtonReplace;
 	GUI::Window wButtonReplaceInSelection;
+	GUI::Window wCheckWrap;
+	GUI::Window wCheckFilter;
+	GUI::Window wCheckContext;
 public:
 	ReplaceStrip() noexcept {
 	}
@@ -194,6 +197,25 @@ public:
 	void Paint(HDC hDC) override;
 	void CheckButtons() noexcept;
 	void ShowStrip();
+};
+
+class FilterStrip : public FindReplaceStrip {
+	GUI::Window wCheckContext;
+public:
+	FilterStrip() noexcept {
+	}
+	void Creation() override;
+	void Destruction() noexcept override;
+	void Focus() noexcept;
+	bool KeyDown(WPARAM key) override;
+	void Filter(ChangingSource source);
+	void ShowPopup() override;
+	bool Command(WPARAM wParam) override;
+	void Size() override;
+	void Paint(HDC hDC) override;
+	void CheckButtons() noexcept;
+	void ShowStrip();
+	void Close() override;
 };
 
 class StripDefinition;
