@@ -92,6 +92,12 @@ for sourcePath in sourcePaths:
 					propertyName = parts[1]
 					if propertyName and propertyName != "1":
 						propertyNames.add(propertyName)
+			elif re.search('SetElementColour.*"(.*)"', srcLine):
+				parts = srcLine.split('\"')
+				if len(parts) > 1:
+					propertyName = parts[1]
+					if propertyName and propertyName != "1":
+						propertyNames.add(propertyName)
 
 propertiesInDoc = set()
 with docFileName.open(encoding=neutralEncoding) as docFile:
