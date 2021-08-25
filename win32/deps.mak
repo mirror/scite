@@ -197,7 +197,8 @@ Strips.o: \
 	UniqueInstance.h \
 	../src/StripDefinition.h \
 	Strips.h \
-	../src/SciTEKeys.h
+	../src/SciTEKeys.h \
+	DLLFunction.h
 UniqueInstance.o: \
 	UniqueInstance.cxx \
 	SciTEWin.h \
