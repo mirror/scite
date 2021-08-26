@@ -430,6 +430,15 @@ unsigned int IntFromHexDigit(int ch) noexcept {
 	}
 }
 
+bool AllBytesHex(std::string_view hexBytes) noexcept {
+	for (const char ch : hexBytes) {
+		if (!IsAHexDigit(ch)) {
+			return false;
+		}
+	}
+	return true;
+}
+
 unsigned int IntFromHexBytes(std::string_view hexBytes) noexcept {
 	unsigned int val = 0;
 	while (!hexBytes.empty()) {
@@ -440,24 +449,25 @@ unsigned int IntFromHexBytes(std::string_view hexBytes) noexcept {
 }
 
 std::string UnicodeUnEscape(std::string_view s) {
-	// Not concerned with invalid input, just do an OK job
+	// Leave invalid escapes as they are.
 	std::string result;
 	while (!s.empty()) {
 		if (s.length() > 2 && s[0] == '\\') {
 			unsigned int val = 0;
-			if (s[1] == 'x' && s.length() >= 4) {
+			if (s[1] == 'x' && s.length() >= 4 && AllBytesHex(s.substr(2, 2))) {
 				// \xAB
 				val = IntFromHexBytes(s.substr(2,2));
 				s.remove_prefix(4);
-			}  else if (s[1] == 'u' && s.length() >= 6) {
+			}  else if (s[1] == 'u' && s.length() >= 6 && AllBytesHex(s.substr(2, 4))) {
 				// \uABCD
 				val = IntFromHexBytes(s.substr(2, 4));
 				s.remove_prefix(6);
-			}  else if (s[1] == 'U' && s.length() >= 10) {
-				// \uABCDDEF9
+			}  else if (s[1] == 'U' && s.length() >= 10 && AllBytesHex(s.substr(2, 8))) {
+				// \UABCDDEF9
 				val = IntFromHexBytes(s.substr(2, 8));
 				s.remove_prefix(10);
 			} else {
+				val = '\\';
 				s.remove_prefix(1);
 			}
 			result.append(UTF8FromUTF32(val));

@@ -34,7 +34,7 @@ public:
 	virtual ~PropSetFile();
 
 	void Set(std::string_view key, std::string_view val);
-	void SetLine(const char *keyVal);
+	void SetLine(const char *keyVal, bool unescape);
 	void Unset(std::string_view key);
 	bool Exists(const char *key) const;
 	std::string GetString(const char *key) const;

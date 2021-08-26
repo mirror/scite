@@ -601,6 +601,13 @@
 		Add font.monospaced.list property which can be used to optimize monospaced fonts.
 		</li>
 		<li>
+		Keys in property files may use Unicode escapes \xHH, \uHHHH, and \UHHHHHHHH for characters
+		that could not otherwise be represented like '=' (\x3D or \U0000003D) and line ends.
+		The Unicode code points are then converted to UTF-8.
+		This may be useful for defining abbreviations.
+		<a href="https://sourceforge.net/p/scintilla/feature-requests/1407/">Feature #1407</a>.
+		</li>
+		<li>
 		Fix problems with Escape and Enter in Insert Abbreviation dialog on GTK.
 		<a href="https://sourceforge.net/p/scintilla/bugs/2275/">Bug #2275</a>.
 		</li>

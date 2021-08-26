@@ -4505,7 +4505,7 @@ void SciTEBase::SendOneProperty(const char *kind, const char *key, const char *v
 }
 
 void SciTEBase::PropertyFromDirector(const char *arg) {
-	props.SetLine(arg);
+	props.SetLine(arg, false);
 }
 
 void SciTEBase::PropertyToDirector(const char *arg) {

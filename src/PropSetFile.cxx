@@ -92,7 +92,7 @@ void PropSetFile::Set(std::string_view key, std::string_view val) {
 	props[std::string(key)] = std::string(val);
 }
 
-void PropSetFile::SetLine(const char *keyVal) {
+void PropSetFile::SetLine(const char *keyVal, bool unescape) {
 	while (IsASpace(*keyVal))
 		keyVal++;
 	const char *endVal = keyVal;
@@ -106,7 +106,14 @@ void PropSetFile::SetLine(const char *keyVal) {
 		}
 		const ptrdiff_t lenVal = endVal - eqAt - 1;
 		const ptrdiff_t lenKey = pKeyEnd - keyVal + 1;
-		Set(std::string_view(keyVal, lenKey), std::string_view(eqAt + 1, lenVal));
+		const std::string_view key(keyVal, lenKey);
+		const std::string_view value(eqAt + 1, lenVal);
+		if (unescape && (key.find("\\") != std::string_view::npos)) {
+			const std::string keyUnescaped = UnicodeUnEscape(key);
+			Set(keyUnescaped, value);
+		} else {
+			Set(key, value);
+		}
 	} else if (*keyVal) {	// No '=' so assume '=1'
 		Set(keyVal, "1");
 	}
@@ -433,7 +440,7 @@ PropSetFile::ReadLineState PropSetFile::ReadLine(const char *lineBuffer, ReadLin
 			}
 		}
 	} else if (!IsCommentLine(lineBuffer)) {
-		SetLine(lineBuffer);
+		SetLine(lineBuffer, true);
 	}
 	return rls;
 }

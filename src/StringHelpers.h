@@ -63,6 +63,13 @@ constexpr bool IsADigit(int ch) noexcept {
 	return (ch >= '0') && (ch <= '9');
 }
 
+constexpr bool IsAHexDigit(int ch) noexcept {
+	return
+		((ch >= '0') && (ch <= '9')) ||
+		((ch >= 'a') && (ch <= 'f')) ||
+		((ch >= 'A') && (ch <= 'F'));
+}
+
 constexpr bool IsAlphabetic(int ch) noexcept {
 	return ((ch >= 'A') && (ch <= 'Z')) || ((ch >= 'a') && (ch <= 'z'));
 }
@@ -136,6 +143,7 @@ std::string UnSlashString(const char *s);
 std::string UnSlashLowOctalString(const char *s);
 
 unsigned int IntFromHexDigit(int ch) noexcept;
+bool AllBytesHex(std::string_view hexBytes) noexcept;
 unsigned int IntFromHexBytes(std::string_view hexBytes) noexcept;
 std::string UnicodeUnEscape(std::string_view s);
 
