@@ -381,6 +381,13 @@ protected:
 public:
 
 	explicit SciTEWin(Extension *ext = 0);
+
+	// Deleted so SciTEWin objects can not be copied.
+	SciTEWin(const SciTEWin &) = delete;
+	SciTEWin(SciTEWin &&) = delete;
+	SciTEWin &operator=(const SciTEWin &) = delete;
+	SciTEWin &operator=(SciTEWin &&) = delete;
+
 	~SciTEWin();
 
 	static bool DialogHandled(GUI::WindowID id, MSG *pmsg) noexcept;

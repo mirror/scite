@@ -15,7 +15,10 @@ public:
 
 	// Deleted so LuaExtension objects can not be copied.
 	LuaExtension(const LuaExtension &) = delete;
-	void operator=(const LuaExtension &) = delete;
+	LuaExtension(LuaExtension &&) = delete;
+	LuaExtension &operator=(const LuaExtension &) = delete;
+	LuaExtension &operator=(LuaExtension &&) = delete;
+
 	~LuaExtension() override;
 
 	bool Initialise(ExtensionAPI *host_) override;

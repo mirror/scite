@@ -40,9 +40,11 @@
 class MultiplexExtension: public Extension {
 public:
 	MultiplexExtension();
-	// Copying is unsupported.
-	MultiplexExtension(const MultiplexExtension &copy) = delete;
-	MultiplexExtension &operator=(const MultiplexExtension &copy) = delete;
+	// Deleted so MultiplexExtension objects can not be copied.
+	MultiplexExtension(const MultiplexExtension &) = delete;
+	MultiplexExtension(MultiplexExtension &&) = delete;
+	MultiplexExtension &operator=(const MultiplexExtension &) = delete;
+	MultiplexExtension &operator=(MultiplexExtension &&) = delete;
 	~MultiplexExtension() override;
 
 	bool RegisterExtension(Extension &ext_);

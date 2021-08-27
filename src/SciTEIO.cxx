@@ -963,6 +963,12 @@ public:
 		}
 	}
 
+	// Deleted so SelectionKeeper objects can not be copied.
+	SelectionKeeper(const SelectionKeeper &) = delete;
+	SelectionKeeper(SelectionKeeper &&) = delete;
+	SelectionKeeper &operator=(const SelectionKeeper &) = delete;
+	SelectionKeeper &operator=(SelectionKeeper &&) = delete;
+
 	~SelectionKeeper() {
 		try {
 			// Should never throw unless there was an earlier failure in Scintilla.

@@ -127,10 +127,13 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 			fp = fp_;
 			index = 1;
 		}
+
 		// Deleted so PDFObjectTracker objects can not be copied.
 		PDFObjectTracker(const PDFObjectTracker &) = delete;
-		~PDFObjectTracker() {
-		}
+		PDFObjectTracker(PDFObjectTracker &&) = delete;
+		PDFObjectTracker &operator=(const PDFObjectTracker &) = delete;
+		PDFObjectTracker &operator=(PDFObjectTracker &&) = delete;
+
 		void write(const char *objectData) {
 			const size_t length = strlen(objectData);
 			// note binary write used, open with "wb"
@@ -214,8 +217,9 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 		}
 		// Deleted so PDFRender objects can not be copied.
 		PDFRender(const PDFRender &) = delete;
-		~PDFRender() {
-		}
+		PDFRender(PDFRender &&) = delete;
+		PDFRender &operator=(const PDFRender &) = delete;
+		PDFRender &operator=(PDFRender &&) = delete;
 		//
 		double fontToPoints(int thousandths) const {
 			return (double)fontSize * thousandths / 1000.0;

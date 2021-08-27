@@ -24,6 +24,13 @@ private:
 
 public:
 	UniqueInstance();
+
+	// Deleted so UniqueInstance objects can not be copied.
+	UniqueInstance(const UniqueInstance &) = delete;
+	UniqueInstance(UniqueInstance &&) = delete;
+	UniqueInstance &operator=(const UniqueInstance &) = delete;
+	UniqueInstance &operator=(UniqueInstance &&) = delete;
+
 	~UniqueInstance();
 
 	void Init(SciTEWin *stw_) noexcept;	///< To set the access to the SciTEWin interface

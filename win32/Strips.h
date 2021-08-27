@@ -75,6 +75,11 @@ public:
 		closeSize.cx = 11;
 		closeSize.cy = 11;
 	}
+	// Deleted so Strip objects can not be copied.
+	Strip(const Strip &) = delete;
+	Strip(Strip &&) = delete;
+	Strip &operator=(const Strip &) = delete;
+	Strip &operator=(Strip &&) = delete;
 	virtual ~Strip() = default;
 	virtual int Height() noexcept {
 		return lineHeight * Lines() + space - 1;

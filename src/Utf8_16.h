@@ -64,6 +64,13 @@ protected:
 class Utf8_16_Read : public Utf8_16 {
 public:
 	Utf8_16_Read() noexcept;
+
+	// Deleted so Utf8_16_Read objects can not be copied.
+	Utf8_16_Read(const Utf8_16_Read &) = delete;
+	Utf8_16_Read(Utf8_16_Read &&) = delete;
+	Utf8_16_Read &operator=(const Utf8_16_Read &) = delete;
+	Utf8_16_Read &operator=(Utf8_16_Read &&) = delete;
+
 	~Utf8_16_Read() noexcept;
 
 	size_t convert(char *buf, size_t len);
@@ -90,6 +97,13 @@ private:
 class Utf8_16_Write : public Utf8_16 {
 public:
 	Utf8_16_Write() noexcept;
+
+	// Deleted so Utf8_16_Write objects can not be copied.
+	Utf8_16_Write(const Utf8_16_Write &) = delete;
+	Utf8_16_Write(Utf8_16_Write &&) = delete;
+	Utf8_16_Write &operator=(const Utf8_16_Write &) = delete;
+	Utf8_16_Write &operator=(Utf8_16_Write &&) = delete;
+
 	~Utf8_16_Write() noexcept;
 
 	void setEncoding(encodingType eType) noexcept;
