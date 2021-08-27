@@ -37,7 +37,6 @@ public:
 	UniMode unicodeMode;
 
 	FileLoader(WorkerListener *pListener_, Scintilla::ILoader *pLoader_, const FilePath &path_, size_t size_, FILE *fp_);
-	~FileLoader() override;
 	void Execute() override;
 	void Cancel() override;
 	bool IsLoading() const noexcept override {
@@ -54,7 +53,6 @@ public:
 
 	FileStorer(WorkerListener *pListener_, const char *documentBytes_, const FilePath &path_,
 		   size_t size_, FILE *fp_, UniMode unicodeMode_, bool visibleProgress_);
-	~FileStorer() override;
 	void Execute() override;
 	void Cancel() override;
 	bool IsLoading() const noexcept override {

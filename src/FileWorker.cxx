@@ -45,9 +45,6 @@ FileLoader::FileLoader(WorkerListener *pListener_, Scintilla::ILoader *pLoader_,
 	SetSizeJob(size);
 }
 
-FileLoader::~FileLoader() {
-}
-
 void FileLoader::Execute() {
 	if (fp) {
 		Utf8_16_Read convert;
@@ -98,9 +95,6 @@ FileStorer::FileStorer(WorkerListener *pListener_, const char *documentBytes_, c
 	FileWorker(pListener_, path_, size_, fp_), documentBytes(documentBytes_), writtenSoFar(0),
 	unicodeMode(unicodeMode_), visibleProgress(visibleProgress_) {
 	SetSizeJob(size);
-}
-
-FileStorer::~FileStorer() {
 }
 
 static constexpr bool IsUTF8TrailByte(int ch) noexcept {
