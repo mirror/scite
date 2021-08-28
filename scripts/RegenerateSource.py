@@ -163,9 +163,12 @@ def UpdateEmbedded(pathSciTE, propFiles):
             fileBase = pathlib.Path(pf).stem
             if pf not in propFilesSpecial:
                 linesEmbedded.append("\n" + "module " + fileBase + "\n")
+            continuation = False
             for line in fi:
-                if not line.startswith("#"):
-                    linesEmbedded.append(line)
+                if not continuation and line.startswith("#"):
+                    continue
+                continuation = line.endswith("\\\n")
+                linesEmbedded.append(line)
             if not linesEmbedded[-1].endswith("\n"):
                 linesEmbedded[-1] += "\n"
     textEmbedded = "".join(linesEmbedded)
