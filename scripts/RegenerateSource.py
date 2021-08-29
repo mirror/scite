@@ -161,6 +161,7 @@ def UpdateEmbedded(pathSciTE, propFiles):
         fullPath = pathSciTE / "src" / pf
         with fullPath.open(encoding=neutralEncoding) as fi:
             fileBase = pathlib.Path(pf).stem
+            linesEmbedded.append("\n")
             if pf not in propFilesSpecial:
                 linesEmbedded.append("\n" + "module " + fileBase + "\n")
             continuation = False
