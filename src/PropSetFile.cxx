@@ -69,23 +69,6 @@ bool PropSetFile::caseSensitiveFilenames = false;
 PropSetFile::PropSetFile(bool lowerKeys_) : lowerKeys(lowerKeys_), superPS(nullptr) {
 }
 
-PropSetFile::PropSetFile(const PropSetFile &copy) : lowerKeys(copy.lowerKeys), props(copy.props), superPS(copy.superPS) {
-}
-
-PropSetFile::~PropSetFile() {
-	superPS = nullptr;
-	Clear();
-}
-
-PropSetFile &PropSetFile::operator=(const PropSetFile &assign) {
-	if (this != &assign) {
-		lowerKeys = assign.lowerKeys;
-		superPS = assign.superPS;
-		props = assign.props;
-	}
-	return *this;
-}
-
 void PropSetFile::Set(std::string_view key, std::string_view val) {
 	if (key.empty())	// Empty keys are not supported
 		return;
@@ -454,9 +437,7 @@ void PropSetFile::ReadFromMemory(const char *data, size_t len, const FilePath &d
 		GetFullLine(pd, len, &lineBuffer[0], lineBuffer.size());
 		if (lowerKeys) {
 			for (int i=0; lineBuffer[i] && (lineBuffer[i] != '='); i++) {
-				if ((lineBuffer[i] >= 'A') && (lineBuffer[i] <= 'Z')) {
-					lineBuffer[i] = static_cast<char>(lineBuffer[i] - 'A' + 'a');
-				}
+				lineBuffer[i] = MakeLowerCase(lineBuffer[i]);
 			}
 		}
 		rls = ReadLine(&lineBuffer[0], rls, directoryForImports, filter, imports, depth);

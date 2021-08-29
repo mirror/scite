@@ -29,9 +29,6 @@ class PropSetFile {
 public:
 	PropSetFile *superPS;
 	explicit PropSetFile(bool lowerKeys_=false);
-	PropSetFile(const PropSetFile &copy);
-	PropSetFile &operator=(const PropSetFile &assign);
-	virtual ~PropSetFile();
 
 	void Set(std::string_view key, std::string_view val);
 	void SetLine(const char *keyVal, bool unescape);
