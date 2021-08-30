@@ -91,18 +91,18 @@ public:
 	bool isReadOnly;
 	bool failedSave;
 	bool useMonoFont;
-	enum { empty, reading, readAll, opened } lifeState;
+	enum class LifeState { empty, reading, readAll, opened } lifeState;
 	UniMode unicodeMode;
 	time_t fileModTime;
 	time_t fileModLastAsk;
 	time_t documentModTime;
-	enum { fmNone, fmTemporary, fmMarked, fmModified} findMarks;
+	enum class FindMarks { none, temporary, marked, modified} findMarks;
 	std::string overrideExtension;	///< User has chosen to use a particular language
 	std::vector<SA::Line> foldState;
 	std::vector<SA::Line> bookmarks;
 	std::unique_ptr<FileWorker> pFileWorker;
 	PropSetFile props;
-	enum FutureDo { fdNone=0, fdFinishSave=1 } futureDo;
+	enum class FutureDo { none=0, finishSave=1 } futureDo;
 	Buffer();
 
 	void Init();
@@ -122,11 +122,15 @@ public:
 	void AbandonAutomaticSave();
 
 	bool ShouldNotSave() const noexcept {
-		return lifeState != opened;
+		return lifeState != LifeState::opened;
 	}
 
 	void CancelLoad();
 };
+
+inline constexpr Buffer::FutureDo operator&(Buffer::FutureDo a, Buffer::FutureDo b) noexcept {
+	return static_cast<Buffer::FutureDo>(static_cast<int>(a) & static_cast<int>(b));
+}
 
 struct BackgroundActivities {
 	int loaders;
@@ -228,7 +232,7 @@ struct StyleAndWords {
 };
 
 struct CurrentWordHighlight {
-	enum {
+	enum class StatesOfDelay {
 		noDelay,            // No delay, and no word at the caret.
 		delay,              // Delay before to highlight the word at the caret.
 		delayJustEnded,     // Delay has just ended. This state allows to ignore next HighlightCurrentWord (UpdateUI and SC_UPDATE_CONTENT for setting indicators).
@@ -240,7 +244,7 @@ struct CurrentWordHighlight {
 	bool isOnlyWithSameStyle;
 
 	CurrentWordHighlight() {
-		statesOfDelay = noDelay;
+		statesOfDelay = StatesOfDelay::noDelay;
 		isEnabled = false;
 		textHasChanged = false;
 		isOnlyWithSameStyle = false;

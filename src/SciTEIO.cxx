@@ -280,7 +280,7 @@ void SciTEBase::OpenCurrentFile(long long fileSize, bool suppressMessage, bool a
 	wEditor.BeginUndoAction();	// Group together clear and insert
 	wEditor.ClearAll();
 
-	CurrentBuffer()->lifeState = Buffer::reading;
+	CurrentBuffer()->lifeState = Buffer::LifeState::reading;
 	if (asynchronous) {
 		// Turn grey while loading
 		wEditor.StyleSetBack(StyleDefault, 0xEEEEEE);
@@ -336,7 +336,7 @@ void SciTEBase::OpenCurrentFile(long long fileSize, bool suppressMessage, bool a
 		CurrentBuffer()->unicodeMode = static_cast<UniMode>(
 						       static_cast<int>(convert.getEncoding()));
 		// Check the first two lines for coding cookies
-		if (CurrentBuffer()->unicodeMode == uni8Bit) {
+		if (CurrentBuffer()->unicodeMode == UniMode::uni8Bit) {
 			CurrentBuffer()->unicodeMode = umCodingCookie;
 		}
 
@@ -350,12 +350,12 @@ void SciTEBase::TextRead(FileWorker *pFileWorker) {
 	// May not be found if load cancelled
 	if ((iBuffer >= 0) && pFileLoader) {
 		buffers.buffers[iBuffer].unicodeMode = pFileLoader->unicodeMode;
-		buffers.buffers[iBuffer].lifeState = Buffer::readAll;
+		buffers.buffers[iBuffer].lifeState = Buffer::LifeState::readAll;
 		if (pFileLoader->err) {
 			GUI::gui_string msg = LocaliseMessage("Could not open file '^0'.", pFileLoader->path.AsInternal());
 			WindowMessageBox(wSciTE, msg);
 			// Should refuse to save when failure occurs
-			buffers.buffers[iBuffer].lifeState = Buffer::empty;
+			buffers.buffers[iBuffer].lifeState = Buffer::LifeState::empty;
 		}
 		// Switch documents
 		void *pdocLoading = pFileLoader->pLoader->ConvertToDocument();
@@ -373,10 +373,10 @@ void SciTEBase::TextRead(FileWorker *pFileWorker) {
 }
 
 void SciTEBase::PerformDeferredTasks() {
-	if (buffers.buffers[buffers.Current()].futureDo & Buffer::fdFinishSave) {
+	if ((buffers.buffers[buffers.Current()].futureDo & Buffer::FutureDo::finishSave) == Buffer::FutureDo::finishSave) {
 		wEditor.SetSavePoint();
 		wEditor.SetReadOnly(CurrentBuffer()->isReadOnly);
-		buffers.FinishedFuture(buffers.Current(), Buffer::fdFinishSave);
+		buffers.FinishedFuture(buffers.Current(), Buffer::FutureDo::finishSave);
 	}
 }
 
@@ -391,7 +391,7 @@ void SciTEBase::CompleteOpen(OpenCompletion oc) {
 		std::string languageOverride = DiscoverLanguage();
 		if (languageOverride.length()) {
 			CurrentBuffer()->overrideExtension = languageOverride;
-			CurrentBuffer()->lifeState = Buffer::opened;
+			CurrentBuffer()->lifeState = Buffer::LifeState::opened;
 			ReadProperties();
 			SetIndentSettings();
 		}
@@ -404,7 +404,7 @@ void SciTEBase::CompleteOpen(OpenCompletion oc) {
 		SizeSubWindows();
 	}
 
-	if (CurrentBuffer()->unicodeMode != uni8Bit) {
+	if (CurrentBuffer()->unicodeMode != UniMode::uni8Bit) {
 		// Override the code page if Unicode
 		codePage = SA::CpUtf8;
 	} else {
@@ -475,7 +475,7 @@ void SciTEBase::TextWritten(FileWorker *pFileWorker) {
 				buffers.buffers[iBuffer].isDirty = false;
 				buffers.buffers[iBuffer].failedSave = false;
 				// Need to make writable and set save point when next receive focus.
-				buffers.AddFuture(iBuffer, Buffer::fdFinishSave);
+				buffers.AddFuture(iBuffer, Buffer::FutureDo::finishSave);
 				SetBuffersMenu();
 			}
 		}
@@ -586,7 +586,7 @@ bool SciTEBase::Open(const FilePath &file, OpenFlags of) {
 	if (buffers.size() == buffers.length) {
 		AddFileToStack(RecentFile(filePath, GetSelectedRange(), GetCurrentScrollPosition()));
 		ClearDocument();
-		CurrentBuffer()->lifeState = Buffer::opened;
+		CurrentBuffer()->lifeState = Buffer::LifeState::opened;
 		if (extender)
 			extender->InitBuffer(buffers.Current());
 	} else {
@@ -1137,7 +1137,7 @@ bool SciTEBase::SaveBuffer(const FilePath &saveName, SaveFlags sf) {
 				}
 			} else {
 				Utf8_16_Write convert;
-				if (CurrentBuffer()->unicodeMode != uniCookie) {	// Save file with cookie without BOM.
+				if (CurrentBuffer()->unicodeMode != UniMode::cookie) {	// Save file with cookie without BOM.
 					convert.setEncoding(static_cast<Utf8_16::encodingType>(
 								    static_cast<int>(CurrentBuffer()->unicodeMode)));
 				}
@@ -1343,10 +1343,10 @@ void SciTEBase::OpenFromStdin(bool UseOutputPane) {
 	CurrentBuffer()->unicodeMode = static_cast<UniMode>(
 					       static_cast<int>(convert.getEncoding()));
 	// Check the first two lines for coding cookies
-	if (CurrentBuffer()->unicodeMode == uni8Bit) {
+	if (CurrentBuffer()->unicodeMode == UniMode::uni8Bit) {
 		CurrentBuffer()->unicodeMode = umCodingCookie;
 	}
-	if (CurrentBuffer()->unicodeMode != uni8Bit) {
+	if (CurrentBuffer()->unicodeMode != UniMode::uni8Bit) {
 		// Override the code page if Unicode
 		codePage = SA::CpUtf8;
 	} else {

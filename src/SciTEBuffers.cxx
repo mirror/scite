@@ -65,9 +65,9 @@ void BufferDocReleaser::operator()(void *pDoc) noexcept {
 }
 
 Buffer::Buffer() :
-	file(), isDirty(false), isReadOnly(false), failedSave(false), useMonoFont(false), lifeState(empty),
-	unicodeMode(uni8Bit), fileModTime(0), fileModLastAsk(0), documentModTime(0),
-	findMarks(fmNone), futureDo(fdNone) {}
+	file(), isDirty(false), isReadOnly(false), failedSave(false), useMonoFont(false), lifeState(LifeState::empty),
+	unicodeMode(UniMode::uni8Bit), fileModTime(0), fileModLastAsk(0), documentModTime(0),
+	findMarks(FindMarks::none), futureDo(FutureDo::none) {}
 
 void Buffer::Init() {
 	file.Init();
@@ -75,17 +75,17 @@ void Buffer::Init() {
 	isReadOnly = false;
 	failedSave = false;
 	useMonoFont = false;
-	lifeState = empty;
-	unicodeMode = uni8Bit;
+	lifeState = LifeState::empty;
+	unicodeMode = UniMode::uni8Bit;
 	fileModTime = 0;
 	fileModLastAsk = 0;
 	documentModTime = 0;
-	findMarks = fmNone;
+	findMarks = FindMarks::none;
 	overrideExtension = "";
 	foldState.clear();
 	bookmarks.clear();
 	pFileWorker.reset();
-	futureDo = fdNone;
+	futureDo = FutureDo::none;
 	doc.reset();
 }
 
@@ -99,7 +99,7 @@ bool Buffer::NeedsSave(int delayBeforeSave) const {
 }
 
 void Buffer::CompleteLoading() noexcept {
-	lifeState = opened;
+	lifeState = LifeState::opened;
 	if (pFileWorker && pFileWorker->IsLoading()) {
 		pFileWorker.reset();
 	}
@@ -127,7 +127,7 @@ void Buffer::CancelLoad() {
 	if (pFileWorker && pFileWorker->IsLoading()) {
 		pFileWorker->Cancel();
 		CompleteLoading();
-		lifeState = empty;
+		lifeState = LifeState::empty;
 	}
 }
 
@@ -372,6 +372,14 @@ void BufferList::SetVisible(int index, bool visible) {
 	}
 }
 
+constexpr Buffer::FutureDo operator|(Buffer::FutureDo a, Buffer::FutureDo b) noexcept {
+	return static_cast<Buffer::FutureDo>(static_cast<int>(a) | static_cast<int>(b));
+}
+
+constexpr Buffer::FutureDo operator~(Buffer::FutureDo a) noexcept {
+	return static_cast<Buffer::FutureDo>(~static_cast<int>(a));
+}
+
 void BufferList::AddFuture(int index, Buffer::FutureDo fd) {
 	if (index >= 0 || index < length) {
 		buffers[index].futureDo = static_cast<Buffer::FutureDo>(buffers[index].futureDo | fd);
@@ -434,9 +442,9 @@ void SciTEBase::SetDocumentAt(int index, bool updateStack) {
 	propsDiscovered = bufferNext.props;
 	propsDiscovered.superPS = &propsLocal;
 	wEditor.SetDocPointer(GetDocumentAt(buffers.Current()));
-	const bool restoreBookmarks = bufferNext.lifeState == Buffer::readAll;
+	const bool restoreBookmarks = bufferNext.lifeState == Buffer::LifeState::readAll;
 	PerformDeferredTasks();
-	if (bufferNext.lifeState == Buffer::readAll) {
+	if (bufferNext.lifeState == Buffer::LifeState::readAll) {
 		CompleteOpen(OpenCompletion::completeSwitch);
 		if (extender)
 			extender->OnOpen(filePath.AsUTF8().c_str());
@@ -487,7 +495,7 @@ void SciTEBase::UpdateBuffersCurrent() {
 	if ((buffers.length > 0) && (currentbuf >= 0) && (buffers.GetVisible(currentbuf))) {
 		Buffer &bufferCurrent = buffers.buffers[currentbuf];
 		bufferCurrent.file.Set(filePath);
-		if (bufferCurrent.lifeState != Buffer::reading && bufferCurrent.lifeState != Buffer::readAll) {
+		if (bufferCurrent.lifeState != Buffer::LifeState::reading && bufferCurrent.lifeState != Buffer::LifeState::readAll) {
 			bufferCurrent.file.selection.position = wEditor.CurrentPos();
 			bufferCurrent.file.selection.anchor = wEditor.Anchor();
 			bufferCurrent.file.scrollPosition = GetCurrentScrollPosition();
@@ -912,7 +920,7 @@ void SciTEBase::New() {
 	SetBuffersMenu();
 	CurrentBuffer()->isDirty = false;
 	CurrentBuffer()->failedSave = false;
-	CurrentBuffer()->lifeState = Buffer::opened;
+	CurrentBuffer()->lifeState = Buffer::LifeState::opened;
 	jobQueue.isBuilding = false;
 	jobQueue.isBuilt = false;
 	CurrentBuffer()->isReadOnly = false;	// No sense to create an empty, read-only buffer...
@@ -927,7 +935,7 @@ void SciTEBase::New() {
 void SciTEBase::RestoreState(const Buffer &buffer, bool restoreBookmarks) {
 	SetWindowName();
 	ReadProperties();
-	if (CurrentBuffer()->unicodeMode != uni8Bit) {
+	if (CurrentBuffer()->unicodeMode != UniMode::uni8Bit) {
 		// Override the code page if Unicode
 		codePage = SA::CpUtf8;
 		wEditor.SetCodePage(codePage);
@@ -976,7 +984,7 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 		closingLast = (buffers.lengthVisible == 1) && !buffers.buffers[0].pFileWorker;
 		if (closingLast) {
 			buffers.buffers[0].Init();
-			buffers.buffers[0].lifeState = Buffer::opened;
+			buffers.buffers[0].lifeState = Buffer::LifeState::opened;
 			if (extender)
 				extender->InitBuffer(0);
 		} else {
@@ -1004,7 +1012,7 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 		propsDiscovered.superPS = &propsLocal;
 		wEditor.SetDocPointer(GetDocumentAt(buffers.Current()));
 		PerformDeferredTasks();
-		if (bufferNext.lifeState == Buffer::readAll) {
+		if (bufferNext.lifeState == Buffer::LifeState::readAll) {
 			//restoreBookmarks = true;
 			CompleteOpen(OpenCompletion::completeSwitch);
 			if (extender)
@@ -1325,7 +1333,7 @@ bool SciTEBase::AddFileToBuffer(const BufferState &bufferState) {
 				buffers.buffers[iBuffer].file.selection = bufferState.file.selection;
 				buffers.buffers[iBuffer].foldState = bufferState.foldState;
 				buffers.buffers[iBuffer].bookmarks = bufferState.bookmarks;
-				if (buffers.buffers[iBuffer].lifeState == Buffer::opened) {
+				if (buffers.buffers[iBuffer].lifeState == Buffer::LifeState::opened) {
 					// File was opened synchronously
 					RestoreState(buffers.buffers[iBuffer], true);
 					DisplayAround(buffers.buffers[iBuffer].file);

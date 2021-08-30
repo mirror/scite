@@ -41,7 +41,7 @@ double FileWorker::Duration() noexcept {
 }
 
 FileLoader::FileLoader(WorkerListener *pListener_, Scintilla::ILoader *pLoader_, const FilePath &path_, size_t size_, FILE *fp_) :
-	FileWorker(pListener_, path_, size_, fp_), pLoader(pLoader_), readSoFar(0), unicodeMode(uni8Bit) {
+	FileWorker(pListener_, path_, size_, fp_), pLoader(pLoader_), readSoFar(0), unicodeMode(UniMode::uni8Bit) {
 	SetSizeJob(size);
 }
 
@@ -76,7 +76,7 @@ void FileLoader::Execute() {
 		unicodeMode = static_cast<UniMode>(
 				      static_cast<int>(convert.getEncoding()));
 		// Check the first two lines for coding cookies
-		if (unicodeMode == uni8Bit) {
+		if (unicodeMode == UniMode::uni8Bit) {
 			unicodeMode = umCodingCookie;
 		}
 	}
@@ -104,7 +104,7 @@ static constexpr bool IsUTF8TrailByte(int ch) noexcept {
 void FileStorer::Execute() {
 	if (fp) {
 		Utf8_16_Write convert;
-		if (unicodeMode != uniCookie) {	// Save file with cookie without BOM.
+		if (unicodeMode != UniMode::cookie) {	// Save file with cookie without BOM.
 			convert.setEncoding(static_cast<Utf8_16::encodingType>(
 						    static_cast<int>(unicodeMode)));
 		}
@@ -117,7 +117,7 @@ void FileStorer::Execute() {
 			grabSize = lengthDoc - i;
 			if (grabSize > blockSize)
 				grabSize = blockSize;
-			if ((unicodeMode != uni8Bit) && (i + grabSize < lengthDoc)) {
+			if ((unicodeMode != UniMode::uni8Bit) && (i + grabSize < lengthDoc)) {
 				// Round down so only whole characters retrieved.
 				size_t startLast = grabSize;
 				while ((startLast > 0) && ((grabSize - startLast) < 6) && IsUTF8TrailByte(static_cast<unsigned char>(documentBytes[i + startLast])))

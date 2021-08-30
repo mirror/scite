@@ -783,9 +783,9 @@ void SciTEBase::HighlightCurrentWord(bool highlight) {
 				  &SciTEBase::islexerwordcharforsel);
 	if (sWordToFind.length() == 0 || (sWordToFind.find_first_of("\n\r ") != std::string::npos))
 		return; // No highlight when no selection or multi-lines selection.
-	if (noUserSelection && currentWordHighlight.statesOfDelay == currentWordHighlight.noDelay) {
+	if (noUserSelection && currentWordHighlight.statesOfDelay == CurrentWordHighlight::StatesOfDelay::noDelay) {
 		// Manage delay before highlight when no user selection but there is word at the caret.
-		currentWordHighlight.statesOfDelay = currentWordHighlight.delay;
+		currentWordHighlight.statesOfDelay = CurrentWordHighlight::StatesOfDelay::delay;
 		// Reset timer
 		currentWordHighlight.elapsedTimes.Duration(true);
 		return;
@@ -955,10 +955,10 @@ static std::string UnSlashAsNeeded(const std::string &s, bool escapes, bool regu
 
 void SciTEBase::RemoveFindMarks() {
 	findMarker.Stop();	// Cancel ongoing background find
-	if (CurrentBuffer()->findMarks != Buffer::fmNone) {
+	if (CurrentBuffer()->findMarks != Buffer::FindMarks::none) {
 		wEditor.SetIndicatorCurrent(indicatorMatch);
 		wEditor.IndicatorClearRange(0, LengthDocument());
-		CurrentBuffer()->findMarks = Buffer::fmNone;
+		CurrentBuffer()->findMarks = Buffer::FindMarks::none;
 	}
 	wEditor.MarkerDeleteAll(markerFilterMatch);
 	wEditor.AnnotationClearAll();
@@ -987,17 +987,17 @@ void SciTEBase::MarkAll(MarkPurpose purpose) {
 	std::optional<SA::Line> contextLines;
 
 	if (purpose == MarkPurpose::incremental) {
-		CurrentBuffer()->findMarks = Buffer::fmTemporary;
+		CurrentBuffer()->findMarks = Buffer::FindMarks::temporary;
 		SetOneIndicator(wEditor, indicatorMatch,
 			IndicatorDefinition(props.GetString("find.indicator.incremental")));
 	} else if (purpose == MarkPurpose::filter) {
-		CurrentBuffer()->findMarks = Buffer::fmTemporary;
+		CurrentBuffer()->findMarks = Buffer::FindMarks::temporary;
 		SetOneIndicator(wEditor, indicatorMatch,
 				IndicatorDefinition(props.GetString("filter.match.indicator")));
 		bookMark = markerFilterMatch;
 		contextLines = contextVisible ? props.GetInt("filter.context", 2) : 0;
 	} else {
-		CurrentBuffer()->findMarks = Buffer::fmMarked;
+		CurrentBuffer()->findMarks = Buffer::FindMarks::marked;
 		std::string findIndicatorString = props.GetString("find.mark.indicator");
 		IndicatorDefinition findIndicator(findIndicatorString);
 		if (!findIndicatorString.length()) {
@@ -1354,7 +1354,7 @@ intptr_t SciTEBase::ReplaceInBuffers() {
 }
 
 void SciTEBase::UIClosed() {
-	if (CurrentBuffer()->findMarks == Buffer::fmTemporary) {
+	if (CurrentBuffer()->findMarks == Buffer::FindMarks::temporary) {
 		RemoveFindMarks();
 	}
 }
@@ -3115,7 +3115,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 	case IDM_ENCODING_UTF8:
 	case IDM_ENCODING_UCOOKIE:
 		CurrentBuffer()->unicodeMode = static_cast<UniMode>(cmdID - IDM_ENCODING_DEFAULT);
-		if (CurrentBuffer()->unicodeMode != uni8Bit) {
+		if (CurrentBuffer()->unicodeMode != UniMode::uni8Bit) {
 			// Override the code page if Unicode
 			codePage = SA::CpUtf8;
 		} else {
@@ -3898,7 +3898,7 @@ void SciTEBase::UpdateUI(const SCNotification *notification) {
 		}
 		CheckMenusClipboard();
 	}
-	if (CurrentBuffer()->findMarks == Buffer::fmModified) {
+	if (CurrentBuffer()->findMarks == Buffer::FindMarks::modified) {
 		RemoveFindMarks();
 	}
 	const SA::Update updated = static_cast<SA::Update>(notification->updated);
@@ -3906,7 +3906,7 @@ void SciTEBase::UpdateUI(const SCNotification *notification) {
 		if ((notification->nmhdr.idFrom == IDM_SRCWIN) == (pwFocussed == &wEditor)) {
 			// Only highlight focused pane.
 			if (FlagIsSet(updated, SA::Update::Selection)) {
-				currentWordHighlight.statesOfDelay = currentWordHighlight.noDelay; // Selection has just been updated, so delay is disabled.
+				currentWordHighlight.statesOfDelay = CurrentWordHighlight::StatesOfDelay::noDelay; // Selection has just been updated, so delay is disabled.
 				currentWordHighlight.textHasChanged = false;
 				HighlightCurrentWord(true);
 			} else if (currentWordHighlight.textHasChanged) {
@@ -3957,8 +3957,8 @@ void SciTEBase::Modified(const SCNotification *notification) {
 		}
 		// This will be called a lot, and usually means "typing".
 		SetCanUndoRedo(true, false);
-		if (CurrentBuffer()->findMarks == Buffer::fmMarked) {
-			CurrentBuffer()->findMarks = Buffer::fmModified;
+		if (CurrentBuffer()->findMarks == Buffer::FindMarks::marked) {
+			CurrentBuffer()->findMarks = Buffer::FindMarks::modified;
 		}
 	}
 
@@ -3983,9 +3983,9 @@ void SciTEBase::Notify(SCNotification *notification) {
 			// So the Delay is based on the blinking of caret, scroll...
 			// If currentWordHighlight.statesOfDelay == currentWordHighlight.delay,
 			// then there is word at the caret without selection, and need some delay.
-			if (currentWordHighlight.statesOfDelay == currentWordHighlight.delay) {
+			if (currentWordHighlight.statesOfDelay == CurrentWordHighlight::StatesOfDelay::delay) {
 				if (currentWordHighlight.elapsedTimes.Duration() >= 0.5) {
-					currentWordHighlight.statesOfDelay = currentWordHighlight.delayJustEnded;
+					currentWordHighlight.statesOfDelay = CurrentWordHighlight::StatesOfDelay::delayJustEnded;
 					HighlightCurrentWord(true);
 					pwFocussed->InvalidateAll();
 				}

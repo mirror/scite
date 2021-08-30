@@ -1289,11 +1289,11 @@ void SciTEGTK::CheckMenus() {
 	CheckAMenuItem(IDM_EOL_CR, wEditor.EOLMode() == SA::EndOfLine::Cr);
 	CheckAMenuItem(IDM_EOL_LF, wEditor.EOLMode() == SA::EndOfLine::Lf);
 
-	CheckAMenuItem(IDM_ENCODING_DEFAULT, CurrentBuffer()->unicodeMode == uni8Bit);
-	CheckAMenuItem(IDM_ENCODING_UCS2BE, CurrentBuffer()->unicodeMode == uni16BE);
-	CheckAMenuItem(IDM_ENCODING_UCS2LE, CurrentBuffer()->unicodeMode == uni16LE);
-	CheckAMenuItem(IDM_ENCODING_UTF8, CurrentBuffer()->unicodeMode == uniUTF8);
-	CheckAMenuItem(IDM_ENCODING_UCOOKIE, CurrentBuffer()->unicodeMode == uniCookie);
+	CheckAMenuItem(IDM_ENCODING_DEFAULT, CurrentBuffer()->unicodeMode == UniMode::uni8Bit);
+	CheckAMenuItem(IDM_ENCODING_UCS2BE, CurrentBuffer()->unicodeMode == UniMode::uni16BE);
+	CheckAMenuItem(IDM_ENCODING_UCS2LE, CurrentBuffer()->unicodeMode == UniMode::uni16LE);
+	CheckAMenuItem(IDM_ENCODING_UTF8, CurrentBuffer()->unicodeMode == UniMode::utf8);
+	CheckAMenuItem(IDM_ENCODING_UCOOKIE, CurrentBuffer()->unicodeMode == UniMode::cookie);
 
 	CheckAMenuItem(IDM_VIEWSTATUSBAR, sbVisible);
 	CheckAMenuItem(IDM_VIEWTABBAR, tabVisible);

@@ -591,7 +591,7 @@ void SciTEWin::CheckMenus() {
 	::CheckMenuRadioItem(::GetMenu(MainHWND()), IDM_EOL_CRLF, IDM_EOL_LF,
 			     static_cast<int>(wEditor.EOLMode()) - static_cast<int>(SA::EndOfLine::CrLf) + IDM_EOL_CRLF, 0);
 	::CheckMenuRadioItem(::GetMenu(MainHWND()), IDM_ENCODING_DEFAULT, IDM_ENCODING_UCOOKIE,
-			     CurrentBuffer()->unicodeMode + IDM_ENCODING_DEFAULT, 0);
+			     static_cast<int>(CurrentBuffer()->unicodeMode) + IDM_ENCODING_DEFAULT, 0);
 }
 
 void SciTEWin::LocaliseMenu(HMENU hmenu) {

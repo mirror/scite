@@ -879,7 +879,7 @@ void SciTEBase::ReadProperties() {
 	wOutput.SetBidirectional(bidirectional);
 
 	codePage = props.GetInt("code.page");
-	if (CurrentBuffer()->unicodeMode != uni8Bit) {
+	if (CurrentBuffer()->unicodeMode != UniMode::uni8Bit) {
 		// Override properties file to ensure Unicode displayed.
 		codePage = SA::CpUtf8;
 	}
@@ -1482,7 +1482,7 @@ void SciTEBase::ReadProperties() {
 	wEditor.IndicatorClearRange(0, wEditor.Length());
 	wOutput.SetIndicatorCurrent(indicatorHighlightCurrentWord);
 	wOutput.IndicatorClearRange(0, wOutput.Length());
-	currentWordHighlight.statesOfDelay = currentWordHighlight.noDelay;
+	currentWordHighlight.statesOfDelay = CurrentWordHighlight::StatesOfDelay::noDelay;
 
 	SetElementColour(SA::Element::FoldLine, "fold.line.colour");
 	SetElementColour(SA::Element::HiddenLine, "hidden.line.colour");
@@ -1581,17 +1581,17 @@ void SciTEBase::ReadEditorConfig(const std::string &fileNameForExtension) {
 				}
 			} else if (pss.first == "charset") {
 				if (pss.second == "latin1") {
-					CurrentBuffer()->unicodeMode = uni8Bit;
+					CurrentBuffer()->unicodeMode = UniMode::uni8Bit;
 					codePage = 0;
 				} else {
 					if (pss.second == "utf-8")
-						CurrentBuffer()->unicodeMode = uniCookie;
+						CurrentBuffer()->unicodeMode = UniMode::cookie;
 					if (pss.second == "utf-8-bom")
-						CurrentBuffer()->unicodeMode = uniUTF8;
+						CurrentBuffer()->unicodeMode = UniMode::utf8;
 					if (pss.second == "utf-16be")
-						CurrentBuffer()->unicodeMode = uni16BE;
+						CurrentBuffer()->unicodeMode = UniMode::uni16BE;
 					if (pss.second == "utf-16le")
-						CurrentBuffer()->unicodeMode = uni16LE;
+						CurrentBuffer()->unicodeMode = UniMode::uni16LE;
 					codePage = SA::CpUtf8;
 				}
 				wEditor.SetCodePage(codePage);
@@ -1679,7 +1679,7 @@ void SciTEBase::ReadFontProperties() {
 	}
 
 	// Turn grey while loading
-	if (CurrentBuffer()->lifeState == Buffer::reading)
+	if (CurrentBuffer()->lifeState == Buffer::LifeState::reading)
 		wEditor.StyleSetBack(StyleDefault, 0xEEEEEE);
 
 	wOutput.StyleClearAll();
