@@ -150,7 +150,7 @@ def OctalEscape(s):
         if char < 128:
             result.append(chr(char))
         else:
-            result.append("\%o" % char)
+            result.append(r"\%o" % char)
     return ''.join(result)
 
 def UpdateEmbedded(pathSciTE, propFiles):
@@ -213,7 +213,7 @@ def ExtractItems(pathHistory):
                     pass
                 elif '<a href="https://www.scintilla.org/' in l:
                     pass
-                elif re.match("Released \d+ \w+ \d+", l.strip()):
+                elif re.match(r"Released \d+ \w+ \d+", l.strip()):
                     #Released 5 March 2021.
                     pass
                 else:
