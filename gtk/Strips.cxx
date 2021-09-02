@@ -716,6 +716,7 @@ void ReplaceStrip::Close() {
 			pSearcher->InsertFindInMemory();
 		}
 		Strip::Close();
+		pSearcher->filterState = false;
 		pSearcher->FilterAll(false);
 		pSearcher->UIClosed();
 	}
