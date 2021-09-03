@@ -76,6 +76,8 @@ const char *textMarkAll = "_Mark All";
 const char *textReplace = "_Replace";
 const char *textInSelection = "In _Selection";
 
+const char *textFilterPrompt = "_Filter:";
+
 /* XPM */
 const char * word1_x_xpm[] = {
 "16 16 15 1",
@@ -795,7 +797,7 @@ void FilterStrip::Creation(GtkWidget *container) {
 	Strip::Creation(container);
 	gtk_container_set_border_width(GTK_CONTAINER(GetID()), 1);
 	gtk_box_pack_start(GTK_BOX(container), GTK_WIDGET(GetID()), FALSE, FALSE, 0);
-	wStaticFind.Create(localiser->Text(textFindPrompt).c_str());
+	wStaticFind.Create(localiser->Text(textFilterPrompt).c_str());
 	table.Label(wStaticFind);
 
 	g_signal_connect(G_OBJECT(GetID()), "set-focus-child", G_CALLBACK(ChildFocusSignal), this);

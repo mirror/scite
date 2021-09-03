@@ -241,18 +241,18 @@ bool HideKeyboardCues() noexcept {
 	return !b;
 }
 
-}
+const char *textFindPrompt = "Fi&nd:";
+const char *textReplacePrompt = "Rep&lace:";
+const char *textFindNext = "&Find Next";
+const char *textMarkAll = "&Mark All";
 
-static const char *textFindPrompt = "Fi&nd:";
-static const char *textReplacePrompt = "Rep&lace:";
-static const char *textFindNext = "&Find Next";
-static const char *textMarkAll = "&Mark All";
+const char *textReplace = "&Replace";
+const char *textReplaceAll = "Replace &All";
+const char *textInSelection = "In &Selection";
 
-static const char *textReplace = "&Replace";
-static const char *textReplaceAll = "Replace &All";
-static const char *textInSelection = "In &Selection";
+const char *textFilterPrompt = "&Filter:";
 
-static SearchOption toggles[] = {
+SearchOption toggles[] = {
 	{"Match &whole word only", IDM_WHOLEWORD, IDWHOLEWORD},
 	{"&Case sensitive", IDM_MATCHCASE, IDMATCHCASE},
 	{"Regular &expression", IDM_REGEXP, IDREGEXP},
@@ -263,6 +263,8 @@ static SearchOption toggles[] = {
 	{"Conte&xt", IDM_CONTEXTVISIBLE, IDCONTEXTVISIBLE},
 	{nullptr, 0, 0},
 };
+
+}
 
 GUI::Window Strip::CreateText(const char *text) {
 	GUI::gui_string localised = localiser->Text(text);
@@ -1564,7 +1566,7 @@ void ReplaceStrip::ShowStrip() {
 void FilterStrip::Creation() {
 	SearchStripBase::Creation();
 
-	wStaticFind = CreateText(textFindPrompt);
+	wStaticFind = CreateText(textFilterPrompt);
 
 	wText = CreateWindowEx(0, TEXT("ComboBox"), TEXT(""),
 		WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | CBS_DROPDOWN | CBS_AUTOHSCROLL,
