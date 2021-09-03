@@ -1142,11 +1142,7 @@ void SciTEWin::Filter() {
 	filterStrip.visible = true;
 	failedfind = false;
 	SizeSubWindows();
-	if (filterStrip.visible) {
-		filterStrip.ShowStrip();
-	} else {
-		WindowSetFocus(wEditor);
-	}
+	filterStrip.ShowStrip();
 }
 
 bool SciTEWin::FilterShowing() {
