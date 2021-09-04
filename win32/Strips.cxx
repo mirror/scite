@@ -132,7 +132,7 @@ void SetComboText(GUI::Window w, const std::string &s, ComboSelection selection)
 void SetComboFromMemory(GUI::Window w, const ComboMemory &mem) {
 	HWND combo = HwndOf(w);
 	ComboBox_ResetContent(combo);
-	for (int i = 0; i < mem.Length(); i++) {
+	for (size_t i = 0; i < mem.Length(); i++) {
 		GUI::gui_string gs = GUI::StringFromUTF8(mem.At(i));
 		ComboBoxAppend(combo, gs);
 	}

@@ -1859,7 +1859,7 @@ static void FillComboFromProps(WComboBoxEntry *combo, PropSetFile &props) {
 
 static void FillComboFromMemory(WComboBoxEntry *combo, const ComboMemory &mem, bool useTop = false) {
 	combo->ClearList();
-	for (int i = 0; i < mem.Length(); i++) {
+	for (size_t i = 0; i < mem.Length(); i++) {
 		combo->AppendText(mem.At(i).c_str());
 	}
 	if (useTop) {

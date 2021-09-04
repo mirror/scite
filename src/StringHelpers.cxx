@@ -478,3 +478,44 @@ std::string UnicodeUnEscape(std::string_view s) {
 	}
 	return result;
 }
+
+ComboMemory::ComboMemory(size_t sz_) : sz(sz_) {
+}
+
+void ComboMemory::Insert(std::string_view item) {
+	std::vector<std::string>::iterator match = std::find(entries.begin(), entries.end(), item);
+	if (match != entries.end()) {
+		entries.erase(match);
+	}
+	entries.insert(entries.begin(), std::string(item));
+	if (entries.size() > sz) {
+		entries.pop_back();
+	}
+}
+
+bool ComboMemory::Present(const std::string_view sv) const noexcept {
+	for (const std::string &e : entries) {
+		if (e == sv) {
+			return true;
+		}
+	}
+	return false;
+}
+
+void ComboMemory::Append(std::string_view item) {
+	if (!Present(item) && entries.size() < sz) {
+		entries.push_back(std::string(item));
+	}
+}
+
+size_t ComboMemory::Length() const noexcept {
+	return entries.size();
+}
+
+std::string ComboMemory::At(size_t n) const {
+	return entries[n];
+}
+
+std::vector<std::string> ComboMemory::AsVector() const {
+	return entries;
+}

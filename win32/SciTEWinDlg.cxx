@@ -828,7 +828,7 @@ public:
 	void FillComboFromMemory(int id, const ComboMemory &mem, bool useTop = false) {
 		HWND combo = Item(id);
 		ComboBox_ResetContent(combo);
-		for (int i = 0; i < mem.Length(); i++) {
+		for (size_t i = 0; i < mem.Length(); i++) {
 			GUI::gui_string gs = GUI::StringFromUTF8(mem.At(i));
 			ComboBoxAppend(combo, gs);
 		}

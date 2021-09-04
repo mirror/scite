@@ -666,19 +666,19 @@ void SciTEBase::RestoreFromSession(const Session &session) {
 void SciTEBase::RestoreSession() {
 	if (props.GetInt("save.find") != 0) {
 		for (int i = 0;; i++) {
-			std::string propKey = IndexPropKey("search", i, "findwhat");
-			std::string propStr = propsSession.GetString(propKey.c_str());
+			const std::string propKey = IndexPropKey("search", i, "findwhat");
+			const std::string propStr = propsSession.GetString(propKey.c_str());
 			if (propStr == "")
 				break;
-			memFinds.AppendList(propStr);
+			memFinds.Append(propStr);
 		}
 
 		for (int i = 0;; i++) {
-			std::string propKey = IndexPropKey("search", i, "replacewith");
-			std::string propStr = propsSession.GetString(propKey.c_str());
+			const std::string propKey = IndexPropKey("search", i, "replacewith");
+			const std::string propStr = propsSession.GetString(propKey.c_str());
 			if (propStr == "")
 				break;
-			memReplaces.AppendList(propStr);
+			memReplaces.Append(propStr);
 		}
 	}
 
@@ -787,7 +787,6 @@ void SciTEBase::SaveSessionFile(const GUI::gui_char *sessionName) {
 		mem = memReplaces.AsVector();
 		if (!mem.empty()) {
 			fprintf(sessionFile, "\n");
-			mem = memReplaces.AsVector();
 			it = mem.begin();
 			for (int i = 0; it != mem.end(); i++, ++it) {
 				propKey = IndexPropKey("search", i, "replacewith");
