@@ -83,7 +83,7 @@ Searcher::Searcher() {
 
 void Searcher::InsertFindInMemory() {
 	if (!findWhat.empty()) {
-		memFinds.Insert(findWhat);
+		memFinds.InsertDeletePrefix(findWhat);
 	}
 }
 

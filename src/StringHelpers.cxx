@@ -493,6 +493,19 @@ void ComboMemory::Insert(std::string_view item) {
 	}
 }
 
+// Insert item at front of list, replacing the current front if one is a prefix
+// of the other. This prevents typing or backspacing adding a large number of
+// incomplete values.
+void ComboMemory::InsertDeletePrefix(std::string_view item) {
+	if (!entries.empty()) {
+		const std::string_view svFront = entries.front();
+		if (StartsWith(item, svFront) || StartsWith(svFront, item)) {
+			entries.erase(entries.begin());
+		}
+	}
+	Insert(item);
+}
+
 bool ComboMemory::Present(const std::string_view sv) const noexcept {
 	for (const std::string &e : entries) {
 		if (e == sv) {

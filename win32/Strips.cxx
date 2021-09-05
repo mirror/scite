@@ -1081,6 +1081,7 @@ void FindReplaceStrip::NextIncremental(ChangingSource source) {
 	SetFindFromSource(source);
 
 	if (pSearcher->FindHasText()) {
+		pSearcher->InsertFindInMemory();
 		pSearcher->FindNext(pSearcher->reverseFind, false, true);
 		pSearcher->SetCaretAsStart();
 	}
@@ -1646,6 +1647,7 @@ bool FilterStrip::KeyDown(WPARAM key) {
 
 void FilterStrip::Filter(ChangingSource source) {
 	SetFindFromSource(source);
+	pSearcher->InsertFindInMemory();
 	pSearcher->FilterAll(true);
 }
 

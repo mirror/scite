@@ -166,6 +166,7 @@ class ComboMemory {
 public:
 	ComboMemory(size_t sz_=comboMemorySize);
 	void Insert(std::string_view item);
+	void InsertDeletePrefix(std::string_view item);
 	void Append(std::string_view item);
 	size_t Length() const noexcept;
 	std::string At(size_t n) const;
