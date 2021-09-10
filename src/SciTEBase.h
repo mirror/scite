@@ -257,6 +257,12 @@ public:
 	bool read;
 	Localization() : PropSetFile(true), read(false) {
 	}
+	// Deleted so Localization objects can not be copied.
+	Localization(const Localization &) = delete;
+	Localization(Localization &&) = delete;
+	Localization &operator=(const Localization &) = delete;
+	Localization &operator=(Localization &&) = delete;
+	virtual ~Localization() = default;
 	GUI::gui_string Text(std::string_view sv, bool retainIfNotFound=true) const override;
 	void SetMissing(const std::string &missing_) {
 		missing = missing_;
