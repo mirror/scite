@@ -574,6 +574,7 @@
       </tr><tr>
 	<td>Rainer Kottenhoff</td>
 	<td>Michael Heath</td>
+	<td>feitoi</td>
       </tr>
     </table>
     <p>
@@ -658,6 +659,10 @@
 		<a href="https://github.com/ScintillaOrg/lexilla/issues/20">Issue #20</a>.
 		<a href="https://sourceforge.net/p/scintilla/bugs/2143/">Bug #2143</a>.
 		</li>
+		<li>
+		For PHP, recognize PHP code within JavaScript strings.
+		<a href="https://github.com/ScintillaOrg/lexilla/pull/27">Pull request #27</a>.
+		</li>
 	</ul>
 	<li>Scintilla 5.1.2</li>
 	<ul>
@@ -682,6 +687,10 @@
 		</li>
 		<li>
 		Fix display of fold lines when wrapped so they are only drawn once per line, not on each subline.
+		</li>
+		<li>
+		Fix crash with too many subexpressions in regular expression search with SCFIND_CXX11REGEX.
+		<a href="https://sourceforge.net/p/scintilla/bugs/2281/">Bug #2281</a>.
 		</li>
 		<li>
 		On Cocoa, fix memory leak caused by circular references.
