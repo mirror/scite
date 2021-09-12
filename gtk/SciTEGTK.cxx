@@ -1862,7 +1862,7 @@ static void FillComboFromMemory(WComboBoxEntry *combo, const ComboMemory &mem, b
 	for (size_t i = 0; i < mem.Length(); i++) {
 		combo->AppendText(mem.At(i).c_str());
 	}
-	if (useTop) {
+	if (useTop && mem.Length() > 0) {
 		combo->SetText(mem.At(0));
 	}
 }
