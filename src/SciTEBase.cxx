@@ -1204,6 +1204,7 @@ void SciTEBase::ReplaceOnce(bool showWarnings) {
 		else	// Allow \0 in replacement
 			wEditor.ReplaceTarget(replaceTarget);
 		SetSelection(rangeSelection.start + lenReplaced, rangeSelection.start);
+		SetCaretAsStart();
 		havefound = false;
 	}
 
