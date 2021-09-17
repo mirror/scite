@@ -1208,10 +1208,12 @@ void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *m
 	long keycode = 0;
 	if (mnemonic && *mnemonic) {
 		keycode = SciTEKeys::ParseKeyCode(mnemonic);
+#if !GTK_CHECK_VERSION(3,6,0)
 		if (keycode) {
 			itemText += " ";
 			itemText += mnemonic;
 		}
+#endif
 		// the keycode could be used to make a custom accelerator table
 		// but for now, the menu's item data is used instead for command
 		// tools, and for other menu entries it is just discarded.
@@ -1227,6 +1229,12 @@ void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *m
 			gpointer d = g_list_nth(al, ii);
 			GtkWidget **w = (GtkWidget **)d;
 			gtk_label_set_text_with_mnemonic(GTK_LABEL(*w), itemText.c_str());
+#if GTK_CHECK_VERSION(3,6,0)
+			if (keycode) {
+				gtk_accel_label_set_accel(GTK_ACCEL_LABEL(*w), keycode & 0xFFFF,
+					static_cast<GdkModifierType>(keycode >> 16));
+			}
+#endif
 		}
 		g_list_free(al);
 		gtk_widget_show(item);
