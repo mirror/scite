@@ -1197,14 +1197,10 @@ bool FindStrip::KeyDown(WPARAM key) {
 		return true;
 	if (key == VK_RETURN) {
 		if (IsChild(Hwnd(), ::GetFocus())) {
-			if (incrementalBehaviour == IncrementalBehaviour::simple) {
-				Next(false, IsKeyDown(VK_SHIFT));
-			} else {
-				if (pSearcher->closeFind == Searcher::CloseFind::closePrevent) {
-					Next(false, IsKeyDown(VK_SHIFT));
-				} else {
-					Close();
-				}
+			Next(false, IsKeyDown(VK_SHIFT));
+			if ((incrementalBehaviour != IncrementalBehaviour::simple) &&
+				(pSearcher->closeFind != Searcher::CloseFind::closePrevent)) {
+				Close();
 			}
 			return true;
 		}
@@ -1243,14 +1239,10 @@ bool FindStrip::Command(WPARAM wParam) {
 	const int control = ControlIDOfWParam(wParam);
 	const WPARAM subCommand = SubCommandOfWParam(wParam);
 	if (control == IDOK) {
-		if (incrementalBehaviour == IncrementalBehaviour::simple) {
-			Next(false, false);
-		} else {
-			if (pSearcher->closeFind == Searcher::CloseFind::closePrevent) {
-				Next(false, false);
-			} else {
-				Close();
-			}
+		Next(false, false);
+		if ((incrementalBehaviour != IncrementalBehaviour::simple) &&
+			(pSearcher->closeFind != Searcher::CloseFind::closePrevent)) {
+			Close();
 		}
 		return true;
 	} else if (control == IDMARKALL) {
