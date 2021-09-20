@@ -624,7 +624,7 @@ void ReplaceStrip::Creation(GtkWidget *container) {
 	tableReplace.Add(*wCheck[1], 1, false, 0, 0);
 	tableReplace.Add(*wCheck[5], 1, false, 0, 0);
 	tableReplace.Add(*wCheck[6], 1, false, 0, 0);
-	
+
 	wStaticReplace.Create(localiser->Text(textReplacePrompt));
 	tableReplace.Label(wStaticReplace);
 
