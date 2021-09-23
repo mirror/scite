@@ -913,6 +913,14 @@ SciTEBase::SaveResult SciTEBase::SaveIfUnsureAll() {
 		}
 	}
 
+	// Any buffers that have been read but not marked read should be marked
+	// read and their loaders deleted
+	for (Buffer &buffer : buffers.buffers) {
+		if (buffer.lifeState == Buffer::LifeState::readAll) {
+			buffer.CompleteLoading();
+		}
+	}
+
 	// Definitely going to exit now, so delete all documents
 	// Set editor back to initial document
 	if (buffers.lengthVisible > 0) {
