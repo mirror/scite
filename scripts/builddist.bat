@@ -1,7 +1,6 @@
 :: builddist.bat
-:: Build all of Scintilla and SciTE for distribution and place into a subdirectory called upload%SCINTILLA_VERSION%
+:: Build all of Lexilla, Scintilla and SciTE for distribution and place into a subdirectory called upload%SCITE_VERSION%
 :: This batch file is distributed inside scite but is commonly copied out into its own working directory
-:: Does not yet handle Scintilla and Lexilla with different version numbers
 
 :: Requires hg and zip to be in the path. nmake, cl, and link are found by vcvars*.bat
 
@@ -12,8 +11,8 @@ set "MSVC17_DIRECTORY=C:\Program Files (x86)\Microsoft Visual Studio\2017\Commun
 set REPOSITORY_DIRECTORY=..\hg
 
 :: Discover the Scintilla version as that is used in file and directory names
-for /F %%i IN (%REPOSITORY_DIRECTORY%\scintilla\version.txt) do set "SCINTILLA_VERSION=%%i"
-set "UPLOAD_DIRECTORY=upload%SCINTILLA_VERSION%"
+for /F %%i IN (%REPOSITORY_DIRECTORY%\scite\version.txt) do set "SCITE_VERSION=%%i"
+set "UPLOAD_DIRECTORY=upload%SCITE_VERSION%"
 
 :: Clean then copy from archive into scintilla and scite subdirectories
 
@@ -60,12 +59,12 @@ popd
 
 :: Copy into correctly numbered upload directory
 echo %UPLOAD_DIRECTORY%
-mkdir upload%SCINTILLA_VERSION%
-copy lexilla.zip %UPLOAD_DIRECTORY%\lexilla%SCINTILLA_VERSION%.zip
-copy scintilla.zip %UPLOAD_DIRECTORY%\scintilla%SCINTILLA_VERSION%.zip
-copy scite.zip %UPLOAD_DIRECTORY%\scite%SCINTILLA_VERSION%.zip
-copy wscite.zip %UPLOAD_DIRECTORY%\wscite%SCINTILLA_VERSION%.zip
-copy Sc1.exe %UPLOAD_DIRECTORY%\Sc%SCINTILLA_VERSION%.exe
+mkdir upload%SCITE_VERSION%
+copy lexilla.zip %UPLOAD_DIRECTORY%\lexilla%SCITE_VERSION%.zip
+copy scintilla.zip %UPLOAD_DIRECTORY%\scintilla%SCITE_VERSION%.zip
+copy scite.zip %UPLOAD_DIRECTORY%\scite%SCITE_VERSION%.zip
+copy wscite.zip %UPLOAD_DIRECTORY%\wscite%SCITE_VERSION%.zip
+copy Sc1.exe %UPLOAD_DIRECTORY%\Sc%SCITE_VERSION%.exe
 
 :: Clean all
 pushd scite
@@ -106,8 +105,8 @@ call zipwscite
 popd
 
 :: Copy into correctly numbered upload directory
-copy wscite.zip %UPLOAD_DIRECTORY%\wscite32_%SCINTILLA_VERSION%.zip
-copy Sc1.exe %UPLOAD_DIRECTORY%\Sc32_%SCINTILLA_VERSION%.exe
+copy wscite.zip %UPLOAD_DIRECTORY%\wscite32_%SCITE_VERSION%.zip
+copy Sc1.exe %UPLOAD_DIRECTORY%\Sc32_%SCITE_VERSION%.exe
 
 :: Clean all
 pushd scite
