@@ -947,7 +947,7 @@ gboolean UserStrip::EscapeSignal(GtkWidget *w, GdkEventKey *event, UserStrip *pS
 	return FALSE;
 }
 
-void UserStrip::ClickThis(GtkWidget *w) {
+void UserStrip::ClickThis(const GtkWidget *w) {
 	for (const std::vector<UserControl> &line : psd->controls) {
 		for (const UserControl &ctl : line) {
 			if (w == GTK_WIDGET(ctl.w.GetID())) {

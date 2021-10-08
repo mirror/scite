@@ -129,7 +129,7 @@ public:
 	bool KeyDown(const GdkEventKey *event) override;
 	static void ActivateSignal(GtkWidget *w, UserStrip *pStrip);
 	static gboolean EscapeSignal(GtkWidget *w, GdkEventKey *event, UserStrip *pStrip);
-	void ClickThis(GtkWidget *w);
+	void ClickThis(const GtkWidget *w);
 	static void ClickSignal(GtkWidget *w, UserStrip *pStrip);
 	void ChildFocus(GtkWidget *widget) override;
 	gboolean Focus(GtkDirectionType direction) override;
