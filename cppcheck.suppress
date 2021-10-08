@@ -11,6 +11,9 @@ useInitializationList
 // FilePath has a non-explicit constructor used for conversions
 noExplicitConstructor:scite/src/FilePath.h
 
+// Cppcheck wrongly flags check as always true
+knownConditionTrueFalse:scite/src/PropSetFile.cxx
+
 // Doesn't analyze execution path correctly.
 nullPointerRedundantCheck:scite/src/SciTEBase.cxx
 
