@@ -1104,8 +1104,10 @@ void FindReplaceStrip::MarkIncremental() {
 }
 
 void FindReplaceStrip::Close() {
-	pSearcher->filterState = false;
-	pSearcher->FilterAll(false);
+	if (pSearcher->filterState) {
+		pSearcher->filterState = false;
+		pSearcher->FilterAll(false);
+	}
 	if (pSearcher->havefound) {
 		pSearcher->InsertFindInMemory();
 	}
