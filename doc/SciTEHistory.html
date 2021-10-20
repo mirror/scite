@@ -598,6 +598,21 @@
 		Fix highlighting of matches with "Mark All" button in find strip.
 		</li>
 	</ul>
+	<li>Lexilla 5.1.3</li>
+	<ul>
+		<li>
+		Fix parsing of 128-bit integer literals in Rust.
+		<a href="https://github.com/ScintillaOrg/lexilla/issues/33">Issue #33</a>,
+		</li>
+		<li>
+		Fix different styles between \r and \n at end of line comments for Rust.
+		<a href="https://github.com/ScintillaOrg/lexilla/issues/34">Issue #34</a>,
+		</li>
+		<li>
+		For Rust, don't go past end when file ends with unterminated block comment.
+		<a href="https://github.com/ScintillaOrg/lexilla/issues/35">Issue #35</a>,
+		</li>
+	</ul>
 	<li>Scintilla 5.1.4</li>
 	<ul>
 		<li>
@@ -605,6 +620,15 @@
 		</li>
 		<li>
 		On GTK, fix potential crash when closing Scintilla instances due to releasing global settings object.
+		</li>
+		<li>
+		On Win32, when window is wider than scroll width,
+		use correct values when checking whether to change horizontal scroll bar so
+		only update and notify dwell end when needed.
+		<a href="https://sourceforge.net/p/scintilla/bugs/2288/">Bug #2288</a>.
+		</li>
+		<li>
+		GetLineEndTypesSupported returns LineEndType, not int.
 		</li>
 	</ul>
     </ul>
