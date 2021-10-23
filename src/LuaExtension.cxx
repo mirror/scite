@@ -124,6 +124,14 @@ inline bool IFacePropertyIsScriptable(const IFaceProperty &p) noexcept {
 		 (p.paramType == iface_bool)) && (p.getter || p.setter));
 }
 
+namespace {
+
+const char *push_string(lua_State *L, const std::string &s) noexcept {
+	return lua_pushlstring(L, s.data(), s.length());
+}
+
+}
+
 inline void raise_error(lua_State *L, const char *errMsg=nullptr) {
 	luaL_where(L, 1);
 	if (errMsg) {
@@ -272,7 +280,7 @@ static int cf_scite_constname(lua_State *L) {
 	const char *prefix = luaL_optstring(L, 2, nullptr);
 	const std::string constName = IFaceTable::GetConstantName(message, prefix);
 	if (constName.length() > 0) {
-		lua_pushstring(L, constName.c_str());
+		push_string(L, constName);
 		return 1;
 	} else {
 		raise_error(L, "Argument does not match any Scintilla / SciTE constant");
@@ -334,7 +342,7 @@ static int cf_scite_strip_set_list(lua_State *L) {
 static int cf_scite_strip_value(lua_State *L) {
 	const int control = luaL_checkint(L, 1);
 	std::string value = host->UserStripValue(control);
-	lua_pushstring(L, value.c_str());
+	push_string(L, value);
 	return 1;
 }
 
@@ -375,7 +383,7 @@ static int cf_pane_textrange(lua_State *L) {
 		const SA::Position cpMax = luaL_checkinteger(L, 3);
 		if (cpMax >= 0) {
 			std::string range = host->Range(p, SA::Span(cpMin, cpMax));
-			lua_pushstring(L, range.c_str());
+			push_string(L, range);
 			return 1;
 		} else {
 			raise_error(L, "Invalid argument 2 for <pane>:textrange.  Positive number or zero expected.");
@@ -528,7 +536,7 @@ static int cf_match_metatable_index(lua_State *L) {
 			// Exception: if the changes are made exclusively through match:replace,
 			// everything will be fine.
 			const std::string range = host->Range(pmo->pane, pmo->range);
-			lua_pushstring(L, range.c_str());
+			push_string(L, range);
 			return 1;
 		} else if (0 == strcmp(key, "replace")) {
 			const int replaceMethodIndex = lua_upvalueindex(1);
@@ -665,7 +673,7 @@ static int cf_props_metatable_index(lua_State *L) {
 
 	if (lua_isstring(L, selfArg + 1)) {
 		std::string value = host->Property(lua_tostring(L, selfArg + 1));
-		lua_pushstring(L, value.c_str());
+		push_string(L, value);
 		return 1;
 	} else {
 		raise_error(L, "String argument required for property access");
@@ -950,7 +958,7 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 	int resultCount = 0;
 
 	if (needStringResult) {
-		lua_pushstring(L, stringResult.c_str());
+		push_string(L, stringResult);
 		resultCount++;
 	}
 
@@ -1993,7 +2001,7 @@ struct StylingContext {
 		for (SA::Position i = 0; i < len; i++) {
 			sReturn[i] = context->styler->SafeGetCharAt(start + i);
 		}
-		lua_pushstring(L, sReturn.c_str());
+		push_string(L, sReturn);
 		return 1;
 	}
 
@@ -2048,7 +2056,7 @@ bool LuaExtension::OnStyle(SA::Position startPos, SA::Position lengthDoc, int in
 
 			lua_pushstring(luaState, "language");
 			std::string lang = host->Property("Language");
-			lua_pushstring(luaState, lang.c_str());
+			push_string(luaState, lang);
 			lua_settable(luaState, -3);
 
 			sc.PushMethod(luaState, StylingContext::Line, "Line");
