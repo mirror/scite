@@ -133,6 +133,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"ANNOTATION_STANDARD",1},
 	{"CARETSTYLE_BLOCK",2},
 	{"CARETSTYLE_BLOCK_AFTER",0x100},
+	{"CARETSTYLE_CURSES",0x20},
 	{"CARETSTYLE_INS_MASK",0xF},
 	{"CARETSTYLE_INVISIBLE",0},
 	{"CARETSTYLE_LINE",1},
@@ -3717,7 +3718,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 321,
-	ifaceConstantCount = 3000,
+	ifaceConstantCount = 3001,
 	ifacePropertyCount = 259
 };
 
