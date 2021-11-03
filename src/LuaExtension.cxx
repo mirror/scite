@@ -922,8 +922,7 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 	if (needStringResult) {
 		const intptr_t stringResultLen = host->Send(p, static_cast<SA::Message>(func.value), params[0], 0);
 		if (stringResultLen > 0) {
-			// not all string result methods are guaranteed to add a null terminator
-			stringResult.assign(stringResultLen + 1, '\0');
+			stringResult.assign(stringResultLen, '\0');
 			params[1] = SptrFromPointer(&stringResult[0]);
 		} else {
 			// Is this an error?  Are there any cases where it's not an error,
