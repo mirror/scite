@@ -342,6 +342,10 @@ FilePath FilePath::GetWorkingDirectory() {
 #endif
 	if (pdir) {
 		GUI::gui_string gswd(pdir);
+#if defined(_MSC_VER)
+// free is the only way to return the memory from getcwd
+#pragma warning(suppress: 26408)
+#endif
 		free(pdir);
 		// In Windows, getcwd returns a trailing backslash
 		// when the CWD is at the root of a disk, so remove it
