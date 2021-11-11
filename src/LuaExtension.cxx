@@ -921,14 +921,8 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 
 	if (needStringResult) {
 		const intptr_t stringResultLen = host->Send(p, static_cast<SA::Message>(func.value), params[0], 0);
-		if (stringResultLen > 0) {
-			stringResult.assign(stringResultLen, '\0');
-			params[1] = SptrFromPointer(&stringResult[0]);
-		} else {
-			// Is this an error?  Are there any cases where it's not an error,
-			// and where the right thing to do is just return a blank string?
-			return 0;
-		}
+		stringResult.assign(stringResultLen, '\0');
+		params[1] = SptrFromPointer(stringResult.data());
 		if (func.paramType[0] == iface_length) {
 			params[0] = stringResultLen;
 		}
