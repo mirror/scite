@@ -88,7 +88,7 @@ make "$JOBS" "$NO_GLIB_DEPRECATIONS" GTK3=1
 (
 cd scite/gtk || exit
 make clean
-make "$JOBS" GTK3=1
+make "$JOBS" "$NO_GLIB_DEPRECATIONS" GTK3=1
 )
 
 # ************************************************************
@@ -169,7 +169,7 @@ make "$JOBS" "$NO_GLIB_DEPRECATIONS" CLANG=1 GTK3=1
 (
 cd scite/gtk || exit
 make clean
-make "$JOBS" CLANG=1 GTK3=1
+make "$JOBS" "$NO_GLIB_DEPRECATIONS" CLANG=1 GTK3=1
 )
 
 # ************************************************************
