@@ -6,7 +6,7 @@
 
 :: Define local paths here
 
-set "MSVC_DIRECTORY=C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build"
+set "MSVC_DIRECTORY=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build"
 set "MSVC17_DIRECTORY=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build"
 set REPOSITORY_DIRECTORY=..\hg
 
