@@ -578,6 +578,10 @@
 	<td>vsl7</td>
       </tr><tr>
 	<td>Antonio Cebrián</td>
+	<td>Jan Dolinár</td>
+	<td>Rowan Daniell</td>
+	<td>David Yu Yang</td>
+      </tr><tr>
       </tr>
     </table>
     <p>
@@ -604,6 +608,11 @@
 		<li>
 		Add asciidoc lexer.
 		<a href="https://github.com/ScintillaOrg/lexilla/pull/39">Pull request #39</a>.
+		</li>
+		<li>
+		Add provisional GDScript lexer.
+		Some behaviour and lexical states may change before this lexer is stable.
+		<a href="https://github.com/ScintillaOrg/lexilla/pull/41">Pull request #41</a>.
 		</li>
 		<li>
 		Fix strings ending in escaped '\' in F#.
@@ -638,6 +647,23 @@
 		<li>
 		On Win32 prevent potential memory leaks for Korean language input.
 		<a href="https://sourceforge.net/p/scintilla/bugs/2295/">Bug #2295</a>.
+		</li>
+		<li>
+		On Cocoa set active state correctly at creation.
+		<a href="https://sourceforge.net/p/scintilla/bugs/2299/">Bug #2299</a>.
+		</li>
+		<li>
+		On macOS 12, fix bug where margin would not draw when scrolled.
+		<a href="https://sourceforge.net/p/scintilla/bugs/2292/">Bug #2292</a>.
+		</li>
+		<li>
+		On Cocoa, fix crash when drag image empty.
+		<a href="https://sourceforge.net/p/scintilla/bugs/2300/">Bug #2300</a>.
+		</li>
+		<li>
+		On GTK using Wayland, display autocompletion with window on a secondary monitor.
+		<a href="https://sourceforge.net/p/scintilla/bugs/2296/">Bug #2296</a>,
+		<a href="https://sourceforge.net/p/scintilla/bugs/2261/">Bug #2261</a>.
 		</li>
 	</ul>
     </ul>

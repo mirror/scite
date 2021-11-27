@@ -2455,6 +2455,10 @@ representations=π=Pi,\u20AA=shekel(\u20AA),!0,#FF000090,\x0D\x0A=crlf</div>
         <td>fold.fsharp.preprocessor</td>
         <td>Setting this option to 1 enables folding of F# compiler directives.</td>
         </tr>
+        <tr id='property-fold.gdscript.quotes'>
+        <td>fold.gdscript.quotes</td>
+        <td>This option enables folding multi-line quoted strings when using the GDScript lexer.</td>
+        </tr>
         <tr id='property-fold.haskell.imports'>
         <td>fold.haskell.imports</td>
         <td>Set to 1 to enable folding of import declarations</td>
@@ -2630,6 +2634,26 @@ representations=π=Pi,\u20AA=shekel(\u20AA),!0,#FF000090,\x0D\x0A=crlf</div>
         <tr id='property-lexer.flagship.styling.within.preprocessor'>
         <td>lexer.flagship.styling.within.preprocessor</td>
         <td>For Harbour code, determines whether all preprocessor code is styled in the preprocessor style (0) or only from the initial # to the end of the command word(1, the default). It also determines how to present text, dump, and disabled code.</td>
+        </tr>
+        <tr id='property-lexer.gdscript.keywords2.no.sub.identifiers'>
+        <td>lexer.gdscript.keywords2.no.sub.identifiers</td>
+        <td>When enabled, it will not style keywords2 items that are used as a sub-identifier. Example: when set, will not highlight "foo.open" when "open" is a keywords2 item.</td>
+        </tr>
+        <tr id='property-lexer.gdscript.literals.binary'>
+        <td>lexer.gdscript.literals.binary</td>
+        <td>Set to 0 to not recognise binary and octal literals: 0b1011 0o712.</td>
+        </tr>
+        <tr id='property-lexer.gdscript.strings.over.newline'>
+        <td>lexer.gdscript.strings.over.newline</td>
+        <td>Set to 1 to allow strings to span newline characters.</td>
+        </tr>
+        <tr id='property-lexer.gdscript.unicode.identifiers'>
+        <td>lexer.gdscript.unicode.identifiers</td>
+        <td>Set to 0 to not recognise Unicode identifiers.</td>
+        </tr>
+        <tr id='property-lexer.gdscript.whinge.level'>
+        <td>lexer.gdscript.whinge.level</td>
+        <td>For GDScript code, checks whether indenting is consistent. The default, 0 turns off indentation checking, 1 checks whether each line is potentially inconsistent with the previous line, 2 checks whether any space characters occur before a tab character in the indentation, 3 checks whether any spaces are in the indentation, and 4 checks for any tab characters in the indentation. 1 is a good level to use.</td>
         </tr>
         <tr id='property-lexer.haskell.allow.hash'>
         <td>lexer.haskell.allow.hash</td>

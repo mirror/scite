@@ -1057,6 +1057,22 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_GC_GLOBAL",3},
 	{"SCE_GC_OPERATOR",9},
 	{"SCE_GC_STRING",8},
+	{"SCE_GD_ANNOTATION",15},
+	{"SCE_GD_CHARACTER",4},
+	{"SCE_GD_CLASSNAME",8},
+	{"SCE_GD_COMMENTBLOCK",12},
+	{"SCE_GD_COMMENTLINE",1},
+	{"SCE_GD_DEFAULT",0},
+	{"SCE_GD_FUNCNAME",9},
+	{"SCE_GD_IDENTIFIER",11},
+	{"SCE_GD_NUMBER",2},
+	{"SCE_GD_OPERATOR",10},
+	{"SCE_GD_STRING",3},
+	{"SCE_GD_STRINGEOL",13},
+	{"SCE_GD_TRIPLE",6},
+	{"SCE_GD_TRIPLEDOUBLE",7},
+	{"SCE_GD_WORD",5},
+	{"SCE_GD_WORD2",14},
 	{"SCE_HA_CAPITAL",8},
 	{"SCE_HA_CHARACTER",5},
 	{"SCE_HA_CLASS",6},
@@ -2761,6 +2777,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCLEX_FREEBASIC",75},
 	{"SCLEX_FSHARP",132},
 	{"SCLEX_GAP",81},
+	{"SCLEX_GDSCRIPT",135},
 	{"SCLEX_GUI4CLI",58},
 	{"SCLEX_HASKELL",68},
 	{"SCLEX_HOLLYWOOD",130},
@@ -3743,7 +3760,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 321,
-	ifaceConstantCount = 3026,
+	ifaceConstantCount = 3043,
 	ifacePropertyCount = 259
 };
 
