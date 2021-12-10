@@ -37,7 +37,7 @@ def UpdateFileSizes(scriptsPath):
         lexillaRoot / "doc" / "LexillaDownload.html",
     ]
 
-    version = (scintillaRoot / "version.txt").read_text().strip()
+    version = (sciteRoot / "version.txt").read_text().strip()
     currentRelease = releaseRoot / ("upload" + version)
     fileSizes = FileSizesInDirectory(currentRelease)
     if not fileSizes:
