@@ -197,7 +197,7 @@ OBJSSTATIC = \
 $(PROGSTATIC): $(OBJSSTATIC)
 	$(CXX) $(BASE_FLAGS) $(STRIPFLAG) $(SUBSYSTEM_OPT) -static -o $@ $^ $(LDFLAGS) $(LIBS) $(LDLIBS)
 
-# Automatically generate dependencies for most files with "make deps"
+# Automatically generate dependencies for most files with "make depend"
 include deps.mak
 
 Sc1.o: SciTEWin.cxx SciTEWin.h SciTE.h PropSetFile.h \

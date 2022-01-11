@@ -157,7 +157,7 @@ SRC_OBJS = \
 $(PROG): SciTEGTK.o Strips.o GUIGTK.o Widget.o DirectorExtension.o $(SRC_OBJS) $(LUA_OBJS)
 	$(CXX) $(BASE_FLAGS) $(LDFLAGS) -rdynamic -Wl,--as-needed -Wl,-rpath,'$${ORIGIN}' -Wl,--version-script $(srcdir)/lua.vers -Wl,-rpath,$(libdir) $^ -o $@ $(CONFIGLIB) $(LIBS) -L ../../scintilla/bin -lscintilla $(LDLIBS)
 
-# Automatically generate header dependencies with "make deps"
+# Automatically generate header dependencies with "make depend"
 include deps.mak
 
 # The two last install commands will fail if Gnome is not installed or is not at $(prefix).

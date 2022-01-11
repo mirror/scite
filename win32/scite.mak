@@ -241,7 +241,7 @@ Sc1.obj: SciTEWin.cxx
 
 !IF EXISTS(nmdeps.mak)
 
-# Protect with !IF EXISTS to handle accidental deletion - just 'nmake -f scite.mak deps'
+# Protect with !IF EXISTS to handle accidental deletion - just 'nmake -f scite.mak depend'
 
 !INCLUDE nmdeps.mak
 
