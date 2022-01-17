@@ -390,8 +390,7 @@ std::string SciTEBase::GetCurrentLine() {
 	std::string text(len, '\0');
 	// And get the line
 	wEditor.GetCurLine(len, &text[0]);
-	// Return without extra NUL
-	return text.substr(0, text.length()-1);
+	return text;
 }
 
 /**
