@@ -1758,6 +1758,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_PS_PAREN_DICT",10},
 	{"SCE_PS_PAREN_PROC",11},
 	{"SCE_PS_TEXT",12},
+	{"SCE_P_ATTRIBUTE",20},
 	{"SCE_P_CHARACTER",4},
 	{"SCE_P_CLASSNAME",8},
 	{"SCE_P_COMMENTBLOCK",12},
@@ -3760,7 +3761,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 321,
-	ifaceConstantCount = 3043,
+	ifaceConstantCount = 3044,
 	ifacePropertyCount = 259
 };
 

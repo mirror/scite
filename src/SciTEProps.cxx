@@ -567,6 +567,8 @@ static const char *propertiesToForward[] = {
 	"lexer.nim.raw.strings.highlight.ident",
 	"lexer.pascal.smart.highlighting",
 	"lexer.props.allow.initial.spaces",
+	"lexer.python.decorator.attributes",
+	"lexer.python.identifier.attributes",
 	"lexer.python.keywords2.no.sub.identifiers",
 	"lexer.python.literals.binary",
 	"lexer.python.strings.b",
