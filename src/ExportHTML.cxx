@@ -157,7 +157,11 @@ void SciTEBase::SaveToHTML(const FilePath &saveName) {
 
 				if (sd.specified != StyleDefinition::sdNone) {
 					if (istyle == StyleDefault) {
-						fprintf(fp, "span {\n");
+						if (wysiwyg) {
+							fprintf(fp, "span {\n");
+						} else {
+							fprintf(fp, "pre {\n");
+						}
 					} else {
 						fprintf(fp, ".S%0d {\n", istyle);
 					}
