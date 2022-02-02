@@ -1187,6 +1187,8 @@ void SciTEBase::ReadProperties() {
 	wOutput.SetLayoutCache(static_cast<SA::LineCache>(
 				       props.GetInt("output.cache.layout", static_cast<int>(SA::LineCache::Caret))));
 
+	wEditor.SetLayoutThreads(props.GetInt("threads.layout", 1));
+
 	bracesCheck = props.GetInt("braces.check");
 	bracesSloppy = props.GetInt("braces.sloppy");
 
