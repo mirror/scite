@@ -62,15 +62,19 @@ def FindCredits(historyFile, removeLinks=True):
                 credits.append(credit)
     return credits
 
+def DottedVersion(version):
+    return version[0:-2] + '.' + version[-2] + '.' + version[-1]
+
 class SciTEData:
     def __init__(self, sciteRoot):
         # Discover version information
         self.version = (sciteRoot / "version.txt").read_text().strip()
-        self.versionDotted = self.version[0] + '.' + self.version[1] + '.' + \
-            self.version[2]
+        self.versionDotted = DottedVersion(self.version)
         self.versionCommad = self.versionDotted.replace(".", ", ") + ', 0'
-        self.scintillaVersion = (sciteRoot / "src" / "scintillaVersion.txt").read_text().strip()
-        self.lexillaVersion = (sciteRoot / "src" / "lexillaVersion.txt").read_text().strip()
+        self.scintillaVersionFile = sciteRoot / "src" / "scintillaVersion.txt"
+        self.scintillaVersion = self.scintillaVersionFile.read_text().strip()
+        self.lexillaVersionFile = sciteRoot / "src" / "lexillaVersion.txt"
+        self.lexillaVersion = self.lexillaVersionFile.read_text().strip()
 
         with (sciteRoot / "doc" / "SciTE.html").open() as f:
             self.dateModified = [l for l in f.readlines() if "Date.Modified" in l]\
@@ -259,6 +263,13 @@ def RegenerateAll():
     lex = LexillaData.LexillaData(lexDirectory)
     pathSciTE = sciteBase
     scite = SciTEData(pathSciTE)
+
+    if scite.lexillaVersion != lex.version:
+        print(f"{scite.lexillaVersionFile}:0: Lexilla version ", end = '');
+        print(f"{DottedVersion(scite.lexillaVersion)} different from {lex.versionDotted}")
+    if scite.scintillaVersion != sci.version:
+        print(f"{scite.scintillaVersionFile}:0: Scintilla version ", end = '');
+        print(f"{DottedVersion(scite.scintillaVersion)} different from {sci.versionDotted}")
 
     # Generate HTML to document each property
     # This is done because tags can not be safely put inside comments in HTML
