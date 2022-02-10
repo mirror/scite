@@ -47,7 +47,7 @@ public:
 
 #if defined(GTK) || defined(__APPLE__)
 
-// On GTK and OS X use UTF-8 char strings
+// On GTK and macOS use UTF-8 char strings
 
 typedef char gui_char;
 typedef std::string gui_string;
