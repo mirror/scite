@@ -6,6 +6,9 @@
 
 :: Define local paths here
 
+:: Running after Visual C++ set up with vcvars64 or vcvars32 will fail to build for XP
+IF DEFINED VisualStudioVersion (ECHO VisualStudio is active && exit)
+
 set "MSVC_DIRECTORY=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build"
 set "MSVC17_DIRECTORY=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build"
 set REPOSITORY_DIRECTORY=..\hg
