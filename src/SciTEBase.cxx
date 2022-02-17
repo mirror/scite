@@ -402,23 +402,18 @@ SciTEBase::PreProc SciTEBase::LinePreprocessorCondition(SA::Line line) {
 
 	const char *currChar = text.c_str();
 
-	if (!currChar) {
-		return PreProc::None;
-	}
-	while (IsASpace(*currChar) && *currChar) {
+	while (IsASpace(*currChar)) {
 		currChar++;
 	}
 	if (preprocessorSymbol && (*currChar == preprocessorSymbol)) {
 		currChar++;
-		while (IsASpace(*currChar) && *currChar) {
+		while (IsASpace(*currChar)) {
 			currChar++;
 		}
-		char word[32] = "";
-		size_t i = 0;
-		while (!IsASpace(*currChar) && *currChar && (i < (sizeof(word) - 1))) {
-			word[i++] = *currChar++;
+		std::string word;
+		while (*currChar && !IsASpace(*currChar)) {
+			word.push_back(*currChar++);
 		}
-		word[i] = '\0';
 		std::map<std::string, PreProc>::const_iterator it = preprocOfString.find(word);
 		if (it != preprocOfString.end()) {
 			return it->second;
