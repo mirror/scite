@@ -105,10 +105,9 @@ std::string ComboSelectionText(GUI::Window w) {
 	const int selection = ComboBox_GetCurSel(combo);
 	if (selection != CB_ERR) {
 		const int len = ComboBox_GetLBTextLen(combo, selection);
-		GUI::gui_string itemText(len+1, L'\0');
-		const int lenActual = ComboBox_GetLBText(combo, selection, &itemText[0]);
+		GUI::gui_string itemText(len, L'\0');
+		const int lenActual = ComboBox_GetLBText(combo, selection, itemText.data());
 		if (lenActual != CB_ERR) {
-			itemText.pop_back(); // Remove NUL
 			return GUI::UTF8FromString(itemText);
 		}
 	}
