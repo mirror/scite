@@ -1061,9 +1061,9 @@ LRESULT FindReplaceStrip::EditColour(HWND hwnd, HDC hdc) noexcept {
 
 void FindReplaceStrip::SetFindFromSource(ChangingSource source) {
 	if (source == ChangingSource::edit) {
-		pSearcher->SetFindText(ControlText(wText).c_str());
+		pSearcher->SetFindText(ControlText(wText));
 	} else {
-		pSearcher->SetFindText(ComboSelectionText(wText).c_str());
+		pSearcher->SetFindText(ComboSelectionText(wText));
 	}
 }
 
@@ -1590,7 +1590,6 @@ void FilterStrip::Size() {
 	GUI::Rectangle rcArea = LineArea(0);
 	rcArea.left += space;
 
-	const Interval verticalButton(rcArea.top - 1, rcArea.bottom);
 	const Interval verticalCheck(rcArea.top, rcArea.bottom);
 
 	const int checkWidth = rcArea.Height() - 1;	// Using height to make square
