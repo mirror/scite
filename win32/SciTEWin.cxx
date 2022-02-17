@@ -312,7 +312,9 @@ void SciTEWin::Register(HINSTANCE hInstance_) {
 		exit(FALSE);
 }
 
-static int CodePageFromName(const std::string &encodingName) {
+namespace {
+
+int CodePageFromName(const std::string &encodingName) {
 	struct Encoding {
 		const char *name;
 		int codePage;
@@ -339,24 +341,24 @@ static int CodePageFromName(const std::string &encodingName) {
 	return CP_UTF8;
 }
 
-static std::string StringEncode(std::wstring s, int codePage) {
-	if (s.length()) {
-		const int sLength = static_cast<int>(s.length());
-		const int cchMulti = ::WideCharToMultiByte(codePage, 0, s.c_str(), sLength, nullptr, 0, nullptr, nullptr);
+std::string StringEncode(std::wstring_view wsv, int codePage) {
+	if (wsv.length()) {
+		const int sLength = static_cast<int>(wsv.length());
+		const int cchMulti = ::WideCharToMultiByte(codePage, 0, wsv.data(), sLength, nullptr, 0, nullptr, nullptr);
 		std::string sMulti(cchMulti, 0);
-		::WideCharToMultiByte(codePage, 0, s.c_str(), sLength, &sMulti[0], cchMulti, nullptr, nullptr);
+		::WideCharToMultiByte(codePage, 0, wsv.data(), sLength, &sMulti[0], cchMulti, nullptr, nullptr);
 		return sMulti;
 	} else {
 		return std::string();
 	}
 }
 
-static std::wstring StringDecode(std::string s, int codePage) {
-	if (s.length()) {
-		const int sLength = static_cast<int>(s.length());
-		const int cchWide = ::MultiByteToWideChar(codePage, 0, s.c_str(), sLength, nullptr, 0);
+std::wstring StringDecode(std::string_view sv, int codePage) {
+	if (sv.length()) {
+		const int sLength = static_cast<int>(sv.length());
+		const int cchWide = ::MultiByteToWideChar(codePage, 0, sv.data(), sLength, nullptr, 0);
 		std::wstring sWide(cchWide, 0);
-		::MultiByteToWideChar(codePage, 0, s.c_str(), sLength, &sWide[0], cchWide);
+		::MultiByteToWideChar(codePage, 0, sv.data(), sLength, &sWide[0], cchWide);
 		return sWide;
 	} else {
 		return std::wstring();
@@ -364,13 +366,15 @@ static std::wstring StringDecode(std::string s, int codePage) {
 }
 
 // Convert to UTF-8
-static std::string ConvertEncoding(const char *original, int codePage) {
+std::string ConvertEncoding(const char *original, int codePage) {
 	if (codePage == CP_UTF8) {
 		return original;
 	} else {
-		GUI::gui_string sWide = StringDecode(std::string(original), codePage);
+		GUI::gui_string sWide = StringDecode(original, codePage);
 		return GUI::UTF8FromString(sWide);
 	}
+}
+
 }
 
 void SciTEWin::ReadLocalization() {
@@ -384,9 +388,9 @@ void SciTEWin::ReadLocalization() {
 		// Get encoding
 		bool more = localiser.GetFirst(key, val);
 		while (more) {
-			std::string converted = ConvertEncoding(val, codePageNamed);
+			const std::string converted = ConvertEncoding(val, codePageNamed);
 			if (converted != "") {
-				localiser.Set(key, converted.c_str());
+				localiser.Set(key, converted);
 			}
 			more = localiser.GetNext(key, val);
 		}
@@ -806,8 +810,8 @@ static UINT CodePageFromCharSet(SA::CharacterSet characterSet, UINT documentCode
 }
 
 void SciTEWin::OutputAppendEncodedStringSynchronised(const GUI::gui_string &s, int codePageDocument) {
-	std::string sMulti = StringEncode(s, codePageDocument);
-	OutputAppendStringSynchronised(sMulti.c_str());
+	const std::string sMulti = StringEncode(s, codePageDocument);
+	OutputAppendStringSynchronised(sMulti.c_str(), sMulti.length());
 }
 
 CommandWorker::CommandWorker() noexcept : pSciTE(nullptr) {
@@ -2256,11 +2260,11 @@ LRESULT ContentWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 
 // Convert String from UTF-8 to doc encoding
 std::string SciTEWin::EncodeString(const std::string &s) {
-	UINT codePageDocument = static_cast<UINT>(wEditor.CodePage());
+	UINT codePageDocument = wEditor.CodePage();
 
 	if (codePageDocument != SA::CpUtf8) {
 		codePageDocument = CodePageFromCharSet(characterSet, codePageDocument);
-		std::wstring sWide = StringDecode(std::string(s.c_str(), s.length()), CP_UTF8);
+		std::wstring sWide = StringDecode(s, CP_UTF8);
 		return StringEncode(sWide, codePageDocument);
 	}
 	return SciTEBase::EncodeString(s);
@@ -2268,13 +2272,13 @@ std::string SciTEWin::EncodeString(const std::string &s) {
 
 // Convert String from doc encoding to UTF-8
 std::string SciTEWin::GetRangeInUIEncoding(GUI::ScintillaWindow &win, SA::Span range) {
-	std::string s = SciTEBase::GetRangeInUIEncoding(win, range);
+	const std::string s = SciTEBase::GetRangeInUIEncoding(win, range);
 
 	UINT codePageDocument = wEditor.CodePage();
 
 	if (codePageDocument != SA::CpUtf8) {
 		codePageDocument = CodePageFromCharSet(characterSet, codePageDocument);
-		std::wstring sWide = StringDecode(std::string(s.c_str(), s.length()), codePageDocument);
+		std::wstring sWide = StringDecode(s, codePageDocument);
 		return StringEncode(sWide, CP_UTF8);
 	}
 	return s;
