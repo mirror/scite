@@ -162,7 +162,7 @@ constexpr size_t comboMemorySize = 10;
 class ComboMemory {
 	size_t sz;
 	std::vector<std::string> entries;
-	bool Present(const std::string_view sv) const noexcept;
+	bool Present(std::string_view sv) const noexcept;
 public:
 	ComboMemory(size_t sz_=comboMemorySize);
 	void Insert(std::string_view item);
