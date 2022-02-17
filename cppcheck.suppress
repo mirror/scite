@@ -14,8 +14,22 @@ noExplicitConstructor:scite/src/FilePath.h
 // Cppcheck wrongly flags check as always true
 knownConditionTrueFalse:scite/src/PropSetFile.cxx
 
+// string::starts_with() not available with c++17.
+stlIfStrFind:scite/src/PropSetFile.cxx
+
+// Prefer passing string_view by value.
+passedByValue:scite/src/StringHelpers.cxx
+passedByValue:scite/src/StyleDefinition.cxx
+passedByValue:scite/src/SciTEBase.cxx
+
 // Doesn't analyze execution path correctly.
 nullPointerRedundantCheck:scite/src/SciTEBase.cxx
+
+// dynamic_cast can return nullptr.
+knownConditionTrueFalse:scite/src/SciTEBuffers.cxx
+
+// Pysically but not logically const.
+constParameter:scite/gtk/Widget.cxx
 
 // Doesn't understand Win32 SetClipboardData is not leak
 memleak:scite/win32/SciTEWin.cxx
