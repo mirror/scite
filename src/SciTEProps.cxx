@@ -1939,7 +1939,7 @@ void SciTEBase::OpenProperties(int propsFile) {
 }
 
 // return the int value of the command name passed in.
-int SciTEBase::GetMenuCommandAsInt(std::string commandName) {
+int SciTEBase::GetMenuCommandAsInt(const std::string &commandName) {
 	int i = IFaceTable::FindConstant(commandName.c_str());
 	if (i != -1) {
 		return IFaceTable::constants[i].value;

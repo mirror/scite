@@ -630,7 +630,7 @@ protected:
 	FilePath GetLocalPropertiesFileName();
 	FilePath GetAbbrevPropertiesFileName();
 	void OpenProperties(int propsFile);
-	static int GetMenuCommandAsInt(std::string commandName);
+	static int GetMenuCommandAsInt(const std::string &commandName);
 	virtual void Print(bool) {}
 	virtual void PrintSetup() {}
 	void UserStripShow(const char * /* description */) override {}
