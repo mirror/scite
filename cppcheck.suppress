@@ -22,9 +22,6 @@ passedByValue:scite/src/StringHelpers.cxx
 passedByValue:scite/src/StyleDefinition.cxx
 passedByValue:scite/src/SciTEBase.cxx
 
-// Doesn't analyze execution path correctly.
-nullPointerRedundantCheck:scite/src/SciTEBase.cxx
-
 // dynamic_cast can return nullptr.
 knownConditionTrueFalse:scite/src/SciTEBuffers.cxx
 

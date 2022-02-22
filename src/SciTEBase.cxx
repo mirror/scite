@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <cstdlib>
 #include <cstdint>
+#include <cassert>
 #include <cstring>
 #include <cstdio>
 #include <cstdarg>
@@ -4599,6 +4600,7 @@ If command needs answer (SCI_GETTEXTLENGTH ...) : give answer to director
 */
 
 static uintptr_t ReadNum(const char *&t) {
+	assert(t);
 	const char *argend = strchr(t, ';');	// find ';'
 	uintptr_t v = 0;
 	if (*t)
