@@ -9,11 +9,11 @@
 #define SCITE_H
 
 // Version numbers and dates
-#define VERSION_SCITE "5.2.0"
-#define VERSION_WORDS 5, 2, 0, 0
+#define VERSION_SCITE "5.2.1"
+#define VERSION_WORDS 5, 2, 1, 0
 #define COPYRIGHT_DATES "December 1998-February 2022"
 #define COPYRIGHT_YEARS "1998-2022"
-#define VERSION_SCINTILLA "5.2.0"
+#define VERSION_SCINTILLA "5.2.1"
 #define VERSION_LEXILLA "5.1.5"
 
 // Menu IDs.
