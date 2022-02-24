@@ -614,7 +614,6 @@ bool SciTEBase::Open(const FilePath &file, OpenFlags of) {
 	SetEol();
 	UpdateBuffersCurrent();
 	SizeSubWindows();
-	SetBuffersMenu();
 
 	bool asynchronous = false;
 	if (!filePath.IsUntitled()) {
@@ -638,6 +637,7 @@ bool SciTEBase::Open(const FilePath &file, OpenFlags of) {
 		CurrentBuffer()->isReadOnly = props.GetInt("read.only");
 		wEditor.SetReadOnly(CurrentBuffer()->isReadOnly);
 	}
+	SetBuffersMenu();
 	RemoveFileFromStack(filePath);
 	DeleteFileStackMenu();
 	SetFileStackMenu();
