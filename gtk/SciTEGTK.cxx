@@ -3960,8 +3960,8 @@ void SciTEGTK::CreateUI() {
 		gtk_window_move(GTK_WINDOW(PWidget(wSciTE)), left, top);
 	if ((width != useDefault) && (height != useDefault))
 		gtk_window_set_default_size(GTK_WINDOW(PWidget(wSciTE)), width, height);
-	gtk_widget_show_all(PWidget(wSciTE));
 	SetIcon();
+	gtk_widget_show_all(PWidget(wSciTE));
 
 	if (maximize)
 		gtk_window_maximize(GTK_WINDOW(PWidget(wSciTE)));
