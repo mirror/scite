@@ -650,6 +650,8 @@ void SciTEBase::SetWindowName() {
 	} else {
 		windowName = FileNameExt().AsInternal();
 	}
+	if (CurrentBufferConst()->isReadOnly)
+		windowName += GUI_TEXT(" |");
 	if (CurrentBufferConst()->isDirty)
 		windowName += GUI_TEXT(" * ");
 	else
@@ -3447,6 +3449,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		UpdateStatusBar(true);
 		CheckMenus();
 		SetBuffersMenu();
+		SetWindowName();
 		break;
 
 	case IDM_VIEWTABBAR:
