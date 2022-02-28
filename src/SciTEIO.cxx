@@ -1499,10 +1499,6 @@ constexpr bool IsWordCharacter(int ch) noexcept {
 
 bool SciTEBase::GrepIntoDirectory(const FilePath &directory) {
 	const GUI::gui_char *sDirectory = directory.AsInternal();
-#ifdef __APPLE__
-	if (strcmp(sDirectory, "build") == 0)
-		return false;
-#endif
 	return sDirectory[0] != '.';
 }
 
