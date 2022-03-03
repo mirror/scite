@@ -38,18 +38,14 @@
 
 #include <sys/stat.h>
 
-#ifdef __MINGW_H
-#define _WIN32_IE	0x0400
-#endif
-
 #undef _WIN32_WINNT
 #undef WINVER
 #ifdef WIN_TARGET
 #define _WIN32_WINNT WIN_TARGET
 #define WINVER WIN_TARGET
 #else
-#define _WIN32_WINNT  0x0501
-#define WINVER 0x0501
+#define _WIN32_WINNT  0x0A00
+#define WINVER 0x0A00
 #endif
 #undef NOMINMAX
 #define NOMINMAX 1

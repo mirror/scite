@@ -15,12 +15,8 @@
 #include <chrono>
 #include <sstream>
 
-#ifdef __MINGW_H
-#define _WIN32_IE	0x0400
-#endif
-
 #undef _WIN32_WINNT
-#define _WIN32_WINNT  0x0602
+#define _WIN32_WINNT  0x0A00
 #include <windows.h>
 
 #include "ScintillaTypes.h"

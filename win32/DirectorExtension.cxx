@@ -22,7 +22,7 @@
 #include <mutex>
 
 #undef _WIN32_WINNT
-#define _WIN32_WINNT  0x0602
+#define _WIN32_WINNT  0x0A00
 #include <windows.h>
 #include <commctrl.h>
 

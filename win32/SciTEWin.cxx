@@ -10,10 +10,6 @@
 #include "SciTEWin.h"
 #include "DLLFunction.h"
 
-#ifndef WM_DPICHANGED
-#define WM_DPICHANGED 0x02E0
-#endif
-
 #ifndef NO_EXTENSIONS
 #include "MultiplexExtension.h"
 
