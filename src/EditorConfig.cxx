@@ -43,6 +43,22 @@ public:
 
 const GUI::gui_char editorConfigName[] = GUI_TEXT(".editorconfig");
 
+int IntFromString(std::u32string_view s) noexcept {
+	if (s.empty()) {
+		return 0;
+	}
+	const bool negate = s.front() == '-';
+	if (negate) {
+		s.remove_prefix(1);
+	}
+	int value = 0;
+	while (!s.empty()) {
+		value = value * 10 + s.front() - '0';
+		s.remove_prefix(1);
+	}
+	return negate ? -value : value;
+}
+
 bool PatternMatch(std::u32string_view pattern, std::u32string_view text) {
 	if (pattern == text) {
 		return true;
@@ -130,46 +146,62 @@ bool PatternMatch(std::u32string_view pattern, std::u32string_view text) {
 		text.remove_prefix(1);
 		return PatternMatch(pattern, text);
 	} else if (pattern.front() == '{') {
-		pattern.remove_prefix(1);
-		if (pattern.empty()) {
+		if (pattern.length() < 2) {
 			return false;
 		}
-		std::u32string_view textAlt = text;
+		const size_t endParen = pattern.find('}');
+		if (endParen == std::u32string_view::npos) {
+			// Malformed {x} pattern
+			return false;
+		}
+		std::u32string_view parenExpression = pattern.substr(1, endParen - 1);
 		bool inSet = false;
-		size_t altSuccessLen = 0;
-		while (!pattern.empty()) {
-			if (pattern.front() == '}' || pattern.front() == ',') {
-				inSet = true;
-				text.remove_prefix(altSuccessLen);
-				break;
-			}
-			if (textAlt.empty()) {
+		const size_t dotdot = parenExpression.find(U"..");
+		if (dotdot != std::u32string_view::npos) {
+			// Numeric range: {10..20}
+			const std::u32string_view firstRange = parenExpression.substr(0, dotdot);
+			const std::u32string_view lastRange = parenExpression.substr(dotdot+2);
+			if (firstRange.empty() || lastRange.empty()) {
+				// Malformed {s..e} range pattern
 				return false;
 			}
-			if (pattern.front() == textAlt.front()) {
-				pattern.remove_prefix(1);
-				textAlt.remove_prefix(1);
-				altSuccessLen++;
-			} else {
-				while (!pattern.empty() && pattern.front() != '}' && pattern.front() != ',') {
-					pattern.remove_prefix(1);
+			const size_t endInteger = text.find_last_of(U"-0123456789");
+			if (endInteger == std::u32string_view::npos) {
+				// No integer in text
+				return false;
+			}
+			const std::u32string_view intPart = text.substr(0, endInteger+1);
+			const int first = IntFromString(firstRange);
+			const int last = IntFromString(lastRange);
+			const int value = IntFromString(intPart);
+			if ((value >= first) && (value <= last)) {
+				inSet = true;
+				text.remove_prefix(intPart.length());
+			}
+		} else {
+			// Alternates: {a,b,cd}
+			size_t comma = parenExpression.find(',');
+			for (;;) {
+				const bool finalAlt = comma == std::u32string_view::npos;
+				const std::u32string_view oneAlt = finalAlt ? parenExpression :
+					parenExpression.substr(0, comma);
+				if (oneAlt == text.substr(0, oneAlt.length())) {
+					// match
+					inSet = true;
+					text.remove_prefix(oneAlt.length());
+					break;
 				}
-				if (!pattern.empty() && pattern.front() == ',') {
-					pattern.remove_prefix(1);
+				if (finalAlt) {
+					break;
 				}
-				textAlt = text;
-				altSuccessLen = 0;
+				parenExpression.remove_prefix(oneAlt.length() + 1);
+				comma = parenExpression.find(',');
 			}
 		}
 		if (!inSet) {
 			return false;
 		}
-		while (!pattern.empty() && pattern.front() != '}') {
-			pattern.remove_prefix(1);
-		}
-		if (!pattern.empty()) {
-			pattern.remove_prefix(1);
-		}
+		pattern.remove_prefix(endParen + 1);
 		return PatternMatch(pattern, text);
 	}
 	return false;
@@ -256,9 +288,7 @@ std::map<std::string, std::string> EditorConfig::MapFromAbsolutePath(const FileP
 				std::u32string patternU32 = UTF32FromUTF8(pattern);
 				std::u32string relPathU32 = UTF32FromUTF8(relPath);
 				inActiveSection = PatternMatch(patternU32, relPathU32);
-				// PatternMatch only works with literal filenames, '?', '*', '**', '[]', '[!]', '{,}', '\x'.
-				// Other formats not yet handled:
-				//   {num1..num2}
+				// PatternMatch only works with literal filenames, '?', '*', '**', '[]', '[!]', '{,}', '{..}', '\x'.
 			} else if (inActiveSection && Contains(line, '=')) {
 				const std::vector<std::string> nameVal = StringSplit(line, '=');
 				if (nameVal.size() == 2) {
@@ -358,6 +388,17 @@ static void TestPatternMatch() {
 	assert(PatternMatch(U"<{ab,lm,xyz}>", U"<lm>"));
 	assert(PatternMatch(U"<{ab,lm,xyz}>", U"<xyz>"));
 	assert(PatternMatch(U"<{ab,lm,xyz}>", U"<rs>") == false);
+
+	// {num1..num2} matches any integer in the range
+	assert(PatternMatch(U"{10..19}", U"15"));
+	assert(PatternMatch(U"{10..19}", U"10"));
+	assert(PatternMatch(U"{10..19}", U"19"));
+	assert(PatternMatch(U"{10..19}", U"20") == false);
+	assert(PatternMatch(U"{10..19}", U"ab") == false);
+	assert(PatternMatch(U"{-19..-10}", U"-15"));
+	assert(PatternMatch(U"{10..19}a", U"15a"));
+	assert(PatternMatch(U"{..19}", U"15") == false);
+	assert(PatternMatch(U"{10..}", U"15") == false);
 }
 
 #endif
