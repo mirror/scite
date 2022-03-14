@@ -92,6 +92,9 @@ bool PatternMatch(std::u32string_view pattern, std::u32string_view text) {
 	} else if (text.empty()) {
 		return false;
 	} else if (pattern.front() == '?') {
+		if (text.front() == '/') {
+			return false;
+		}
 		pattern.remove_prefix(1);
 		text.remove_prefix(1);
 		return PatternMatch(pattern, text);
@@ -324,10 +327,11 @@ static void TestPatternMatch() {
 	assert(PatternMatch(U"a*b*c", U"abc"));
 	assert(PatternMatch(U"a*b*c", U"a1b234c"));
 
-	// ? matches one character
+	// ? matches one character except for '/'
 	assert(PatternMatch(U"?", U"a"));
 	assert(PatternMatch(U"?", U"") == false);
 	assert(PatternMatch(U"a?c", U"abc"));
+	assert(PatternMatch(U"a?c", U"a/c") == false);
 
 	// [set] matches one character from set
 	assert(PatternMatch(U"a[123]z", U"a2z"));
