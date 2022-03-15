@@ -839,7 +839,7 @@ public:
 
 };
 
-static void FillComboFromProps(HWND combo, PropSetFile &props) {
+static void FillComboFromProps(HWND combo, const PropSetFile &props) {
 	const char *key = nullptr;
 	const char *val = nullptr;
 	if (props.GetFirst(key, val)) {

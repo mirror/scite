@@ -54,8 +54,8 @@ public:
 		  FilePathSet *imports, size_t depth);
 	std::string GetWild(const char *keybase, const char *filename);
 	std::string GetNewExpandString(const char *keybase, const char *filename = "");
-	bool GetFirst(const char *&key, const char *&val);
-	bool GetNext(const char *&key, const char *&val);
+	bool GetFirst(const char *&key, const char *&val) const;
+	bool GetNext(const char *&key, const char *&val) const;
 	static void SetCaseSensitiveFilenames(bool caseSensitiveFilenames_) noexcept {
 		caseSensitiveFilenames = caseSensitiveFilenames_;
 	}

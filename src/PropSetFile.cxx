@@ -590,8 +590,8 @@ std::string PropSetFile::GetNewExpandString(const char *keybase, const char *fil
 /**
  * Initiate enumeration.
  */
-bool PropSetFile::GetFirst(const char *&key, const char *&val) {
-	mapss::iterator it = props.begin();
+bool PropSetFile::GetFirst(const char *&key, const char *&val) const {
+	mapss::const_iterator it = props.begin();
 	if (it != props.end()) {
 		key = it->first.c_str();
 		val = it->second.c_str();
@@ -604,8 +604,8 @@ bool PropSetFile::GetFirst(const char *&key, const char *&val) {
 /**
  * Continue enumeration.
  */
-bool PropSetFile::GetNext(const char *&key, const char *&val) {
-	mapss::iterator it = props.find(key);
+bool PropSetFile::GetNext(const char *&key, const char *&val) const {
+	mapss::const_iterator it = props.find(key);
 	if (it != props.end()) {
 		++it;
 		if (it != props.end()) {

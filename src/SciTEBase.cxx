@@ -4461,7 +4461,7 @@ static constexpr bool IsSwitchCharacter(GUI::gui_char ch) noexcept {
 
 // Called by SciTEBase::PerformOne when action="enumproperties:"
 void SciTEBase::EnumProperties(const char *propkind) {
-	PropSetFile *pf = nullptr;
+	const PropSetFile *pf = nullptr;
 
 	if (!extender)
 		return;
