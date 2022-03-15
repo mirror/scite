@@ -587,6 +587,8 @@
 	<td>Red_M</td>
 	<td>j-camp</td>
       </tr><tr>
+	<td>Michael Berlenz</td>
+	<td>cdbdev</td>
       </tr>
     </table>
     <p>
@@ -624,16 +626,38 @@
 	<li>Lexilla 5.1.6</li>
 	<ul>
 		<li>
+		Implement conditional statement "if", comparison function "$(=", and "FileNameExt"
+		property in TestLexers to allow varying lexer properties over different files.
+		<a href="https://github.com/ScintillaOrg/lexilla/issues/62">Issue #62</a>.
+		</li>
+		<li>
 		Add LexAccessor::BufferStyleAt to retrieve style values to simplify logic and
 		improve performance.
 		<a href="https://github.com/ScintillaOrg/lexilla/issues/54">Issue #54</a>.
+		</li>
+		<li>
+		Markdown: Optionally style all of Markdown header lines.
+		Enabled with lexer.markdown.header.eolfill=1.
+		<a href="https://github.com/ScintillaOrg/lexilla/issues/60">Issue #60</a>.
 		</li>
 	</ul>
 	<li>Scintilla 5.2.2</li>
 	<ul>
 		<li>
+		Add SCI_GETSTYLEINDEXAT API to return styles over 127 as positive integers.
+		<a href="https://sourceforge.net/p/scintilla/feature-requests/1431/">Feature #1431</a>.
+		</li>
+		<li>
 		Fix crash with unexpected right-to-left text on GTK.
 		<a href="https://sourceforge.net/p/scintilla/bugs/2309/">Bug #2309</a>.
+		</li>
+		<li>
+		Fix position of end-of-line annotation when fold display text is visible.
+		<a href="https://sourceforge.net/p/scintilla/bugs/2320/">Bug #2320</a>.
+		</li>
+		<li>
+		On Direct2D, support per-monitor text rendering parameters.
+		<a href="https://sourceforge.net/p/scintilla/feature-requests/1432/">Feature #1432</a>.
 		</li>
 	</ul>
     </ul>
