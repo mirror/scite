@@ -88,12 +88,6 @@ void SciTEBase::SetFileName(const FilePath &openName, bool fixCase) {
 
 	ReadLocalPropFile();
 
-	props.Set("FilePath", filePath.AsUTF8().c_str());
-	props.Set("FileDir", filePath.Directory().AsUTF8().c_str());
-	props.Set("FileName", filePath.BaseName().AsUTF8().c_str());
-	props.Set("FileExt", filePath.Extension().AsUTF8().c_str());
-	props.Set("FileNameExt", FileNameExt().AsUTF8().c_str());
-
 	SetWindowName();
 	if (buffers.buffers.size() > 0)
 		CurrentBuffer()->file.Set(filePath);

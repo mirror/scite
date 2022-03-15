@@ -2758,6 +2758,23 @@ void SciTEBase::CharAdded(int utf32) {
 	}
 }
 
+namespace {
+
+void AddProps(std::string &symbols, const PropSetFile &propSet) {
+	const char *key = nullptr;
+	const char *val = nullptr;
+	bool b = propSet.GetFirst(key, val);
+	while (b) {
+		if (IsUpperCase(*key)) {
+			symbols.append(key);
+			symbols.append(") ");
+		}
+		b = propSet.GetNext(key, val);
+	}
+}
+
+}
+
 /**
  * Upon a character being added to the output, SciTE may decide to perform some action
  * such as displaying a completion list or running a shell command.
@@ -2770,14 +2787,8 @@ void SciTEBase::CharAddedOutput(int ch) {
 		const SA::Position selStart = wOutput.SelectionStart();
 		if ((selStart > 1) && (wOutput.CharacterAt(selStart - 2) == '$')) {
 			std::string symbols;
-			const char *key = nullptr;
-			const char *val = nullptr;
-			bool b = props.GetFirst(key, val);
-			while (b) {
-				symbols.append(key);
-				symbols.append(") ");
-				b = props.GetNext(key, val);
-			}
+			AddProps(symbols, props);
+			AddProps(symbols, propsDirectory);
 			StringList symList;
 			symList.Set(symbols.c_str());
 			std::string words = symList.GetNearestWords("", 0, true);

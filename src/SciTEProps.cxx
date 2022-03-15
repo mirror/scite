@@ -187,6 +187,12 @@ be set to $(FilePath).
 void SciTEBase::ReadDirectoryPropFile() {
 	propsDirectory.Clear();
 
+	propsDirectory.Set("FilePath", filePath.AsUTF8());
+	propsDirectory.Set("FileDir", filePath.Directory().AsUTF8());
+	propsDirectory.Set("FileName", filePath.BaseName().AsUTF8());
+	propsDirectory.Set("FileExt", filePath.Extension().AsUTF8());
+	propsDirectory.Set("FileNameExt", FileNameExt().AsUTF8());
+
 	if (props.GetInt("properties.directory.enable") != 0) {
 		FilePath propfile = GetDirectoryPropertiesFileName();
 		props.Set("SciteDirectoryHome", propfile.Directory().AsUTF8().c_str());

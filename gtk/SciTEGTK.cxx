@@ -1853,7 +1853,7 @@ GtkWidget *SciTEGTK::TranslatedLabel(const char *original) {
 	return gtk_label_new_with_mnemonic(text.c_str());
 }
 
-static void FillComboFromProps(WComboBoxEntry *combo, PropSetFile &props) {
+static void FillComboFromProps(WComboBoxEntry *combo, const PropSetFile &props) {
 	const char *key;
 	const char *val;
 	combo->ClearList();

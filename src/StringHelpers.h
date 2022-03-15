@@ -70,6 +70,10 @@ constexpr bool IsAHexDigit(int ch) noexcept {
 		((ch >= 'A') && (ch <= 'F'));
 }
 
+constexpr bool IsUpperCase(int ch) noexcept {
+	return (ch >= 'A') && (ch <= 'Z');
+}
+
 constexpr bool IsAlphabetic(int ch) noexcept {
 	return ((ch >= 'A') && (ch <= 'Z')) || ((ch >= 'a') && (ch <= 'z'));
 }
