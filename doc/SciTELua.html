@@ -264,6 +264,9 @@ The <tt>scite</tt> namespace includes the following functions:
 
   scite.MenuCommand(IDM_constant)
     - equivalent to the corresponding IDM_ command defined in SciTE.h
+
+  scite.ReloadProperties()
+    - performs a reload of properties
 </tt></pre><p>
 <tt>Open</tt> requires special care.  When the buffer changes in SciTE, the
 Lua global namespace is reset to its initial state, and any extension
@@ -288,6 +291,10 @@ or if extending the SciTE LuaExtension to support macro recording.
 </p><p>
 The <tt>MenuCommand</tt> function enables usage of SciTE's menu commands
 as defined in SciTE.h.
+</p><p>
+The <tt>ReloadProperties</tt> function performs similar to the
+SciTE Director Interface action of 'reloadproperties:', without
+the need to send the message to the Director window.
 </p>
 
 <h4>Scripting user interfaces with strips</h4>

@@ -299,6 +299,13 @@ static int cf_scite_open(lua_State *L) {
 	return 0;
 }
 
+static int cf_scite_reload_properties(lua_State *L) {
+	if (!lua_gettop(L)) {
+		host->Perform("reloadproperties:");
+	}
+	return 0;
+}
+
 static int cf_scite_menu_command(lua_State *L) {
 	const int cmdID = luaL_checkint(L, 1);
 	if (cmdID) {
@@ -1410,6 +1417,9 @@ static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
 
 	lua_pushcfunction(luaState, cf_scite_open);
 	lua_setfield(luaState, -2, "Open");
+
+	lua_pushcfunction(luaState, cf_scite_reload_properties);
+	lua_setfield(luaState, -2, "ReloadProperties");
 
 	lua_pushcfunction(luaState, cf_scite_menu_command);
 	lua_setfield(luaState, -2, "MenuCommand");
