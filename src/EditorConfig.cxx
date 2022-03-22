@@ -100,7 +100,7 @@ void EditorConfig::ReadFromDirectory(const FilePath &dirStart) {
 std::map<std::string, std::string> EditorConfig::MapFromAbsolutePath(const FilePath &absolutePath) const {
 	std::map<std::string, std::string> ret;
 	std::string fullPath = absolutePath.AsUTF8();
-#ifdef WIN32
+#if defined(_WIN32)
 	// Convert Windows path separators to Unix
 	std::replace(fullPath.begin(), fullPath.end(), '\\', '/');
 #endif
