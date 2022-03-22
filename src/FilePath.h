@@ -66,6 +66,7 @@ public:
 	void FixName();
 	FilePath AbsolutePath() const;
 	FilePath NormalizePath() const;
+	GUI::gui_string RelativePathTo(FilePath filePath) const;
 	static FilePath GetWorkingDirectory();
 	bool SetWorkingDirectory() const noexcept;
 	void List(FilePathSet &directories, FilePathSet &files) const;

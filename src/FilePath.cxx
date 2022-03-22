@@ -44,6 +44,7 @@
 #endif
 
 #include "GUI.h"
+#include "StringHelpers.h"
 
 #include "FilePath.h"
 
@@ -310,6 +311,19 @@ FilePath FilePath::NormalizePath() const {
 		source.remove_prefix(separator+1);
 	}
 	return FilePath(absPathString);
+}
+
+GUI::gui_string FilePath::RelativePathTo(FilePath filePath) const {
+	// Only handles simple case where filePath is in this directory or a subdirectory
+	GUI::gui_string relPath = filePath.fileName;
+	if (!fileName.empty() && StartsWith(relPath, fileName)) {
+		relPath = relPath.substr(fileName.length());
+		if (!relPath.empty()) {
+			// Remove directory separator
+			relPath.erase(0, 1);
+		}
+	}
+	return relPath;
 }
 
 /**

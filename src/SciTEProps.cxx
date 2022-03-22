@@ -193,9 +193,13 @@ void SciTEBase::ReadDirectoryPropFile() {
 	propsDirectory.Set("FileExt", filePath.Extension().AsUTF8());
 	propsDirectory.Set("FileNameExt", FileNameExt().AsUTF8());
 
+	const FilePath propfile = GetDirectoryPropertiesFileName();
+	const GUI::gui_string relPath = propfile.Directory().RelativePathTo(filePath);
+	propsDirectory.Set("RelativePath", GUI::UTF8FromString(relPath));
+
 	if (props.GetInt("properties.directory.enable") != 0) {
-		FilePath propfile = GetDirectoryPropertiesFileName();
-		props.Set("SciteDirectoryHome", propfile.Directory().AsUTF8().c_str());
+		const std::string directoryHome = propfile.Directory().AsUTF8();
+		props.Set("SciteDirectoryHome", directoryHome);
 
 		propsDirectory.Read(propfile, propfile.Directory(), filter, nullptr, 0);
 	}
