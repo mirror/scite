@@ -36,7 +36,9 @@
 
 #include "StringHelpers.h"
 #include "FilePath.h"
+#include "PathMatch.h"
 #include "PropSetFile.h"
+#include "EditorConfig.h"
 
 // The comparison and case changing functions here assume ASCII
 // or extended ASCII such as the normal Windows code page.
@@ -400,6 +402,11 @@ PropSetFile::ReadLineState PropSetFile::ReadLine(const char *lineBuffer, ReadLin
 		} else {
 			rls = (GetInt(value.c_str()) != 0) ? ReadLineState::active : ReadLineState::conditionFalse;
 		}
+	} else if (isprefix(lineBuffer, "match ")) {
+		const std::string pattern = lineBuffer + strlen("match") + 1;
+		const std::string relPath = GetString("RelativePath");
+		const bool matches = PathMatch(pattern, relPath);
+		rls = matches ? ReadLineState::active : ReadLineState::conditionFalse;
 	} else if (isprefix(lineBuffer, "import ")) {
 		if (directoryForImports.IsSet()) {
 			std::string importName(lineBuffer + strlen("import") + 1);

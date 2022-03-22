@@ -965,14 +965,35 @@ NameError: name 'mistake' is not defined
       non-indented statement is found the if clause is finished. Only simple set
       statements are allowed in if clauses. The evaluation of if statements occurs
       at read time, not at evaluation time.
-      A reread is forced if either of the system properties changes.
+      A reread is forced if either of the system properties changes.</p>
      <div class="example">
      if PLAT_WIN<br />
      &nbsp;&nbsp;&nbsp;&nbsp;caret.fore=#00FF00<br />
      if $(= $(Appearance);1)<br />
      &nbsp;&nbsp;&nbsp;&nbsp;caret.fore=#FFFFFF<br />
      </div>
-    </p>
+    <p>
+      Local and directories properties files may test the value of the current file in "if" tests with
+      $(FilePath), $(FileDir), $(FileName), $(FileExt), $(FileNameExt), and $(RelativePath).</p>
+     <div class="example">
+     if $(= $(FileNameExt);HeaderEOLFill_0.md)<br />
+     &nbsp;&nbsp;&nbsp;&nbsp;lexer.markdown.header.eolfill=0<br />
+     if $(= $(FileExt);pl)<br />
+     &nbsp;&nbsp;&nbsp;&nbsp;edge.mode=1<br />
+     &nbsp;&nbsp;&nbsp;&nbsp;edge.column=79<br />
+     </div>
+      <p>The "match" statement is like "if" but implicitly matches patterns against $(RelativePath), allowing wildcards *, ?;
+      sets [a-z%]; and alternates {cpp,cxx,ixx}.
+      Only Unix-style "/" directory separators may be used as "\" may be used as a quote.
+      If there is no "/" in the pattern then "**/" is prepended to allow matching in any subdirectory.
+      There should be exactly one space between "match" and the pattern and trailing whitespace is removed.</p>
+     <div class="example">
+     match *.{js,py}<br />
+     &nbsp;&nbsp;&nbsp;&nbsp;colour.code.comment.line=fore:#70B060<br />
+     match lexilla/**/Lex*.[ci]xx<br />
+     &nbsp;&nbsp;&nbsp;&nbsp;font.comment=Cascadia Code<br />
+     &nbsp;&nbsp;&nbsp;&nbsp;lexer.cpp.escape.sequence=1<br />
+     </div>
     <p>
       <a name="property-module"></a>
       The 'module' statement is meant for use in the single-file distribution Sc1 where all of the

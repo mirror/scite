@@ -89,6 +89,7 @@ SHAREDOBJS=\
 	LexillaAccess.obj \
 	MatchMarker.obj \
 	MultiplexExtension.obj \
+	PathMatch.obj \
 	PropSetFile.obj \
 	ScintillaCall.obj \
 	ScintillaWindow.obj \

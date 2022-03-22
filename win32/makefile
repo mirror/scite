@@ -136,6 +136,7 @@ SHAREDOBJS=\
 	LexillaAccess.o \
 	MatchMarker.o \
 	MultiplexExtension.o \
+	PathMatch.o \
 	PropSetFile.o \
 	ScintillaCall.o \
 	ScintillaWindow.o \
