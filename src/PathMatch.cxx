@@ -80,7 +80,7 @@ bool PatternMatch(std::u32string_view pattern, std::u32string_view text) noexcep
 				}
 				if (text.front() == '/') {
 					// "/" not matched by single "*"
-					return PatternMatch(pattern, text);
+					return false;
 				}
 				text.remove_prefix(1);
 			}
@@ -94,10 +94,6 @@ bool PatternMatch(std::u32string_view pattern, std::u32string_view text) noexcep
 		if (text.front() == '/') {
 			return false;
 		}
-		pattern.remove_prefix(1);
-		text.remove_prefix(1);
-		return PatternMatch(pattern, text);
-	} else if (pattern.front() == text.front()) {
 		pattern.remove_prefix(1);
 		text.remove_prefix(1);
 		return PatternMatch(pattern, text);
@@ -205,6 +201,10 @@ bool PatternMatch(std::u32string_view pattern, std::u32string_view text) noexcep
 		}
 		pattern.remove_prefix(endParen + 1);
 		return PatternMatch(pattern, text);
+	} else if (pattern.front() == text.front()) {
+		pattern.remove_prefix(1);
+		text.remove_prefix(1);
+		return PatternMatch(pattern, text);
 	}
 	return false;
 }
@@ -276,7 +276,11 @@ static void TestPatternMatch() {
 	assert(PatternMatch(U"**a", U"xyz") == false);
 	assert(PatternMatch(U"a**z", U"a/z"));
 	assert(PatternMatch(U"a**z", U"a/b/z"));
+	assert(PatternMatch(U"a**/z", U"a/b/z"));
+	assert(PatternMatch(U"a/**/z", U"a/b/z"));
 	assert(PatternMatch(U"a**", U"a/b/z"));
+	assert(PatternMatch(U"lexilla/**/Lex*.[ci]xx", U"lexilla/lexers/LexPython.cxx"));
+	assert(PatternMatch(U"lexilla/*/LexAda*.cxx", U"lexilla/lexers/LexAda.cxx"));
 
 	// {alt1,alt2,...} matches any of the alternatives
 	assert(PatternMatch(U"<{ab}>", U"<ab>"));
@@ -309,7 +313,7 @@ bool PathMatch(std::string pattern, std::string relPath) {
 	while (!pattern.empty() && IsASpace(pattern.back())) {
 		pattern.pop_back();
 	}
-#ifdef WIN32
+#if defined(_WIN32)
 	// Convert Windows path separators to Unix
 	std::replace(relPath.begin(), relPath.end(), '\\', '/');
 #endif
@@ -317,11 +321,16 @@ bool PathMatch(std::string pattern, std::string relPath) {
 		pattern = GUI::LowerCaseUTF8(pattern);
 		relPath = GUI::LowerCaseUTF8(relPath);
 	}
-	if ((pattern.find('/') == std::string::npos) && (relPath.find('/') != std::string::npos)) {
-		// Simple pattern without directories so make match in any directory
-		pattern.insert(0, "**/");
-	}
 	const std::u32string patternU32 = UTF32FromUTF8(pattern);
 	const std::u32string relPathU32 = UTF32FromUTF8(relPath);
-	return PatternMatch(patternU32, relPathU32);
+	if (PatternMatch(patternU32, relPathU32)) {
+		return true;
+	}
+	const size_t lastSlash = relPathU32.rfind('/');
+	if (lastSlash == std::string::npos) {
+		return false;
+	}
+	// Match against just filename
+	const std::u32string fileNameU32 = relPathU32.substr(lastSlash+1);
+	return PatternMatch(patternU32, fileNameU32);
 }
