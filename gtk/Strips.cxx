@@ -365,7 +365,7 @@ void FindReplaceStrip::NextIncremental() {
 	if (initializingSearch)
 		return;
 
-	if (!pSearcher->filterState) {
+	if (performFilter && !pSearcher->filterState) {
 		pSearcher->FilterAll(false);
 	}
 	if ((incrementalBehaviour == simple) && !pSearcher->filterState)

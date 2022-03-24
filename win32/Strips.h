@@ -136,6 +136,7 @@ public:
 
 class FindReplaceStrip : public SearchStripBase {
 protected:
+	bool performFilter = true;
 	GUI::Window wStaticFind;
 	GUI::Window wText;
 	GUI::Window wCheckWord;
@@ -163,6 +164,7 @@ class FindStrip : public FindReplaceStrip {
 	GUI::Window wCheckUp;
 public:
 	FindStrip() noexcept {
+		performFilter = false;
 	}
 	void Creation() override;
 	void Destruction() noexcept override;

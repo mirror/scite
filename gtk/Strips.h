@@ -19,6 +19,7 @@ public:
 
 class FindReplaceStrip : public Strip, public SearchUI, public CheckDrawWatcher {
 public:
+	bool performFilter = true;
 	WComboBoxEntry wComboFind;
 	std::vector<std::unique_ptr<WCheckDraw>> wCheck;
 	bool initializingSearch;
@@ -51,6 +52,7 @@ public:
 	WButton wButtonMarkAll;
 
 	FindStrip() {
+		performFilter = false;
 	}
 	void Creation(GtkWidget *container) override;
 	virtual void Destruction();

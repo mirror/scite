@@ -1068,7 +1068,7 @@ void FindReplaceStrip::SetFindFromSource(ChangingSource source) {
 }
 
 void FindReplaceStrip::NextIncremental(ChangingSource source) {
-	if (!pSearcher->filterState) {
+	if (performFilter && !pSearcher->filterState) {
 		pSearcher->FilterAll(false);
 	}
 	if ((incrementalBehaviour == IncrementalBehaviour::simple) && !pSearcher->filterState)
