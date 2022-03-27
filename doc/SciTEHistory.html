@@ -604,7 +604,7 @@
 	<li>SciTE</li>
 	<ul>
 		<li>
-		Released 24 February 2022.
+		Released 31 March 2022.
 		</li>
 		<li>
 		Add "match" statement to local and directories properties to simplify setting properties
@@ -659,12 +659,33 @@
 		Ruby: Fix folding for Ruby 3 endless method definition.
 		<a href="https://github.com/ScintillaOrg/lexilla/issues/65">Issue #65</a>.
 		</li>
+		<li>
+		Ruby: Fold string array SCE_RB_STRING_QW.
+		<a href="https://github.com/ScintillaOrg/lexilla/issues/65">Issue #65</a>.
+		</li>
+		<li>
+		Ruby: Fix final \n in indented heredoc to be SCE_RB_HERE_Q.
+		<a href="https://github.com/ScintillaOrg/lexilla/issues/66">Issue #66</a>.
+		</li>
+		<li>
+		Ruby: Fix heredoc recognition when '.' and ',' used in method calls and after SCE_RB_GLOBAL.
+		Classify word after heredoc delimiter instead of styling as keyword.
+		<a href="https://github.com/ScintillaOrg/lexilla/issues/67">Issue #67</a>.
+		</li>
+		<li>
+		Ruby: Improve method highlighting so method name is styled as SCE_RB_DEFNAME and class/object
+		is styled appropriately.
+		<a href="https://github.com/ScintillaOrg/lexilla/issues/68">Issue #68</a>.
+		</li>
 	</ul>
 	<li>Scintilla 5.2.2</li>
 	<ul>
 		<li>
 		Add SCI_GETSTYLEINDEXAT API to return styles over 127 as positive integers.
 		<a href="https://sourceforge.net/p/scintilla/feature-requests/1431/">Feature #1431</a>.
+		</li>
+		<li>
+		On GTK, scroll horizontally with shift + scroll wheel.
 		</li>
 		<li>
 		Fix crash with unexpected right-to-left text on GTK.
