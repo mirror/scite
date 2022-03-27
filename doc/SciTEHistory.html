@@ -608,7 +608,8 @@
 		</li>
 		<li>
 		Add "match" statement to local and directories properties to simplify setting properties
-		for particular files.
+		for particular files. Add $(RelativePath) for path from directory properties directory to
+		current file. Set file name properties in wider scope to allow use in "if" tests.
 		</li>
 		<li>
 		Fix pattern matching for EditorConfig: '?' does not match '/'.
@@ -637,7 +638,7 @@
 	<li>Lexilla 5.1.6</li>
 	<ul>
 		<li>
-		Implement conditional statement "if", comparison function "$(=", and "FileNameExt"
+		Implement conditional statements "if" and "match", comparison function "$(=", and "FileNameExt"
 		property in TestLexers to allow varying lexer properties over different files.
 		<a href="https://github.com/ScintillaOrg/lexilla/issues/62">Issue #62</a>.
 		</li>
