@@ -276,7 +276,9 @@ bool SciTEWin::OpenDialog(const FilePath &directory, const GUI::gui_char *filesF
 	}
 	if (::GetOpenFileNameW(&ofn)) {
 		succeeded = true;
-		openFilterDefault = filters[(ofn.nFilterIndex-1)*2];
+		if (!filters.empty()) {
+			openFilterDefault = filters[(ofn.nFilterIndex - 1) * 2];
+		}
 		// if single selection then have path+file
 		if (wcslen(openName) > static_cast<size_t>(ofn.nFileOffset)) {
 			Open(openName);
