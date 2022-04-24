@@ -590,6 +590,8 @@
 	<td>Michael Berlenz</td>
 	<td>cdbdev</td>
 	<td>Andrey Smolyakov</td>
+	<td>Knut Leimbert</td>
+      </tr><tr>
       </tr>
     </table>
     <p>
@@ -611,12 +613,30 @@
 	<li>Lexilla 5.1.7</li>
 	<ul>
 		<li>
+		Add LexAccessor::StyleIndexAt to retrieve style values as unsigned to handle styles > 127 better.
+		<a href="https://github.com/ScintillaOrg/lexilla/issues/61">Issue #61</a>.
+		</li>
+		<li>
+		CMake: Fix folding of "ElseIf".
+		<a href="https://github.com/ScintillaOrg/lexilla/issues/77">Issue #77</a>,
+		<a href="https://github.com/ScintillaOrg/lexilla/pull/78">Pull request #78</a>,
+		<a href="https://sourceforge.net/p/scintilla/bugs/2213/">Bug #2213</a>.
+		</li>
+		<li>
+		HTML: Fix folding of JavaScript doc comments.
+		<a href="https://sourceforge.net/p/scintilla/bugs/2219/">Bug #2219</a>.
+		</li>
+		<li>
 		Matlab: add "classdef" and "spmd" to folding keywords.
 		<a href="https://github.com/ScintillaOrg/lexilla/pull/70">Pull request #70</a>.
 		</li>
 		<li>
 		Matlab: handle "arguments" contextual keyword.
 		<a href="https://github.com/ScintillaOrg/lexilla/pull/70">Pull request #70</a>.
+		</li>
+		<li>
+		Matlab: improve support of class definition syntax.
+		<a href="https://github.com/ScintillaOrg/lexilla/pull/75">Pull request #75</a>.
 		</li>
 		<li>
 		Ruby: fix character sequence "?\\#" to not include '#' in SCE_RB_NUMBER as only second '\' is quoted.
@@ -634,6 +654,14 @@
 		<a href="https://sourceforge.net/p/scintilla/bugs/2322/">Bug #2322</a>,
 		<a href="https://sourceforge.net/p/scintilla/bugs/2196/">Bug #2196</a>,
 		<a href="https://sourceforge.net/p/scintilla/bugs/2312/">Bug #2312</a>.
+		</li>
+		<li>
+		Fix problem with horizontally inverted glyphs with buffered drawing and WS_EX_LAYOUTRTL set on Win32 GDI.
+		<a href="https://sourceforge.net/p/scintilla/feature-requests/1435/">Feature #1435</a>.
+		</li>
+		<li>
+		Fix ARM64 builds with Visual C++ due to unsupported CETCOMPAT flag.
+		<a href="https://sourceforge.net/p/scintilla/bugs/2324/">Bug #2324</a>.
 		</li>
 	</ul>
     </ul>
