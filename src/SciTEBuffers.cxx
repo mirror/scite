@@ -1185,9 +1185,12 @@ GUI::gui_string EscapeFilePath(const FilePath &path, [[maybe_unused]]Title desti
 
 GUI::gui_string AbbreviateWithTilde(const GUI::gui_string &path) {
 #if defined(GTK)
-	const GUI::gui_string_view homeDirectory = getenv("HOME");
-	if (StartsWith(path, homeDirectory)) {
-		return GUI::gui_string(GUI_TEXT("~")) + path.substr(homeDirectory.size());
+	const char *envHome = getenv("HOME");
+	if (envHome) {
+		const GUI::gui_string_view homeDirectory = envHome;
+		if (StartsWith(path, homeDirectory)) {
+			return GUI::gui_string(GUI_TEXT("~")) + path.substr(homeDirectory.size());
+		}
 	}
 #endif
 	return path;
