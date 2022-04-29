@@ -79,7 +79,7 @@ public:
 	void Flush();
 	void SetLineState(Scintilla::Line line, int state);
 
-	void StartAt(Scintilla::Position start, char chMask=31);
+	void StartAt(Scintilla::Position start);
 	Scintilla::Position GetStartSegment() const noexcept { return startSeg; }
 	void StartSegment(Scintilla::Position pos) noexcept;
 	void ColourTo(Scintilla::Position pos, int chAttr);

@@ -8,10 +8,10 @@
 
 class LuaExtension : public Extension {
 private:
-	LuaExtension(); // Singleton
+	LuaExtension() noexcept; // Singleton
 
 public:
-	static LuaExtension &Instance();
+	static LuaExtension &Instance() noexcept;
 
 	// Deleted so LuaExtension objects can not be copied.
 	LuaExtension(const LuaExtension &) = delete;

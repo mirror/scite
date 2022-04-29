@@ -93,8 +93,8 @@ void StyleWriter::SetLineState(SA::Line line, int state) {
 	sc.SetLineState(line, state);
 }
 
-void StyleWriter::StartAt(SA::Position start, char chMask) {
-	sc.StartStyling(start, chMask);
+void StyleWriter::StartAt(SA::Position start) {
+	sc.StartStyling(start, 0);
 }
 
 void StyleWriter::StartSegment(SA::Position pos) noexcept {
