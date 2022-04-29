@@ -69,6 +69,7 @@ public:
 	GUI::gui_string RelativePathTo(FilePath filePath) const;
 	static FilePath GetWorkingDirectory();
 	bool SetWorkingDirectory() const noexcept;
+	static FilePath UserHomeDirectory();
 	void List(FilePathSet &directories, FilePathSet &files) const;
 	FILE *Open(const GUI::gui_char *mode) const noexcept;
 	std::string Read() const;

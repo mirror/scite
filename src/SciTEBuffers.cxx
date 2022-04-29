@@ -1184,10 +1184,10 @@ GUI::gui_string EscapeFilePath(const FilePath &path, [[maybe_unused]]Title desti
 }
 
 GUI::gui_string AbbreviateWithTilde(const GUI::gui_string &path) {
-#if defined(GTK)
-	const char *envHome = getenv("HOME");
-	if (envHome) {
-		const GUI::gui_string_view homeDirectory = envHome;
+#if defined(GTK) || defined(__APPLE__)
+	FilePath homePath = FilePath::UserHomeDirectory();
+	if (homePath.IsSet()) {
+		const GUI::gui_string_view homeDirectory = homePath.AsInternal();
 		if (StartsWith(path, homeDirectory)) {
 			return GUI::gui_string(GUI_TEXT("~")) + path.substr(homeDirectory.size());
 		}

@@ -24,6 +24,7 @@
 
 #include <unistd.h>
 #include <dirent.h>
+#include <pwd.h>
 
 #endif
 
@@ -373,6 +374,21 @@ FilePath FilePath::GetWorkingDirectory() {
 
 bool FilePath::SetWorkingDirectory() const noexcept {
 	return chdir(AsInternal()) == 0;
+}
+
+FilePath FilePath::UserHomeDirectory() {
+#if defined(_WIN32)
+	return _wgetenv(GUI_TEXT("USERPROFILE"));
+#elif defined (__APPLE__)
+	// Normally sandboxed so $HOME points to sandbox directory not user home
+	struct passwd *pw = getpwuid(getuid());
+	if (!pw) {
+		return {};
+	}
+	return pw->pw_dir;
+#else
+	return getenv("HOME");
+#endif
 }
 
 void FilePath::List(FilePathSet &directories, FilePathSet &files) const {
