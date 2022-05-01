@@ -107,12 +107,7 @@ public:
 
 	void Init();
 
-	void SetTimeFromFile() {
-		fileModTime = file.ModifiedTime();
-		fileModLastAsk = fileModTime;
-		documentModTime = fileModTime;
-		failedSave = false;
-	}
+	void SetTimeFromFile();
 
 	void DocumentModified() noexcept;
 	bool NeedsSave(int delayBeforeSave) const;
@@ -125,12 +120,11 @@ public:
 		return lifeState != LifeState::opened;
 	}
 
+	void ScheduleFinishSave() noexcept;
+	bool FinishSave() noexcept;
+
 	void CancelLoad();
 };
-
-inline constexpr Buffer::FutureDo operator&(Buffer::FutureDo a, Buffer::FutureDo b) noexcept {
-	return static_cast<Buffer::FutureDo>(static_cast<int>(a) & static_cast<int>(b));
-}
 
 struct BackgroundActivities {
 	int loaders;
@@ -176,8 +170,6 @@ public:
 	bool SavingInBackground() const;
 	bool GetVisible(int index) const noexcept;
 	void SetVisible(int index, bool visible);
-	void AddFuture(int index, Buffer::FutureDo fd);
-	void FinishedFuture(int index, Buffer::FutureDo fd);
 private:
 	void PopStack();
 };

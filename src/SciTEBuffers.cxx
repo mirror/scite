@@ -89,6 +89,13 @@ void Buffer::Init() {
 	doc.reset();
 }
 
+void Buffer::SetTimeFromFile() {
+	fileModTime = file.ModifiedTime();
+	fileModLastAsk = fileModTime;
+	documentModTime = fileModTime;
+	failedSave = false;
+}
+
 void Buffer::DocumentModified() noexcept {
 	documentModTime = time(nullptr);
 }
@@ -120,6 +127,33 @@ void Buffer::AbandonAutomaticSave() {
 			// File is in partially saved state so may be better to remove
 		}
 	}
+}
+
+constexpr Buffer::FutureDo operator&(Buffer::FutureDo a, Buffer::FutureDo b) noexcept {
+	return static_cast<Buffer::FutureDo>(static_cast<int>(a) & static_cast<int>(b));
+}
+
+constexpr Buffer::FutureDo operator|(Buffer::FutureDo a, Buffer::FutureDo b) noexcept {
+	return static_cast<Buffer::FutureDo>(static_cast<int>(a) | static_cast<int>(b));
+}
+
+constexpr Buffer::FutureDo operator~(Buffer::FutureDo a) noexcept {
+	return static_cast<Buffer::FutureDo>(~static_cast<int>(a));
+}
+
+void Buffer::ScheduleFinishSave() noexcept {
+	isDirty = false;
+	failedSave = false;
+	// Need to make writable and set save point when next receive focus.
+	futureDo = futureDo | FutureDo::finishSave;
+}
+
+bool Buffer::FinishSave() noexcept {
+	if ((futureDo & FutureDo::finishSave) != FutureDo::finishSave) {
+		return false;
+	}
+	futureDo = futureDo & ~(FutureDo::finishSave);
+	return true;
 }
 
 void Buffer::CancelLoad() {
@@ -369,26 +403,6 @@ void BufferList::SetVisible(int index, bool visible) {
 			if (current >= lengthVisible && lengthVisible > 0)
 				SetCurrent(lengthVisible-1);
 		}
-	}
-}
-
-constexpr Buffer::FutureDo operator|(Buffer::FutureDo a, Buffer::FutureDo b) noexcept {
-	return static_cast<Buffer::FutureDo>(static_cast<int>(a) | static_cast<int>(b));
-}
-
-constexpr Buffer::FutureDo operator~(Buffer::FutureDo a) noexcept {
-	return static_cast<Buffer::FutureDo>(~static_cast<int>(a));
-}
-
-void BufferList::AddFuture(int index, Buffer::FutureDo fd) {
-	if (index >= 0 || index < length) {
-		buffers[index].futureDo = static_cast<Buffer::FutureDo>(buffers[index].futureDo | fd);
-	}
-}
-
-void BufferList::FinishedFuture(int index, Buffer::FutureDo fd) {
-	if (index >= 0 || index < length) {
-		buffers[index].futureDo = static_cast<Buffer::FutureDo>(buffers[index].futureDo & ~(fd));
 	}
 }
 

@@ -367,10 +367,9 @@ void SciTEBase::TextRead(FileWorker *pFileWorker) {
 }
 
 void SciTEBase::PerformDeferredTasks() {
-	if ((buffers.buffers[buffers.Current()].futureDo & Buffer::FutureDo::finishSave) == Buffer::FutureDo::finishSave) {
+	if (CurrentBuffer()->FinishSave()) {
 		wEditor.SetSavePoint();
 		wEditor.SetReadOnly(CurrentBuffer()->isReadOnly);
-		buffers.FinishedFuture(buffers.Current(), Buffer::FutureDo::finishSave);
 	}
 }
 
@@ -466,10 +465,8 @@ void SciTEBase::TextWritten(FileWorker *pFileWorker) {
 				if (extender)
 					extender->OnSave(buffers.buffers[iBuffer].file.AsUTF8().c_str());
 			} else {
-				buffers.buffers[iBuffer].isDirty = false;
-				buffers.buffers[iBuffer].failedSave = false;
 				// Need to make writable and set save point when next receive focus.
-				buffers.AddFuture(iBuffer, Buffer::FutureDo::finishSave);
+				buffers.buffers[iBuffer].ScheduleFinishSave();
 				SetBuffersMenu();
 			}
 		}
