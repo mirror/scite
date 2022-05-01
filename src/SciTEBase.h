@@ -134,42 +134,43 @@ struct BackgroundActivities {
 	GUI::gui_string fileNameLast;
 };
 
+using BufferIndex = int;
+constexpr BufferIndex bufferInvalid = -1;
+
 class BufferList {
 protected:
-	int current;
-	int stackcurrent;
-	std::vector<int> stack;
+	BufferIndex current;
+	BufferIndex stackcurrent;
+	std::vector<BufferIndex> stack;
 public:
 	std::vector<Buffer> buffers;
-	int length;
-	int lengthVisible;
+	BufferIndex length;
+	BufferIndex lengthVisible;
 	bool initialised;
 
 	BufferList();
-	int size() const noexcept {
-		return static_cast<int>(buffers.size());
-	}
-	void Allocate(int maxSize);
-	int Add();
-	int GetDocumentByWorker(const FileWorker *pFileWorker) const;
-	int GetDocumentByName(const FilePath &filename, bool excludeCurrent=false);
-	void RemoveInvisible(int index);
+	BufferIndex size() const noexcept;
+	void Allocate(BufferIndex maxSize);
+	BufferIndex Add();
+	BufferIndex GetDocumentByWorker(const FileWorker *pFileWorker) const;
+	BufferIndex GetDocumentByName(const FilePath &filename, bool excludeCurrent=false);
+	void RemoveInvisible(BufferIndex index);
 	void RemoveCurrent();
-	int Current() const noexcept;
+	BufferIndex Current() const noexcept;
 	Buffer *CurrentBuffer();
 	const Buffer *CurrentBufferConst() const;
-	void SetCurrent(int index) noexcept;
-	int StackNext();
-	int StackPrev();
+	void SetCurrent(BufferIndex index) noexcept;
+	BufferIndex StackNext();
+	BufferIndex StackPrev();
 	void CommitStackSelection();
-	void MoveToStackTop(int index);
-	void ShiftTo(int indexFrom, int indexTo);
-	void Swap(int indexA, int indexB);
+	void MoveToStackTop(BufferIndex index);
+	void ShiftTo(BufferIndex indexFrom, BufferIndex indexTo);
+	void Swap(BufferIndex indexA, BufferIndex indexB);
 	bool SingleBuffer() const noexcept;
 	BackgroundActivities CountBackgroundActivities() const;
 	bool SavingInBackground() const;
-	bool GetVisible(int index) const noexcept;
-	void SetVisible(int index, bool visible);
+	bool GetVisible(BufferIndex index) const noexcept;
+	void SetVisible(BufferIndex index, bool visible);
 private:
 	void PopStack();
 };
@@ -475,14 +476,14 @@ protected:
 	BufferList buffers;
 
 	// Handle buffers
-	void *GetDocumentAt(int index);
-	void SwitchDocumentAt(int index, void *pdoc);
+	void *GetDocumentAt(BufferIndex index);
+	void SwitchDocumentAt(BufferIndex index, void *pdoc);
 	void SaveFolds(std::vector<SA::Line> &folds);
 	void RestoreFolds(const std::vector<SA::Line> &folds);
 	void UpdateBuffersCurrent();
 	bool IsBufferAvailable() const noexcept;
 	bool CanMakeRoom(bool maySaveIfDirty = true);
-	void SetDocumentAt(int index, bool updateStack = true);
+	void SetDocumentAt(BufferIndex index, bool updateStack = true);
 	Buffer *CurrentBuffer() {
 		return buffers.CurrentBuffer();
 	}
@@ -501,7 +502,7 @@ protected:
 	virtual void TabInsert(int index, const GUI::gui_char *title) = 0;
 	virtual void TabSelect(int index) = 0;
 	virtual void RemoveAllTabs() = 0;
-	void ShiftTab(int indexFrom, int indexTo);
+	void ShiftTab(BufferIndex indexFrom, BufferIndex indexTo);
 	void MoveTabRight();
 	void MoveTabLeft();
 

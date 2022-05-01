@@ -340,7 +340,7 @@ void SciTEBase::OpenCurrentFile(long long fileSize, bool suppressMessage, bool a
 
 void SciTEBase::TextRead(FileWorker *pFileWorker) {
 	FileLoader *pFileLoader = dynamic_cast<FileLoader *>(pFileWorker);
-	const int iBuffer = buffers.GetDocumentByWorker(pFileLoader);
+	const BufferIndex iBuffer = buffers.GetDocumentByWorker(pFileLoader);
 	// May not be found if load cancelled
 	if ((iBuffer >= 0) && pFileLoader) {
 		buffers.buffers[iBuffer].unicodeMode = pFileLoader->unicodeMode;
@@ -435,7 +435,7 @@ void SciTEBase::TextWritten(FileWorker *pFileWorker) {
 	if (!pFileStorer) {
 		return;
 	}
-	const int iBuffer = buffers.GetDocumentByWorker(pFileStorer);
+	const BufferIndex iBuffer = buffers.GetDocumentByWorker(pFileStorer);
 
 	FilePath pathSaved = pFileStorer->path;
 	const int errSaved = pFileStorer->err;
@@ -529,7 +529,7 @@ bool SciTEBase::Open(const FilePath &file, OpenFlags of) {
 		return false;
 	}
 
-	const int index = buffers.GetDocumentByName(absPath);
+	const BufferIndex index = buffers.GetDocumentByName(absPath);
 	if (index >= 0) {
 		buffers.SetVisible(index, true);
 		SetDocumentAt(index);
@@ -898,7 +898,7 @@ SciTEBase::SaveResult SciTEBase::SaveIfUnsureAll() {
 
 	if (extender && extender->NeedsOnClose()) {
 		// Ensure extender is told about each buffer closing
-		for (int k = 0; k < buffers.lengthVisible; k++) {
+		for (BufferIndex k = 0; k < buffers.lengthVisible; k++) {
 			SetDocumentAt(k);
 			extender->OnClose(filePath.AsUTF8().c_str());
 		}
@@ -1283,7 +1283,7 @@ void SciTEBase::SaveAs(const GUI::gui_char *file, bool fixCase) {
 
 bool SciTEBase::SaveIfNotOpen(const FilePath &destFile, bool fixCase) {
 	FilePath absPath = destFile.AbsolutePath();
-	const int index = buffers.GetDocumentByName(absPath, true /* excludeCurrent */);
+	const BufferIndex index = buffers.GetDocumentByName(absPath, true /* excludeCurrent */);
 	if (index >= 0) {
 		GUI::gui_string msg = LocaliseMessage(
 					      "File '^0' is already open in another buffer.", destFile.AsInternal());

@@ -178,7 +178,7 @@ void SciTEWin::Notify(SCNotification *notification) {
 	case TCN_SELCHANGE:
 		// Change of tab
 		if (notification->nmhdr.idFrom == IDM_TABWIN) {
-			const int index = TabCtrl_GetCurSel(HwndOf(wTabBar));
+			const BufferIndex index = TabCtrl_GetCurSel(HwndOf(wTabBar));
 			SetDocumentAt(index);
 			CheckReload();
 		}

@@ -1330,7 +1330,7 @@ intptr_t SciTEBase::ReplaceAll(bool inSelection) {
 }
 
 intptr_t SciTEBase::ReplaceInBuffers() {
-	const int currentBuffer = buffers.Current();
+	const BufferIndex currentBuffer = buffers.Current();
 	intptr_t replacements = 0;
 	for (int i = 0; i < buffers.length; i++) {
 		SetDocumentAt(i);
@@ -4301,8 +4301,8 @@ void SciTEBase::OnTimer() {
 			Save(sfNone);
 		}
 		// Then look through the other buffers to save any that need to be saved
-		const int currentBuffer = buffers.Current();
-		for (int i = 0; i < buffers.length; i++) {
+		const BufferIndex currentBuffer = buffers.Current();
+		for (BufferIndex i = 0; i < buffers.length; i++) {
 			if (buffers.buffers[i].NeedsSave(delayBeforeAutoSave)) {
 				SetDocumentAt(i);
 				Save(sfNone);
