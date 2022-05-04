@@ -156,8 +156,15 @@ bool FilePath::IsAbsolute() const noexcept {
 
 bool FilePath::IsRoot() const noexcept {
 #ifdef WIN32
-	if ((fileName[0] == pathSepChar) && (fileName[1] == pathSepChar) && (fileName.find(pathSepString, 2) == GUI::gui_string::npos))
-		return true; // UNC path like \\server
+	if (fileName.length() >= 2 && (fileName[0] == pathSepChar) && (fileName[1] == pathSepChar)) {
+		// Starts with "\\" so could be UNC \\server or \\server\share
+		const size_t posSep = fileName.find(pathSepChar, 2);
+		if (posSep == GUI::gui_string::npos)
+			return true; // No \ after initial \\, UNC path like \\server
+		const size_t posSepLast = fileName.rfind(pathSepChar);
+		// Possibly UNC share like \\server\share - only 1 pathSepChar after \\ at start
+		return posSepLast == posSep;
+	}
 	return (fileName.length() == 3) && (fileName[1] == ':') && (fileName[2] == pathSepChar);
 #else
 	return fileName == "/";
