@@ -406,7 +406,8 @@ PropSetFile::ReadLineState PropSetFile::ReadLine(const char *lineBuffer, ReadLin
 		} else {
 			rls = (GetInt(value.c_str()) != 0) ? ReadLineState::active : ReadLineState::conditionFalse;
 		}
-	} else if (isprefix(lineBuffer, "match ")) {
+	} else if (superPS && isprefix(lineBuffer, "match ")) {
+		// Don't match on stand-alone property sets like localiser
 		const std::string pattern = lineBuffer + strlen("match") + 1;
 		const std::string relPath = GetString("RelativePath");
 		const bool matches = PathMatch(pattern, relPath);
