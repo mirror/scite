@@ -48,8 +48,7 @@ public:
 	void Set(FilePath const &directory, FilePath const &name);
 	void SetDirectory(FilePath const &directory);
 	virtual void Init() noexcept;
-	bool SameNameAs(const GUI::gui_char *other) const noexcept;
-	bool SameNameAs(const FilePath &other) const noexcept;
+	[[nodiscard]]bool SameNameAs(const FilePath &other) const noexcept;
 	bool operator==(const FilePath &other) const noexcept;
 	bool operator<(const FilePath &other) const noexcept;
 	bool IsSet() const noexcept;

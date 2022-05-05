@@ -109,25 +109,39 @@ void FilePath::Init() noexcept {
 	fileName.clear();
 }
 
+#ifdef _WIN32
+
+namespace {
+
+// Encapsulate Win32 CompareStringW
+[[nodiscard]] int Compare(const GUI::gui_string &a, const GUI::gui_string &b) noexcept {
+	return ::CompareStringW(LOCALE_SYSTEM_DEFAULT, NORM_IGNORECASE,
+		a.c_str(), static_cast<int>(a.length()),
+		b.c_str(), static_cast<int>(b.length()));
+}
+
+}
+
+#endif
+
 bool FilePath::operator==(const FilePath &other) const noexcept {
 	return SameNameAs(other);
 }
 
 bool FilePath::operator<(const FilePath &other) const noexcept {
-	return fileName < other.fileName;
-}
-
-bool FilePath::SameNameAs(const GUI::gui_char *other) const noexcept {
-#ifdef WIN32
-	return CSTR_EQUAL == CompareString(LOCALE_SYSTEM_DEFAULT, NORM_IGNORECASE,
-					   fileName.c_str(), -1, other, -1);
+#ifdef _WIN32
+	return CSTR_LESS_THAN == Compare(fileName, other.fileName);
 #else
-	return fileName == other;
+	return fileName < other.fileName;
 #endif
 }
 
 bool FilePath::SameNameAs(const FilePath &other) const noexcept {
-	return SameNameAs(other.fileName.c_str());
+#ifdef _WIN32
+	return CSTR_EQUAL == Compare(fileName, other.fileName);
+#else
+	return fileName == other.fileName;
+#endif
 }
 
 bool FilePath::IsSet() const noexcept {
