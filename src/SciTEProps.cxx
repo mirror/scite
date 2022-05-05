@@ -187,23 +187,23 @@ be set to $(FilePath).
 void SciTEBase::ReadDirectoryPropFile() {
 	propsDirectory.Clear();
 
-	propsDirectory.Set("FilePath", filePath.AsUTF8());
-	propsDirectory.Set("FileDir", filePath.Directory().AsUTF8());
-	propsDirectory.Set("FileName", filePath.BaseName().AsUTF8());
-	propsDirectory.Set("FileExt", filePath.Extension().AsUTF8());
-	propsDirectory.Set("FileNameExt", FileNameExt().AsUTF8());
+	propsDirectory.SetPath("FilePath", filePath);
+	propsDirectory.SetPath("FileDir", filePath.Directory());
+	propsDirectory.SetPath("FileName", filePath.BaseName());
+	propsDirectory.SetPath("FileExt", filePath.Extension());
+	propsDirectory.SetPath("FileNameExt", FileNameExt());
 
 	if (props.GetInt("properties.directory.enable") != 0) {
 		const FilePath propfile = GetDirectoryPropertiesFileName();
-		const GUI::gui_string relPath = propfile.Directory().RelativePathTo(filePath);
+		const FilePath propfileDirectory = propfile.Directory();
+		const GUI::gui_string relPath = propfileDirectory.RelativePathTo(filePath);
 		propsDirectory.Set("RelativePath", GUI::UTF8FromString(relPath));
 
-		const std::string directoryHome = propfile.Directory().AsUTF8();
-		props.Set("SciteDirectoryHome", directoryHome);
+		props.SetPath("SciteDirectoryHome", propfileDirectory);
 
-		propsDirectory.Read(propfile, propfile.Directory(), filter, nullptr, 0);
+		propsDirectory.Read(propfile, propfileDirectory, filter, nullptr, 0);
 	} else {
-		propsDirectory.Set("RelativePath", filePath.Name().AsUTF8());
+		propsDirectory.SetPath("RelativePath", filePath.Name());
 	}
 }
 
@@ -857,10 +857,8 @@ void SciTEBase::ReadProperties() {
 		}
 	}
 
-	FilePath homepath = GetSciteDefaultHome();
-	props.Set("SciteDefaultHome", homepath.AsUTF8().c_str());
-	homepath = GetSciteUserHome();
-	props.Set("SciteUserHome", homepath.AsUTF8().c_str());
+	props.SetPath("SciteDefaultHome", GetSciteDefaultHome());
+	props.SetPath("SciteUserHome", GetSciteUserHome());
 
 	for (size_t i=0; propertiesToForward[i]; i++) {
 		ForwardPropertyToEditor(propertiesToForward[i]);
@@ -872,7 +870,7 @@ void SciTEBase::ReadProperties() {
 		apisFileNames = props.GetNewExpandString("api.", fileNameForExtension.c_str());
 	}
 
-	props.Set("APIPath", apisFileNames.c_str());
+	props.Set("APIPath", apisFileNames);
 
 	FilePath fileAbbrev = GUI::StringFromUTF8(props.GetNewExpandString("abbreviations.", fileNameForExtension.c_str()));
 	if (!fileAbbrev.IsSet())
@@ -882,7 +880,7 @@ void SciTEBase::ReadProperties() {
 		ReadAbbrevPropFile();
 	}
 
-	props.Set("AbbrevPath", pathAbbreviations.AsUTF8().c_str());
+	props.SetPath("AbbrevPath", pathAbbreviations);
 
 	const SA::Technology tech = static_cast<SA::Technology>(props.GetInt("technology"));
 	wEditor.SetTechnology(tech);
@@ -1873,10 +1871,8 @@ void SciTEBase::ReadPropertiesInitial() {
 	}
 	// end load the user defined short cut props
 
-	FilePath homepath = GetSciteDefaultHome();
-	props.Set("SciteDefaultHome", homepath.AsUTF8().c_str());
-	homepath = GetSciteUserHome();
-	props.Set("SciteUserHome", homepath.AsUTF8().c_str());
+	props.SetPath("SciteDefaultHome", GetSciteDefaultHome());
+	props.SetPath("SciteUserHome", GetSciteUserHome());
 }
 
 FilePath SciTEBase::GetDefaultPropertiesFileName() {

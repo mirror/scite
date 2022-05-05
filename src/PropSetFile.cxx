@@ -77,6 +77,10 @@ void PropSetFile::Set(std::string_view key, std::string_view val) {
 	props[std::string(key)] = std::string(val);
 }
 
+void PropSetFile::SetPath(std::string_view key, const FilePath &path) {
+	Set(key, path.AsUTF8());
+}
+
 void PropSetFile::SetLine(const char *keyVal, bool unescape) {
 	while (IsASpace(*keyVal))
 		keyVal++;

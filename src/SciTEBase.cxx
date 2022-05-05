@@ -885,10 +885,10 @@ std::string SciTEBase::SelectionFilename() {
 
 void SciTEBase::SelectionIntoProperties() {
 	std::string currentSelection = SelectionExtend(nullptr, false);
-	props.Set("CurrentSelection", currentSelection.c_str());
+	props.Set("CurrentSelection", currentSelection);
 
 	std::string word = SelectionWord();
-	props.Set("CurrentWord", word.c_str());
+	props.Set("CurrentWord", word);
 
 	const SA::Span range = PaneFocused().SelectionSpan();
 	props.Set("SelectionStartLine", std::to_string(PaneFocused().LineFromPosition(range.start) + 1));
@@ -4331,10 +4331,8 @@ void SciTEBase::OnIdle() {
 }
 
 void SciTEBase::SetHomeProperties() {
-	FilePath homepath = GetSciteDefaultHome();
-	props.Set("SciteDefaultHome", homepath.AsUTF8().c_str());
-	homepath = GetSciteUserHome();
-	props.Set("SciteUserHome", homepath.AsUTF8().c_str());
+	props.SetPath("SciteDefaultHome", GetSciteDefaultHome());
+	props.SetPath("SciteUserHome", GetSciteUserHome());
 }
 
 void SciTEBase::UIAvailable() {

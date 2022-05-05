@@ -952,7 +952,7 @@ void SciTEGTK::SetFileProperties(PropSetFile &ps) {
 	if (filePath.AsInternal()[0] == '.') {
 		fa += "H";
 	}
-	ps.Set("FileAttr", fa.c_str());
+	ps.Set("FileAttr", fa);
 }
 
 void SciTEGTK::UpdateStatusBar(bool bUpdateSlowData) {
@@ -2110,14 +2110,14 @@ void SciTEGTK::FindInFiles() {
 	dlgFindInFiles.SetSearcher(this);
 
 	SelectionIntoFind();
-	props.Set("find.what", findWhat.c_str());
+	props.Set("find.what", findWhat);
 
 	FilePath findInDir = filePath.Directory().AbsolutePath();
 	std::string directory = props.GetString("find.in.directory");
 	if (directory.length()) {
 		findInDir = FilePath(directory.c_str());
 	}
-	props.Set("find.directory", findInDir.AsInternal());
+	props.SetPath("find.directory", findInDir);
 
 	dlgFindInFiles.Create(localiser.Text("Find in Files"));
 
@@ -2600,7 +2600,7 @@ void SciTEGTK::ParamGrab() {
 		for (int param = 0; param < maxParam; param++) {
 			std::string paramText = StdStringFromInteger(param + 1);
 			const char *paramVal = dlgParameters.entryParam[param].Text();
-			props.Set(paramText.c_str(), paramVal);
+			props.Set(paramText, paramVal);
 		}
 		UpdateStatusBar(true);
 	}

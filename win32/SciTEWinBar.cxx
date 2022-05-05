@@ -46,7 +46,7 @@ void SciTEWin::SetFileProperties(
 		if (attr & FILE_ATTRIBUTE_SYSTEM) {
 			fa += "S";
 		}
-		ps.Set("FileAttr", fa.c_str());
+		ps.Set("FileAttr", fa);
 	} else {
 		/* Reset values for new buffers with no file */
 		ps.Set("FileTime", "");

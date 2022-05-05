@@ -619,9 +619,9 @@ void SciTEBase::LoadSessionFile(const GUI::gui_char *sessionName) {
 	propsSession.Clear();
 	propsSession.Read(sessionPathName, sessionPathName.Directory(), filter, nullptr, 0);
 
-	FilePath sessionFilePath = FilePath(sessionPathName).AbsolutePath();
+	const FilePath sessionFilePath = FilePath(sessionPathName).AbsolutePath();
 	// Add/update SessionPath environment variable
-	props.Set("SessionPath", sessionFilePath.AsUTF8().c_str());
+	props.SetPath("SessionPath", sessionFilePath);
 }
 
 void SciTEBase::RestoreRecentMenu() {
@@ -858,9 +858,9 @@ void SciTEBase::SaveSessionFile(const GUI::gui_char *sessionName) {
 		FailedSaveMessageBox(sessionPathName);
 	}
 
-	FilePath sessionFilePath = FilePath(sessionPathName).AbsolutePath();
+	const FilePath sessionFilePath = FilePath(sessionPathName).AbsolutePath();
 	// Add/update SessionPath environment variable
-	props.Set("SessionPath", sessionFilePath.AsUTF8().c_str());
+	props.SetPath("SessionPath", sessionFilePath);
 }
 
 void SciTEBase::SetIndentSettings() {
@@ -2161,7 +2161,7 @@ void SciTEBase::GoMessage(int dir) {
 				}
 				std::replace(message.begin(), message.end(), '\t', ' ');
 				::Remove(message, std::string("\n"));
-				props.Set("CurrentMessage", message.c_str());
+				props.Set("CurrentMessage", message);
 				UpdateStatusBar(false);
 				WindowSetFocus(wEditor);
 			}

@@ -222,7 +222,7 @@ FilePath FilePath::Extension() const {
 
 FilePath FilePath::Directory() const {
 	if (IsRoot()) {
-		return FilePath(fileName.c_str());
+		return FilePath(fileName);
 	} else {
 		size_t lenDirectory = fileName.rfind(pathSepChar);
 		if (lenDirectory != GUI::gui_string::npos) {

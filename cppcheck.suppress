@@ -18,6 +18,7 @@ knownConditionTrueFalse:scite/src/PropSetFile.cxx
 stlIfStrFind:scite/src/PropSetFile.cxx
 
 // Prefer passing string_view by value.
+passedByValue:scite/src/PropSetFile.cxx
 passedByValue:scite/src/StringHelpers.cxx
 passedByValue:scite/src/StyleDefinition.cxx
 passedByValue:scite/src/SciTEBase.cxx

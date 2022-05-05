@@ -31,6 +31,7 @@ public:
 	explicit PropSetFile(bool lowerKeys_=false);
 
 	void Set(std::string_view key, std::string_view val);
+	void SetPath(std::string_view key, const FilePath &path);
 	void SetLine(const char *keyVal, bool unescape);
 	void Unset(std::string_view key);
 	bool Exists(const char *key) const;

@@ -1254,7 +1254,7 @@ bool SciTEBase::Save(SaveFlags sf) {
 			PropSetFile propsSuggestion;
 			propsSuggestion.superPS = &props;  // Allow access to other settings
 			propsSuggestion.Set("TimeStamp", timeBuff);
-			propsSuggestion.Set("SciteUserHome", GetSciteUserHome().AsUTF8().c_str());
+			propsSuggestion.SetPath("SciteUserHome", GetSciteUserHome());
 			std::string savePathSuggestion = propsSuggestion.GetExpandedString("save.path.suggestion");
 			std::replace(savePathSuggestion.begin(), savePathSuggestion.end(), '\\', '/');  // To accept "\" on Unix
 			if (savePathSuggestion.size() > 0) {

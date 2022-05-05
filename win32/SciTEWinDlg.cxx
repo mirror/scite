@@ -1272,15 +1272,15 @@ BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
 				return FALSE;
 			}
 			findWhat = dlg.ItemTextU(IDFINDWHAT);
-			props.Set("find.what", findWhat.c_str());
+			props.Set("find.what", findWhat);
 			InsertFindInMemory();
 
 			std::string files = dlg.ItemTextU(IDFILES);
-			props.Set("find.files", files.c_str());
+			props.Set("find.files", files);
 			memFiles.Insert(files);
 
 			std::string directory = dlg.ItemTextU(IDDIRECTORY);
-			props.Set("find.directory", directory.c_str());
+			props.Set("find.directory", directory);
 			memDirectory.Insert(directory);
 
 			wholeWord = dlg.Checked(IDWHOLEWORD);
@@ -1372,10 +1372,9 @@ void SciTEWin::FindInFiles() {
 
 	std::string directory = props.GetString("find.in.directory");
 	if (directory.length()) {
-		props.Set("find.directory", directory.c_str());
+		props.Set("find.directory", directory);
 	} else {
-		FilePath findInDir = filePath.Directory();
-		props.Set("find.directory", findInDir.AsUTF8().c_str());
+		props.SetPath("find.directory", filePath.Directory());
 	}
 	wFindInFiles = CreateParameterisedDialog(TEXT("Grep"), GrepDlg);
 	wFindInFiles.Show();
@@ -1606,9 +1605,9 @@ void SciTEWin::ParamGrab() {
 		HWND hDlg = HwndOf(wParameters);
 		Dialog dlg(hDlg);
 		for (int param = 0; param < maxParam; param++) {
-			std::string paramVal = GUI::UTF8FromString(dlg.ItemTextG(IDPARAMSTART + param));
-			std::string paramText = StdStringFromInteger(param + 1);
-			props.Set(paramText.c_str(), paramVal.c_str());
+			const std::string paramVal = GUI::UTF8FromString(dlg.ItemTextG(IDPARAMSTART + param));
+			const std::string paramText = StdStringFromInteger(param + 1);
+			props.Set(paramText, paramVal);
 		}
 		UpdateStatusBar(true);
 	}
