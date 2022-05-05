@@ -274,7 +274,7 @@ const char *SciTEBase::GetNextPropItem(
 	const char *pStart,	/**< the property string to parse for the first call,
 						 * pointer returned by the previous call for the following. */
 	char *pPropItem,	///< pointer on a buffer receiving the requested prop item
-	int maxLen) {		///< size of the above buffer
+	size_t maxLen) noexcept {	///< size of the above buffer
 	ptrdiff_t size = maxLen - 1;
 
 	*pPropItem = '\0';
