@@ -120,14 +120,15 @@ OBJSSTATIC=$(SHAREDOBJS) Sc1.obj
 #**LEXPROPS=\\\n\($(DIR_BIN)\\\* \)
 LEXPROPS=\
 $(DIR_BIN)\abaqus.properties $(DIR_BIN)\ada.properties \
-$(DIR_BIN)\asl.properties $(DIR_BIN)\asm.properties $(DIR_BIN)\asn1.properties \
-$(DIR_BIN)\au3.properties $(DIR_BIN)\ave.properties $(DIR_BIN)\avs.properties \
-$(DIR_BIN)\baan.properties $(DIR_BIN)\blitzbasic.properties \
-$(DIR_BIN)\bullant.properties $(DIR_BIN)\caml.properties \
-$(DIR_BIN)\cil.properties $(DIR_BIN)\cmake.properties \
-$(DIR_BIN)\cobol.properties $(DIR_BIN)\coffeescript.properties \
-$(DIR_BIN)\conf.properties $(DIR_BIN)\cpp.properties \
-$(DIR_BIN)\csound.properties $(DIR_BIN)\css.properties $(DIR_BIN)\d.properties \
+$(DIR_BIN)\asciidoc.properties $(DIR_BIN)\asl.properties \
+$(DIR_BIN)\asm.properties $(DIR_BIN)\asn1.properties $(DIR_BIN)\au3.properties \
+$(DIR_BIN)\ave.properties $(DIR_BIN)\avs.properties $(DIR_BIN)\baan.properties \
+$(DIR_BIN)\blitzbasic.properties $(DIR_BIN)\bullant.properties \
+$(DIR_BIN)\caml.properties $(DIR_BIN)\cil.properties \
+$(DIR_BIN)\cmake.properties $(DIR_BIN)\cobol.properties \
+$(DIR_BIN)\coffeescript.properties $(DIR_BIN)\conf.properties \
+$(DIR_BIN)\cpp.properties $(DIR_BIN)\csound.properties \
+$(DIR_BIN)\css.properties $(DIR_BIN)\d.properties \
 $(DIR_BIN)\dataflex.properties $(DIR_BIN)\ecl.properties \
 $(DIR_BIN)\eiffel.properties $(DIR_BIN)\erlang.properties \
 $(DIR_BIN)\escript.properties $(DIR_BIN)\flagship.properties \
