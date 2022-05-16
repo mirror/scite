@@ -1369,7 +1369,7 @@ void ReplaceStrip::Size() {
 	Interval verticalCheck(rcLine.top, rcLine.bottom);
 
 	SetWindowPosition(wStaticFind, positions[0], Interval(rcLine.top + 3, rcLine.bottom));
-	SetWindowPosition(wText, positions[1], Interval(rcLine.top, 60));
+	SetWindowPosition(wText, positions[1], Interval(rcLine.top, rcLine.bottom + 60));
 	SetWindowPosition(wButtonFind, positions[2], verticalButton);
 	SetWindowPosition(wButtonReplaceAll, positions[3], verticalButton);
 	SetWindowPosition(wCheckWord, positions[4], verticalCheck);
@@ -1383,7 +1383,7 @@ void ReplaceStrip::Size() {
 	verticalCheck = Interval(rcLine.top, rcLine.bottom);
 
 	SetWindowPosition(wStaticReplace, positions[0], Interval(rcLine.top + 3, rcLine.bottom));
-	SetWindowPosition(wReplace, positions[1], Interval(rcLine.top, 60));
+	SetWindowPosition(wReplace, positions[1], Interval(rcLine.top, rcLine.bottom + 60));
 	SetWindowPosition(wButtonReplace, positions[2], verticalButton);
 	SetWindowPosition(wButtonReplaceInSelection, positions[3], verticalButton);
 	SetWindowPosition(wCheckRE, positions[4], verticalCheck);
