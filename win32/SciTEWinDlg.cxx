@@ -458,14 +458,9 @@ void SciTEWin::Print(
 	pdlg.hDevMode = hDevMode;
 	pdlg.hDevNames = hDevNames;
 
-	// This code will not work for documents > 2GB
-
 	// See if a range has been selected
 	const SA::Span rangeSelection = GetSelection();
-	const LONG startPos = static_cast<LONG>(rangeSelection.start);
-	const LONG endPos = static_cast<LONG>(rangeSelection.end);
-
-	if (startPos == endPos) {
+	if (rangeSelection.start == rangeSelection.end) {
 		pdlg.Flags |= PD_NOSELECTION;
 	} else {
 		pdlg.Flags |= PD_SELECTION;
@@ -618,28 +613,16 @@ void SciTEWin::Print(
 		return;
 	}
 
-	LONG lengthDoc = static_cast<LONG>(wEditor.Length());
-	const LONG lengthDocMax = lengthDoc;
-	LONG lengthPrinted = 0;
+	const SA::Position lengthDocMax = wEditor.Length();
+	// PD_SELECTION -> requested to print selection.
+	const SA::Position lengthDoc = (pdlg.Flags & PD_SELECTION) ? rangeSelection.end : lengthDocMax;
+	SA::Position lengthPrinted = (pdlg.Flags & PD_SELECTION) ? rangeSelection.start : 0;
 
-	// Requested to print selection
-	if (pdlg.Flags & PD_SELECTION) {
-		if (startPos > endPos) {
-			lengthPrinted = endPos;
-			lengthDoc = startPos;
-		} else {
-			lengthPrinted = startPos;
-			lengthDoc = endPos;
-		}
-
-		if (lengthPrinted < 0)
-			lengthPrinted = 0;
-		if (lengthDoc > lengthDocMax)
-			lengthDoc = lengthDocMax;
-	}
+	assert(lengthPrinted >= 0);
+	assert(lengthDoc <= lengthDocMax);
 
 	// We must subtract the physical margins from the printable area
-	Sci_RangeToFormat frPrint {};
+	Sci_RangeToFormatFull frPrint {};
 	frPrint.hdc = hdc;
 	frPrint.hdcTarget = hdc;
 	frPrint.rc.left = rectMargins.left - rectPhysMargins.left;
@@ -699,7 +682,7 @@ void SciTEWin::Print(
 		frPrint.chrg.cpMin = lengthPrinted;
 		frPrint.chrg.cpMax = lengthDoc;
 
-		lengthPrinted = static_cast<LONG>(wEditor.FormatRange(printPage, &frPrint));
+		lengthPrinted = wEditor.FormatRangeFull(printPage, &frPrint);
 
 		if (printPage) {
 			if (footerFormat.size()) {
