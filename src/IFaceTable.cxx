@@ -3278,11 +3278,13 @@ static IFaceFunction ifaceFunctions[] = {
 	{"FindIndicatorHide", 2642, iface_void, {iface_void, iface_void}},
 	{"FindIndicatorShow", 2640, iface_void, {iface_position, iface_position}},
 	{"FindText", 2150, iface_position, {iface_int, iface_findtext}},
+	{"FindTextFull", 2196, iface_position, {iface_int, iface_findtextfull}},
 	{"FoldAll", 2662, iface_void, {iface_int, iface_void}},
 	{"FoldChildren", 2238, iface_void, {iface_line, iface_int}},
 	{"FoldLine", 2237, iface_void, {iface_line, iface_int}},
 	{"FormFeed", 2330, iface_void, {iface_void, iface_void}},
 	{"FormatRange", 2151, iface_position, {iface_bool, iface_formatrange}},
+	{"FormatRangeFull", 2777, iface_position, {iface_bool, iface_formatrangefull}},
 	{"FreeSubStyles", 4023, iface_void, {iface_void, iface_void}},
 	{"GetCurLine", 2027, iface_position, {iface_length, iface_stringresult}},
 	{"GetDefaultFoldDisplayText", 2723, iface_int, {iface_void, iface_stringresult}},
@@ -3303,6 +3305,7 @@ static IFaceFunction ifaceFunctions[] = {
 	{"GetStyledText", 2015, iface_position, {iface_void, iface_textrange}},
 	{"GetText", 2182, iface_position, {iface_length, iface_stringresult}},
 	{"GetTextRange", 2162, iface_position, {iface_void, iface_textrange}},
+	{"GetTextRangeFull", 2039, iface_position, {iface_void, iface_textrangefull}},
 	{"GotoLine", 2024, iface_void, {iface_line, iface_void}},
 	{"GotoPos", 2025, iface_void, {iface_position, iface_void}},
 	{"GrabFocus", 2400, iface_void, {iface_void, iface_void}},
@@ -3766,7 +3769,7 @@ static IFaceProperty ifaceProperties[] = {
 };
 
 enum {
-	ifaceFunctionCount = 321,
+	ifaceFunctionCount = 324,
 	ifaceConstantCount = 3048,
 	ifacePropertyCount = 261
 };

@@ -282,7 +282,7 @@ def idsFromDocumentation(filename):
 				idsInOrder.append([segment, idFeature])
 	return idsInOrder
 
-nonScriptableTypes = ["cells", "textrange", "findtext", "formatrange"]
+nonScriptableTypes = ["cells", "textrange", "findtext", "formatrange", "textrangefull", "findtextfull", "formatrangefull"]
 
 def printIFaceTableHTMLFile(faceAndIDs):
 	out = []

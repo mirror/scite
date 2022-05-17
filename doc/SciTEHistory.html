@@ -678,6 +678,12 @@
 	<li>Scintilla 5.2.3</li>
 	<ul>
 		<li>
+		Duplicate APIs to support 64-bit document positions on Win32:
+		SCI_GETTEXTRANGEFULL, SCI_FINDTEXTFULL, and SCI_FORMATRANGEFULL.
+		This adds new types to Scintilla.iface which may impact downstream projects.
+		Applications should move to these APIs from their predecessors as they will be deprecated.
+		</li>
+		<li>
 		Improve performance of SCI_FOLDALL(SC_FOLDACTION_EXPAND) by not lexing whole document
 		as it does not depend on folding structure.
 		</li>
@@ -700,6 +706,9 @@
 		<li>
 		For Qt 6, fix "modified" signal when text is null but length non-0.
 		<a href="https://sourceforge.net/p/scintilla/bugs/2328/">Bug #2328</a>.
+		</li>
+		<li>
+		Fix pink selection background when printing by making it completely transparent.
 		</li>
 	</ul>
     </ul>

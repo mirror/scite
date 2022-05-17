@@ -24,7 +24,10 @@ enum IFaceType {
 	iface_cells,
 	iface_textrange,
 	iface_findtext,
-	iface_formatrange
+	iface_formatrange,
+	iface_textrangefull,
+	iface_findtextfull,
+	iface_formatrangefull,
 };
 
 struct IFaceConstant {

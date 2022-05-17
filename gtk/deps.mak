@@ -864,4 +864,5 @@ ScintillaCall.o: \
 	../../scintilla/call/ScintillaCall.cxx \
 	../../scintilla/include/ScintillaTypes.h \
 	../../scintilla/include/ScintillaMessages.h \
-	../../scintilla/include/ScintillaCall.h
+	../../scintilla/include/ScintillaCall.h \
+	../../scintilla/include/ScintillaStructures.h
