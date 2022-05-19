@@ -918,9 +918,9 @@ SciTEBase::SaveResult SciTEBase::SaveIfUnsureAll() {
 		wEditor.SetDocPointer(buffers.buffers[0].doc.get());
 	}
 	// Release all the extra documents
-	for (int j = 0; j < buffers.size(); j++) {
-		if (buffers.buffers[j].doc && !buffers.buffers[j].pFileWorker) {
-			buffers.buffers[j].doc.reset();
+	for (Buffer &buffer : buffers.buffers) {
+		if (buffer.doc && !buffer.pFileWorker) {
+			buffer.doc.reset();
 		}
 	}
 	// Initial document will be deleted when editor deleted

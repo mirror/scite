@@ -259,6 +259,16 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 }
 
 SciTEWin::~SciTEWin() {
+	for (Buffer &buffer : buffers.buffers) {
+		// At this point, there should be no documents but sometimes there are
+		// which may be due to asynchronous I/O.
+		// wEditor has been closed so can't perform correct release of documents.
+		// Show debugger in this case.
+		assert(!buffer.doc);
+		// Drop ownership, leads to leak but exiting anyway.
+		buffer.doc.release();
+	}
+
 	if (hDevMode)
 		::GlobalFree(hDevMode);
 	if (hDevNames)
