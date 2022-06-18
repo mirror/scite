@@ -602,6 +602,8 @@ static const char *propertiesToForward[] = {
 	"lexer.verilog.portstyling",
 	"lexer.verilog.track.preprocessor",
 	"lexer.verilog.update.preprocessor",
+	"lexer.visualprolog.backquoted.strings",
+	"lexer.visualprolog.verbatim.strings",
 	"lexer.xml.allow.scripts",
 	"nsis.ignorecase",
 	"nsis.uservars",
