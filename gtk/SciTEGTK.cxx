@@ -900,10 +900,17 @@ void SciTEGTK::TabInsert(int index, const GUI::gui_char *title) {
 		GtkWidget *tabcontent;
 		if (props.GetInt("pathbar.visible")) {
 			const FilePath &fp = buffers.buffers[index].file;
-			if (fp.IsUntitled())
+			if (fp.IsUntitled()) {
 				tabcontent = gtk_label_new(localiser.Text("Untitled").c_str());
-			else
+			} else {
 				tabcontent = gtk_label_new(fp.AsInternal());
+				if (props.GetInt("pathbar.selectable")) {
+					gtk_label_set_selectable(GTK_LABEL(tabcontent), TRUE);
+					gtk_widget_set_can_focus(tabcontent, FALSE);
+					gtk_label_set_use_markup(GTK_LABEL(tabcontent), TRUE);
+					gtk_label_set_ellipsize(GTK_LABEL(tabcontent), PANGO_ELLIPSIZE_MIDDLE);
+				}
+			}
 		} else {
 			// No path bar
 			tabcontent = gtk_image_new();
