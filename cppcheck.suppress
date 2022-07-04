@@ -17,10 +17,12 @@ knownConditionTrueFalse:scite/src/PropSetFile.cxx
 // string::starts_with() not available with c++17.
 stlIfStrFind:scite/src/PropSetFile.cxx
 
+// Windows and GTK define classes with the same name
+ctuOneDefinitionRuleViolation:scite/win32/Strips.h
+ctuOneDefinitionRuleViolation:scite/gtk/Widget.h
+ctuOneDefinitionRuleViolation:scite/gtk/Strips.h
+
 // Prefer passing string_view by value.
-passedByValue:scite/src/PropSetFile.cxx
-passedByValue:scite/src/StringHelpers.cxx
-passedByValue:scite/src/StyleDefinition.cxx
 passedByValue:scite/src/SciTEBase.cxx
 
 // dynamic_cast can return nullptr.
@@ -28,9 +30,6 @@ knownConditionTrueFalse:scite/src/SciTEBuffers.cxx
 
 // Pysically but not logically const.
 constParameter:scite/gtk/Widget.cxx
-
-// Doesn't understand Win32 SetClipboardData is not leak
-memleak:scite/win32/SciTEWin.cxx
 
 // Suppress everything in lua as that comes from the Lua distribution
 *:scite/lua/*
