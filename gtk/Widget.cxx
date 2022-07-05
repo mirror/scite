@@ -466,7 +466,7 @@ bool Strip::KeyDown(const GdkEventKey *event) {
 		if (event->state & GDK_MOD1_MASK) {
 			GList *childWidgets = gtk_container_get_children(GTK_CONTAINER(GetID()));
 			for (GList *child = g_list_first(childWidgets); child; child = g_list_next(child)) {
-				GtkWidget **w = (GtkWidget **)child;
+				GtkWidget **w = reinterpret_cast<GtkWidget **>(child);
 				const std::string name = gtk_widget_get_name(*w);
 				std::string label;
 				if (name == "GtkButton" || name == "GtkCheckButton") {

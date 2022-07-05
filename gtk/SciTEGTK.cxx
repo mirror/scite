@@ -1234,7 +1234,7 @@ void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *m
 		GList *al = gtk_container_get_children(GTK_CONTAINER(item));
 		for (unsigned int ii = 0; ii < g_list_length(al); ii++) {
 			gpointer d = g_list_nth(al, ii);
-			GtkWidget **w = (GtkWidget **)d;
+			GtkWidget **w = static_cast<GtkWidget **>(d);
 			gtk_label_set_text_with_mnemonic(GTK_LABEL(*w), itemText.c_str());
 #if GTK_CHECK_VERSION(3,6,0)
 			if (keycode) {
@@ -2406,7 +2406,7 @@ void SciTEGTK::Execute() {
 		inputChannel = g_io_channel_unix_new(fdout);
 		inputHandle = g_io_add_watch(inputChannel, G_IO_IN, (GIOFunc)IOSignal, this);
 		// Also add a background task in case there is no output from the tool
-		pollID = g_timeout_add(20, (gint (*)(void *)) SciTEGTK::PollTool, this);
+		pollID = g_timeout_add(20, reinterpret_cast<GSourceFunc>(SciTEGTK::PollTool), this);
 	}
 }
 
@@ -3953,7 +3953,7 @@ void SciTEGTK::CreateUI() {
 	gtk_statusbar_push(GTK_STATUSBAR(PWidget(wStatusBar)), sbContextID, "Initial");
 	sbVisible = false;
 
-	static const GtkTargetEntry dragtypes[] = { { (gchar*)"text/uri-list", 0, 0 } };
+	static const GtkTargetEntry dragtypes[] = { { const_cast<gchar*>("text/uri-list"), 0, 0 } };
 	static const gint n_dragtypes = std::size(dragtypes);
 
 	gtk_drag_dest_set(PWidget(wSciTE), GTK_DEST_DEFAULT_ALL, dragtypes,
