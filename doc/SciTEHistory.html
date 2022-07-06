@@ -608,7 +608,7 @@
 	<li>SciTE</li>
 	<ul>
 		<li>
-		Released 22 May 2022.
+		Released 10 July 2022.
 		</li>
 		<li>
 		On GTK, path bar text can be selected.
@@ -617,6 +617,10 @@
 	</ul>
 	<li>Lexilla 5.1.8</li>
 	<ul>
+		<li>
+		F#: Recognize nested comments in F#.
+		<a href="https://github.com/ScintillaOrg/lexilla/issues/93">Issue #93</a>.
+		</li>
 		<li>
 		MS SQL: Recognize nested comments in Transact-SQL.
 		<a href="https://github.com/ScintillaOrg/lexilla/issues/87">Issue #87</a>.
@@ -654,6 +658,10 @@
 		<li>
 		Fix bad background colour for additional, secondary, and inactive selections when printing.
 		<a href="https://sourceforge.net/p/scintilla/bugs/2335/">Bug #2335</a>.
+		</li>
+		<li>
+		Fix failures on GTK with non-UTF-8 text when multi-threading due to
+		character set conversion code that was not thread-safe.
 		</li>
 		<li>
 		Fix crash when printing on Win32 in bidirectional mode with a non-empty selection.
