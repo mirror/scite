@@ -381,7 +381,6 @@ void PropSetFile::Import(const FilePath &filename, const FilePath &directoryForI
 
 PropSetFile::ReadLineState PropSetFile::ReadLine(const char *lineBuffer, ReadLineState rls, const FilePath &directoryForImports,
 		const ImportFilter &filter, FilePathSet *imports, size_t depth) {
-	//UnSlash(lineBuffer);
 	if ((rls == ReadLineState::conditionFalse) && (!IsSpaceOrTab(lineBuffer[0])))    // If clause ends with first non-indented line
 		rls = ReadLineState::active;
 	if (isprefix(lineBuffer, "module ")) {

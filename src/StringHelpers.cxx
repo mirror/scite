@@ -319,8 +319,9 @@ static int GetHexaDigit(char ch) noexcept {
 
 /**
  * Convert C style \a, \b, \f, \n, \r, \t, \v, \ooo and \xhh into their indicated characters.
+ * Result length is always less than or equal to input length.
  */
-unsigned int UnSlash(char *s) noexcept {
+size_t UnSlash(char *s) noexcept {
 	const char *sStart = s;
 	char *o = s;
 
@@ -381,20 +382,21 @@ unsigned int UnSlash(char *s) noexcept {
 		}
 	}
 	*o = '\0';
-	return static_cast<unsigned int>(o - sStart);
+	return o - sStart;
 }
 
-std::string UnSlashString(const char *s) {
-	std::string sCopy(s, strlen(s) + 1);
-	const unsigned int len = UnSlash(&sCopy[0]);
+std::string UnSlashString(std::string_view sv) {
+	std::string sCopy(sv);
+	const size_t len = UnSlash(&sCopy[0]);
 	return sCopy.substr(0, len);
 }
 
 /**
  * Convert C style \0oo into their indicated characters.
  * This is used to get control characters into the regular expression engine.
+ * Result length is always less than or equal to input length.
  */
-static unsigned int UnSlashLowOctal(char *s) noexcept {
+static size_t UnSlashLowOctal(char *s) noexcept {
 	const char *sStart = s;
 	char *o = s;
 	while (*s) {
@@ -409,12 +411,12 @@ static unsigned int UnSlashLowOctal(char *s) noexcept {
 			s++;
 	}
 	*o = '\0';
-	return static_cast<unsigned int>(o - sStart);
+	return o - sStart;
 }
 
-std::string UnSlashLowOctalString(const char *s) {
-	std::string sCopy(s, strlen(s) + 1);
-	const unsigned int len = UnSlashLowOctal(&sCopy[0]);
+std::string UnSlashLowOctalString(std::string_view sv) {
+	std::string sCopy(sv);
+	const size_t len = UnSlashLowOctal(&sCopy[0]);
 	return sCopy.substr(0, len);
 }
 

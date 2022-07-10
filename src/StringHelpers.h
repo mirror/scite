@@ -142,9 +142,9 @@ unsigned int UTF32Character(const char *utf8) noexcept;
 std::string UTF8FromUTF32(unsigned int uch);
 
 std::string Slash(const std::string &s, bool quoteQuotes);
-unsigned int UnSlash(char *s) noexcept;
-std::string UnSlashString(const char *s);
-std::string UnSlashLowOctalString(const char *s);
+size_t UnSlash(char *s) noexcept;
+std::string UnSlashString(std::string_view sv);
+std::string UnSlashLowOctalString(std::string_view sv);
 
 unsigned int IntFromHexDigit(int ch) noexcept;
 bool AllBytesHex(std::string_view hexBytes) noexcept;

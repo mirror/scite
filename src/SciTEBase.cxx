@@ -940,10 +940,10 @@ static std::string UnSlashAsNeeded(const std::string &s, bool escapes, bool regu
 		if (regularExpression) {
 			// For regular expressions, the only escape sequences allowed start with \0
 			// Other sequences, like \t, are handled by the RE engine.
-			return UnSlashLowOctalString(s.c_str());
+			return UnSlashLowOctalString(s);
 		} else {
 			// C style escapes allowed
-			return UnSlashString(s.c_str());
+			return UnSlashString(s);
 		}
 	} else {
 		return s;
@@ -1600,7 +1600,7 @@ void SciTEBase::FillFunctionDefinition(SA::Position pos /*= -1*/) {
 
 			std::string definitionForDisplay;
 			if (callTipUseEscapes) {
-				definitionForDisplay = UnSlashString(functionDefinition.c_str());
+				definitionForDisplay = UnSlashString(functionDefinition);
 			} else {
 				definitionForDisplay = functionDefinition;
 			}
@@ -1691,9 +1691,9 @@ void SciTEBase::ContinueCallTip() {
 	if (callTipUseEscapes) {
 		std::string sPreHighlight = functionDefinition.substr(0, startHighlight);
 		std::vector<char> vPreHighlight(sPreHighlight.c_str(), sPreHighlight.c_str() + sPreHighlight.length() + 1);
-		const int unslashedStartHighlight = UnSlash(&vPreHighlight[0]);
+		const size_t unslashedStartHighlight = UnSlash(&vPreHighlight[0]);
 
-		int unslashedEndHighlight = unslashedStartHighlight;
+		size_t unslashedEndHighlight = unslashedStartHighlight;
 		if (startHighlight < endHighlight) {
 			std::string sHighlight = functionDefinition.substr(startHighlight, endHighlight - startHighlight);
 			std::vector<char> vHighlight(sHighlight.c_str(), sHighlight.c_str() + sHighlight.length() + 1);
@@ -1827,7 +1827,7 @@ bool SciTEBase::PerformInsertAbbreviation() {
 		return true; // returning if expanded abbreviation is empty
 	}
 
-	const std::string expbuf = UnSlashString(data.c_str());
+	const std::string expbuf = UnSlashString(data);
 	const size_t expbuflen = expbuf.length();
 
 	const SA::Position selStart = wEditor.SelectionStart();
@@ -1952,7 +1952,7 @@ bool SciTEBase::StartExpandAbbreviation() {
 		return true; // returning if expanded abbreviation is empty
 	}
 
-	const std::string expbuf = UnSlashString(data.c_str());
+	const std::string expbuf = UnSlashString(data);
 	const size_t expbuflen = expbuf.length();
 
 	SA::Position caretPos = -1; // caret position
@@ -4356,7 +4356,7 @@ static GUI::gui_char AfterName(const GUI::gui_char *s) noexcept {
 }
 
 void SciTEBase::PerformOne(char *action) {
-	const unsigned int len = UnSlash(action);
+	const size_t len = UnSlash(action);
 	char *arg = strchr(action, ':');
 	if (arg) {
 		arg++;
@@ -4753,7 +4753,7 @@ bool SciTEBase::ProcessCommandLine(const GUI::gui_string &args, int phase) {
 				if (wlArgs[i+1][3] == 'b')
 					gf = gf | GrepFlags::binary;
 				std::string sSearch = GUI::UTF8FromString(wlArgs[i+3]);
-				std::string unquoted = UnSlashString(sSearch.c_str());
+				std::string unquoted = UnSlashString(sSearch);
 				SA::Position originalEnd = 0;
 				InternalGrep(gf, FilePath::GetWorkingDirectory(), wlArgs[i+2], unquoted, originalEnd);
 				exit(0);
