@@ -396,6 +396,7 @@ public:
 	void OutputAppendEncodedStringSynchronised(const GUI::gui_string &s, int codePageDocument);
 	void ResetExecution();
 	void ExecuteNext();
+	void ExecuteGrep(const Job &jobToRun);
 	DWORD ExecuteOne(const Job &jobToRun);
 	void ProcessExecute();
 	void ShellExec(const std::string &cmd, const char *dir);

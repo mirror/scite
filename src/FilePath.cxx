@@ -75,6 +75,8 @@ FilePath::FilePath() noexcept = default;
 
 FilePath::FilePath(const GUI::gui_char *fileName_) : fileName(fileName_ ? fileName_ : GUI_TEXT("")) {}
 
+FilePath::FilePath(const GUI::gui_string_view fileName_) : fileName(fileName_) {}
+
 FilePath::FilePath(const GUI::gui_string &fileName_) : fileName(fileName_) {}
 
 FilePath::FilePath(FilePath const &directory, FilePath const &name) {
@@ -603,7 +605,7 @@ bool PatternMatch(GUI::gui_string_view pattern, GUI::gui_string_view text) {
 
 }
 
-bool FilePath::Matches(const GUI::gui_char *pattern) const {
+bool FilePath::Matches(GUI::gui_string_view pattern) const {
 	GUI::gui_string pat(pattern);
 	GUI::gui_string nameCopy(Name().fileName);
 #ifdef _WIN32

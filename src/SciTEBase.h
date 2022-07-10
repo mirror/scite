@@ -276,6 +276,20 @@ struct SystemAppearance {
 // Titles appear different in menus and tabs
 enum class Title { menu, tab };
 
+enum class GrepFlags {
+	none = 0,
+	wholeWord = 1,
+	matchCase = 2,
+	stdOut = 4,
+	dot = 8,
+	binary = 16,
+	scroll = 32
+};
+
+constexpr GrepFlags operator|(GrepFlags a, GrepFlags b) noexcept {
+	return static_cast<GrepFlags>(static_cast<int>(a) | static_cast<int>(b));
+}
+
 class SciTEBase : public ExtensionAPI, public Searcher, public WorkerListener {
 protected:
 	bool needIdle;
@@ -891,14 +905,10 @@ protected:
 	virtual bool IsStdinBlocked();
 	void OpenFromStdin(bool UseOutputPane);
 	void OpenFilesFromStdin();
-	enum GrepFlags {
-		grepNone = 0, grepWholeWord = 1, grepMatchCase = 2, grepStdOut = 4,
-		grepDot = 8, grepBinary = 16, grepScroll = 32
-	};
 	virtual bool GrepIntoDirectory(const FilePath &directory);
-	void GrepRecursive(GrepFlags gf, const FilePath &baseDir, const char *searchString, const GUI::gui_char *fileTypes);
-	void InternalGrep(GrepFlags gf, const GUI::gui_char *directory, const GUI::gui_char *fileTypes,
-			  const char *search, SA::Position &originalEnd);
+	void GrepRecursive(GrepFlags gf, const FilePath &baseDir, const char *searchString, GUI::gui_string_view fileTypes);
+	void InternalGrep(GrepFlags gf, const FilePath &directory, GUI::gui_string_view fileTypes,
+			  std::string_view search, SA::Position &originalEnd);
 	void EnumProperties(const char *propkind);
 	void SendOneProperty(const char *kind, const char *key, const char *val);
 	void PropertyFromDirector(const char *arg);

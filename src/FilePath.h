@@ -35,6 +35,7 @@ class FilePath {
 public:
 	FilePath() noexcept;
 	FilePath(const GUI::gui_char *fileName_);
+	FilePath(const GUI::gui_string_view fileName_);
 	FilePath(const GUI::gui_string &fileName_);
 	FilePath(FilePath const &directory, FilePath const &name);
 	FilePath(FilePath const &) = default;
@@ -77,7 +78,7 @@ public:
 	long long GetFileLength() const noexcept;
 	bool Exists() const noexcept;
 	bool IsDirectory() const noexcept;
-	bool Matches(const GUI::gui_char *pattern) const;
+	bool Matches(GUI::gui_string_view pattern) const;
 	static bool CaseSensitive() noexcept;
 };
 

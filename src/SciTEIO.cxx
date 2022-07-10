@@ -1493,7 +1493,7 @@ bool SciTEBase::GrepIntoDirectory(const FilePath &directory) {
 	return sDirectory[0] != '.';
 }
 
-void SciTEBase::GrepRecursive(GrepFlags gf, const FilePath &baseDir, const char *searchString, const GUI::gui_char *fileTypes) {
+void SciTEBase::GrepRecursive(GrepFlags gf, const FilePath &baseDir, const char *searchString, GUI::gui_string_view fileTypes) {
 	constexpr int checkAfterLines = 10'000;
 	FilePathSet directories;
 	FilePathSet files;
@@ -1503,17 +1503,17 @@ void SciTEBase::GrepRecursive(GrepFlags gf, const FilePath &baseDir, const char 
 	for (const FilePath &fPath : files) {
 		if (jobQueue.Cancelled())
 			return;
-		if (*fileTypes == '\0' || fPath.Matches(fileTypes)) {
+		if (fileTypes.empty() || fPath.Matches(fileTypes)) {
 			//OutputAppendStringSynchronised(i->AsInternal());
 			//OutputAppendStringSynchronised("\n");
-			FileReader fr(fPath, gf & grepMatchCase);
-			if ((gf & grepBinary) || !fr.BufferContainsNull()) {
+			FileReader fr(fPath, FlagIsSet(gf, GrepFlags::matchCase));
+			if (FlagIsSet(gf, GrepFlags::binary) || !fr.BufferContainsNull()) {
 				while (const char *line = fr.Next()) {
 					if (((fr.LineNumber() % checkAfterLines) == 0) && jobQueue.Cancelled())
 						return;
 					const char *match = strstr(line, searchString);
 					if (match) {
-						if (gf & grepWholeWord) {
+						if (FlagIsSet(gf, GrepFlags::wholeWord)) {
 							const char *lineEnd = line + strlen(line);
 							while (match) {
 								if (((match == line) || !IsWordCharacter(match[-1])) &&
@@ -1538,22 +1538,22 @@ void SciTEBase::GrepRecursive(GrepFlags gf, const FilePath &baseDir, const char 
 		}
 	}
 	if (os.length()) {
-		if (gf & grepStdOut) {
+		if (FlagIsSet(gf, GrepFlags::stdOut)) {
 			fwrite(os.c_str(), os.length(), 1, stdout);
 		} else {
 			OutputAppendStringSynchronised(os.c_str());
 		}
 	}
 	for (const FilePath &fPath : directories) {
-		if ((gf & grepDot) || GrepIntoDirectory(fPath.Name())) {
+		if (FlagIsSet(gf, GrepFlags::dot) || GrepIntoDirectory(fPath.Name())) {
 			GrepRecursive(gf, fPath, searchString, fileTypes);
 		}
 	}
 }
 
-void SciTEBase::InternalGrep(GrepFlags gf, const GUI::gui_char *directory, const GUI::gui_char *fileTypes, const char *search, SA::Position &originalEnd) {
+void SciTEBase::InternalGrep(GrepFlags gf, const FilePath &directory, GUI::gui_string_view fileTypes, std::string_view search, SA::Position &originalEnd) {
 	GUI::ElapsedTime commandTime;
-	if (!(gf & grepStdOut)) {
+	if (!FlagIsSet(gf, GrepFlags::stdOut)) {
 		std::string os;
 		os.append(">Internal search for \"");
 		os.append(search);
@@ -1565,11 +1565,11 @@ void SciTEBase::InternalGrep(GrepFlags gf, const GUI::gui_char *directory, const
 		originalEnd += os.length();
 	}
 	std::string searchString(search);
-	if (!(gf & grepMatchCase)) {
+	if (!FlagIsSet(gf, GrepFlags::matchCase)) {
 		LowerCaseAZ(searchString);
 	}
-	GrepRecursive(gf, FilePath(directory), searchString.c_str(), fileTypes);
-	if (!(gf & grepStdOut)) {
+	GrepRecursive(gf, directory, searchString.c_str(), fileTypes);
+	if (!FlagIsSet(gf, GrepFlags::stdOut)) {
 		std::string sExitMessage(">");
 		if (jobQueue.TimeCommands()) {
 			sExitMessage += "    Time: ";

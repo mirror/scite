@@ -4743,19 +4743,19 @@ bool SciTEBase::ProcessCommandLine(const GUI::gui_string &args, int phase) {
 				performPrint = true;
 			} else if (GUI::gui_string(arg) == GUI_TEXT("grep") && (wlArgs.size() - i >= 4) && (wlArgs[i+1].size() >= 4)) {
 				// in form -grep [w~][c~][d~][b~] "<file-patterns>" "<search-string>"
-				GrepFlags gf = grepStdOut;
+				GrepFlags gf = GrepFlags::stdOut;
 				if (wlArgs[i+1][0] == 'w')
-					gf = static_cast<GrepFlags>(gf | grepWholeWord);
+					gf = gf | GrepFlags::wholeWord;
 				if (wlArgs[i+1][1] == 'c')
-					gf = static_cast<GrepFlags>(gf | grepMatchCase);
+					gf = gf | GrepFlags::matchCase;
 				if (wlArgs[i+1][2] == 'd')
-					gf = static_cast<GrepFlags>(gf | grepDot);
+					gf = gf | GrepFlags::dot;
 				if (wlArgs[i+1][3] == 'b')
-					gf = static_cast<GrepFlags>(gf | grepBinary);
+					gf = gf | GrepFlags::binary;
 				std::string sSearch = GUI::UTF8FromString(wlArgs[i+3]);
 				std::string unquoted = UnSlashString(sSearch.c_str());
 				SA::Position originalEnd = 0;
-				InternalGrep(gf, FilePath::GetWorkingDirectory().AsInternal(), wlArgs[i+2].c_str(), unquoted.c_str(), originalEnd);
+				InternalGrep(gf, FilePath::GetWorkingDirectory(), wlArgs[i+2], unquoted, originalEnd);
 				exit(0);
 			} else {
 				if (AfterName(arg) == ':') {

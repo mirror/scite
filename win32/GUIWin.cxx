@@ -154,14 +154,25 @@ gui_string StringFromUTF8(const std::string &s) {
 	return us;
 }
 
-std::string UTF8FromString(const gui_string &s) {
-	if (s.empty()) {
+gui_string StringFromUTF8(std::string_view sv) {
+	if (sv.empty()) {
+		return gui_string();
+	}
+	const size_t sLen = sv.length();
+	const size_t wideLen = UTF16Length(sv.data(), sLen);
+	gui_string us(wideLen, 0);
+	UTF16FromUTF8(sv.data(), sLen, us.data(), wideLen);
+	return us;
+}
+
+std::string UTF8FromString(gui_string_view sv) {
+	if (sv.empty()) {
 		return std::string();
 	}
-	const size_t sLen = s.size();
-	const size_t narrowLen = UTF8Length(s.c_str(), sLen);
+	const size_t sLen = sv.size();
+	const size_t narrowLen = UTF8Length(sv.data(), sLen);
 	std::string us(narrowLen, 0);
-	UTF8FromUTF16(s.c_str(), sLen, us.data());
+	UTF8FromUTF16(sv.data(), sLen, us.data());
 	return us;
 }
 

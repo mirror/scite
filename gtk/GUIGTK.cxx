@@ -9,6 +9,7 @@
 #include <ctime>
 
 #include <string>
+#include <string_view>
 #include <chrono>
 #include <sstream>
 
@@ -32,8 +33,12 @@ gui_string StringFromUTF8(const std::string &s) {
 	return s;
 }
 
-std::string UTF8FromString(const gui_string &s) {
-	return s;
+gui_string StringFromUTF8(std::string_view sv) {
+	return gui_string(sv);
+}
+
+std::string UTF8FromString(gui_string_view sv) {
+	return std::string(sv);
 }
 
 gui_string StringFromInteger(long i) {

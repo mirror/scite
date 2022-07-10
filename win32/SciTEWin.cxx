@@ -858,6 +858,43 @@ void SciTEWin::ExecuteNext() {
 	}
 }
 
+void SciTEWin::ExecuteGrep(const Job &jobToRun) {
+	// jobToRun.command is "(w|~)(c|~)(d|~)(b|~)\0files\0text"
+	std::string_view grepCmd = jobToRun.command;
+	GrepFlags gf = GrepFlags::none;
+	if (grepCmd.front() == 'w')
+		gf = gf | GrepFlags::wholeWord;
+	grepCmd.remove_prefix(1);
+	if (grepCmd.front() == 'c')
+		gf = gf | GrepFlags::matchCase;
+	grepCmd.remove_prefix(1);
+	if (grepCmd.front() == 'd')
+		gf = gf | GrepFlags::dot;
+	grepCmd.remove_prefix(1);
+	if (grepCmd.front() == 'b')
+		gf = gf | GrepFlags::binary;
+	grepCmd.remove_prefix(1);
+	assert(grepCmd.front() == '\0');
+	grepCmd.remove_prefix(1);
+
+	const size_t endFiles = grepCmd.find('\0');
+	if (endFiles == std::string_view::npos) {
+		// Failure - must have NUL to separate files and excluded
+		return;
+	}
+	const std::string_view files = grepCmd.substr(0, endFiles);
+	grepCmd.remove_prefix(endFiles + 1);
+
+	const std::string_view text = grepCmd;
+
+	if (cmdWorker.outputScroll == 1)
+		gf = gf | GrepFlags::scroll;
+	SA::Position positionEnd = wOutput.Send(SCI_GETCURRENTPOS);
+	InternalGrep(gf, jobToRun.directory, GUI::StringFromUTF8(files), text, positionEnd);
+	if (FlagIsSet(gf, GrepFlags::scroll) && returnOutputToCommand)
+		wOutput.Send(SCI_GOTOPOS, positionEnd);
+}
+
 /**
  * Run a command with redirected input and output streams
  * so the output can be put in a window.
@@ -884,29 +921,8 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 	}
 
 	if (jobToRun.jobType == JobSubsystem::grep) {
-		// jobToRun.command is "(w|~)(c|~)(d|~)(b|~)\0files\0text"
-		const char *grepCmd = jobToRun.command.c_str();
-		if (*grepCmd) {
-			GrepFlags gf = grepNone;
-			if (*grepCmd == 'w')
-				gf = static_cast<GrepFlags>(gf | grepWholeWord);
-			grepCmd++;
-			if (*grepCmd == 'c')
-				gf = static_cast<GrepFlags>(gf | grepMatchCase);
-			grepCmd++;
-			if (*grepCmd == 'd')
-				gf = static_cast<GrepFlags>(gf | grepDot);
-			grepCmd++;
-			if (*grepCmd == 'b')
-				gf = static_cast<GrepFlags>(gf | grepBinary);
-			const char *findFiles = grepCmd + 2;
-			const char *findText = findFiles + strlen(findFiles) + 1;
-			if (cmdWorker.outputScroll == 1)
-				gf = static_cast<GrepFlags>(gf | grepScroll);
-			SA::Position positionEnd = wOutput.Send(SCI_GETCURRENTPOS);
-			InternalGrep(gf, jobToRun.directory.AsInternal(), GUI::StringFromUTF8(findFiles).c_str(), findText, positionEnd);
-			if ((gf & grepScroll) && returnOutputToCommand)
-				wOutput.Send(SCI_GOTOPOS, positionEnd);
+		if (!jobToRun.command.empty()) {
+			ExecuteGrep(jobToRun);
 		}
 		return exitcode;
 	}

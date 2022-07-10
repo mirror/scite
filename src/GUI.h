@@ -69,7 +69,8 @@ typedef std::wstring_view gui_string_view;
 
 gui_string StringFromUTF8(const char *s);
 gui_string StringFromUTF8(const std::string &s);
-std::string UTF8FromString(const gui_string &s);
+gui_string StringFromUTF8(std::string_view sv);
+std::string UTF8FromString(gui_string_view sv);
 gui_string StringFromInteger(long i);
 gui_string StringFromLongLong(long long i);
 gui_string HexStringFromInteger(long i);
