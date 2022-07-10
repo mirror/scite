@@ -859,7 +859,7 @@ void SciTEWin::ExecuteNext() {
 }
 
 void SciTEWin::ExecuteGrep(const Job &jobToRun) {
-	// jobToRun.command is "(w|~)(c|~)(d|~)(b|~)\0files\0text"
+	// jobToRun.command is "(w|~)(c|~)(d|~)(b|~)\0files\0excluded\0text"
 	std::string_view grepCmd = jobToRun.command;
 	GrepFlags gf = GrepFlags::none;
 	if (grepCmd.front() == 'w')
@@ -885,12 +885,21 @@ void SciTEWin::ExecuteGrep(const Job &jobToRun) {
 	const std::string_view files = grepCmd.substr(0, endFiles);
 	grepCmd.remove_prefix(endFiles + 1);
 
+	const size_t endExcluded = grepCmd.find('\0');
+	if (endExcluded == std::string_view::npos) {
+		// Failure - must have NUL to separate excluded and text
+		return;
+	}
+	const std::string_view excluded = grepCmd.substr(0, endExcluded);
+	grepCmd.remove_prefix(endExcluded + 1);
+
 	const std::string_view text = grepCmd;
 
 	if (cmdWorker.outputScroll == 1)
 		gf = gf | GrepFlags::scroll;
 	SA::Position positionEnd = wOutput.Send(SCI_GETCURRENTPOS);
-	InternalGrep(gf, jobToRun.directory, GUI::StringFromUTF8(files), text, positionEnd);
+	InternalGrep(gf, jobToRun.directory, GUI::StringFromUTF8(files), GUI::StringFromUTF8(excluded),
+		text, positionEnd);
 	if (FlagIsSet(gf, GrepFlags::scroll) && returnOutputToCommand)
 		wOutput.Send(SCI_GOTOPOS, positionEnd);
 }

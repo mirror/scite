@@ -1198,6 +1198,8 @@ void SciTEWin::PerformGrep() {
 		searchParams.append("\0", 1);
 		searchParams.append(props.GetString("find.files"));
 		searchParams.append("\0", 1);
+		searchParams.append(props.GetString("find.exclude"));
+		searchParams.append("\0", 1);
 		searchParams.append(props.GetString("find.what"));
 		AddCommand(searchParams, props.GetString("find.directory"), JobSubsystem::grep, findInput, flags);
 	} else {

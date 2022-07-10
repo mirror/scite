@@ -906,8 +906,9 @@ protected:
 	void OpenFromStdin(bool UseOutputPane);
 	void OpenFilesFromStdin();
 	virtual bool GrepIntoDirectory(const FilePath &directory);
-	void GrepRecursive(GrepFlags gf, const FilePath &baseDir, const char *searchString, GUI::gui_string_view fileTypes);
-	void InternalGrep(GrepFlags gf, const FilePath &directory, GUI::gui_string_view fileTypes,
+	void GrepRecursive(GrepFlags gf, const FilePath &baseDir, const char *searchString,
+		GUI::gui_string_view fileTypes, GUI::gui_string_view excludedTypes);
+	void InternalGrep(GrepFlags gf, const FilePath &directory, GUI::gui_string_view fileTypes, GUI::gui_string_view excludedTypes,
 			  std::string_view search, SA::Position &originalEnd);
 	void EnumProperties(const char *propkind);
 	void SendOneProperty(const char *kind, const char *key, const char *val);

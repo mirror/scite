@@ -3496,6 +3496,18 @@ c:\cygwin\bin\xargs -0 grep $(find.wholeword) $(find.matchcase) -G -n "$(find.wh
         For Find in Files, a binary file is a file that contains a NUL byte in the first 64K block read from the file.
         </td>
       </tr>
+      <tr id='property-find.exclude'>
+        <td>
+          find.exclude
+        </td>
+        <td>
+        This is a set of file patterns to <strong>not</strong> search in with Find in Files.
+        Both file names and directory names can appear here.
+        <div class="example">
+find.exclude=*.bak *.pyc debug release<br />
+</div>
+        </td>
+      </tr>
       <tr id='property-find.in.directory'>
         <td>
           find.in.directory

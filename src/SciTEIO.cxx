@@ -1493,7 +1493,8 @@ bool SciTEBase::GrepIntoDirectory(const FilePath &directory) {
 	return sDirectory[0] != '.';
 }
 
-void SciTEBase::GrepRecursive(GrepFlags gf, const FilePath &baseDir, const char *searchString, GUI::gui_string_view fileTypes) {
+void SciTEBase::GrepRecursive(GrepFlags gf, const FilePath &baseDir, const char *searchString,
+	GUI::gui_string_view fileTypes, GUI::gui_string_view excludedTypes) {
 	constexpr int checkAfterLines = 10'000;
 	FilePathSet directories;
 	FilePathSet files;
@@ -1503,8 +1504,9 @@ void SciTEBase::GrepRecursive(GrepFlags gf, const FilePath &baseDir, const char 
 	for (const FilePath &fPath : files) {
 		if (jobQueue.Cancelled())
 			return;
-		if (fileTypes.empty() || fPath.Matches(fileTypes)) {
-			//OutputAppendStringSynchronised(i->AsInternal());
+		if ((fileTypes.empty() || fPath.Matches(fileTypes)) &&
+			((excludedTypes.empty() || !fPath.Matches(excludedTypes)))) {
+			//OutputAppendStringSynchronised(fPath.AsUTF8().c_str());
 			//OutputAppendStringSynchronised("\n");
 			FileReader fr(fPath, FlagIsSet(gf, GrepFlags::matchCase));
 			if (FlagIsSet(gf, GrepFlags::binary) || !fr.BufferContainsNull()) {
@@ -1546,12 +1548,15 @@ void SciTEBase::GrepRecursive(GrepFlags gf, const FilePath &baseDir, const char 
 	}
 	for (const FilePath &fPath : directories) {
 		if (FlagIsSet(gf, GrepFlags::dot) || GrepIntoDirectory(fPath.Name())) {
-			GrepRecursive(gf, fPath, searchString, fileTypes);
+			if ((excludedTypes.empty() || !fPath.Matches(excludedTypes))) {
+				GrepRecursive(gf, fPath, searchString, fileTypes, excludedTypes);
+			}
 		}
 	}
 }
 
-void SciTEBase::InternalGrep(GrepFlags gf, const FilePath &directory, GUI::gui_string_view fileTypes, std::string_view search, SA::Position &originalEnd) {
+void SciTEBase::InternalGrep(GrepFlags gf, const FilePath &directory, GUI::gui_string_view fileTypes, GUI::gui_string_view excludedTypes,
+	std::string_view search, SA::Position &originalEnd) {
 	GUI::ElapsedTime commandTime;
 	if (!FlagIsSet(gf, GrepFlags::stdOut)) {
 		std::string os;
@@ -1568,7 +1573,7 @@ void SciTEBase::InternalGrep(GrepFlags gf, const FilePath &directory, GUI::gui_s
 	if (!FlagIsSet(gf, GrepFlags::matchCase)) {
 		LowerCaseAZ(searchString);
 	}
-	GrepRecursive(gf, directory, searchString.c_str(), fileTypes);
+	GrepRecursive(gf, directory, searchString.c_str(), fileTypes, excludedTypes);
 	if (!FlagIsSet(gf, GrepFlags::stdOut)) {
 		std::string sExitMessage(">");
 		if (jobQueue.TimeCommands()) {
