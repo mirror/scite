@@ -1857,11 +1857,11 @@ bool SciTEBase::PerformInsertAbbreviation() {
 	// add the abbreviation one character at a time
 	for (size_t i = 0; i < expbuflen; i++) {
 		const char c = expbuf[i];
-		std::string abbrevText;
 		if (isIndent && c == '\t') {
 			SetLineIndentation(currentLineNumber, GetLineIndentation(currentLineNumber) + indentSize);
 			indentExtra += indentSize;
 		} else {
+			std::string abbrevText;
 			switch (c) {
 			case '|':
 				// user may want to insert '|' instead of caret
@@ -1976,10 +1976,10 @@ bool SciTEBase::StartExpandAbbreviation() {
 	// add the abbreviation one character at a time
 	for (size_t i = 0; i < expbuflen; i++) {
 		const char c = expbuf[i];
-		std::string abbrevText;
 		if (isIndent && c == '\t') {
 			SetLineIndentation(currentLineNumber, GetLineIndentation(currentLineNumber) + indentSize);
 		} else {
+			std::string abbrevText;
 			switch (c) {
 			case '|':
 				// user may want to insert '|' instead of caret
@@ -4628,7 +4628,7 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
 	intptr_t rep = 0;				//Scintilla's answer
 	const char *answercmd = nullptr;
 	SA::Position l = 0;
-	std::string string1;
+	std::string string1;	// Long scope as address taken
 	char params[4] = "";
 	// This code does not validate its input which may cause crashes when bad.
 	// 'params' describes types of return values and of arguments.
