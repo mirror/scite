@@ -42,6 +42,7 @@ knownOutputAndLexerProperties = {
 	"find.what",
 	"xml.auto.close.tags",
 	"indent.python.colon",
+	"RelativePath",
 	"ScaleFactor",
 }
 knownOutputAndLexerProperties.update(knownDebugOptionalAndArchaicProperties)
