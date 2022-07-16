@@ -2041,6 +2041,8 @@ void SciTEGTK::FindInFilesCmd() {
 		findCommand += " \"";
 		findCommand += props.GetString("find.files");
 		findCommand += "\" \"";
+		findCommand += props.GetString("find.exclude");
+		findCommand += "\" \"";
 		std::string quotedForm = Slash(props.GetString("find.what"), true);
 		findCommand += quotedForm;
 		findCommand += "\"";
