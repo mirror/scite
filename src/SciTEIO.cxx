@@ -1077,17 +1077,7 @@ void SciTEBase::EnsureFinalNewLine() {
 		appendNewLine = endDocument > wEditor.LineStart(maxLines - 1);
 	}
 	if (appendNewLine) {
-		const char *eol = "\n";
-		switch (wEditor.EOLMode()) {
-		case SA::EndOfLine::CrLf:
-			eol = "\r\n";
-			break;
-		case SA::EndOfLine::Cr:
-			eol = "\r";
-			break;
-		case SA::EndOfLine::Lf:
-			break;
-		}
+		const char *eol = LineEndString(wEditor.EOLMode());
 		wEditor.InsertText(endDocument, eol);
 	}
 }

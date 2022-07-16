@@ -960,6 +960,7 @@ public:
 	virtual void WorkerCommand(int cmd, Worker *pWorker);
 };
 
+const char *LineEndString(SA::EndOfLine eolMode) noexcept;
 int ControlIDOfCommand(unsigned long) noexcept;
 SA::Colour ColourOfProperty(const PropSetFile &props, const char *key, SA::Colour colourDefault);
 SA::ColourAlpha ColourAlphaOfProperty(const PropSetFile &props, const char *key, SA::ColourAlpha colourDefault);

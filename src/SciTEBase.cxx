@@ -1884,12 +1884,7 @@ bool SciTEBase::PerformInsertAbbreviation() {
 				}
 				break;
 			case '\n':
-				if (eolMode == SA::EndOfLine::CrLf || eolMode == SA::EndOfLine::Cr) {
-					abbrevText += '\r';
-				}
-				if (eolMode == SA::EndOfLine::CrLf || eolMode == SA::EndOfLine::Lf) {
-					abbrevText += '\n';
-				}
+				abbrevText += LineEndString(eolMode);
 				break;
 			default:
 				abbrevText += c;
@@ -1997,12 +1992,7 @@ bool SciTEBase::StartExpandAbbreviation() {
 				}
 				break;
 			case '\n':
-				if (eolMode == SA::EndOfLine::CrLf || eolMode == SA::EndOfLine::Cr) {
-					abbrevText += '\r';
-				}
-				if (eolMode == SA::EndOfLine::CrLf || eolMode == SA::EndOfLine::Lf) {
-					abbrevText += '\n';
-				}
+				abbrevText += LineEndString(eolMode);
 				break;
 			default:
 				abbrevText += c;
@@ -2112,7 +2102,7 @@ bool SciTEBase::StartBlockComment() {
 	return true;
 }
 
-static const char *LineEndString(SA::EndOfLine eolMode) noexcept {
+const char *LineEndString(SA::EndOfLine eolMode) noexcept {
 	switch (eolMode) {
 	case SA::EndOfLine::CrLf:
 		return "\r\n";
