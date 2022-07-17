@@ -593,6 +593,7 @@
 	<td>Knut Leimbert</td>
       </tr><tr>
 	<td>Scharfe Andre</td>
+	<td>Jacky Yang</td>
       </tr>
     </table>
     <p>
@@ -612,6 +613,20 @@
 		</li>
 		<li>
 		Implement find.exclude property to avoid searching in some files.
+		</li>
+	</ul>
+	<li>Scintilla 5.2.5</li>
+	<ul>
+		<li>
+		Line state optimized to avoid excess allocations by always allocating for every line.
+		This makes SCI_GETMAXLINESTATE less useful although it can still distinguish cases
+		where line state was never set for any lines.
+		<a href="https://sourceforge.net/p/scintilla/feature-requests/1441/">Feature #1441</a>.
+		</li>
+		<li>
+		Enable multiline regex for gcc and clang when REGEX_MULTILINE defined.
+		This requires gcc 11.3 or clang 14.
+		<a href="https://sourceforge.net/p/scintilla/bugs/2338/">Bug #2338</a>.
 		</li>
 	</ul>
     </ul>
