@@ -3783,7 +3783,7 @@ void SciTEBase::ExpandFolds(SA::Line line, bool expand, SA::FoldLevel level) {
 }
 
 void SciTEBase::FoldAll() {
-	wEditor.ColouriseAll();
+	wEditor.Colourise(wEditor.EndStyled(), -1);
 	const SA::Line maxLine = wEditor.LineCount();
 	bool expanding = true;
 	for (SA::Line lineSeek = 0; lineSeek < maxLine; lineSeek++) {
@@ -3792,6 +3792,7 @@ void SciTEBase::FoldAll() {
 			break;
 		}
 	}
+	wEditor.SetRedraw(false);
 	for (SA::Line line = 0; line < maxLine; line++) {
 		const SA::FoldLevel level = wEditor.FoldLevel(line);
 		if (LevelIsHeader(level) &&
@@ -3808,6 +3809,7 @@ void SciTEBase::FoldAll() {
 			}
 		}
 	}
+	wEditor.SetRedraw(true);
 }
 
 void SciTEBase::GotoLineEnsureVisible(SA::Line line) {
