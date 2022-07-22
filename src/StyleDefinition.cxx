@@ -84,9 +84,13 @@ bool StyleDefinition::ParseStyleDefinition(std::string_view definition) {
 			back = optionValue;
 		}
 		if ((optionName == "size") && !optionValue.empty()) {
-			specified = static_cast<flags>(specified | sdSize);
-			sizeFractional = std::stof(std::string(optionValue));
-			size = static_cast<int>(sizeFractional);
+			try {
+				sizeFractional = std::stof(std::string(optionValue));
+				size = static_cast<int>(sizeFractional);
+				specified = static_cast<flags>(specified | sdSize);
+			} catch (...) {
+				// Ignore parsing problems
+			}
 		}
 		if (optionName == "eolfilled") {
 			specified = static_cast<flags>(specified | sdEOLFilled);
