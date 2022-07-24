@@ -25,7 +25,7 @@ ctuOneDefinitionRuleViolation:scite/gtk/Strips.h
 // Prefer passing string_view by value.
 passedByValue:scite/src/SciTEBase.cxx
 
-// This is an unusual case where a poninter inside a std::string is needed later in the code.
+// This is an unusual case where a pointer inside a std::string is needed later in the code.
 variableScope:scite/src/SciTEBase.cxx
 
 // dynamic_cast can return nullptr.
