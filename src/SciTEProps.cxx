@@ -375,12 +375,31 @@ void SciTEBase::SetStyleFor(GUI::ScintillaWindow &win, const char *lang) {
 	SetStyleBlock(win, lang, 0, StyleMax);
 }
 
-void SciTEBase::SetOneIndicator(GUI::ScintillaWindow &win, int indicator, const IndicatorDefinition &ind) {
-	win.IndicSetStyle(indicator, ind.style);
-	win.IndicSetFore(indicator, ind.colour);
-	win.IndicSetAlpha(indicator, ind.fillAlpha);
-	win.IndicSetOutlineAlpha(indicator, ind.outlineAlpha);
-	win.IndicSetUnder(indicator, ind.under);
+void SciTEBase::SetOneIndicator(GUI::ScintillaWindow &win, SA::IndicatorNumbers indicator, const IndicatorDefinition &ind) {
+	const int indic = static_cast<int>(indicator);
+	win.IndicSetStyle(indic, ind.style);
+	win.IndicSetFore(indic, ind.colour);
+	win.IndicSetAlpha(indic, ind.fillAlpha);
+	win.IndicSetOutlineAlpha(indic, ind.outlineAlpha);
+	win.IndicSetUnder(indic, ind.under);
+}
+
+void SciTEBase::SetIndicatorFromProperty(GUI::ScintillaWindow &win, SA::IndicatorNumbers indicator, const std::string &propertyName) {
+	const std::string indicatorString = props.GetExpandedString(propertyName.c_str());
+	if (!indicatorString.empty()) {
+		IndicatorDefinition modifiedIndicator(indicatorString);
+		SetOneIndicator(win, indicator, modifiedIndicator);
+	}
+}
+
+void SciTEBase::SetMarkerFromProperty(GUI::ScintillaWindow &win, int marker, const std::string &propertyName) {
+	const std::string markerString = props.GetExpandedString(propertyName.c_str());
+	if (!markerString.empty()) {
+		MarkerDefinition markerValue(markerString);
+		win.MarkerDefine(marker, markerValue.style);
+		win.MarkerSetFore(marker, markerValue.colour);
+		win.MarkerSetBack(marker, markerValue.back);
+	}
 }
 
 std::string SciTEBase::ExtensionFileName() const {
@@ -1521,11 +1540,27 @@ void SciTEBase::ReadProperties() {
 			highlightCurrentWordIndicator.fillAlpha = alphaIndicator;
 			highlightCurrentWordIndicator.under = underIndicator;
 		}
-		SetOneIndicator(wEditor, indicatorHighlightCurrentWord, highlightCurrentWordIndicator);
-		SetOneIndicator(wOutput, indicatorHighlightCurrentWord, highlightCurrentWordIndicator);
+		const SA::IndicatorNumbers indicatorNumHCWI = static_cast<SA::IndicatorNumbers>(indicatorHighlightCurrentWord);
+		SetOneIndicator(wEditor, indicatorNumHCWI,	highlightCurrentWordIndicator);
+		SetOneIndicator(wOutput, indicatorNumHCWI, highlightCurrentWordIndicator);
 		currentWordHighlight.isOnlyWithSameStyle = props.GetInt("highlight.current.word.by.style", 0) == 1;
 		HighlightCurrentWord(true);
 	}
+
+	SetIndicatorFromProperty(wEditor, SA::IndicatorNumbers::HistoryRevertedToOriginInsertion, "indicator.reverted.to.origin.insertion");
+	SetIndicatorFromProperty(wEditor, SA::IndicatorNumbers::HistoryRevertedToOriginDeletion, "indicator.reverted.to.origin.deletion");
+	SetIndicatorFromProperty(wEditor, SA::IndicatorNumbers::HistorySavedInsertion, "indicator.saved.insertion");
+	SetIndicatorFromProperty(wEditor, SA::IndicatorNumbers::HistorySavedDeletion, "indicator.saved.deletion");
+	SetIndicatorFromProperty(wEditor, SA::IndicatorNumbers::HistoryModifiedInsertion, "indicator.modified.insertion");
+	SetIndicatorFromProperty(wEditor, SA::IndicatorNumbers::HistoryModifiedDeletion, "indicator.modified.deletion");
+	SetIndicatorFromProperty(wEditor, SA::IndicatorNumbers::HistoryRevertedToModifiedInsertion, "indicator.reverted.to.modified.insertion");
+	SetIndicatorFromProperty(wEditor, SA::IndicatorNumbers::HistoryRevertedToModifiedDeletion, "indicator.reverted.to.modified.deletion");
+
+	constexpr size_t markerHistory = static_cast<size_t>(SA::MarkerOutline::HistoryRevertedToOrigin);
+	SetMarkerFromProperty(wEditor, markerHistory+0, "marker.reverted.to.origin");
+	SetMarkerFromProperty(wEditor, markerHistory+1, "marker.saved");
+	SetMarkerFromProperty(wEditor, markerHistory+2, "marker.modified");
+	SetMarkerFromProperty(wEditor, markerHistory+3, "marker.reverted.to.modified");
 
 	ReadEditorConfig(fileNameForExtension);
 

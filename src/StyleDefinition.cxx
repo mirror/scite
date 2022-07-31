@@ -219,6 +219,7 @@ bool IndicatorDefinition::ParseIndicatorDefinition(std::string_view definition) 
 		{ "pointcharacter", SA::IndicatorStyle::PointCharacter },
 		{ "gradient", SA::IndicatorStyle::Gradient },
 		{ "gradientverticalcentred", SA::IndicatorStyle::GradientCentre },
+		{ "pointtop", SA::IndicatorStyle::PointTop },
 	};
 
 	std::string val(definition);
@@ -262,6 +263,93 @@ bool IndicatorDefinition::ParseIndicatorDefinition(std::string_view definition) 
 			}
 		} catch (std::logic_error &) {
 			// Ignore bad values, either non-numeric or out of range numberic
+		}
+	}
+	return true;
+}
+
+MarkerDefinition::MarkerDefinition(std::string_view definition) :
+	style(SA::MarkerSymbol::Circle) {
+	ParseMarkerDefinition(definition);
+}
+
+bool MarkerDefinition::ParseMarkerDefinition(std::string_view definition) {
+	if (definition.empty()) {
+		return false;
+	}
+	struct NameValue {
+		std::string_view name;
+		SA::MarkerSymbol value;
+	};
+	const NameValue markerStyleNames[] = {
+		{"circle", SA::MarkerSymbol::Circle },
+		{"roundrect", SA::MarkerSymbol::RoundRect },
+		{"arrow", SA::MarkerSymbol::Arrow },
+		{"smallrect", SA::MarkerSymbol::SmallRect },
+		{"shortarrow", SA::MarkerSymbol::ShortArrow },
+		{"empty", SA::MarkerSymbol::Empty },
+		{"arrowdown", SA::MarkerSymbol::ArrowDown },
+		{"minus", SA::MarkerSymbol::Minus },
+		{"plus", SA::MarkerSymbol::Plus },
+		{"vline", SA::MarkerSymbol::VLine },
+		{"lcorner", SA::MarkerSymbol::LCorner },
+		{"tcorner", SA::MarkerSymbol::TCorner },
+		{"boxplus", SA::MarkerSymbol::BoxPlus },
+		{"boxplusconnected", SA::MarkerSymbol::BoxPlusConnected },
+		{"boxminus", SA::MarkerSymbol::BoxMinus },
+		{"boxminusconnected", SA::MarkerSymbol::BoxMinusConnected },
+		{"lcornercurve", SA::MarkerSymbol::LCornerCurve },
+		{"tcornercurve", SA::MarkerSymbol::TCornerCurve },
+		{"circleplus", SA::MarkerSymbol::CirclePlus },
+		{"circleplusconnected", SA::MarkerSymbol::CirclePlusConnected },
+		{"circleminus", SA::MarkerSymbol::CircleMinus },
+		{"circleminusconnected", SA::MarkerSymbol::CircleMinusConnected },
+		{"background", SA::MarkerSymbol::Background },
+		{"dotdotdot", SA::MarkerSymbol::DotDotDot },
+		{"arrows", SA::MarkerSymbol::Arrows },
+		{"pixmap", SA::MarkerSymbol::Pixmap },
+		{"fullrect", SA::MarkerSymbol::FullRect },
+		{"leftrect", SA::MarkerSymbol::LeftRect },
+		{"available", SA::MarkerSymbol::Available },
+		{"underline", SA::MarkerSymbol::Underline },
+		{"rgbaimage", SA::MarkerSymbol::RgbaImage },
+		{"bookmark", SA::MarkerSymbol::Bookmark },
+		{"verticalbookmark", SA::MarkerSymbol::VerticalBookmark },
+		{"bar", SA::MarkerSymbol::Bar },
+	};
+
+	std::string val(definition);
+	LowerCaseAZ(val);
+	std::string_view markerDefinition = val;
+	while (!markerDefinition.empty()) {
+		// Find attribute separator ',' and select front attribute
+		const ViewPair optionRest = ViewSplit(markerDefinition, ',');
+		const std::string_view option = std::get<0>(optionRest);
+		markerDefinition = std::get<1>(optionRest);
+		// Find value separator ':' and break into name and value
+		const auto [optionName, optionValue] = ViewSplit(option, ':');
+
+		try {
+			if (!optionValue.empty() && (optionName == "style")) {
+				bool found = false;
+				for (const NameValue &indicStyleName : markerStyleNames) {
+					if (optionValue == indicStyleName.name) {
+						style = indicStyleName.value;
+						found = true;
+					}
+				}
+				if (!found) {
+					style = static_cast<SA::MarkerSymbol>(std::stoi(std::string(optionValue)));
+				}
+			}
+			if (!optionValue.empty() && ((optionName == "colour") || (optionName == "color") || (optionName == "fore"))) {
+				colour = ColourFromString(std::string(optionValue));
+			}
+			if (!optionValue.empty() && (optionName == "back")) {
+				back = ColourFromString(std::string(optionValue));
+			}
+		} catch (std::logic_error &) {
+			// Ignore bad values, either non-numeric or out of range numeric
 		}
 	}
 	return true;

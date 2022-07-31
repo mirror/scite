@@ -57,4 +57,12 @@ struct IndicatorDefinition {
 	bool ParseIndicatorDefinition(std::string_view definition);
 };
 
+struct MarkerDefinition {
+	Scintilla::MarkerSymbol style;
+	Scintilla::Colour colour;
+	Scintilla::Colour back = ColourRGB(0xFF,0xFF,0xFF);
+	explicit MarkerDefinition(std::string_view definition);
+	bool ParseMarkerDefinition(std::string_view definition);
+};
+
 #endif

@@ -1380,6 +1380,32 @@ representations=π=Pi,\u20AA=shekel(\u20AA),!0,#FF000090,\x0D\x0A=crlf</div>
           tool bar buttons to be less accurate. This may improve performance on slow machines.
         </td>
       </tr>
+      <tr id='property-change.history'>
+        <td>
+          change.history<br />
+          marker.reverted.to.origin<br />
+          marker.saved<br />
+          marker.modified<br />
+          marker.reverted.to.modified<br />
+          indicator.reverted.to.origin.insertion<br />
+          indicator.reverted.to.origin.deletion<br />
+          indicator.saved.insertion<br />
+          indicator.saved.deletion<br />
+          indicator.modified.insertion<br />
+          indicator.modified.deletion<br />
+          indicator.reverted.to.modified.insertion<br />
+          indicator.reverted.to.modified.deletion
+        </td>
+        <td>
+          The change.history property controls whether changes to the document (insertions, deletions, saved chanes, ...) are
+          shown as margin markers or indicators within text.<br .>
+          It is a set of bit flags (1=enable, 2=margin markers, 4=indicators in text) so the most likely settings are
+          0=disabled; 3=enabled with margin marks, or 7=enabled with margin markers and in-text indicators.<br />
+          There is a default set of visuals for this feature but they may be altered with the marker.* and indicator.* properties.<br />
+          As change history can only be enabled when the file is in its original state, this property only takes effect when
+          a file is loaded.
+        </td>
+      </tr>
       <tr id='property-statusbar.visible'>
         <td>
           statusbar.visible
@@ -4000,7 +4026,6 @@ imports.include=fortran lisp
         command is performed.
         </td>
       </tr>
-      </tr>
       <tr id='property-font.monospaced.list'>
         <td>
         font.monospaced.list
@@ -4383,7 +4408,6 @@ groupundo - yes or no
           Sets the stroke width of the fold symbols in hundredths of a pixel.
           The default value, 100 is good for standard displays but 200 may be better for high DPI displays,
         </td>
-      </tr>
       </tr>
       <tr id='property-fold.margin.width'>
         <td>
@@ -4988,7 +5012,7 @@ groupundo - yes or no
      </tr>
     </table>
     <h3 id="IndicatorProperty">
-       Indicator definition
+       Indicator and marker definitions
     </h3>
     <p>Properties that define indicators look like</p>
     <div class="example">
@@ -5004,7 +5028,7 @@ groupundo - yes or no
       <td>style</td>
       <td>one of plain, squiggle, tt, diagonal, strike, hidden, box, roundbox, straightbox, fullbox, dash,
       dots, squigglelow, dotbox, squigglepixmap, compositionthick, compositionthin,
-      textfore, gradient, gradientcentre, point, or pointcharacter.<br />
+      textfore, gradient, gradientcentre, point, pointcharacter, or pointtop.<br />
       </td>
       <td>plain</td>
      </tr>
@@ -5034,9 +5058,39 @@ groupundo - yes or no
       <td>yes</td>
      </tr>
     </table>
-    </p>
     <p>Samples:<br />
     <img src="SciTEIndicators.png" alt="Indicator samples" /></p>
+    <p>Properties that define markers look like</p>
+    <div class="example">
+       marker.saved=style:leftrect,fore:#00A000,back:#A0A000</div>
+    <table cellpadding="1" cellspacing="0" border="1" summary="Caret policy">
+     <tr>
+      <th>attribute</th>
+      <th>value</th>
+      <th>default</th>
+     </tr>
+     <tr>
+      <td>style</td>
+      <td>one of circle, roundrect, arrow, smallrect, shortarrow, empty, arrowdown,
+      minus, plus, vline, lcorner, tcorner, boxplus, boxplusconnected,
+      boxminus, boxminusconnected, lcornercurve, tcornercurve,
+      circleplus, circleplusconnected, circleminus, circleminusconnected,
+      background, dotdotdot, arrows, fullrect, leftrect,
+      underline, bookmark, verticalbookmark, or bar.<br />
+      </td>
+      <td>circle</td>
+     </tr>
+     <tr>
+      <td>colour or color or fore</td>
+      <td>a hex colour value preceded by '#' such as #008020.</td>
+      <td>black</td>
+     </tr>
+     <tr>
+      <td>back</td>
+      <td>a hex colour value preceded by '#' such as #008020.</td>
+      <td>white</td>
+     </tr>
+    </table>
     <h3 id="NewLanguage">
        Supporting a new language
     </h3>

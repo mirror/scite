@@ -413,8 +413,11 @@ void SciTEBase::CompleteOpen(OpenCompletion oc) {
 
 	if (!wEditor.UndoCollection()) {
 		wEditor.SetUndoCollection(true);
+		wEditor.SetSavePoint();
+		wEditor.SetChangeHistory(static_cast<SA::ChangeHistoryOption>(props.GetInt("change.history")));
+	} else {
+		wEditor.SetSavePoint();
 	}
-	wEditor.SetSavePoint();
 	if (props.GetInt("fold.on.open") > 0) {
 		FoldAll();
 	}

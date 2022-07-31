@@ -983,13 +983,15 @@ void SciTEBase::MarkAll(MarkPurpose purpose) {
 	int bookMark = -1;
 	std::optional<SA::Line> contextLines;
 
+	const SA::IndicatorNumbers indicatorNumMatch = static_cast<SA::IndicatorNumbers>(indicatorMatch);
+
 	if (purpose == MarkPurpose::incremental) {
 		CurrentBuffer()->findMarks = Buffer::FindMarks::temporary;
-		SetOneIndicator(wEditor, indicatorMatch,
+		SetOneIndicator(wEditor, indicatorNumMatch,
 			IndicatorDefinition(props.GetString("find.indicator.incremental")));
 	} else if (purpose == MarkPurpose::filter) {
 		CurrentBuffer()->findMarks = Buffer::FindMarks::temporary;
-		SetOneIndicator(wEditor, indicatorMatch,
+		SetOneIndicator(wEditor, indicatorNumMatch,
 				IndicatorDefinition(props.GetString("filter.match.indicator")));
 		bookMark = markerFilterMatch;
 		contextLines = contextVisible ? props.GetInt("filter.context", 2) : 0;
@@ -1005,7 +1007,7 @@ void SciTEBase::MarkAll(MarkPurpose purpose) {
 			findIndicator.fillAlpha = alphaIndicator;
 			findIndicator.under = underIndicator;
 		}
-		SetOneIndicator(wEditor, indicatorMatch, findIndicator);
+		SetOneIndicator(wEditor, indicatorNumMatch, findIndicator);
 		bookMark = markerBookmark;
 	}
 

@@ -604,7 +604,7 @@
     </p>
     <h2>Releases</h2>
     <h3>
-       <a href="https://www.scintilla.org/scite525.zip">Release 5.2.5</a>
+       <a href="https://www.scintilla.org/scite530.zip">Release 5.3.0</a>
     </h3>
     <ul>
 	<li>SciTE</li>
@@ -616,8 +616,32 @@
 		Implement find.exclude property to avoid searching in some files.
 		</li>
 	</ul>
-	<li>Scintilla 5.2.5</li>
+	<li>Lexilla 5.1.9</li>
 	<ul>
+		<li>
+		Properties: Don't set header flag for empty section.
+		<a href="https://github.com/ScintillaOrg/lexilla/issues/96">Issue #96</a>.
+		</li>
+	</ul>
+	<li>Scintilla 5.3.0</li>
+	<ul>
+		<li>
+		Added change history which can display document changes (modified, saved, ...)
+		in the margin or in the text.
+		</li>
+		<li>
+		Add SC_MARK_BAR marker and INDIC_POINT_TOP indicator.
+		SC_MARK_BAR is an outlined and filled rectangle that takes the full height of the line and 1/3
+		of the margin width.
+		To give a connected appearence, it displays even on wrapped lines and draws end caps on the first and last line.
+		INDIC_POINT_TOP is the same as INDIC_POINT but draws at the top of the line instead of the bottom.
+		INDIC_POINT and INDIC_POINTCHARACTER were tweaked to be 1 pixel taller and 2 pixels wider in
+		two-phase draw mode to be clearer.
+		The translucency of INDIC_COMPOSITIONTHICK can be changed with SCI_INDICSETOUTLINEALPHA.
+		</li>
+		<li>
+		Improve drawing of rounded rectangles on Direct2D..
+		</li>
 		<li>
 		Line state optimized to avoid excess allocations by always allocating for every line.
 		This makes SCI_GETMAXLINESTATE less useful although it can still distinguish cases
@@ -637,13 +661,6 @@
 		<li>
 		Fix incorrect display of selection when printing in some modes.
 		<a href="https://sourceforge.net/p/scintilla/bugs/2335/">Bug #2335</a>.
-		</li>
-	</ul>
-	<li>Lexilla 5.1.9</li>
-	<ul>
-		<li>
-		Properties: Don't set header flag for empty section.
-		<a href="https://github.com/ScintillaOrg/lexilla/issues/96">Issue #96</a>.
 		</li>
 	</ul>
     </ul>
