@@ -640,7 +640,7 @@
 		The translucency of INDIC_COMPOSITIONTHICK can be changed with SCI_INDICSETOUTLINEALPHA.
 		</li>
 		<li>
-		Improve drawing of rounded rectangles on Direct2D..
+		Improve drawing of rounded rectangles on Direct2D.
 		</li>
 		<li>
 		Line state optimized to avoid excess allocations by always allocating for every line.
@@ -661,6 +661,10 @@
 		<li>
 		Fix incorrect display of selection when printing in some modes.
 		<a href="https://sourceforge.net/p/scintilla/bugs/2335/">Bug #2335</a>.
+		</li>
+		<li>
+		Fix crash on Qt when showing autocompletion and the caret isn't on a screen.
+		Move autocompletion onto screen when above it.
 		</li>
 	</ul>
     </ul>
