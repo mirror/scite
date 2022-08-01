@@ -2992,6 +2992,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SC_EOL_CRLF",0},
 	{"SC_EOL_LF",2},
 	{"SC_FOLDACTION_CONTRACT",0},
+	{"SC_FOLDACTION_CONTRACT_EVERY_LEVEL",4},
 	{"SC_FOLDACTION_EXPAND",1},
 	{"SC_FOLDACTION_TOGGLE",2},
 	{"SC_FOLDDISPLAYTEXT_BOXED",2},
@@ -3793,7 +3794,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 324,
-	ifaceConstantCount = 3069,
+	ifaceConstantCount = 3070,
 	ifacePropertyCount = 263
 };
 
