@@ -473,7 +473,7 @@ void SciTEBase::SetDocumentAt(BufferIndex index, bool updateStack) {
 	if (lineNumbers && lineNumbersExpand)
 		SetLineNumberWidth();
 
-	DisplayAround(bufferNext.file);
+	DisplayAround(bufferNext.file.filePosition);
 	if (restoreBookmarks) {
 		// Restoring a session does not restore the scroll position
 		// so make the selection visible.
@@ -513,9 +513,7 @@ void SciTEBase::UpdateBuffersCurrent() {
 		Buffer &bufferCurrent = buffers.buffers[currentbuf];
 		bufferCurrent.file.Set(filePath);
 		if (bufferCurrent.lifeState != Buffer::LifeState::reading && bufferCurrent.lifeState != Buffer::LifeState::readAll) {
-			bufferCurrent.file.selection.position = wEditor.CurrentPos();
-			bufferCurrent.file.selection.anchor = wEditor.Anchor();
-			bufferCurrent.file.scrollPosition = GetCurrentScrollPosition();
+			bufferCurrent.file.filePosition = GetFilePosition();
 
 			// Retrieve fold state and store in buffer state info
 
@@ -625,7 +623,7 @@ void SciTEBase::LoadSessionFile(const GUI::gui_char *sessionName) {
 }
 
 void SciTEBase::RestoreRecentMenu() {
-	const SelectedRange sr(0, 0);
+	const FilePosition fp(SelectedRange(0, 0), 0);
 
 	DeleteFileStackMenu();
 
@@ -634,7 +632,7 @@ void SciTEBase::RestoreRecentMenu() {
 		std::string propStr = propsSession.GetString(propKey.c_str());
 		if (propStr == "")
 			continue;
-		AddFileToStack(RecentFile(GUI::StringFromUTF8(propStr), sr, 0));
+		AddFileToStack(RecentFile(GUI::StringFromUTF8(propStr), fp));
 	}
 }
 
@@ -719,13 +717,11 @@ void SciTEBase::RestoreSession() {
 
 		propKey = IndexPropKey("buffer", i, "scroll");
 		const SA::Line scroll = propsSession.GetInteger(propKey.c_str());
-		bufferState.file.scrollPosition = scroll;
 
 		propKey = IndexPropKey("buffer", i, "position");
-		const SA::Position pos = propsSession.GetInteger(propKey.c_str());
+		const SA::Position pos = propsSession.GetInteger(propKey.c_str()) - 1;	// -1 for 1 -> 0 based
 
-		bufferState.file.selection.anchor = pos - 1;
-		bufferState.file.selection.position = bufferState.file.selection.anchor;
+		bufferState.file.filePosition = FilePosition(SelectedRange(pos, pos), scroll);
 
 		if (props.GetInt("session.bookmarks")) {
 			propKey = IndexPropKey("buffer", i, "bookmarks");
@@ -820,12 +816,12 @@ void SciTEBase::SaveSessionFile(const GUI::gui_char *sessionName) {
 				std::string propKey = IndexPropKey("buffer", i, "path");
 				fprintf(sessionFile, "\n%s=%s\n", propKey.c_str(), buff.file.AsUTF8().c_str());
 
-				const SA::Position pos = buff.file.selection.position + 1;
+				const SA::Position pos = buff.file.filePosition.selection.position + 1;	// +1 = 0 to 1 based
 				const std::string sPos = std::to_string(pos);
 				propKey = IndexPropKey("buffer", i, "position");
 				fprintf(sessionFile, "%s=%s\n", propKey.c_str(), sPos.c_str());
 
-				const SA::Line scroll = buff.file.scrollPosition;
+				const SA::Line scroll = buff.file.filePosition.scrollPosition;
 				const std::string sScroll = std::to_string(scroll);
 				propKey = IndexPropKey("buffer", i, "scroll");
 				fprintf(sessionFile, "%s=%s\n", propKey.c_str(), sScroll.c_str());
@@ -1041,7 +1037,7 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 		if (updateUI) {
 			CheckReload();
 			RestoreState(bufferNext, false);
-			DisplayAround(bufferNext.file);
+			DisplayAround(bufferNext.file.filePosition);
 		}
 	}
 
@@ -1143,7 +1139,7 @@ void SciTEBase::ShiftTab(BufferIndex indexFrom, BufferIndex indexTo) {
 
 	TabSelect(indexTo);
 
-	DisplayAround(buffers.buffers[buffers.Current()].file);
+	DisplayAround(buffers.buffers[buffers.Current()].file.filePosition);
 }
 
 void SciTEBase::MoveTabRight() {
@@ -1347,14 +1343,13 @@ bool SciTEBase::AddFileToBuffer(const BufferState &bufferState) {
 		if (opened) {
 			const BufferIndex iBuffer = buffers.GetDocumentByName(bufferState.file, false);
 			if (iBuffer >= 0) {
-				buffers.buffers[iBuffer].file.scrollPosition = bufferState.file.scrollPosition;
-				buffers.buffers[iBuffer].file.selection = bufferState.file.selection;
+				buffers.buffers[iBuffer].file.filePosition = bufferState.file.filePosition;
 				buffers.buffers[iBuffer].foldState = bufferState.foldState;
 				buffers.buffers[iBuffer].bookmarks = bufferState.bookmarks;
 				if (buffers.buffers[iBuffer].lifeState == Buffer::LifeState::opened) {
 					// File was opened synchronously
 					RestoreState(buffers.buffers[iBuffer], true);
-					DisplayAround(buffers.buffers[iBuffer].file);
+					DisplayAround(buffers.buffers[iBuffer].file.filePosition);
 					wEditor.ScrollCaret();
 				}
 			}
@@ -1396,19 +1391,16 @@ void SciTEBase::RemoveFileFromStack(const FilePath &file) {
 	SetFileStackMenu();
 }
 
-RecentFile SciTEBase::GetFilePosition() {
-	RecentFile rf;
-	rf.selection = GetSelectedRange();
-	rf.scrollPosition = GetCurrentScrollPosition();
-	return rf;
+FilePosition SciTEBase::GetFilePosition() {
+	return FilePosition(GetSelectedRange(), GetCurrentScrollPosition());
 }
 
-void SciTEBase::DisplayAround(const RecentFile &rf) {
-	if ((rf.selection.position != SA::InvalidPosition) && (rf.selection.anchor != SA::InvalidPosition)) {
-		SetSelection(rf.selection.anchor, rf.selection.position);
+void SciTEBase::DisplayAround(const FilePosition &fp) {
+	if ((fp.selection.position != SA::InvalidPosition) && (fp.selection.anchor != SA::InvalidPosition)) {
+		SetSelection(fp.selection.anchor, fp.selection.position);
 
 		const SA::Line curTop = wEditor.FirstVisibleLine();
-		const SA::Line lineTop = wEditor.VisibleFromDocLine(rf.scrollPosition);
+		const SA::Line lineTop = wEditor.VisibleFromDocLine(fp.scrollPosition);
 		wEditor.LineScroll(0, lineTop - curTop);
 		wEditor.ChooseCaretX();
 	}
@@ -1476,12 +1468,11 @@ void SciTEBase::StackMenu(int pos) {
 				SetIndentSettings();
 				SetEol();
 			} else if (recentFileStack[pos].IsSet()) {
-				RecentFile rf = recentFileStack[pos];
+				const RecentFile rf = recentFileStack[pos];
 				// Already asked user so don't allow Open to ask again.
 				Open(rf, ofNoSaveIfDirty);
-				CurrentBuffer()->file.scrollPosition = rf.scrollPosition;
-				CurrentBuffer()->file.selection = rf.selection;
-				DisplayAround(rf);
+				CurrentBuffer()->file.filePosition = rf.filePosition;
+				DisplayAround(rf.filePosition);
 			}
 		}
 	}

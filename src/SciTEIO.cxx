@@ -360,7 +360,7 @@ void SciTEBase::TextRead(FileWorker *pFileWorker) {
 			if (extender)
 				extender->OnOpen(buffers.buffers[iBuffer].file.AsUTF8().c_str());
 			RestoreState(buffers.buffers[iBuffer], true);
-			DisplayAround(buffers.buffers[iBuffer].file);
+			DisplayAround(buffers.buffers[iBuffer].file.filePosition);
 			wEditor.ScrollCaret();
 		}
 	}
@@ -578,7 +578,7 @@ bool SciTEBase::Open(const FilePath &file, OpenFlags of) {
 	}
 
 	if (buffers.size() == buffers.length) {
-		AddFileToStack(RecentFile(filePath, GetSelectedRange(), GetCurrentScrollPosition()));
+		AddFileToStack(RecentFile(filePath, GetFilePosition()));
 		ClearDocument();
 		CurrentBuffer()->lifeState = Buffer::LifeState::opened;
 		if (extender)
@@ -769,9 +769,9 @@ void SciTEBase::Revert() {
 	if (filePath.IsUntitled()) {
 		wEditor.ClearAll();
 	} else {
-		RecentFile rf = GetFilePosition();
+		const FilePosition fp = GetFilePosition();
 		OpenCurrentFile(filePath.GetFileLength(), false, false);
-		DisplayAround(rf);
+		DisplayAround(fp);
 	}
 }
 
@@ -780,7 +780,7 @@ void SciTEBase::CheckReload() {
 		// Make a copy of fullPath as otherwise it gets aliased in Open
 		const time_t newModTime = filePath.ModifiedTime();
 		if ((newModTime != 0) && (newModTime != CurrentBuffer()->fileModTime)) {
-			RecentFile rf = GetFilePosition();
+			const FilePosition fp = GetFilePosition();
 			const OpenFlags of = props.GetInt("reload.preserves.undo") ? ofPreserveUndo : ofNone;
 			if (CurrentBuffer()->isDirty || props.GetInt("are.you.sure.on.reload") != 0) {
 				if ((0 == dialogsOnScreen) && (newModTime != CurrentBuffer()->fileModLastAsk)) {
@@ -797,13 +797,13 @@ void SciTEBase::CheckReload() {
 					const MessageBoxChoice decision = WindowMessageBox(wSciTE, msg, mbsYesNo | mbsIconQuestion);
 					if (decision == MessageBoxChoice::yes) {
 						Open(filePath, static_cast<OpenFlags>(of | ofForceLoad));
-						DisplayAround(rf);
+						DisplayAround(fp);
 					}
 					CurrentBuffer()->fileModLastAsk = newModTime;
 				}
 			} else {
 				Open(filePath, static_cast<OpenFlags>(of | ofForceLoad));
-				DisplayAround(rf);
+				DisplayAround(fp);
 			}
 		}  else if (newModTime == 0 && CurrentBuffer()->fileModTime != 0)  {
 			// Check if the file is deleted

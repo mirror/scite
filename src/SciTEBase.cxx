@@ -354,7 +354,7 @@ void SciTEBase::AssignKey(SA::Keys key, SA::KeyMod mods, int cmd) {
  * Mostly used to set a language on a file of unknown extension.
  */
 void SciTEBase::SetOverrideLanguage(int cmdID) {
-	RecentFile rf = GetFilePosition();
+	const FilePosition fp = GetFilePosition();
 	EnsureRangeVisible(wEditor, SA::Span(0, wEditor.Length()), false);
 	// Zero all the style bytes
 	wEditor.ClearDocumentStyle();
@@ -365,7 +365,7 @@ void SciTEBase::SetOverrideLanguage(int cmdID) {
 	SetIndentSettings();
 	wEditor.ColouriseAll();
 	Redraw();
-	DisplayAround(rf);
+	DisplayAround(fp);
 }
 
 SA::Position SciTEBase::LengthDocument() {

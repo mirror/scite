@@ -41,21 +41,25 @@ struct SelectedRange {
 	}
 };
 
+struct FilePosition {
+	SelectedRange selection;
+	SA::Line scrollPosition = 0;
+	FilePosition() = default;
+	FilePosition(SelectedRange selection_, SA::Line scrollPosition_) noexcept :
+		selection(selection_), scrollPosition(scrollPosition_) {
+	}
+};
+
 class RecentFile : public FilePath {
 public:
-	SelectedRange selection;
-	SA::Line scrollPosition;
-	RecentFile() {
-		scrollPosition = 0;
-	}
-	RecentFile(const FilePath &path_, SelectedRange selection_, SA::Line scrollPosition_) :
-		FilePath(path_), selection(selection_), scrollPosition(scrollPosition_) {
+	FilePosition filePosition;
+	RecentFile() = default;
+	RecentFile(const FilePath &path_, const FilePosition &filePosition_) :
+		FilePath(path_), filePosition(filePosition_) {
 	}
 	void Init() noexcept override {
 		FilePath::Init();
-		selection.position = SA::InvalidPosition;
-		selection.anchor = SA::InvalidPosition;
-		scrollPosition = 0;
+		filePosition = FilePosition();
 	}
 };
 
@@ -824,8 +828,8 @@ protected:
 	bool AddFileToBuffer(const BufferState &bufferState);
 	void AddFileToStack(const RecentFile &file);
 	void RemoveFileFromStack(const FilePath &file);
-	RecentFile GetFilePosition();
-	void DisplayAround(const RecentFile &rf);
+	FilePosition GetFilePosition();
+	void DisplayAround(const FilePosition &rf);
 	void StackMenu(int pos);
 	void StackMenuNext();
 	void StackMenuPrev();
