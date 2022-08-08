@@ -599,6 +599,7 @@ protected:
 	bool Open(const FilePath &file, OpenFlags of = ofNone);
 	bool OpenSelected();
 	void Revert();
+	std::string_view TextAsView();
 	FilePath SaveName(const char *ext) const;
 	enum SaveFlags {
 		sfNone = 0, 		// Default

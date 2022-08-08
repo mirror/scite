@@ -775,6 +775,12 @@ void SciTEBase::Revert() {
 	}
 }
 
+std::string_view SciTEBase::TextAsView() {
+	const SA::Position length = wEditor.Length();
+	const char *documentMemory = static_cast<const char *>(wEditor.CharacterPointer());
+	return std::string_view(documentMemory, length);
+}
+
 void SciTEBase::CheckReload() {
 	if (props.GetInt("load.on.activate")) {
 		// Make a copy of fullPath as otherwise it gets aliased in Open
@@ -1118,8 +1124,8 @@ bool SciTEBase::SaveBuffer(const FilePath &saveName, SaveFlags sf) {
 			const size_t lengthDoc = LengthDocument();
 			if (!(sf & sfSynchronous)) {
 				wEditor.SetReadOnly(true);
-				const char *documentBytes = static_cast<const char *>(wEditor.CharacterPointer());
-				CurrentBuffer()->pFileWorker = std::make_unique<FileStorer>(this, documentBytes, saveName, lengthDoc, fp, CurrentBuffer()->unicodeMode, (sf & sfProgressVisible));
+				const std::string_view documentBytes = TextAsView();
+				CurrentBuffer()->pFileWorker = std::make_unique<FileStorer>(this, documentBytes, saveName, fp, CurrentBuffer()->unicodeMode, (sf & sfProgressVisible));
 				CurrentBuffer()->pFileWorker->sleepTime = props.GetInt("asynchronous.sleep");
 				if (PerformOnNewThread(CurrentBuffer()->pFileWorker.get())) {
 					retVal = true;

@@ -51,8 +51,8 @@ public:
 	UniMode unicodeMode;
 	bool visibleProgress;
 
-	FileStorer(WorkerListener *pListener_, const char *documentBytes_, const FilePath &path_,
-		   size_t size_, FILE *fp_, UniMode unicodeMode_, bool visibleProgress_);
+	FileStorer(WorkerListener *pListener_, std::string_view bytes_, const FilePath &path_,
+		   FILE *fp_, UniMode unicodeMode_, bool visibleProgress_);
 	void Execute() override;
 	void Cancel() override;
 	bool IsLoading() const noexcept override {

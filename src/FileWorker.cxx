@@ -90,9 +90,9 @@ void FileLoader::Cancel() {
 	pLoader = nullptr;
 }
 
-FileStorer::FileStorer(WorkerListener *pListener_, const char *documentBytes_, const FilePath &path_,
-		       size_t size_, FILE *fp_, UniMode unicodeMode_, bool visibleProgress_) :
-	FileWorker(pListener_, path_, size_, fp_), documentBytes(documentBytes_), writtenSoFar(0),
+FileStorer::FileStorer(WorkerListener *pListener_, std::string_view bytes_, const FilePath &path_,
+		       FILE *fp_, UniMode unicodeMode_, bool visibleProgress_) :
+	FileWorker(pListener_, path_, bytes_.size(), fp_), documentBytes(bytes_.data()), writtenSoFar(0),
 	unicodeMode(unicodeMode_), visibleProgress(visibleProgress_) {
 	SetSizeJob(size);
 }
