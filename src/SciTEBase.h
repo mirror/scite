@@ -114,7 +114,7 @@ public:
 	void SetTimeFromFile();
 
 	void DocumentModified() noexcept;
-	bool NeedsSave(int delayBeforeSave) const;
+	bool NeedsSave(int delayBeforeSave) const noexcept;
 
 	void CompleteLoading() noexcept;
 	void CompleteStoring();
@@ -156,13 +156,13 @@ public:
 	BufferIndex size() const noexcept;
 	void Allocate(BufferIndex maxSize);
 	BufferIndex Add();
-	BufferIndex GetDocumentByWorker(const FileWorker *pFileWorker) const;
-	BufferIndex GetDocumentByName(const FilePath &filename, bool excludeCurrent=false);
+	BufferIndex GetDocumentByWorker(const FileWorker *pFileWorker) const noexcept;
+	BufferIndex GetDocumentByName(const FilePath &filename, bool excludeCurrent=false) const noexcept;
 	void RemoveInvisible(BufferIndex index);
 	void RemoveCurrent();
 	BufferIndex Current() const noexcept;
-	Buffer *CurrentBuffer();
-	const Buffer *CurrentBufferConst() const;
+	Buffer *CurrentBuffer() noexcept;
+	const Buffer *CurrentBufferConst() const noexcept;
 	void SetCurrent(BufferIndex index) noexcept;
 	BufferIndex StackNext();
 	BufferIndex StackPrev();
@@ -502,10 +502,10 @@ protected:
 	bool IsBufferAvailable() const noexcept;
 	bool CanMakeRoom(bool maySaveIfDirty = true);
 	void SetDocumentAt(BufferIndex index, bool updateStack = true);
-	Buffer *CurrentBuffer() {
+	Buffer *CurrentBuffer() noexcept {
 		return buffers.CurrentBuffer();
 	}
-	const Buffer *CurrentBufferConst() const {
+	const Buffer *CurrentBufferConst() const noexcept {
 		return buffers.CurrentBufferConst();
 	}
 	void SetBuffersMenu();

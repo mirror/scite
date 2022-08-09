@@ -100,7 +100,7 @@ void Buffer::DocumentModified() noexcept {
 	documentModTime = time(nullptr);
 }
 
-bool Buffer::NeedsSave(int delayBeforeSave) const {
+bool Buffer::NeedsSave(int delayBeforeSave) const  noexcept {
 	const time_t now = time(nullptr);
 	return now && documentModTime && isDirty && !pFileWorker && (now-documentModTime > delayBeforeSave) && !file.IsUntitled() && !failedSave;
 }
@@ -192,7 +192,7 @@ BufferIndex BufferList::Add() {
 	return lengthVisible - 1;
 }
 
-BufferIndex BufferList::GetDocumentByWorker(const FileWorker *pFileWorker) const {
+BufferIndex BufferList::GetDocumentByWorker(const FileWorker *pFileWorker) const noexcept {
 	for (int i = 0; i < length; i++) {
 		if (buffers[i].pFileWorker.get() == pFileWorker) {
 			return i;
@@ -201,7 +201,7 @@ BufferIndex BufferList::GetDocumentByWorker(const FileWorker *pFileWorker) const
 	return bufferInvalid;
 }
 
-BufferIndex BufferList::GetDocumentByName(const FilePath &filename, bool excludeCurrent) {
+BufferIndex BufferList::GetDocumentByName(const FilePath &filename, bool excludeCurrent) const noexcept {
 	if (!filename.IsSet()) {
 		return bufferInvalid;
 	}
@@ -257,11 +257,11 @@ BufferIndex BufferList::Current() const noexcept {
 	return current;
 }
 
-Buffer *BufferList::CurrentBuffer() {
+Buffer *BufferList::CurrentBuffer() noexcept {
 	return &buffers[Current()];
 }
 
-const Buffer *BufferList::CurrentBufferConst() const {
+const Buffer *BufferList::CurrentBufferConst() const noexcept {
 	return &buffers[Current()];
 }
 

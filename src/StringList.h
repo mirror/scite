@@ -25,7 +25,7 @@ public:
 		sorted(false), sortedNoCase(false) {}
 	size_t Length() const noexcept { return words.size(); }
 	operator bool() const noexcept { return !words.empty(); }
-	char *operator[](size_t ind) { return words[ind]; }
+	char *operator[](size_t ind) noexcept { return words[ind]; }
 	void Clear() noexcept;
 	void Set(const char *s);
 	void Set(const std::vector<char> &data);

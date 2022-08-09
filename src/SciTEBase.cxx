@@ -1510,9 +1510,10 @@ void SciTEBase::BookmarkNext(bool forwardScan, bool select) {
 		lineRetry = wEditor.LineCount();	//If not found, try from the end
 		sciMarker = SA::Message::MarkerPrevious;
 	}
-	SA::Line nextLine = wEditor.Call(sciMarker, lineStart, 1 << markerBookmark);
+	constexpr unsigned int maskBookmark = 1 << markerBookmark;
+	SA::Line nextLine = wEditor.Call(sciMarker, lineStart, maskBookmark);
 	if (nextLine < 0)
-		nextLine = wEditor.Call(sciMarker, lineRetry, 1 << markerBookmark);
+		nextLine = wEditor.Call(sciMarker, lineRetry, maskBookmark);
 	if (nextLine < 0 || nextLine == lineno)	// No bookmark (of the given type) or only one, and already on it
 		WarnUser(warnNoOtherBookmark);
 	else {
@@ -4605,7 +4606,7 @@ SciTE received a macro command from director : execute it.
 If command needs answer (SCI_GETTEXTLENGTH ...) : give answer to director
 */
 
-static uintptr_t ReadNum(const char *&t) {
+static uintptr_t ReadNum(const char *&t) noexcept {
 	assert(t);
 	const char *argend = strchr(t, ';');	// find ';'
 	uintptr_t v = 0;
