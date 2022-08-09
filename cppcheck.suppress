@@ -31,6 +31,9 @@ variableScope:scite/src/SciTEBase.cxx
 // dynamic_cast can return nullptr.
 knownConditionTrueFalse:scite/src/SciTEBuffers.cxx
 
+// Cppcheck seems to be assuming only first condition (start < length) can cause loop termination
+knownConditionTrueFalse:scite/src/SciTEIO.cxx
+
 // Pysically but not logically const.
 constParameter:scite/gtk/Widget.cxx
 

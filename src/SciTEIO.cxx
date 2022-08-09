@@ -765,12 +765,62 @@ bool SciTEBase::OpenSelected() {
 	return false;
 }
 
+namespace {
+
+// Find the portions that are the same at the start and end of two string_views.
+// When views equal return (length, 0).
+std::pair<size_t, size_t> CommonEnds(std::string_view a, std::string_view b) noexcept {
+	const size_t length = std::min<size_t>(a.length(), b.length());
+	size_t start = 0;
+	while ((start < length) && (a[start] == b[start])) {
+		start++;
+	}
+	const size_t maxLeft = length - start;
+	size_t last = 0;
+	while ((last < maxLeft) && (a[a.length() - last - 1] == b[b.length() - last - 1])) {
+		last++;
+	}
+	return { start, last };
+}
+
+}
+
 void SciTEBase::Revert() {
 	if (filePath.IsUntitled()) {
 		wEditor.ClearAll();
 	} else {
 		const FilePosition fp = GetFilePosition();
-		OpenCurrentFile(filePath.GetFileLength(), false, false);
+		const long long fileLength = filePath.GetFileLength();
+		const UniMode uniMode = CurrentBuffer()->unicodeMode;
+		if ((fileLength < 1000000) && (uniMode == UniMode::cookie || uniMode == UniMode::uni8Bit || uniMode == UniMode::utf8)) {
+			// If short and file and memory use same encoding
+			const std::string contents = filePath.Read();
+			// Check for BOM that matches file mode
+			const std::string_view svUtf8BOM(UTF8BOM);
+			if ((uniMode == UniMode::utf8) && !StartsWith(contents, svUtf8BOM)) {
+				// Should have BOM but doesn't so use full load
+				OpenCurrentFile(fileLength, false, false);
+			} else {
+				std::string_view viewContents = contents;
+				if (uniMode == UniMode::utf8) {
+					// Has BOM but should be omitted in editor
+					viewContents.remove_prefix(svUtf8BOM.length());
+				}
+				const std::string_view doc = TextAsView();
+				const std::pair<size_t, size_t> ends = CommonEnds(doc, viewContents);
+				const size_t start = ends.first;
+				const size_t last = ends.second;
+				if ((viewContents.length() != doc.length()) || (start != doc.length())) {
+					// Truncate and insert
+					wEditor.SetTarget(SA::Span(start, doc.length() - last));
+					const std::string_view changed = viewContents.substr(start, viewContents.size() - last - start);
+					wEditor.ReplaceTarget(changed);
+				}
+				wEditor.SetSavePoint();
+			}
+		} else {
+			OpenCurrentFile(fileLength, false, false);
+		}
 		DisplayAround(fp);
 	}
 }
