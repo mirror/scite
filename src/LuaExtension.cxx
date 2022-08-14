@@ -1659,6 +1659,11 @@ bool LuaExtension::OnExecute(const char *s) {
 								traceMessage += "'\n";
 								host->Trace(traceMessage.c_str());
 							}
+						} else {
+							std::string traceMessage = "> Lua: this expression is not a function '";
+							traceMessage += s;
+							traceMessage += "'\n";
+							host->Trace(traceMessage.c_str());
 						}
 					} else {
 						std::string traceMessage = "> Lua: error checking global scope for command '";
