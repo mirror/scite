@@ -126,7 +126,6 @@
 #define IDM_BUILD			302
 #define IDM_GO				303
 #define IDM_STOPEXECUTE		304
-#define IDM_FINISHEDEXECUTE	305
 #define IDM_NEXTMSG			306
 #define IDM_PREVMSG			307
 #define IDM_CLEAN			308

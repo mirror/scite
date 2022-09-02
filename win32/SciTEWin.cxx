@@ -763,16 +763,6 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 		Activate(lParam);
 		break;
 
-	case IDM_FINISHEDEXECUTE: {
-			jobQueue.SetExecuting(false);
-			if (needReadProperties)
-				ReadProperties();
-			CheckMenus();
-			jobQueue.ClearJobs();
-			CheckReload();
-		}
-		break;
-
 	case IDM_ONTOP:
 		topMost = (topMost ? false : true);
 		::SetWindowPos(MainHWND(), (topMost ? HWND_TOPMOST : HWND_NOTOPMOST), 0, 0, 0, 0, SWP_NOMOVE + SWP_NOSIZE);
@@ -846,7 +836,6 @@ void SciTEWin::ResetExecution() {
 	CheckReload();
 	CheckMenus();
 	jobQueue.ClearJobs();
-	::SendMessage(MainHWND(), WM_COMMAND, IDM_FINISHEDEXECUTE, 0);
 }
 
 void SciTEWin::ExecuteNext() {
