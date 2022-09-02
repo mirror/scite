@@ -1330,19 +1330,20 @@ void SciTEWin::Execute() {
 	cmdWorker.outputScroll = props.GetInt("output.scroll", 1);
 	cmdWorker.originalEnd = wOutput.Length();
 	cmdWorker.commandTime.Duration(true);
-	cmdWorker.flags = jobQueue.jobQueue[cmdWorker.icmd].flags;
+	const Job job = jobQueue.jobQueue[cmdWorker.icmd];
+	cmdWorker.flags = job.flags;
 	if (scrollOutput)
 		wOutput.GotoPos(wOutput.Length());
 
-	if (jobQueue.jobQueue[cmdWorker.icmd].jobType == JobSubsystem::extension) {
+	if (job.jobType == JobSubsystem::extension) {
 		// Execute extensions synchronously
-		if (jobQueue.jobQueue[cmdWorker.icmd].flags & jobGroupUndo)
+		if (job.flags & jobGroupUndo)
 			wEditor.BeginUndoAction();
 
 		if (extender)
-			extender->OnExecute(jobQueue.jobQueue[cmdWorker.icmd].command.c_str());
+			extender->OnExecute(job.command.c_str());
 
-		if (jobQueue.jobQueue[cmdWorker.icmd].flags & jobGroupUndo)
+		if (job.flags & jobGroupUndo)
 			wEditor.EndUndoAction();
 
 		ExecuteNext();
