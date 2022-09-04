@@ -168,7 +168,7 @@ class ComboMemory {
 	std::vector<std::string> entries;
 	bool Present(std::string_view sv) const noexcept;
 public:
-	ComboMemory(size_t sz_=comboMemorySize);
+	explicit ComboMemory(size_t sz_=comboMemorySize);
 	void Insert(std::string_view item);
 	void InsertDeletePrefix(std::string_view item);
 	void Append(std::string_view item);

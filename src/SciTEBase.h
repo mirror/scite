@@ -36,7 +36,7 @@ constexpr int StyleDefault = static_cast<int>(SA::StylesCommon::Default);
 struct SelectedRange {
 	SA::Position position;
 	SA::Position anchor;
-	SelectedRange(SA::Position position_= SA::InvalidPosition, SA::Position anchor_= SA::InvalidPosition) noexcept :
+	explicit SelectedRange(SA::Position position_= SA::InvalidPosition, SA::Position anchor_= SA::InvalidPosition) noexcept :
 		position(position_), anchor(anchor_) {
 	}
 };

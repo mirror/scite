@@ -14,6 +14,9 @@ noExplicitConstructor:scite/src/FilePath.h
 // Cppcheck wrongly flags check as always true
 knownConditionTrueFalse:scite/src/PropSetFile.cxx
 
+// Doesn't understand that string_view::remove_prefix reduces length
+knownConditionTrueFalse:scite/src/Cookie.cxx
+
 // string::starts_with() not available with c++17.
 stlIfStrFind:scite/src/PropSetFile.cxx
 
@@ -22,14 +25,11 @@ ctuOneDefinitionRuleViolation:scite/win32/Strips.h
 ctuOneDefinitionRuleViolation:scite/gtk/Widget.h
 ctuOneDefinitionRuleViolation:scite/gtk/Strips.h
 
-// Prefer passing string_view by value.
-passedByValue:scite/src/SciTEBase.cxx
-
 // This is an unusual case where a pointer inside a std::string is needed later in the code.
 variableScope:scite/src/SciTEBase.cxx
 
-// dynamic_cast can return nullptr.
-knownConditionTrueFalse:scite/src/SciTEBuffers.cxx
+// Accessing 0th element of string is OK. Only triggers on non-threaded runs.
+//ctuArrayIndex:scite/src/SciTEBuffers.cxx
 
 // Cppcheck seems to be assuming only first condition (start < length) can cause loop termination
 knownConditionTrueFalse:scite/src/SciTEIO.cxx

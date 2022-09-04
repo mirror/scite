@@ -1271,7 +1271,7 @@ void SciTEBase::ReadProperties() {
 		const char *propName;
 		PreProc ppc;
 	};
-	PropToPPC propToPPC[] = {
+	const PropToPPC propToPPC[] = {
 		{"preprocessor.start.", PreProc::Start},
 		{"preprocessor.middle.", PreProc::Middle},
 		{"preprocessor.end.", PreProc::End},

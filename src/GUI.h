@@ -28,7 +28,7 @@ public:
 	int right;
 	int bottom;
 
-	constexpr Rectangle(int left_=0, int top_=0, int right_=0, int bottom_ = 0) noexcept :
+	explicit constexpr Rectangle(int left_=0, int top_=0, int right_=0, int bottom_ = 0) noexcept :
 		left(left_), top(top_), right(right_), bottom(bottom_) {
 	}
 	bool Contains(Point pt) const noexcept {

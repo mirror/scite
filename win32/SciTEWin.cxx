@@ -324,7 +324,8 @@ int CodePageFromName(const std::string &encodingName) {
 	struct Encoding {
 		const char *name;
 		int codePage;
-	} knownEncodings[] = {
+	};
+	const Encoding	knownEncodings[] = {
 		{ "ascii", CP_UTF8 },
 		{ "utf-8", CP_UTF8 },
 		{ "latin1", 1252 },

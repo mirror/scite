@@ -157,7 +157,7 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, SA::Position start, SA::Positi
 	std::vector<std::string> colors;
 	os << RTF_HEADEROPEN << RTF_FONTDEFOPEN;
 	fonts.push_back(defaultStyle.font);
-	os << "{\\f" << 0 << "\\fnil\\fcharset" << characterset << " " << defaultStyle.font.c_str() << ";}";
+	os << "{\\f" << 0 << "\\fnil\\fcharset" << characterset << " " << defaultStyle.font << ";}";
 	colors.push_back(defaultStyle.fore);
 	colors.push_back(defaultStyle.back);
 
@@ -172,7 +172,7 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, SA::Position start, SA::Positi
 				iFont = FindCaseInsensitive(fonts, sd.font);
 				if (iFont >= fonts.size()) {
 					fonts.push_back(sd.font);
-					os << "{\\f" << iFont << "\\fnil\\fcharset" << characterset << " " << sd.font.c_str() << ";}";
+					os << "{\\f" << iFont << "\\fnil\\fcharset" << characterset << " " << sd.font << ";}";
 				}
 			}
 			osStyle << RTF_SETFONTFACE << iFont;

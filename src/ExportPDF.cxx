@@ -391,7 +391,7 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 						<< "<</Length "
 						<< (pageData.length() - 1 + 3)
 						<< ">>\nstream\n"
-						<< pageData.c_str()
+						<< pageData
 						<< "ET\nendstream\n";
 				const std::string textObj = osTextObj.str();
 				oT->add(textObj.c_str());
