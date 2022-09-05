@@ -76,7 +76,7 @@ void Window::Destroy() {
 	wid = 0;
 }
 
-bool Window::HasFocus() {
+bool Window::HasFocus() const noexcept {
 	return gtk_widget_has_focus(GTK_WIDGET(wid));
 }
 

@@ -215,7 +215,7 @@ void Window::Destroy() {
 	wid = {};
 }
 
-bool Window::HasFocus() {
+bool Window::HasFocus() const noexcept {
 	return ::GetFocus() == wid;
 }
 

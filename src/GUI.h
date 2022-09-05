@@ -104,7 +104,7 @@ public:
 		return !!wid;
 	}
 	void Destroy();
-	bool HasFocus();
+	bool HasFocus() const noexcept;
 	Rectangle GetPosition();
 	void SetPosition(Rectangle rc);
 	Rectangle GetClientPosition();
