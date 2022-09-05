@@ -1420,7 +1420,7 @@ bool SciTEGTK::OpenDialog(const FilePath &directory, const char *filesFilter) {
 					GtkFileFilter *fileFilter = gtk_file_filter_new();
 					gtk_file_filter_set_name(fileFilter, openFilter.c_str() + start);
 					start += strlen(openFilter.c_str() + start) + 1;
-					std::string oneSet(openFilter, start);
+					std::string oneSet(openFilter.c_str() + start);
 					std::replace(oneSet.begin(), oneSet.end(), ';', '\0');
 					size_t item = 0;
 					while (item < oneSet.length()) {
