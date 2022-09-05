@@ -55,11 +55,11 @@ public:
 class WComboBoxEntry : public WBase {
 public:
 	void Create();
-	GtkEntry *Entry();
+	GtkEntry *Entry() const;
 	void ActivatesDefault();
 	const GUI::gui_char *Text();
 	void SetText(const GUI::gui_string &text);
-	bool HasFocusOnSelfOrChild();
+	bool HasFocusOnSelfOrChild() const;
 	void ClearList();
 	void RemoveText(int position);
 	void AppendText(const GUI::gui_string &text);

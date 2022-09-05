@@ -90,7 +90,7 @@ void WComboBoxEntry::Create() {
 #endif
 }
 
-GtkEntry *WComboBoxEntry::Entry() {
+GtkEntry *WComboBoxEntry::Entry() const {
 	return GTK_ENTRY(gtk_bin_get_child(GTK_BIN(GetID())));
 }
 
@@ -106,7 +106,7 @@ void WComboBoxEntry::SetText(const GUI::gui_string &text) {
 	return gtk_entry_set_text(Entry(), text.c_str());
 }
 
-bool WComboBoxEntry::HasFocusOnSelfOrChild() {
+bool WComboBoxEntry::HasFocusOnSelfOrChild() const {
 	return HasFocus() || gtk_widget_has_focus(GTK_WIDGET(Entry()));
 }
 
