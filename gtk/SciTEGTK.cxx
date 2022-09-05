@@ -1420,7 +1420,7 @@ bool SciTEGTK::OpenDialog(const FilePath &directory, const char *filesFilter) {
 					GtkFileFilter *fileFilter = gtk_file_filter_new();
 					gtk_file_filter_set_name(fileFilter, openFilter.c_str() + start);
 					start += strlen(openFilter.c_str() + start) + 1;
-					std::string oneSet(openFilter.c_str() + start);
+					std::string oneSet(openFilter, start);
 					std::replace(oneSet.begin(), oneSet.end(), ';', '\0');
 					size_t item = 0;
 					while (item < oneSet.length()) {
@@ -3326,7 +3326,7 @@ std::string SciTEGTK::TranslatePath(const char *path) {
 		spath.append("/");
 		size_t end = spath.find("/");
 		while (spath.length() > 1) {
-			std::string segment(spath.c_str(), 0, end);
+			std::string segment(spath, 0, end);
 			GUI::gui_string segmentLocalised = localiser.Text(segment.c_str());
 			std::replace(segmentLocalised.begin(), segmentLocalised.end(), '/', '|');
 			spathTranslated.append("/");

@@ -797,7 +797,7 @@ void FilterStrip::Creation(GtkWidget *container) {
 	Strip::Creation(container);
 	gtk_container_set_border_width(GTK_CONTAINER(GetID()), 1);
 	gtk_box_pack_start(GTK_BOX(container), GTK_WIDGET(GetID()), FALSE, FALSE, 0);
-	wStaticFind.Create(localiser->Text(textFilterPrompt).c_str());
+	wStaticFind.Create(localiser->Text(textFilterPrompt));
 	table.Label(wStaticFind);
 
 	g_signal_connect(G_OBJECT(GetID()), "set-focus-child", G_CALLBACK(ChildFocusSignal), this);
