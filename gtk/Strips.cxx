@@ -421,7 +421,7 @@ void FindReplaceStrip::SetToggles() {
 void FindReplaceStrip::ShowPopup() {
 	GUI::Menu popup;
 	popup.CreatePopUp();
-	for (std::unique_ptr<WCheckDraw> &check : wCheck) {
+	for (const std::unique_ptr<WCheckDraw> &check : wCheck) {
 		AddToPopUp(popup, check->Label(), check->Command(), pSearcher->FlagFromCmd(check->Command()));
 	}
 	const GUI::Rectangle rcButton = wCheck[0]->GetPosition();
@@ -495,7 +495,7 @@ void FindStrip::Creation(GtkWidget *container) {
 
 	CreateChecks({0,1,2,3,4,5});
 
-	for (std::unique_ptr<WCheckDraw> &check : wCheck) {
+	for (const std::unique_ptr<WCheckDraw> &check : wCheck) {
 		table.Add(*check, 1, false, 0, 0);
 	}
 }
@@ -816,7 +816,7 @@ void FilterStrip::Creation(GtkWidget *container) {
 
 	CreateChecks({ 0, 1, 2, 3, 7 });
 
-	for (std::unique_ptr<WCheckDraw> &check : wCheck) {
+	for (const std::unique_ptr<WCheckDraw> &check : wCheck) {
 		table.Add(*check, 1, false, 0, 0);
 	}
 }
@@ -965,22 +965,26 @@ void UserStrip::ChildFocus(GtkWidget *widget) {
 	Strip::ChildFocus(widget);
 }
 
-static bool WidgetHasFocus(UserControl *ctl) {
+namespace {
+
+bool WidgetHasFocus(const UserControl *ctl) {
 	if (!ctl) {
 		return false;
 	} else if (ctl->controlType == UserControl::ucCombo) {
-		WComboBoxEntry *pwc = static_cast<WComboBoxEntry *>(&(ctl->w));
+		const WComboBoxEntry *pwc = static_cast<const WComboBoxEntry *>(&(ctl->w));
 		return pwc->HasFocusOnSelfOrChild();
 	} else {
 		return ctl->w.HasFocus();
 	}
 }
 
+}
+
 gboolean UserStrip::Focus(GtkDirectionType direction) {
-	UserControl *ctlFirstFocus = 0;
-	UserControl *ctlLastFocus = 0;
-	for (std::vector<UserControl> &line : psd->controls) {
-		for (UserControl &ctl : line) {
+	const UserControl *ctlFirstFocus = 0;
+	const UserControl *ctlLastFocus = 0;
+	for (const std::vector<UserControl> &line : psd->controls) {
+		for (const UserControl &ctl : line) {
 			if (ctl.controlType != UserControl::ucStatic) {
 				// Widget can have focus
 				ctlLastFocus = &ctl;
