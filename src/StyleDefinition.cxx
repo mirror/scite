@@ -343,10 +343,10 @@ bool MarkerDefinition::ParseMarkerDefinition(std::string_view definition) {
 				}
 			}
 			if (!optionValue.empty() && ((optionName == "colour") || (optionName == "color") || (optionName == "fore"))) {
-				colour = ColourFromString(std::string(optionValue));
+				colour = ColourAlphaFromString(std::string(optionValue));
 			}
 			if (!optionValue.empty() && (optionName == "back")) {
-				back = ColourFromString(std::string(optionValue));
+				back = ColourAlphaFromString(std::string(optionValue));
 			}
 		} catch (std::logic_error &) {
 			// Ignore bad values, either non-numeric or out of range numeric

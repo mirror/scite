@@ -397,8 +397,8 @@ void SciTEBase::SetMarkerFromProperty(GUI::ScintillaWindow &win, int marker, con
 	if (!markerString.empty()) {
 		MarkerDefinition markerValue(markerString);
 		win.MarkerDefine(marker, markerValue.style);
-		win.MarkerSetFore(marker, markerValue.colour);
-		win.MarkerSetBack(marker, markerValue.back);
+		win.MarkerSetForeTranslucent(marker, markerValue.colour);
+		win.MarkerSetBackTranslucent(marker, markerValue.back);
 	}
 }
 
