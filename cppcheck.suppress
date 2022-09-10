@@ -34,7 +34,10 @@ variableScope:scite/src/SciTEBase.cxx
 // Cppcheck seems to be assuming only first condition (start < length) can cause loop termination
 knownConditionTrueFalse:scite/src/SciTEIO.cxx
 
-// Pysically but not logically const.
+// This code is using NULs inside strings to terminate early so fixing warning causes failure.
+stlcstrConstructor:scite/gtk/SciTEGTK.cxx
+
+// Physically but not logically const.
 constParameter:scite/gtk/Widget.cxx
 
 // Suppress everything in lua as that comes from the Lua distribution
