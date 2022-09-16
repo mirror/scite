@@ -1916,6 +1916,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_RUST_WORD5",10},
 	{"SCE_RUST_WORD6",11},
 	{"SCE_RUST_WORD7",12},
+	{"SCE_R_BACKTICKS",12},
 	{"SCE_R_BASEKWORD",3},
 	{"SCE_R_COMMENT",1},
 	{"SCE_R_DEFAULT",0},
@@ -3793,7 +3794,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 324,
-	ifaceConstantCount = 3069,
+	ifaceConstantCount = 3070,
 	ifacePropertyCount = 263
 };
 
