@@ -203,7 +203,7 @@ def ExtractItems(pathHistory):
     markStart = "<h2>Releases</h2>"
     markEnd = "scite446.zip"
     items = []
-    with pathHistory.open(encoding=neutralEncoding) as history:
+    with pathHistory.open(encoding='utf-8') as history:
         afterStart = False
         for l in history:
             if markEnd in l:
