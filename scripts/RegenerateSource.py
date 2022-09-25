@@ -258,6 +258,29 @@ def NewsFormatted(section, items):
 def SortListInsensitive(l):
     l.sort(key=lambda p: str(p).lower())
 
+def CheckOrder(sciteItems, items, name):
+    # Check that sciteItems is in the same order as items except for repeated values
+    shownName = False
+    sciteCondensed = [CondenseItem(i) for i in sciteItems]
+    previous = CondenseItem(items[0])
+    for it in items[1:]:
+        itCondensed = CondenseItem(it)
+        if itCondensed in sciteCondensed and previous in sciteCondensed:
+            indexPrevious = sciteCondensed.index(previous)
+            indexItem = sciteCondensed.index(itCondensed)
+            if indexItem < indexPrevious and \
+                sciteCondensed.count(itCondensed) == 1 and \
+                "avoids activating a Lua script lexer" not in itCondensed:
+                # .count() weeds out repeats and "avoids..." is for the oldest release which is non-standard
+                if not shownName:
+                    print(f"{name}:\n")
+                print(f"{indexPrevious} or {indexItem} out of order")
+                print(f"{previous}")
+                print(f"{itCondensed}")
+                print(f"")
+                shownName = True
+        previous = itCondensed
+
 def RegenerateAll():
     sci = ScintillaData.ScintillaData(sciDirectory)
     lex = LexillaData.LexillaData(lexDirectory)
@@ -321,6 +344,10 @@ def RegenerateAll():
             news + r"    </ul>",
             1)
         UpdateFile(pathHistory, withAdditions)
+
+    sciteItemsUpdated = ExtractItems(pathHistory)
+    CheckOrder(sciteItemsUpdated, sciItems, "Scintilla")
+    CheckOrder(sciteItemsUpdated, lexItems, "Lexilla")
 
     for c in sciCredits + lexCredits:
         if c not in sciteCredits:
