@@ -1920,6 +1920,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_R_BASEKWORD",3},
 	{"SCE_R_COMMENT",1},
 	{"SCE_R_DEFAULT",0},
+	{"SCE_R_ESCAPESEQUENCE",15},
 	{"SCE_R_IDENTIFIER",9},
 	{"SCE_R_INFIX",10},
 	{"SCE_R_INFIXEOL",11},
@@ -1927,6 +1928,8 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_R_NUMBER",5},
 	{"SCE_R_OPERATOR",8},
 	{"SCE_R_OTHERKWORD",4},
+	{"SCE_R_RAWSTRING",13},
+	{"SCE_R_RAWSTRING2",14},
 	{"SCE_R_STRING",6},
 	{"SCE_R_STRING2",7},
 	{"SCE_SAS_BLOCK_KEYWORD",13},
@@ -3794,7 +3797,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 324,
-	ifaceConstantCount = 3070,
+	ifaceConstantCount = 3073,
 	ifacePropertyCount = 263
 };
 

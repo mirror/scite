@@ -638,6 +638,14 @@
 		<a href="https://github.com/ScintillaOrg/lexilla/pull/102">Pull request #102</a>.
 		</li>
 		<li>
+		R: Highlight raw strings.
+		<a href="https://github.com/ScintillaOrg/lexilla/issues/100">Issue #100</a>.
+		</li>
+		<li>
+		R: Optionally highlight escape sequences in strings.
+		<a href="https://github.com/ScintillaOrg/lexilla/issues/100">Issue #100</a>.
+		</li>
+		<li>
 		Fix early truncation from LexAccessor::GetRange and LexAccessor::GetRangeLowered.
 		<a href="https://github.com/ScintillaOrg/lexilla/issues/17">Issue #17</a>.
 		</li>
@@ -648,6 +656,19 @@
 		Removed NotifyLexerChanged notification from DocWatcher.
 		This is a private interface but could be used by independent platform layers
 		and was exposed by ScintillaDocument in the Qt implementation of ScintillaEdit.
+		</li>
+		<li>
+		Draw lines more consistently in SC_PHASES_TWO and SC_PHASES_ONE modes by
+		clipping drawing to just the line rectangle.
+		This stops drawing some extreme ascenders, descenders and portions of indicators which
+		may appear and then disappear depending on which lines were drawn.
+		</li>
+		<li>
+		Enlarge point and point top indicators and scale to be larger with larger text.
+		</li>
+		<li>
+		On Win32 implement horizontal scrolling mouse wheel.
+		<a href="https://sourceforge.net/p/scintilla/feature-requests/1450/">Feature #1450</a>.
 		</li>
 	</ul>
     </ul>

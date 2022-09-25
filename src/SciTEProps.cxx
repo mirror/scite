@@ -608,6 +608,7 @@ static const char *propertiesToForward[] = {
 	"lexer.python.strings.over.newline",
 	"lexer.python.strings.u",
 	"lexer.python.unicode.identifiers",
+	"lexer.r.escape.sequence",
 	"lexer.rust.fold.at.else",
 	"lexer.sql.allow.dotted.word",
 	"lexer.sql.backticks.identifier",
