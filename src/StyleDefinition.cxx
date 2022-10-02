@@ -136,6 +136,10 @@ bool StyleDefinition::ParseStyleDefinition(std::string_view definition) {
 			specified = static_cast<flags>(specified | sdChangeable);
 			changeable = false;
 		}
+		if ((optionName == "invisiblerepresentation") && !optionValue.empty()) {
+			specified = static_cast<flags>(specified | sdInvisibleRep);
+			invisibleRep = optionValue;
+		}
 	}
 	return true;
 }

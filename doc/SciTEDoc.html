@@ -3884,17 +3884,94 @@ imports.include=fortran lisp
           The lexers determine a style number for each lexical type, such as keyword, comment or
           number. These settings determine the visual style to be used for each style number of
           each lexer.<br />
-           The value of each setting is a set of ',' separated fields, some of which have a
-          subvalue after a ':'. The fields are: <div class="example">font, size, fore, back, italics, notitalics, bold,
+           The value of each setting is a set of ',' separated attributes, some of which have a
+          subvalue after a ':'. The attributes are: <div class="example">font, size, fore, back, italics, notitalics, bold,
           notbold, weight, eolfilled, noteolfilled, underlined, notunderlined, case,
-          visible, notvisible, changeable, and notchangeable</div>
-        The font field has a subvalue which is the name of
-          the font, the fore and back have colour subvalues,
-          the size field has a (fractional) numeric size subvalue,
-          the weight field has a numeric size subvalue (1.. 999: 100=light, 400=normal, 700=bold),
-          the case field has a subvalue of 'm', 'u', 'l', or 'c' for miXed, UPPER, lower, or Camel case,
-          and the bold, italics and eolfilled fields have no subvalue. The value
-          "fore:#FF0000,font:Courier,size:14" represents 14 point, red Courier text.<br />
+          visible, notvisible, invisiblerepresentation, changeable, and notchangeable</div>
+         <table cellpadding="1" cellspacing="0" border="1" summary="Style fields">
+          <tr>
+           <th>attribute</th>
+           <th>subvalue</th>
+          </tr>
+          <tr>
+           <td>font</td>
+           <td>name of the font</td>
+          </tr>
+          <tr>
+           <td>size</td>
+           <td>numeric size, possibly fractional</td>
+          </tr>
+          <tr>
+           <td>fore</td>
+           <td>a hex colour value preceded by '#' such as #008020</td>
+          </tr>
+          <tr>
+           <td>back</td>
+           <td>a hex colour value preceded by '#' such as #008020</td>
+          </tr>
+          <tr>
+           <td>italics</td>
+           <td></td>
+          </tr>
+          <tr>
+           <td>notitalics</td>
+           <td></td>
+          </tr>
+          <tr>
+           <td>bold</td>
+           <td></td>
+          </tr>
+          <tr>
+           <td>notbold</td>
+           <td></td>
+          </tr>
+          <tr>
+           <td>weight</td>
+           <td>numeric 1.. 999: 100=light, 400=normal, 700=bold</td>
+          </tr>
+          <tr>
+           <td>eolfilled</td>
+           <td></td>
+          </tr>
+          <tr>
+           <td>noteolfilled</td>
+           <td></td>
+          </tr>
+          <tr>
+           <td>underlined</td>
+           <td></td>
+          </tr>
+          <tr>
+           <td>notunderlined</td>
+           <td></td>
+          </tr>
+          <tr>
+           <td>case</td>
+           <td>'m', 'u', 'l', or 'c' for miXed, UPPER, lower, or Camel case</td>
+          </tr>
+          <tr>
+           <td>visible</td>
+           <td></td>
+          </tr>
+          <tr>
+           <td>notvisible</td>
+           <td></td>
+          </tr>
+          <tr>
+           <td>invisiblerepresentation</td>
+           <td>character as UTF-8 text to represent this style when invisible</td>
+          </tr>
+          <tr>
+           <td>changeable</td>
+           <td></td>
+          </tr>
+          <tr>
+           <td>notchangeable</td>
+           <td></td>
+          </tr>
+         </table>
+          The value
+          "fore:#FF0000,font:Courier,bold,size:14" represents 14 point, bold red Courier text.<br />
            A global style can be set up using style.*.<i>stylenumber</i>. Any style options set in
           the global style will be inherited by each lexer style unless overridden.
         </td>

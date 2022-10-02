@@ -597,6 +597,7 @@
 	<td>German Aizek</td>
 	<td>Reinhard Nißl</td>
       </tr><tr>
+	<td>Ferdinand Oeinck</td>
       </tr>
     </table>
     <p>
@@ -616,6 +617,10 @@
 		</li>
 		<li>
 		Implement translucent markers.
+		</li>
+		<li>
+		Added invisiblerepresentation style attribute.
+		<a href="https://sourceforge.net/p/scintilla/feature-requests/1453/">Feature #1453</a>.
 		</li>
 	</ul>
 	<li>Lexilla 5.2.0</li>
@@ -652,6 +657,11 @@
 	</ul>
 	<li>Scintilla 5.3.1</li>
 	<ul>
+		<li>
+		Added SCI_STYLESETINVISIBLEREPRESENTATION to make it easier to edit around invisible text.
+		This also allows representing long lexemes with a single character to provide a summarized view.
+		<a href="https://sourceforge.net/p/scintilla/feature-requests/1453/">Feature #1453</a>.
+		</li>
 		<li>
 		Removed NotifyLexerChanged notification from DocWatcher.
 		This is a private interface but could be used by independent platform layers

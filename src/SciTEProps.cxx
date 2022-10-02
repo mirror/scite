@@ -355,6 +355,8 @@ void SciTEBase::SetOneStyle(GUI::ScintillaWindow &win, int style, const StyleDef
 		win.StyleSetVisible(style, sd.visible);
 	if (sd.specified & StyleDefinition::sdChangeable)
 		win.StyleSetChangeable(style, sd.changeable);
+	if (sd.specified & StyleDefinition::sdInvisibleRep)
+		win.StyleSetInvisibleRepresentation(style, sd.invisibleRep.c_str());
 	win.StyleSetCharacterSet(style, characterSet);
 }
 
