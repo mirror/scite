@@ -11,7 +11,7 @@
 // Version numbers and dates
 #define VERSION_SCITE "5.3.1"
 #define VERSION_WORDS 5, 3, 1, 0
-#define COPYRIGHT_DATES "December 1998-August 2022"
+#define COPYRIGHT_DATES "December 1998-October 2022"
 #define COPYRIGHT_YEARS "1998-2022"
 #define VERSION_SCINTILLA "5.3.1"
 #define VERSION_LEXILLA "5.2.0"
