@@ -139,7 +139,7 @@ public:
 		}
 	}
 
-	UserControl *FindControl(int control) {
+	UserControl *FindControl(int control) noexcept {
 		int controlID=0;
 		for (std::vector<std::vector<UserControl> >::iterator line=controls.begin(); line != controls.end(); ++line) {
 			for (std::vector<UserControl>::iterator ctl=line->begin(); ctl != line->end(); ++ctl) {
