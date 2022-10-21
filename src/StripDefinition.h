@@ -48,14 +48,12 @@ public:
 		columns = 0;
 		controls.push_back(std::vector<UserControl>());
 		const GUI::gui_char *pdef=definition.c_str();
-		int line = 0;
 		unsigned int column = 0;
 		int item = 0;
 		while (*pdef) {
 			if (*pdef == '\n') {
 				controls.push_back(std::vector<UserControl>());
 				column = 0;
-				line++;
 				pdef++;
 				continue;
 			}
