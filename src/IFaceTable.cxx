@@ -2904,6 +2904,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SC_AC_DOUBLECLICK",2},
 	{"SC_AC_FILLUP",1},
 	{"SC_AC_NEWLINE",4},
+	{"SC_AC_SINGLE_CHOICE",6},
 	{"SC_AC_TAB",3},
 	{"SC_ALPHA_NOALPHA",256},
 	{"SC_ALPHA_OPAQUE",255},
@@ -3330,6 +3331,7 @@ static IFaceFunction ifaceFunctions[] = {
 	{"GetRangePointer", 2643, iface_pointer, {iface_position, iface_position}},
 	{"GetSelText", 2161, iface_position, {iface_void, iface_stringresult}},
 	{"GetStyledText", 2015, iface_position, {iface_void, iface_textrange}},
+	{"GetStyledTextFull", 2778, iface_position, {iface_void, iface_textrangefull}},
 	{"GetText", 2182, iface_position, {iface_length, iface_stringresult}},
 	{"GetTextRange", 2162, iface_position, {iface_void, iface_textrange}},
 	{"GetTextRangeFull", 2039, iface_position, {iface_void, iface_textrangefull}},
@@ -3799,8 +3801,8 @@ static IFaceProperty ifaceProperties[] = {
 };
 
 enum {
-	ifaceFunctionCount = 324,
-	ifaceConstantCount = 3075,
+	ifaceFunctionCount = 325,
+	ifaceConstantCount = 3076,
 	ifacePropertyCount = 264
 };
 
