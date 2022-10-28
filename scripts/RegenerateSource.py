@@ -281,6 +281,39 @@ def CheckOrder(sciteItems, items, name):
                 shownName = True
         previous = itCondensed
 
+def CheckHistoryLinks(pathHistory):
+    contents = pathHistory.read_text("utf-8")
+
+    # SourceForge current links
+    #<a href="https://sourceforge.net/p/scintilla/bugs/2344/">Bug #2344</a>
+    #<a href="https://sourceforge.net/p/scintilla/feature-requests/1190/">Feature #1190.</a>
+    for link, literal in re.findall(r'/scintilla/[a-z-]+/(\d+)/">[a-zA-Z ]+#(\d+)', contents):
+        if link != literal:
+            print(f"{link} -> {literal}")
+
+    # SourceForge old style links
+    #<a href="https://sourceforge.net/tracker/?func=detail&atid=352439&aid=2343375&group_id=2439">Feature #2343375.</a>
+    #<a href="https://sourceforge.net/tracker/?func=detail&atid=102439&aid=210240&group_id=2439">Bug #210240.</a>
+    for link, literal in re.findall(r'&aid=(\d+)&group_id=\d+">[a-zA-Z ]+#(\d+)', contents):
+        if link != literal:
+            print(f"{link} -> {literal}")
+
+    # GitHub issues and pull requests
+    #<a href="https://github.com/ScintillaOrg/lexilla/issues/110">Issue #110</a>
+    #<a href="https://github.com/ScintillaOrg/lexilla/pull/49">Pull request #49</a>
+    for link, literal in re.findall(r'/ScintillaOrg/lexilla/\w+/(\d+)">[a-zA-Z ]+#(\d+)</a>', contents):
+        if link != literal:
+            print(f"{link} -> {literal}")
+
+    # Download links
+    #<a href="https://prdownloads.sourceforge.net/scintilla/scite201.zip?download">Release 2.01</a>
+    for link, literal in re.findall(r'/scintilla/(\w+).zip\?download">[a-zA-Z ]+([0-9.]+)', contents):
+        linkNums = "".join(x for x in link if x.isdigit())
+        literalNums = "".join(x for x in literal if x.isdigit())
+        # SciTE 2.0 is a special case
+        if linkNums != literalNums and linkNums != "200":
+            print(f"{link} {linkNums}-> {literal}")
+
 def RegenerateAll():
     sci = ScintillaData.ScintillaData(sciDirectory)
     lex = LexillaData.LexillaData(lexDirectory)
@@ -348,6 +381,8 @@ def RegenerateAll():
     sciteItemsUpdated = ExtractItems(pathHistory)
     CheckOrder(sciteItemsUpdated, sciItems, "Scintilla")
     CheckOrder(sciteItemsUpdated, lexItems, "Lexilla")
+
+    CheckHistoryLinks(pathHistory)
 
     for c in sciCredits + lexCredits:
         if c not in sciteCredits:
