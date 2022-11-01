@@ -254,7 +254,19 @@ FilePath FilePath::Directory() const {
 
 namespace {
 
-#ifdef _WIN32
+// The stat struct is named differently on Win32 and Unix.
+#if defined(_WIN32)
+#if defined(_MSC_VER)
+typedef struct _stat64i32 FileStatus;
+#else
+typedef struct _stat FileStatus;
+#endif
+#else
+// Unix
+typedef struct stat FileStatus;
+#endif
+
+#if defined(_WIN32)
 
 // Substitute functions that take wchar_t arguments but have the same name
 // as char functions so that the compiler will choose the right form.
@@ -275,15 +287,9 @@ int access(const wchar_t *path, int mode) noexcept {
 	return _waccess(path, mode);
 }
 
-#if defined(_MSC_VER)
-int stat(const wchar_t *path, struct _stat64i32 *buffer) noexcept {
+int stat(const wchar_t *path, FileStatus *buffer) noexcept {
 	return _wstat(path, buffer);
 }
-#else
-int stat(const wchar_t *path, struct _stat *buffer) noexcept {
-	return _wstat(path, buffer);
-}
-#endif
 
 #endif
 
@@ -502,15 +508,7 @@ time_t FilePath::ModifiedTime() const noexcept {
 		return 0;
 	if (access(AsInternal(), R_OK) == -1)
 		return 0;
-#ifdef _WIN32
-#if defined(_MSC_VER)
-	struct _stat64i32 statusFile;
-#else
-	struct _stat statusFile;
-#endif
-#else
-	struct stat statusFile;
-#endif
+	FileStatus statusFile;
 	if (stat(AsInternal(), &statusFile) != -1)
 		return statusFile.st_mtime;
 	else
@@ -542,15 +540,7 @@ bool FilePath::Exists() const noexcept {
 }
 
 bool FilePath::IsDirectory() const noexcept {
-#ifdef _WIN32
-#if defined(_MSC_VER)
-	struct _stat64i32 statusFile;
-#else
-	struct _stat statusFile;
-#endif
-#else
-	struct stat statusFile;
-#endif
+	FileStatus statusFile;
 	if (stat(AsInternal(), &statusFile) != -1)
 #ifdef WIN32
 		return (statusFile.st_mode & _S_IFDIR) != 0;
