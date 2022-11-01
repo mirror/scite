@@ -259,10 +259,6 @@ namespace {
 // Substitute functions that take wchar_t arguments but have the same name
 // as char functions so that the compiler will choose the right form.
 
-size_t strlen(const wchar_t *str) noexcept {
-	return wcslen(str);
-}
-
 int chdir(const wchar_t *dirname) noexcept {
 	return _wchdir(dirname);
 }
@@ -619,11 +615,11 @@ bool FilePath::Matches(GUI::gui_string_view pattern) const {
 	std::replace(pat.begin(), pat.end(), ' ', '\0');
 	size_t start = 0;
 	while (start < pat.length()) {
-		const GUI::gui_char *patElement = pat.c_str() + start;
+		const GUI::gui_string_view patElement(pat.c_str() + start);
 		if (PatternMatch(patElement, nameCopy)) {
 			return true;
 		}
-		start += strlen(patElement) + 1;
+		start += patElement.length() + 1;
 	}
 	return false;
 }
