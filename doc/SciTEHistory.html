@@ -627,6 +627,14 @@
 		<a href="https://sourceforge.net/p/scintilla/feature-requests/1461/">Feature #1461</a>.
 		</li>
 		<li>
+		Change default compilation optimization option to favour speed over space.
+		-O2 for MSVC and -O3 for gcc and clang.
+		</li>
+		<li>
+		Batch: Fix comments starting inside strings.
+		<a href="https://github.com/ScintillaOrg/lexilla/issues/115">Issue #115</a>.
+		</li>
+		<li>
 		F#: Lex signed numeric literals more accurately.
 		<a href="https://github.com/ScintillaOrg/lexilla/issues/110">Issue #110</a>,
 		<a href="https://github.com/ScintillaOrg/lexilla/issues/111">Issue #111</a>.
@@ -635,9 +643,21 @@
 		F#: Add specifiers for 64-bit integer and floating point literals.
 		<a href="https://github.com/ScintillaOrg/lexilla/issues/112">Issue #112</a>.
 		</li>
+		<li>
+		Markdown: Stop styling numbers at line start in PRECHAR style.
+		<a href="https://github.com/ScintillaOrg/lexilla/issues/117">Issue #117</a>.
+		</li>
+		<li>
+		PowerShell: Recognise numeric literals more accurately.
+		<a href="https://github.com/ScintillaOrg/lexilla/issues/118">Issue #118</a>.
+		</li>
 	</ul>
 	<li>Scintilla 5.3.2</li>
 	<ul>
+		<li>
+		Add SCI_REPLACETARGETMINIMAL to change text without causing unchanged prefix and suffix
+		to be marked as modified in change history.
+		</li>
 		<li>
 		Draw background colour for EOL annotations with standard and boxed visuals.
 		</li>
@@ -652,12 +672,30 @@
 		<a href="https://sourceforge.net/p/scintilla/feature-requests/1459/">Feature #1459</a>.
 		</li>
 		<li>
+		Change 'paragraph up' commands SCI_PARAUP and SCI_PARAUPEXTEND to
+		go to the start position of the paragraph containing the caret.
+		Only if the caret is already at the start of the paragraph will it go to the start
+		of the previous paragraph.
+		<a href="https://sourceforge.net/p/scintilla/bugs/2363/">Bug #2363</a>.
+		</li>
+		<li>
+		Change release compilation optimization option to favour speed over space.
+		-O2 for MSVC and -O3 for gcc and clang.
+		</li>
+		<li>
+		On Win32, avoid blurry display with DirectWrite in GDI scaling mode.
+		<a href="https://sourceforge.net/p/scintilla/bugs/2344/">Bug #2344</a>.
+		</li>
+		<li>
 		On Win32, use the top-level window to find the monitor for DirectWrite rendering parameters.
 		Temporarily switch DPI awareness to find correct monitor in GDI scaling mode.
 		<a href="https://sourceforge.net/p/scintilla/bugs/2344/">Bug #2344</a>.
 		</li>
 		<li>
 		On Qt, implement SCI_SETRECTANGULARSELECTIONMODIFIER for all platforms.
+		</li>
+		<li>
+		On Qt, allow string form XPM images for SCI_REGISTERIMAGE.
 		</li>
 	</ul>
     </ul>

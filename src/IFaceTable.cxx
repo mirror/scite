@@ -3443,6 +3443,7 @@ static IFaceFunction ifaceFunctions[] = {
 	{"ReplaceRectangular", 2771, iface_void, {iface_length, iface_string}},
 	{"ReplaceSel", 2170, iface_void, {iface_void, iface_string}},
 	{"ReplaceTarget", 2194, iface_position, {iface_length, iface_string}},
+	{"ReplaceTargetMinimal", 2779, iface_position, {iface_length, iface_string}},
 	{"ReplaceTargetRE", 2195, iface_position, {iface_length, iface_string}},
 	{"ResetElementColour", 2755, iface_void, {iface_int, iface_void}},
 	{"RotateSelection", 2606, iface_void, {iface_void, iface_void}},
@@ -3801,7 +3802,7 @@ static IFaceProperty ifaceProperties[] = {
 };
 
 enum {
-	ifaceFunctionCount = 325,
+	ifaceFunctionCount = 326,
 	ifaceConstantCount = 3076,
 	ifacePropertyCount = 264
 };
