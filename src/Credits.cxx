@@ -563,6 +563,10 @@ public:
 	}
 };
 
+// Max: 50 + 77 = 127, fits in signed byte
+constexpr int styleStart = 50;
+constexpr int styleCount = 78;
+
 }
 
 void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle) {
@@ -628,14 +632,14 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
 		}
 		AddStyledText(wsci, GetTranslationToAbout("Contributors:"), trsSty);
 		for (unsigned int co = 0; co < std::size(contributors); co++) {
-			const char colourIndex = 50 + (co % 78);    // Max: 50 + 77 = 127, fits in signed byte
+			const char colourIndex = styleStart + (co % styleCount);
 			AddStyledText(wsci, "\n    ", colourIndex);
 			AddStyledText(wsci, contributors[co], colourIndex);
 		}
 		RandomColour colour;
-		for (unsigned int sty = 0; sty < 78; sty++) {
+		for (unsigned int sty = 0; sty < styleCount; sty++) {
 			colour.Next();
-			SetAboutStyle(wsci, sty + 50, ColourRGB(colour.r, colour.g, colour.b));
+			SetAboutStyle(wsci, sty + styleStart, ColourRGB(colour.r, colour.g, colour.b));
 		}
 		wsci.SetReadOnly(true);
 	}
