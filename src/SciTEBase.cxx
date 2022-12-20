@@ -3745,8 +3745,7 @@ void SciTEBase::FoldChanged(SA::Line line, SA::FoldLevel levelNow, SA::FoldLevel
 				ExpandFolds(line, true, levelPrev);
 		}
 	}
-	if (!(LevelIsWhitespace(levelNow)) &&
-			(LevelNumberPart(levelPrev) > LevelNumberPart(levelNow))) {
+	if (!LevelIsWhitespace(levelNow) &&	(LevelNumberPart(levelPrev) > LevelNumberPart(levelNow))) {
 		if (!wEditor.AllLinesVisible()) {
 			// See if should still be hidden
 			const SA::Line parentLine = wEditor.FoldParent(line);
@@ -3758,7 +3757,7 @@ void SciTEBase::FoldChanged(SA::Line line, SA::FoldLevel levelNow, SA::FoldLevel
 		}
 	}
 	// Combining two blocks where the first one is collapsed (e.g. by adding characters in the line which separates the two blocks)
-	if (!(LevelIsWhitespace(levelNow) && (LevelNumberPart(levelPrev) < LevelNumberPart(levelNow)))) {
+	if (!LevelIsWhitespace(levelNow) && (LevelNumberPart(levelPrev) < LevelNumberPart(levelNow))) {
 		if (!wEditor.AllLinesVisible()) {
 			const SA::Line parentLine = wEditor.FoldParent(line);
 			if (!wEditor.FoldExpanded(parentLine) && wEditor.LineVisible(line)) {
