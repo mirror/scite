@@ -856,7 +856,7 @@ bool CallNamedFunction(const char *name, const char *arg) {
 	return handled;
 }
 
-bool CallNamedFunction(const char *name, int numberArg, const char *stringArg) {
+bool CallNamedFunction(const char *name, intptr_t numberArg, const char *stringArg) {
 	bool handled = false;
 	if (luaState) {
 		if (lua_getglobal(luaState, name) != LUA_TNIL) {
@@ -870,7 +870,7 @@ bool CallNamedFunction(const char *name, int numberArg, const char *stringArg) {
 	return handled;
 }
 
-bool CallNamedFunction(const char *name, int numberArg, int numberArg2) {
+bool CallNamedFunction(const char *name, intptr_t numberArg, intptr_t numberArg2) {
 	bool handled = false;
 	if (luaState) {
 		if (lua_getglobal(luaState, name) != LUA_TNIL) {
