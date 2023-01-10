@@ -1818,7 +1818,7 @@ struct StylingContext {
 		lenNext = 1;
 		const SA::Position nextPos = currentPos + lenCurrent;
 		unsigned char byteNext = styler->SafeGetCharAt(nextPos);
-		unsigned int nextSlot = (cursorPos + 1) % 3;
+		size_t nextSlot = (cursorPos + 1) % 3;
 		memcpy(cursor[nextSlot], "\0\0\0\0\0\0\0\0", 8);
 		cursor[nextSlot][0] = byteNext;
 		if (codePage) {
