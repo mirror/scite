@@ -2348,6 +2348,9 @@ void SciTEBase::SetTextProperties(
 		selHeight = selLastLine - selFirstLine;
 	}
 	ps.Set("SelHeight", std::to_string(selHeight));
+
+	props.Set("SelectionStart", std::to_string(range.start));
+	props.Set("SelectionEnd", std::to_string(range.end));
 }
 
 void SciTEBase::UpdateStatusBar(bool bUpdateSlowData) {
