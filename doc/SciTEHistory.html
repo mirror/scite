@@ -634,6 +634,18 @@
 		<a href="https://github.com/ScintillaOrg/lexilla/issues/18">Issue #18</a>.
 		</li>
 		<li>
+		Modula-3: Don't treat identifier suffix that matches keyword as keyword.
+		<a href="https://github.com/ScintillaOrg/lexilla/issues/129">Issue #129</a>.
+		</li>
+		<li>
+		Modula-3: Fix endless loop in folder.
+		<a href="https://github.com/ScintillaOrg/lexilla/issues/128">Issue #128</a>.
+		</li>
+		<li>
+		Modula-3: Fix access to lines beyond document end in folder.
+		<a href="https://github.com/ScintillaOrg/lexilla/issues/131">Issue #131</a>.
+		</li>
+		<li>
 		Python: Don't highlight match and case as keywords in contexts where they probably aren't used as keywords.
 		<a href="https://github.com/ScintillaOrg/lexilla/pull/122">Pull request #122</a>.
 		</li>
@@ -652,6 +664,10 @@
 		Fix SCI_VERTICALCENTRECARET to update the vertical scroll position.
 		</li>
 		<li>
+		When an autocompletion list is shown in response to SCN_CHARADDED, do not process character as fill-up or stop.
+		This avoids closing immediately when a character may both trigger and finish autocompletion.
+		</li>
+		<li>
 		On Cocoa fix character input bug where dotless 'i' and some other extended
 		Latin characters could not be entered.
 		The change also stops SCI_ASSIGNCMDKEY from working with these characters
@@ -664,7 +680,8 @@
 		</li>
 		<li>
 		On Qt, fix indicator drawing past left of text pane over margin.
-		<a href="https://sourceforge.net/p/scintilla/bugs/2373/">Bug #2373</a>.
+		<a href="https://sourceforge.net/p/scintilla/bugs/2373/">Bug #2373</a>,
+		<a href="https://sourceforge.net/p/scintilla/bugs/1956/">Bug #1956</a>.
 		</li>
 		<li>
 		On Qt, allow scrolling with mouse wheel when scroll bar hidden.
