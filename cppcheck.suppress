@@ -14,9 +14,6 @@ noExplicitConstructor:scite/src/FilePath.h
 // Cppcheck wrongly flags check as always true
 knownConditionTrueFalse:scite/src/PropSetFile.cxx
 
-// Doesn't understand that string_view::remove_prefix reduces length
-knownConditionTrueFalse:scite/src/Cookie.cxx
-
 // string::starts_with() not available with c++17.
 stlIfStrFind:scite/src/PropSetFile.cxx
 
