@@ -13,20 +13,48 @@ set "MSVC_DIRECTORY=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\A
 set "MSVC17_DIRECTORY=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build"
 set REPOSITORY_DIRECTORY=..\hg
 
-:: Discover the Scintilla version as that is used in file and directory names
-for /F %%i IN (%REPOSITORY_DIRECTORY%\lexilla\version.txt) do set "LEXILLA_VERSION=%%i"
-for /F %%i IN (%REPOSITORY_DIRECTORY%\scintilla\version.txt) do set "SCINTILLA_VERSION=%%i"
-for /F %%i IN (%REPOSITORY_DIRECTORY%\scite\version.txt) do set "SCITE_VERSION=%%i"
+:: Discover the SciTE version as that is used in file and directory names, override on command line
+set SCITE_VERSION=%1
+if [%1] == [] for /F %%i IN (%REPOSITORY_DIRECTORY%\scite\version.txt) do set "SCITE_VERSION=%%i"
 set "UPLOAD_DIRECTORY=upload%SCITE_VERSION%"
+
+rd /s/q scite
+
+hg archive -R %REPOSITORY_DIRECTORY%/scite scite
+
+:: Find the Lexilla and Scintilla versions corresponding to the SciTE version
+
+if not [%1] == [] for /F %%i IN (scite\src\lexillaVersion.txt) do set "LEXILLA_WANTED=%%i"
+if not [%1] == [] for /F %%i IN (scite\src\scintillaVersion.txt) do set "SCINTILLA_WANTED=%%i"
+
+echo Lexilla wanted = %LEXILLA_WANTED%
+
+echo Scintilla wanted = %SCINTILLA_WANTED%
+
+if [%LEXILLA_WANTED%] == [] (set LEXILLA_TAG=) else set LEXILLA_TAG=rel-%LEXILLA_WANTED:~0,1%-%LEXILLA_WANTED:~1,1%-%LEXILLA_WANTED:~2,1%
+set SCINTILLA_TAG=rel-%SCINTILLA_WANTED:~0,1%-%SCINTILLA_WANTED:~1,1%-%SCINTILLA_WANTED:~2,1%
+
+echo Lexilla tag = %LEXILLA_TAG%
+echo Scintilla tag = %SCINTILLA_TAG%
 
 :: Clean then copy from archive into scintilla and scite subdirectories
 
-rd /s/q lexilla scintilla scite
+rd /s/q lexilla scintilla
 del/q Sc1.exe
 
+if [%LEXILLA_TAG%] == [] (
 git clone %REPOSITORY_DIRECTORY%/lexilla lexilla
+) else (
+git -c advice.detachedHead=false clone --branch %LEXILLA_TAG% %REPOSITORY_DIRECTORY%/lexilla lexilla
+)
+
 hg archive -R %REPOSITORY_DIRECTORY%/scintilla scintilla
-hg archive -R %REPOSITORY_DIRECTORY%/scite scite
+
+for /F %%i IN (%REPOSITORY_DIRECTORY%\lexilla\version.txt) do set "LEXILLA_VERSION=%%i"
+for /F %%i IN (%REPOSITORY_DIRECTORY%\scintilla\version.txt) do set "SCINTILLA_VERSION=%%i"
+
+echo Lexilla = %LEXILLA_VERSION%
+echo Scintilla = %SCINTILLA_VERSION%
 
 :: Create source archives
 pushd lexilla
