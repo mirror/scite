@@ -11,8 +11,8 @@ hg archive --repository scite scite-clean/scite
 # tar lexilla, scintillas and scite into scite.tgz
 rm -f scite.tgz
 (
-cd scite-clean || exit
-tar -czf ../scite.tgz lexilla scintilla scite
+	cd scite-clean || exit
+	tar -czf ../scite.tgz lexilla scintilla scite
 )
 
 # Remove temporary directory
