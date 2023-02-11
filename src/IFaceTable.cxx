@@ -1841,13 +1841,17 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_RB_STDIN",30},
 	{"SCE_RB_STDOUT",31},
 	{"SCE_RB_STRING",6},
+	{"SCE_RB_STRING_I",42},
 	{"SCE_RB_STRING_Q",24},
+	{"SCE_RB_STRING_QI",43},
 	{"SCE_RB_STRING_QQ",25},
 	{"SCE_RB_STRING_QR",27},
+	{"SCE_RB_STRING_QS",44},
 	{"SCE_RB_STRING_QW",28},
 	{"SCE_RB_STRING_QX",26},
+	{"SCE_RB_STRING_W",41},
 	{"SCE_RB_SYMBOL",14},
-	{"SCE_RB_UPPER_BOUND",41},
+	{"SCE_RB_UPPER_BOUND",45},
 	{"SCE_RB_WORD",5},
 	{"SCE_RB_WORD_DEMOTED",29},
 	{"SCE_REBOL_BINARY",11},
@@ -3803,7 +3807,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 326,
-	ifaceConstantCount = 3076,
+	ifaceConstantCount = 3080,
 	ifacePropertyCount = 264
 };
 
