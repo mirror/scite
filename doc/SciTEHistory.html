@@ -622,6 +622,9 @@
 		Add scripts/PromoteNew.bat script to promote .new files after checking.
 		</li>
 		<li>
+		Makefile: Remove 1024-byte line length limit..
+		</li>
+		<li>
 		Ruby: Add new lexical classes for % literals SCE_RB_STRING_W (%w non-interpolable string array),
 		SCE_RB_STRING_I (%i non-interpolable symbol array),
 		SCE_RB_STRING_QI (%I interpolable symbol array),
@@ -632,6 +635,29 @@
 		Ruby: Fix additional fold level for single character in SCE_RB_STRING_QW.
 		<a href="https://github.com/ScintillaOrg/lexilla/issues/132">Issue #132</a>.
 		<h2>Releases</h2>
+		</li>
+		<li>
+		Ruby: Fix additional fold level for single character in SCE_RB_STRING_QW.
+		<a href="https://github.com/ScintillaOrg/lexilla/issues/132">Issue #132</a>.
+		</li>
+		<li>
+		YAML: Remove 1024-byte line length limit..
+		<h2>Releases</h2>
+		</li>
+	</ul>
+	<li>Scintilla 5.3.4</li>
+	<ul>
+		<li>
+		Fix overlapping of text with line end wrap marker.
+		<a href="https://sourceforge.net/p/scintilla/bugs/2378/">Bug #2378</a>.
+		</li>
+		<li>
+		Fix clipping of line end wrap symbol for SC_WRAPVISUALFLAGLOC_END_BY_TEXT.
+		</li>
+		<li>
+		Where a multi-byte character contains multiple styles, display each byte as a representation.
+		This makes it easier to see and fix lexers that change styles mid-character, commonly because
+		they use fixed size buffers.
 		</li>
 	</ul>
     </ul>
