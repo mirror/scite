@@ -281,6 +281,11 @@ def CheckOrder(sciteItems, items, name):
                 shownName = True
         previous = itCondensed
 
+def RecentHistoryVersion(pathHistory):
+    contents = pathHistory.read_text("utf-8")
+    release = re.search("Release ([0-9.]+)", contents)
+    return release.group(1)
+
 def CheckHistoryLinks(pathHistory):
     contents = pathHistory.read_text("utf-8")
 
@@ -356,9 +361,13 @@ def RegenerateAll():
     sciHistory = sciDirectory / "doc" / "ScintillaHistory.html"
     sciCredits = ScintillaData.FindCredits(sciHistory, False)
     sciItems = ExtractItems(sciHistory)
+    sciHistoryVersion = RecentHistoryVersion(sciHistory)
+
     lexHistory = lexDirectory / "doc" / "LexillaHistory.html"
     lexCredits = ScintillaData.FindCredits(lexHistory, False)
     lexItems = ExtractItems(lexHistory)
+    lexHistoryVersion = RecentHistoryVersion(lexHistory)
+
     pathHistory = pathSciTE / "doc" / "SciTEHistory.html"
     sciteCredits = ScintillaData.FindCredits(pathHistory, False)
     sciteItems = ExtractItems(pathHistory)
@@ -368,9 +377,9 @@ def RegenerateAll():
     if newFromSci or newFromLex:
         news = ""
         if newFromLex:
-            news += NewsFormatted("Lexilla " + lex.versionDotted, newFromLex)
+            news += NewsFormatted("Lexilla " + lexHistoryVersion, newFromLex)
         if newFromSci:
-            news += NewsFormatted("Scintilla " + sci.versionDotted, newFromSci)
+            news += NewsFormatted("Scintilla " + sciHistoryVersion, newFromSci)
         contents = pathHistory.read_text("utf-8")
         withAdditions = contents.replace(
             r"    </ul>",
