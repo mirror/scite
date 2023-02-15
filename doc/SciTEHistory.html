@@ -659,6 +659,10 @@
 		This makes it easier to see and fix lexers that change styles mid-character, commonly because
 		they use fixed size buffers.
 		</li>
+		<li>
+		Fix a potential crash with autocompletion list fill-ups where a SCN_CHARADDED
+		handler retriggered an autocompletion list, but with no items that match the typed character.
+		</li>
 	</ul>
     </ul>
     <h3>
