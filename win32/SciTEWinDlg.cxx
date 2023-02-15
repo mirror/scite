@@ -622,7 +622,7 @@ void SciTEWin::Print(
 	assert(lengthDoc <= lengthDocMax);
 
 	// We must subtract the physical margins from the printable area
-	Sci_RangeToFormatFull frPrint {};
+	SA::RangeToFormatFull frPrint {};
 	frPrint.hdc = hdc;
 	frPrint.hdcTarget = hdc;
 	frPrint.rc.left = rectMargins.left - rectPhysMargins.left;

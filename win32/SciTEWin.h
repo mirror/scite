@@ -72,6 +72,7 @@ typedef void *HTHEME;
 #include "ScintillaTypes.h"
 #include "ScintillaMessages.h"
 #include "ScintillaCall.h"
+#include "ScintillaStructures.h"
 
 #include "Scintilla.h"
 #include "Lexilla.h"
