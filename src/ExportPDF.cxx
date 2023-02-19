@@ -104,9 +104,9 @@ inline std::string getPDFRGB(const char *stylecolour) {
 		// 3 decimal places for enough dynamic range
 		const int c = (IntFromHexByte(stylecolour + i) * 1000 + 127) / 255;
 		if (c == 0 || c == 1000) {	// optimise
-			sprintf(val, "%d ", c / 1000);
+			snprintf(val, std::size(val), "%d ", c / 1000);
 		} else {
-			sprintf(val, "0.%03d ", c);
+			snprintf(val, std::size(val), "0.%03d ", c);
 		}
 		ret += val;
 	}
@@ -141,7 +141,7 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 		}
 		void write(int objectData) {
 			char val[20];
-			sprintf(val, "%d", objectData);
+			snprintf(val, std::size(val), "%d", objectData);
 			write(val);
 		}
 		// returns object number assigned to the supplied data
@@ -165,7 +165,7 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 			// so extra space added; also the first entry is special
 			write("\n0000000000 65535 f \n");
 			for (int i = 0; i < index - 1; i++) {
-				sprintf(val, "%010ld 00000 n \n", offsetList[i]);
+				snprintf(val, std::size(val), "%010ld 00000 n \n", offsetList[i]);
 				write(val);
 			}
 			return xrefStart;
@@ -232,7 +232,7 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 				if (style[styleCurrent].font != style[styleNext].font
 						|| style_ == -1) {
 					char fontSpec[100];
-					sprintf(fontSpec, "/F%d %d Tf ",
+					snprintf(fontSpec, std::size(fontSpec), "/F%d %d Tf ",
 						style[styleNext].font + 1, fontSize);
 					buff += fontSpec;
 				}
@@ -269,7 +269,7 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 			// *expected* to start from index 1 since they are the first objects
 			// to be inserted (PDF1.4Ref(p317))
 			for (int i = 0; i < 4; i++) {
-				sprintf(buffer, "<</Type/Font/Subtype/Type1"
+				snprintf(buffer, std::size(buffer), "<</Type/Font/Subtype/Type1"
 					"/Name/F%d/BaseFont/%s/Encoding/"
 					PDF_ENCODING
 					">>\n", i + 1,
@@ -292,7 +292,7 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 			const int pageObjectStart = oT->index;
 			const int pagesRef = pageObjectStart + pageCount;
 			for (int i = 0; i < pageCount; i++) {
-				sprintf(buffer, "<</Type/Page/Parent %d 0 R\n"
+				snprintf(buffer, std::size(buffer), "<</Type/Page/Parent %d 0 R\n"
 					"/MediaBox[ 0 0 %ld %ld"
 					"]\n/Contents %d 0 R\n"
 					"/Resources %d 0 R\n>>\n",
@@ -303,19 +303,19 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 			// create page tree object (PDF1.4Ref(p86))
 			pageData = "<</Type/Pages/Kids[\n";
 			for (int j = 0; j < pageCount; j++) {
-				sprintf(buffer, "%d 0 R\n", pageObjectStart + j);
+				snprintf(buffer, std::size(buffer), "%d 0 R\n", pageObjectStart + j);
 				pageData += buffer;
 			}
-			sprintf(buffer, "]/Count %d\n>>\n", pageCount);
+			snprintf(buffer, std::size(buffer), "]/Count %d\n>>\n", pageCount);
 			pageData += buffer;
 			oT->add(pageData.c_str());
 			// create catalog object (PDF1.4Ref(p83))
-			sprintf(buffer, "<</Type/Catalog/Pages %d 0 R >>\n", pagesRef);
+			snprintf(buffer, std::size(buffer), "<</Type/Catalog/Pages %d 0 R >>\n", pagesRef);
 			const int catalogRef = oT->add(buffer);
 			// append the cross reference table (PDF1.4Ref(p64))
 			const long xref = oT->xref();
 			// end the file with the trailer (PDF1.4Ref(p67))
-			sprintf(buffer, "trailer\n<< /Size %d /Root %d 0 R\n>>"
+			snprintf(buffer, std::size(buffer), "trailer\n<< /Size %d /Root %d 0 R\n>>"
 				"\nstartxref\n%ld\n%%%%EOF\n",
 				oT->index, catalogRef, xref);
 			oT->write(buffer);
@@ -369,7 +369,7 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 			const double fontAscender = fontToPoints(PDFfontAscenders[fontSet]);
 			yPos = pageHeight - pageMargin.top - fontAscender;
 			// start a new page
-			sprintf(buffer, "BT 1 0 0 1 %d %d Tm\n",
+			snprintf(buffer, std::size(buffer), "BT 1 0 0 1 %d %d Tm\n",
 				pageMargin.left, (int)yPos);
 			pageData = buffer;
 			// force setting of initial font, colour
@@ -417,10 +417,10 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 			if (firstLine) {
 				// avoid breakage due to locale setting
 				const int f = static_cast<int>(leading * 10 + 0.5);
-				sprintf(buffer, "0 -%d.%d TD\n", f / 10, f % 10);
+				snprintf(buffer, std::size(buffer), "0 -%d.%d TD\n", f / 10, f % 10);
 				firstLine = false;
 			} else {
-				sprintf(buffer, "T*\n");
+				snprintf(buffer, std::size(buffer), "T*\n");
 			}
 			pageData += buffer;
 		}
