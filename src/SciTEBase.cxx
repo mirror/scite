@@ -2955,7 +2955,7 @@ void SciTEBase::GoMatchingPreprocCond(int direction, bool select) {
 	}
 }
 
-void SciTEBase::AddCommand(const std::string &cmd, const std::string &dir, JobSubsystem jobType, const std::string &input, int flags) {
+void SciTEBase::AddCommand(std::string_view cmd, std::string_view dir, JobSubsystem jobType, std::string_view input, int flags) {
 	// If no explicit directory, use the directory of the current file
 	FilePath directoryRun;
 	if (dir.length()) {

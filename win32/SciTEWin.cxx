@@ -1223,10 +1223,10 @@ void SciTEWin::ProcessExecute() {
 	PostOnMainThread(WORK_EXECUTE, &cmdWorker);
 }
 
-void SciTEWin::ShellExec(const std::string &cmd, const char *dir) {
+void SciTEWin::ShellExec(std::string_view cmd, std::string_view dir) {
 	// guess if cmd is an executable, if this succeeds it can
 	// contain spaces without enclosing it with "
-	std::string cmdLower = cmd;
+	std::string cmdLower(cmd);
 	LowerCaseAZ(cmdLower);
 	const char *mycmdLowered = cmdLower.c_str();
 
@@ -1237,7 +1237,7 @@ void SciTEWin::ShellExec(const std::string &cmd, const char *dir) {
 		s = strstr(mycmdLowered, ".bat");
 	if (!s)
 		s = strstr(mycmdLowered, ".com");
-	std::vector<char> cmdcopy(cmd.c_str(), cmd.c_str() + cmd.length() + 1);
+	std::string cmdcopy(cmd);
 	char *mycmdcopy = &cmdcopy[0];
 	char *mycmd;
 	char *mycmdEnd = nullptr;
@@ -1275,9 +1275,9 @@ void SciTEWin::ShellExec(const std::string &cmd, const char *dir) {
 			myparams = mycmdEnd;
 	}
 
-	GUI::gui_string sMycmd = GUI::StringFromUTF8(mycmd);
-	GUI::gui_string sMyparams = GUI::StringFromUTF8(myparams);
-	GUI::gui_string sDir = GUI::StringFromUTF8(dir);
+	const GUI::gui_string sMycmd = GUI::StringFromUTF8(mycmd);
+	const GUI::gui_string sMyparams = GUI::StringFromUTF8(myparams);
+	const GUI::gui_string sDir = GUI::StringFromUTF8(dir);
 
 	SHELLEXECUTEINFO exec {};
 	exec.cbSize = sizeof(exec);
@@ -1370,10 +1370,10 @@ void SciTEWin::StopExecute() {
 	jobQueue.SetCancelFlag(true);
 }
 
-void SciTEWin::AddCommand(const std::string &cmd, const std::string &dir, JobSubsystem jobType, const std::string &input, int flags) {
+void SciTEWin::AddCommand(std::string_view cmd, std::string_view dir, JobSubsystem jobType, std::string_view input, int flags) {
 	if (cmd.length()) {
 		if ((jobType == JobSubsystem::shell) && ((flags & jobForceQueue) == 0)) {
-			std::string pCmd = cmd;
+			std::string pCmd(cmd);
 			parameterisedCommand = "";
 			if (pCmd[0] == '*') {
 				pCmd.erase(0, 1);
@@ -1385,7 +1385,7 @@ void SciTEWin::AddCommand(const std::string &cmd, const std::string &dir, JobSub
 				ParamGrab();
 			}
 			pCmd = props.Expand(pCmd);
-			ShellExec(pCmd, dir.c_str());
+			ShellExec(pCmd, dir);
 		} else {
 			SciTEBase::AddCommand(cmd, dir, jobType, input, flags);
 		}

@@ -185,7 +185,7 @@ Job::Job() noexcept : jobType(JobSubsystem::cli), flags(0) {
 	Clear();
 }
 
-Job::Job(const std::string &command_, const FilePath &directory_, JobSubsystem jobType_, const std::string &input_, int flags_)
+Job::Job(std::string_view command_, const FilePath &directory_, JobSubsystem jobType_, std::string_view input_, int flags_)
 	: command(command_), directory(directory_), jobType(jobType_), input(input_), flags(flags_) {
 }
 
@@ -254,7 +254,7 @@ void JobQueue::ClearJobs() noexcept {
 	commandCurrent = 0;
 }
 
-void JobQueue::AddCommand(const std::string &command, const FilePath &directory, JobSubsystem jobType, const std::string &input, int flags) {
+void JobQueue::AddCommand(std::string_view command, const FilePath &directory, JobSubsystem jobType, std::string_view input, int flags) {
 	if ((commandCurrent < commandMax) && (command.length())) {
 		if (commandCurrent == 0)
 			jobUsesOutputPane = false;

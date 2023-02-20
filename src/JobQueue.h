@@ -46,7 +46,7 @@ public:
 	int flags;
 
 	Job() noexcept;
-	Job(const std::string &command_, const FilePath &directory_, JobSubsystem jobType_, const std::string &input_, int flags_);
+	Job(std::string_view command_, const FilePath &directory_, JobSubsystem jobType_, std::string_view input_, int flags_);
 	void Clear() noexcept;
 };
 
@@ -81,7 +81,7 @@ public:
 	bool Cancelled() noexcept;
 
 	void ClearJobs() noexcept;
-	void AddCommand(const std::string &command, const FilePath &directory, JobSubsystem jobType, const std::string &input, int flags);
+	void AddCommand(std::string_view command, const FilePath &directory, JobSubsystem jobType, std::string_view input, int flags);
 };
 
 #endif
