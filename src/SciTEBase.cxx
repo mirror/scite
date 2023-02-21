@@ -4703,7 +4703,8 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
 		rep = wEditor.Call(message, wParam, lParam);
 	if (*params == 'I') {
 		const std::string sRep = std::to_string(rep);
-		sprintf(&tbuff[alen], "%s", sRep.c_str());
+		tbuff = answercmd;
+		tbuff += sRep;
 	}
 	extender->OnMacro("macro", tbuff.c_str());
 }
