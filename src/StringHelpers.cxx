@@ -85,7 +85,7 @@ std::string StdStringFromSizeT(size_t i) {
 
 std::string StdStringFromDouble(double d, int precision) {
 	char number[32];
-	sprintf(number, "%.*f", precision, d);
+	snprintf(number, std::size(number), "%.*f", precision, d);
 	return std::string(number);
 }
 

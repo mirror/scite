@@ -1689,7 +1689,7 @@ void SetScintilluaStyles(GUI::ScintillaWindow &wEditor, PropSetFile& props, cons
 		do {
 			end = name.find('.', ++end);
 			char propStr[128] = "";
-			sprintf(propStr, "$(scintillua.styles.%s),", end == std::string::npos ?
+			snprintf(propStr, std::size(propStr), "$(scintillua.styles.%s),", end == std::string::npos ?
 				name.c_str() : name.substr(0, end).c_str());
 			finalPropStr += propStr;
 		} while (end != std::string::npos);

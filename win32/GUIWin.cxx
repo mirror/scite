@@ -186,7 +186,7 @@ gui_string StringFromLongLong(long long i) {
 
 gui_string HexStringFromInteger(long i) {
 	char number[32];
-	sprintf(number, "%0lx", i);
+	snprintf(number, std::size(number), "%0lx", i);
 	gui_char gnumber[32] {};
 	size_t n = 0;
 	while (number[n]) {
