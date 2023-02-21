@@ -874,9 +874,8 @@ protected:
 	void SetRepresentations();
 	virtual void ReadProperties();
 	void ReadEditorConfig(const std::string &fileNameForExtension);
-	std::string StyleString(const char *lang, int style) const;
 	StyleDefinition StyleDefinitionFor(int style);
-	void SetOneStyle(GUI::ScintillaWindow &win, int style, const StyleDefinition &sd);
+	void SetOneStyle(GUI::ScintillaWindow &win, int style, std::string_view definition);
 	void SetStyleBlock(GUI::ScintillaWindow &win, const char *lang, int start, int last);
 	void SetStyleFor(GUI::ScintillaWindow &win, const char *lang);
 	static void SetOneIndicator(GUI::ScintillaWindow &win, SA::IndicatorNumbers indicator, const IndicatorDefinition &ind);
