@@ -649,8 +649,7 @@ void SciTEWin::Print(
 		const bool printPage = (!(pdlg.Flags & PD_PAGENUMS) ||
 					((pageNum >= pdlg.nFromPage) && (pageNum <= pdlg.nToPage)));
 
-		char pageString[32];
-		sprintf(pageString, "%0d", pageNum);
+		const std::string pageString = std::to_string(pageNum);
 		propsPrint.Set("CurrentPage", pageString);
 
 		if (printPage) {

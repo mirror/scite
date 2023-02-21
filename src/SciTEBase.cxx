@@ -2363,8 +2363,7 @@ void SciTEBase::UpdateStatusBar(bool bUpdateSlowData) {
 		propsStatus.Set("ColumnNumber", std::to_string(GetCurrentColumnNumber() + 1));
 		propsStatus.Set("OverType", wEditor.Overtype() ? "OVR" : "INS");
 
-		char sbKey[32];
-		sprintf(sbKey, "statusbar.text.%d", sbNum);
+		const std::string sbKey = "statusbar.text." + std::to_string(sbNum);
 		std::string msg = propsStatus.GetExpandedString(sbKey);
 		if (msg.size() && sbValue != msg) {	// To avoid flickering, update only if needed
 			SetStatusBarText(msg.c_str());
