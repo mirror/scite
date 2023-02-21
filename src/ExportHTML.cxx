@@ -139,7 +139,7 @@ void SciTEBase::SaveToHTML(const FilePath &saveName) {
 		}
 
 		std::string sval = props.GetExpandedString("font.monospace");
-		StyleDefinition sdmono(sval.c_str());
+		StyleDefinition sdmono(sval);
 
 		for (int istyle = 0; istyle <= StyleMax; istyle++) {
 			if ((istyle > StyleDefault) && (istyle <= StyleLastPredefined))

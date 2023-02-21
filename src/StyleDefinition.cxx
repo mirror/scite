@@ -164,7 +164,7 @@ int IntFromHexByte(std::string_view hexByte) noexcept {
 	return IntFromHexDigit(hexByte[0]) * 16 + IntFromHexDigit(hexByte[1]);
 }
 
-SA::Colour ColourFromString(const std::string &s) {
+SA::Colour ColourFromString(std::string_view s) {
 	if (s.length() >= 7) {
 		const int r = IntFromHexByte(&s[1]);
 		const int g = IntFromHexByte(&s[3]);

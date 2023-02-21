@@ -45,7 +45,7 @@ inline constexpr Scintilla::ColourAlpha ColourRGBA(unsigned int red, unsigned in
 
 int IntFromHexByte(std::string_view hexByte) noexcept;
 
-Scintilla::Colour ColourFromString(const std::string &s);
+Scintilla::Colour ColourFromString(std::string_view s);
 Scintilla::ColourAlpha ColourAlphaFromString(std::string_view s);
 
 struct IndicatorDefinition {

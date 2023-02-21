@@ -1353,7 +1353,7 @@ void SciTEWin::FindInFiles() {
 		::SetFocus(hDlg);
 		return;
 	}
-	props.Set("find.what", findWhat.c_str());
+	props.Set("find.what", findWhat);
 
 	std::string directory = props.GetString("find.in.directory");
 	if (directory.length()) {
@@ -1611,7 +1611,7 @@ BOOL SciTEWin::ParametersMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			}
 			for (int param = 0; param < maxParam; param++) {
 				std::string paramText = StdStringFromInteger(param + 1);
-				std::string paramTextVal = props.GetString(paramText.c_str());
+				std::string paramTextVal = props.GetString(paramText);
 				GUI::gui_string sVal = GUI::StringFromUTF8(paramTextVal);
 				dlg.SetItemText(IDPARAMSTART + param, sVal.c_str());
 			}

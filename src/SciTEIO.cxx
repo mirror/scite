@@ -180,7 +180,7 @@ std::string SciTEBase::DiscoverLanguage() {
 		while (*word) {
 			std::string propShBang("shbang.");
 			propShBang.append(word);
-			std::string langShBang = props.GetExpandedString(propShBang.c_str());
+			std::string langShBang = props.GetExpandedString(propShBang);
 			if (langShBang.length()) {
 				languageOverride = langShBang;
 			}
@@ -673,7 +673,7 @@ bool SciTEBase::OpenSelected() {
 	}
 
 	std::string fileNameForExtension = ExtensionFileName();
-	std::string openSuffix = props.GetNewExpandString("open.suffix.", fileNameForExtension.c_str());
+	std::string openSuffix = props.GetNewExpandString("open.suffix.", fileNameForExtension);
 	selName += openSuffix;
 
 	if (EqualCaseInsensitive(selName.c_str(), FileNameExt().AsUTF8().c_str()) || EqualCaseInsensitive(selName.c_str(), filePath.AsUTF8().c_str())) {
@@ -724,7 +724,7 @@ bool SciTEBase::OpenSelected() {
 		// If not there, look in openpath
 		if (!Exists(path.AsInternal(), selFN.c_str(), nullptr)) {
 			GUI::gui_string openPath = GUI::StringFromUTF8(props.GetNewExpandString(
-							   "openpath.", fileNameForExtension.c_str()));
+							   "openpath.", fileNameForExtension));
 			while (openPath.length()) {
 				GUI::gui_string tryPath(openPath);
 				const size_t sepIndex = tryPath.find(listSepString);

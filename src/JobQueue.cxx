@@ -58,7 +58,7 @@ JobMode::JobMode(PropSetFile &props, int item, const char *fileNameExt) : jobTyp
 
 	const std::string itemSuffix = StdStringFromInteger(item) + ".";
 	std::string propName = std::string("command.mode.") + itemSuffix;
-	std::string modeVal(props.GetNewExpandString(propName.c_str(), fileNameExt));
+	std::string modeVal(props.GetNewExpandString(propName, fileNameExt));
 
 	modeVal.erase(std::remove(modeVal.begin(), modeVal.end(), ' '), modeVal.end());
 	std::vector<std::string> modes = StringSplit(modeVal, ',');
@@ -138,39 +138,39 @@ JobMode::JobMode(PropSetFile &props, int item, const char *fileNameExt) : jobTyp
 
 	propName = "command.save.before.";
 	propName += itemSuffix;
-	if (props.GetWild(propName.c_str(), fileNameExt).length())
-		saveBefore = atoi(props.GetNewExpandString(propName.c_str(), fileNameExt).c_str());
+	if (props.GetWild(propName, fileNameExt).length())
+		saveBefore = atoi(props.GetNewExpandString(propName, fileNameExt).c_str());
 
 	propName = "command.is.filter.";
 	propName += itemSuffix;
-	if (props.GetWild(propName.c_str(), fileNameExt).length())
-		isFilter = (props.GetNewExpandString(propName.c_str(), fileNameExt) == "1");
+	if (props.GetWild(propName, fileNameExt).length())
+		isFilter = (props.GetNewExpandString(propName, fileNameExt) == "1");
 
 	propName = "command.subsystem.";
 	propName += itemSuffix;
-	if (props.GetWild(propName.c_str(), fileNameExt).length()) {
-		std::string subsystemVal = props.GetNewExpandString(propName.c_str(), fileNameExt);
+	if (props.GetWild(propName, fileNameExt).length()) {
+		std::string subsystemVal = props.GetNewExpandString(propName, fileNameExt);
 		jobType = SubsystemFromChar(subsystemVal[0]);
 	}
 
 	propName = "command.input.";
 	propName += itemSuffix;
-	if (props.GetWild(propName.c_str(), fileNameExt).length()) {
-		input = props.GetNewExpandString(propName.c_str(), fileNameExt);
+	if (props.GetWild(propName, fileNameExt).length()) {
+		input = props.GetNewExpandString(propName, fileNameExt);
 		flags |= jobHasInput;
 	}
 
 	propName = "command.quiet.";
 	propName += itemSuffix;
-	if (props.GetWild(propName.c_str(), fileNameExt).length())
-		quiet = props.GetNewExpandString(propName.c_str(), fileNameExt) == "1";
+	if (props.GetWild(propName, fileNameExt).length())
+		quiet = props.GetNewExpandString(propName, fileNameExt) == "1";
 	if (quiet)
 		flags |= jobQuiet;
 
 	propName = "command.replace.selection.";
 	propName += itemSuffix;
-	if (props.GetWild(propName.c_str(), fileNameExt).length())
-		repSel = atoi(props.GetNewExpandString(propName.c_str(), fileNameExt).c_str());
+	if (props.GetWild(propName, fileNameExt).length())
+		repSel = atoi(props.GetNewExpandString(propName, fileNameExt).c_str());
 
 	if (repSel == 1)
 		flags |= jobRepSelYes;

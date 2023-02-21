@@ -11,7 +11,7 @@
 /**
  */
 
-typedef std::map<std::string, std::string> mapss;
+typedef std::map<std::string, std::string, std::less<>> mapss;
 
 class ImportFilter {
 public:
@@ -23,7 +23,7 @@ public:
 
 class PropSetFile {
 	bool lowerKeys;
-	std::string GetWildUsingStart(const PropSetFile &psStart, const char *keybase, const char *filename);
+	std::string_view GetWildUsingStart(const PropSetFile &psStart, std::string_view keybase, std::string_view filename);
 	static bool caseSensitiveFilenames;
 	mapss props;
 public:
@@ -34,15 +34,17 @@ public:
 	void SetPath(std::string_view key, const FilePath &path);
 	void SetLine(const char *keyVal, bool unescape);
 	void Unset(std::string_view key);
-	bool Exists(const char *key) const;
-	std::string GetString(const char *key) const;
-	std::string Evaluate(const char *key) const;
-	std::string GetExpandedString(const char *key) const;
-	std::string Expand(const std::string &withVars, int maxExpands=200) const;
-	int GetInt(const char *key, int defaultValue=0) const;
-	intptr_t GetInteger(const char *key, intptr_t defaultValue=0) const;
-	long long GetLongLong(const char *key, long long defaultValue=0) const;
 	void Clear() noexcept;
+
+	bool Exists(std::string_view key) const;
+	[[nodiscard]] std::string_view Get(std::string_view key) const;
+	std::string GetString(std::string_view key) const;
+	std::string Evaluate(std::string_view key) const;
+	std::string GetExpandedString(std::string_view key) const;
+	std::string Expand(std::string_view withVars, int maxExpands=200) const;
+	int GetInt(std::string_view key, int defaultValue=0) const;
+	intptr_t GetInteger(std::string_view key, intptr_t defaultValue=0) const;
+	long long GetLongLong(std::string_view key, long long defaultValue=0) const;
 
 	enum class ReadLineState { active, excludedModule, conditionFalse };
 	ReadLineState ReadLine(const char *lineBuffer, ReadLineState rls, const FilePath &directoryForImports, const ImportFilter &filter,
@@ -53,8 +55,8 @@ public:
 		    FilePathSet *imports, size_t depth);
 	bool Read(const FilePath &filename, const FilePath &directoryForImports, const ImportFilter &filter,
 		  FilePathSet *imports, size_t depth);
-	std::string GetWild(const char *keybase, const char *filename);
-	std::string GetNewExpandString(const char *keybase, const char *filename = "");
+	std::string_view GetWild(std::string_view keybase, std::string_view filename);
+	std::string GetNewExpandString(std::string_view keybase, std::string_view filename = "");
 	bool GetFirst(const char *&key, const char *&val) const;
 	bool GetNext(const char *&key, const char *&val) const;
 	static void SetCaseSensitiveFilenames(bool caseSensitiveFilenames_) noexcept {

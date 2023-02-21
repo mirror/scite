@@ -14,9 +14,6 @@ noExplicitConstructor:scite/src/FilePath.h
 // Cppcheck wrongly flags check as always true
 knownConditionTrueFalse:scite/src/PropSetFile.cxx
 
-// string::starts_with() not available with c++17.
-stlIfStrFind:scite/src/PropSetFile.cxx
-
 // Windows and GTK define classes with the same name
 ctuOneDefinitionRuleViolation:scite/win32/Strips.h
 ctuOneDefinitionRuleViolation:scite/gtk/Widget.h

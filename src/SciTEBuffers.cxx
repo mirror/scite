@@ -629,7 +629,7 @@ void SciTEBase::RestoreRecentMenu() {
 
 	for (int i = 0; i < fileStackMax; i++) {
 		std::string propKey = IndexPropKey("mru", i, "path");
-		std::string propStr = propsSession.GetString(propKey.c_str());
+		std::string propStr = propsSession.GetString(propKey);
 		if (propStr == "")
 			continue;
 		AddFileToStack(RecentFile(GUI::StringFromUTF8(propStr), fp));
@@ -682,7 +682,7 @@ void SciTEBase::RestoreSession() {
 	if (props.GetInt("save.find") != 0) {
 		for (int i = 0;; i++) {
 			const std::string propKey = IndexPropKey("search", i, "findwhat");
-			const std::string propStr = propsSession.GetString(propKey.c_str());
+			const std::string_view propStr = propsSession.Get(propKey);
 			if (propStr == "")
 				break;
 			memFinds.Append(propStr);
@@ -690,7 +690,7 @@ void SciTEBase::RestoreSession() {
 
 		for (int i = 0;; i++) {
 			const std::string propKey = IndexPropKey("search", i, "replacewith");
-			const std::string propStr = propsSession.GetString(propKey.c_str());
+			const std::string_view propStr = propsSession.Get(propKey);
 			if (propStr == "")
 				break;
 			memReplaces.Append(propStr);
@@ -704,7 +704,7 @@ void SciTEBase::RestoreSession() {
 
 	for (int i = 0; i < bufferMax; i++) {
 		std::string propKey = IndexPropKey("buffer", i, "path");
-		std::string propStr = propsSession.GetString(propKey.c_str());
+		std::string propStr = propsSession.GetString(propKey);
 		if (propStr == "")
 			continue;
 
@@ -716,23 +716,23 @@ void SciTEBase::RestoreSession() {
 			session.pathActive = bufferState.file;
 
 		propKey = IndexPropKey("buffer", i, "scroll");
-		const SA::Line scroll = propsSession.GetInteger(propKey.c_str());
+		const SA::Line scroll = propsSession.GetInteger(propKey);
 
 		propKey = IndexPropKey("buffer", i, "position");
-		const SA::Position pos = propsSession.GetInteger(propKey.c_str()) - 1;	// -1 for 1 -> 0 based
+		const SA::Position pos = propsSession.GetInteger(propKey) - 1;	// -1 for 1 -> 0 based
 
 		bufferState.file.filePosition = FilePosition(SelectedRange(pos, pos), scroll);
 
 		if (props.GetInt("session.bookmarks")) {
 			propKey = IndexPropKey("buffer", i, "bookmarks");
-			propStr = propsSession.GetString(propKey.c_str());
+			propStr = propsSession.GetString(propKey);
 			bufferState.bookmarks = LinesFromString(propStr);
 		}
 
 		if (props.GetInt("fold") && !props.GetInt("fold.on.open") &&
 				props.GetInt("session.folds")) {
 			propKey = IndexPropKey("buffer", i, "folds");
-			propStr = propsSession.GetString(propKey.c_str());
+			propStr = propsSession.GetString(propKey);
 			bufferState.foldState = LinesFromString(propStr);
 		}
 
@@ -867,21 +867,21 @@ void SciTEBase::SetIndentSettings() {
 	// Either set the settings related to the extension or the default ones
 	std::string fileNameForExtension = ExtensionFileName();
 	std::string useTabsChars = props.GetNewExpandString("use.tabs.",
-				   fileNameForExtension.c_str());
+				   fileNameForExtension);
 	if (useTabsChars.length() != 0) {
 		wEditor.SetUseTabs(atoi(useTabsChars.c_str()));
 	} else {
 		wEditor.SetUseTabs(useTabs);
 	}
 	std::string tabSizeForExt = props.GetNewExpandString("tab.size.",
-				    fileNameForExtension.c_str());
+				    fileNameForExtension);
 	if (tabSizeForExt.length() != 0) {
 		wEditor.SetTabWidth(atoi(tabSizeForExt.c_str()));
 	} else if (tabSize != 0) {
 		wEditor.SetTabWidth(tabSize);
 	}
 	std::string indentSizeForExt = props.GetNewExpandString("indent.size.",
-				       fileNameForExtension.c_str());
+				       fileNameForExtension);
 	if (indentSizeForExt.length() != 0) {
 		wEditor.SetIndent(atoi(indentSizeForExt.c_str()));
 	} else {
@@ -1497,7 +1497,7 @@ bool SciTEBase::ToolIsImmediate(int item) {
 	std::string propName = "command.";
 	propName += itemSuffix;
 
-	std::string command = props.GetWild(propName.c_str(), FileNameExt().AsUTF8().c_str());
+	const std::string_view command = props.GetWild(propName, FileNameExt().AsUTF8());
 	if (command.length()) {
 		JobMode jobMode(props, item, FileNameExt().AsUTF8().c_str());
 		return jobMode.jobType == JobSubsystem::immediate;
@@ -1515,13 +1515,13 @@ void SciTEBase::SetToolsMenu() {
 		std::string prefix = "command.name.";
 		prefix += StdStringFromInteger(item);
 		prefix += ".";
-		std::string commandName = props.GetNewExpandString(prefix.c_str(), FileNameExt().AsUTF8().c_str());
+		std::string commandName = props.GetNewExpandString(prefix, FileNameExt().AsUTF8());
 		if (commandName.length()) {
 			std::string sMenuItem = commandName;
 			prefix = "command.shortcut.";
 			prefix += StdStringFromInteger(item);
 			prefix += ".";
-			std::string sMnemonic = props.GetNewExpandString(prefix.c_str(), FileNameExt().AsUTF8().c_str());
+			std::string sMnemonic = props.GetNewExpandString(prefix, FileNameExt().AsUTF8());
 			if (item < 10 && sMnemonic.length() == 0) {
 				sMnemonic += "Ctrl+";
 				sMnemonic += StdStringFromInteger(item);
@@ -1552,7 +1552,7 @@ void SciTEBase::SetToolsMenu() {
 }
 
 JobSubsystem SciTEBase::SubsystemType(const char *cmd) {
-	std::string subsystem = props.GetNewExpandString(cmd, FileNameExt().AsUTF8().c_str());
+	std::string subsystem = props.GetNewExpandString(cmd, FileNameExt().AsUTF8());
 	return subsystem.empty() ? JobSubsystem::cli : SubsystemFromChar(subsystem.at(0));
 }
 
@@ -1561,7 +1561,7 @@ void SciTEBase::ToolsMenu(int item) {
 
 	const std::string itemSuffix = StdStringFromInteger(item) + ".";
 	const std::string propName = std::string("command.") + itemSuffix;
-	std::string command(props.GetWild(propName.c_str(), FileNameExt().AsUTF8().c_str()));
+	std::string command(props.GetWild(propName, FileNameExt().AsUTF8()));
 	if (command.length()) {
 		JobMode jobMode(props, item, FileNameExt().AsUTF8().c_str());
 		if (jobQueue.IsExecuting() && (jobMode.jobType != JobSubsystem::immediate))

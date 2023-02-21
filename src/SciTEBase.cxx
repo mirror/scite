@@ -335,7 +335,7 @@ void SciTEBase::ViewWhitespace(bool view) {
 StyleAndWords SciTEBase::GetStyleAndWords(const char *base) {
 	StyleAndWords sw;
 	std::string fileNameForExtension = ExtensionFileName();
-	std::string sAndW = props.GetNewExpandString(base, fileNameForExtension.c_str());
+	std::string sAndW = props.GetNewExpandString(base, fileNameForExtension);
 	sw.styleNumber = atoi(sAndW.c_str());
 	const char *space = strchr(sAndW.c_str(), ' ');
 	if (space)
@@ -988,20 +988,20 @@ void SciTEBase::MarkAll(MarkPurpose purpose) {
 	if (purpose == MarkPurpose::incremental) {
 		CurrentBuffer()->findMarks = Buffer::FindMarks::temporary;
 		SetOneIndicator(wEditor, indicatorNumMatch,
-			IndicatorDefinition(props.GetString("find.indicator.incremental")));
+			IndicatorDefinition(props.Get("find.indicator.incremental")));
 	} else if (purpose == MarkPurpose::filter) {
 		CurrentBuffer()->findMarks = Buffer::FindMarks::temporary;
 		SetOneIndicator(wEditor, indicatorNumMatch,
-				IndicatorDefinition(props.GetString("filter.match.indicator")));
+				IndicatorDefinition(props.Get("filter.match.indicator")));
 		bookMark = markerFilterMatch;
 		contextLines = contextVisible ? props.GetInt("filter.context", 2) : 0;
 	} else {
 		CurrentBuffer()->findMarks = Buffer::FindMarks::marked;
-		std::string findIndicatorString = props.GetString("find.mark.indicator");
+		const std::string_view findIndicatorString = props.Get("find.mark.indicator");
 		IndicatorDefinition findIndicator(findIndicatorString);
 		if (!findIndicatorString.length()) {
 			findIndicator.style = SA::IndicatorStyle::RoundBox;
-			std::string findMark = props.GetString("find.mark");
+			const std::string_view findMark = props.Get("find.mark");
 			if (findMark.length())
 				findIndicator.colour = ColourFromString(findMark);
 			findIndicator.fillAlpha = alphaIndicator;
@@ -1825,7 +1825,7 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 }
 
 bool SciTEBase::PerformInsertAbbreviation() {
-	const std::string data = propsAbbrev.GetString(abbrevInsert.c_str());
+	const std::string data = propsAbbrev.GetString(abbrevInsert);
 	if (data.empty()) {
 		return true; // returning if expanded abbreviation is empty
 	}
@@ -2026,14 +2026,14 @@ bool SciTEBase::StartExpandAbbreviation() {
 
 bool SciTEBase::StartBlockComment() {
 	std::string fileNameForExtension = ExtensionFileName();
-	std::string lexerName = props.GetNewExpandString("lexer.", fileNameForExtension.c_str());
+	std::string lexerName = props.GetNewExpandString("lexer.", fileNameForExtension);
 	std::string base("comment.block.");
 	std::string commentAtLineStart("comment.block.at.line.start.");
 	base += lexerName;
 	commentAtLineStart += lexerName;
-	const bool placeCommentsAtLineStart = props.GetInt(commentAtLineStart.c_str()) != 0;
+	const bool placeCommentsAtLineStart = props.GetInt(commentAtLineStart) != 0;
 
-	std::string comment = props.GetString(base.c_str());
+	std::string comment = props.GetString(base);
 	if (comment == "") { // user friendly error message box
 		GUI::gui_string sBase = GUI::StringFromUTF8(base);
 		GUI::gui_string error = LocaliseMessage(
@@ -2120,7 +2120,7 @@ const char *LineEndString(SA::EndOfLine eolMode) noexcept {
 bool SciTEBase::StartBoxComment() {
 	// Get start/middle/end comment strings from options file(s)
 	std::string fileNameForExtension = ExtensionFileName();
-	std::string lexerName = props.GetNewExpandString("lexer.", fileNameForExtension.c_str());
+	std::string lexerName = props.GetNewExpandString("lexer.", fileNameForExtension);
 	std::string startBase("comment.box.start.");
 	std::string middleBase("comment.box.middle.");
 	std::string endBase("comment.box.end.");
@@ -2129,9 +2129,9 @@ bool SciTEBase::StartBoxComment() {
 	startBase += lexerName;
 	middleBase += lexerName;
 	endBase += lexerName;
-	std::string startComment = props.GetString(startBase.c_str());
-	std::string middleComment = props.GetString(middleBase.c_str());
-	std::string endComment = props.GetString(endBase.c_str());
+	std::string startComment = props.GetString(startBase);
+	std::string middleComment = props.GetString(middleBase);
+	std::string endComment = props.GetString(endBase);
 	if (startComment == "" || middleComment == "" || endComment == "") {
 		GUI::gui_string sStart = GUI::StringFromUTF8(startBase);
 		GUI::gui_string sMiddle = GUI::StringFromUTF8(middleBase);
@@ -2235,14 +2235,14 @@ bool SciTEBase::StartBoxComment() {
 
 bool SciTEBase::StartStreamComment() {
 	std::string fileNameForExtension = ExtensionFileName();
-	const std::string lexerName = props.GetNewExpandString("lexer.", fileNameForExtension.c_str());
+	const std::string lexerName = props.GetNewExpandString("lexer.", fileNameForExtension);
 	std::string startBase("comment.stream.start.");
 	std::string endBase("comment.stream.end.");
 	std::string whiteSpace(" ");
 	startBase += lexerName;
 	endBase += lexerName;
-	std::string startComment = props.GetString(startBase.c_str());
-	std::string endComment = props.GetString(endBase.c_str());
+	std::string startComment = props.GetString(startBase);
+	std::string endComment = props.GetString(endBase);
 	if (startComment == "" || endComment == "") {
 		GUI::gui_string sStart = GUI::StringFromUTF8(startBase);
 		GUI::gui_string sEnd = GUI::StringFromUTF8(endBase);
@@ -3520,7 +3520,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 	case IDM_COMPILE: {
 			if (SaveIfUnsureForBuilt() != SaveResult::cancelled) {
 				SelectionIntoProperties();
-				AddCommand(props.GetWild("command.compile.", FileNameExt().AsUTF8().c_str()), "",
+				AddCommand(props.GetWild("command.compile.", FileNameExt().AsUTF8()), "",
 					   SubsystemType("command.compile.subsystem."));
 				if (jobQueue.HasCommandToRun())
 					Execute();
@@ -3532,8 +3532,8 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 			if (SaveIfUnsureForBuilt() != SaveResult::cancelled) {
 				SelectionIntoProperties();
 				AddCommand(
-					props.GetWild("command.build.", FileNameExt().AsUTF8().c_str()),
-					props.GetNewExpandString("command.build.directory.", FileNameExt().AsUTF8().c_str()),
+					props.GetWild("command.build.", FileNameExt().AsUTF8()),
+					props.GetNewExpandString("command.build.directory.", FileNameExt().AsUTF8()),
 					SubsystemType("command.build.subsystem."));
 				if (jobQueue.HasCommandToRun()) {
 					jobQueue.isBuilding = true;
@@ -3546,7 +3546,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 	case IDM_CLEAN: {
 			if (SaveIfUnsureForBuilt() != SaveResult::cancelled) {
 				SelectionIntoProperties();
-				AddCommand(props.GetWild("command.clean.", FileNameExt().AsUTF8().c_str()), "",
+				AddCommand(props.GetWild("command.clean.", FileNameExt().AsUTF8()), "",
 					   SubsystemType("command.clean.subsystem."));
 				if (jobQueue.HasCommandToRun())
 					Execute();
@@ -3560,7 +3560,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 				int flags = 0;
 
 				if (!jobQueue.isBuilt) {
-					std::string buildcmd = props.GetNewExpandString("command.go.needs.", FileNameExt().AsUTF8().c_str());
+					std::string buildcmd = props.GetNewExpandString("command.go.needs.", FileNameExt().AsUTF8());
 					AddCommand(buildcmd, "",
 						   SubsystemType("command.go.needs.subsystem."));
 					if (buildcmd.length() > 0) {
@@ -3568,7 +3568,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 						flags |= jobForceQueue;
 					}
 				}
-				AddCommand(props.GetWild("command.go.", FileNameExt().AsUTF8().c_str()), "",
+				AddCommand(props.GetWild("command.go.", FileNameExt().AsUTF8()), "",
 					   SubsystemType("command.go.subsystem."), "", flags);
 				if (jobQueue.HasCommandToRun())
 					Execute();
@@ -3675,7 +3675,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 
 	case IDM_HELP: {
 			SelectionIntoProperties();
-			AddCommand(props.GetWild("command.help.", FileNameExt().AsUTF8().c_str()), "",
+			AddCommand(props.GetWild("command.help.", FileNameExt().AsUTF8()), "",
 				   SubsystemType("command.help.subsystem."));
 			if (!jobQueue.IsExecuting() && jobQueue.HasCommandToRun()) {
 				jobQueue.isBuilding = true;
@@ -3686,7 +3686,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 
 	case IDM_HELP_SCITE: {
 			SelectionIntoProperties();
-			AddCommand(props.GetString("command.scite.help"), "",
+			AddCommand(props.Get("command.scite.help"), "",
 				   SubsystemFromChar(props.GetString("command.scite.help.subsystem")[0]));
 			if (!jobQueue.IsExecuting() && jobQueue.HasCommandToRun()) {
 				jobQueue.isBuilding = true;
@@ -4194,13 +4194,13 @@ void SciTEBase::CheckMenus() {
 	CheckAMenuItem(IDM_TOGGLEPARAMETERS, ParametersOpen());
 	CheckAMenuItem(IDM_MONOFONT, CurrentBuffer()->useMonoFont);
 	EnableAMenuItem(IDM_COMPILE, !jobQueue.IsExecuting() &&
-			props.GetWild("command.compile.", FileNameExt().AsUTF8().c_str()).size() != 0);
+			props.GetWild("command.compile.", FileNameExt().AsUTF8()).size() != 0);
 	EnableAMenuItem(IDM_BUILD, !jobQueue.IsExecuting() &&
-			props.GetWild("command.build.", FileNameExt().AsUTF8().c_str()).size() != 0);
+			props.GetWild("command.build.", FileNameExt().AsUTF8()).size() != 0);
 	EnableAMenuItem(IDM_CLEAN, !jobQueue.IsExecuting() &&
-			props.GetWild("command.clean.", FileNameExt().AsUTF8().c_str()).size() != 0);
+			props.GetWild("command.clean.", FileNameExt().AsUTF8()).size() != 0);
 	EnableAMenuItem(IDM_GO, !jobQueue.IsExecuting() &&
-			props.GetWild("command.go.", FileNameExt().AsUTF8().c_str()).size() != 0);
+			props.GetWild("command.go.", FileNameExt().AsUTF8()).size() != 0);
 	EnableAMenuItem(IDM_OPENDIRECTORYPROPERTIES, props.GetInt("properties.directory.enable") != 0);
 	for (int toolItem = 0; toolItem < toolMax; toolItem++)
 		EnableAMenuItem(IDM_TOOLS + toolItem, ToolIsImmediate(toolItem) || !jobQueue.IsExecuting());
@@ -4892,7 +4892,7 @@ SA::ScintillaCall &SciTEBase::PaneCaller(Pane p) noexcept {
 
 void SciTEBase::SetFindInFilesOptions() {
 	const std::string wholeWordName = std::string("find.option.wholeword.") + StdStringFromInteger(wholeWord);
-	props.Set("find.wholeword", props.GetNewExpandString(wholeWordName.c_str()));
+	props.Set("find.wholeword", props.GetNewExpandString(wholeWordName));
 	const std::string matchCaseName = std::string("find.option.matchcase.") + StdStringFromInteger(matchCase);
-	props.Set("find.matchcase", props.GetNewExpandString(matchCaseName.c_str()));
+	props.Set("find.matchcase", props.GetNewExpandString(matchCaseName));
 }
