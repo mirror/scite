@@ -53,7 +53,7 @@
 
 //---------- Save to TeX ----------
 
-static char *getTexRGB(char *texcolor, const char *stylecolor) noexcept {
+static char *getTexRGB(char *texcolor, size_t count, const char *stylecolor) noexcept {
 	//texcolor[rgb]{0,0.5,0}{....}
 	const double rf = IntFromHexByte(stylecolor + 1) / 256.0;
 	const double gf = IntFromHexByte(stylecolor + 3) / 256.0;
@@ -62,7 +62,7 @@ static char *getTexRGB(char *texcolor, const char *stylecolor) noexcept {
 	const int r = static_cast<int>(rf * 10 + 0.5);
 	const int g = static_cast<int>(gf * 10 + 0.5);
 	const int b = static_cast<int>(bf * 10 + 0.5);
-	sprintf(texcolor, "%d.%d, %d.%d, %d.%d", r / 10, r % 10, g / 10, g % 10, b / 10, b % 10);
+	snprintf(texcolor, count, "%d.%d, %d.%d, %d.%d", r / 10, r % 10, g / 10, g % 10, b / 10, b % 10);
 	return texcolor;
 }
 
@@ -91,11 +91,11 @@ static void defineTexStyle(const StyleDefinition &style, FILE *fp, int istyle) {
 		closing_brackets++;
 	}
 	if (style.fore.length()) {
-		fprintf(fp, "\\textcolor[rgb]{%s}{", getTexRGB(rgb, style.fore.c_str()));
+		fprintf(fp, "\\textcolor[rgb]{%s}{", getTexRGB(rgb, std::size(rgb), style.fore.c_str()));
 		closing_brackets++;
 	}
 	if (style.back.length()) {
-		fprintf(fp, "\\colorbox[rgb]{%s}{", getTexRGB(rgb, style.back.c_str()));
+		fprintf(fp, "\\colorbox[rgb]{%s}{", getTexRGB(rgb, std::size(rgb), style.back.c_str()));
 		closing_brackets++;
 	}
 	fputs("#1", fp);
