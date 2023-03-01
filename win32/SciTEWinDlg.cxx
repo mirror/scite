@@ -196,7 +196,7 @@ int SciTEWin::DoDialog(const TCHAR *resName, DLGPROC lpProc) {
 	return result;
 }
 
-HWND SciTEWin::CreateParameterisedDialog(LPCWSTR lpTemplateName, DLGPROC lpProc) {
+HWND SciTEWin::CreateParameterisedDialog(LPCWSTR lpTemplateName, DLGPROC lpProc) noexcept {
 	return ::CreateDialogParamW(hInstance,
 				    lpTemplateName,
 				    MainHWND(),
@@ -701,7 +701,7 @@ void SciTEWin::Print(
 				::SetBkColor(hdc, sdFooter.Back());
 				::SelectObject(hdc, fontFooter);
 				const UINT ta = ::SetTextAlign(hdc, TA_TOP);
-				RECT rcw = {frPrint.rc.left, frPrint.rc.bottom + footerLineHeight / 2,
+				const RECT rcw = {frPrint.rc.left, frPrint.rc.bottom + footerLineHeight / 2,
 					    frPrint.rc.right, frPrint.rc.bottom + footerLineHeight + footerLineHeight / 2
 					   };
 				::ExtTextOutW(hdc, frPrint.rc.left + 5, frPrint.rc.bottom + footerLineHeight / 2,

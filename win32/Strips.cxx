@@ -168,8 +168,7 @@ LRESULT PASCAL BaseWin::StWndProc(
 namespace {
 
 constexpr RECT RECTFromRectangle(GUI::Rectangle r) noexcept {
-	RECT rc = { r.left, r.top, r.right, r.bottom };
-	return rc;
+	return { r.left, r.top, r.right, r.bottom };
 }
 
 struct Interval {
@@ -1957,7 +1956,7 @@ void UserStrip::SetSciTE(SciTEWin *pSciTEWin_) noexcept {
 	pSciTEWin = pSciTEWin_;
 }
 
-UserControl *UserStrip::FindControl(int control) {
+UserControl *UserStrip::FindControl(int control) noexcept {
 	return psd->FindControl(control);
 }
 

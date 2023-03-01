@@ -259,7 +259,7 @@ protected:
 	void LocaliseDialog(HWND wDialog);
 
 	int DoDialog(const TCHAR *resName, DLGPROC lpProc);
-	HWND CreateParameterisedDialog(LPCWSTR lpTemplateName, DLGPROC lpProc);
+	HWND CreateParameterisedDialog(LPCWSTR lpTemplateName, DLGPROC lpProc) noexcept;
 	GUI::gui_string DialogFilterFromProperty(const GUI::gui_char *filterProperty);
 	void CheckCommonDialogError();
 	bool OpenDialog(const FilePath &directory, const GUI::gui_char *filesFilter) override;

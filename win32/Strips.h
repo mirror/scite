@@ -248,7 +248,7 @@ public:
 	void SetDescription(const char *description);
 	void SetExtender(Extension *extender_) noexcept;
 	void SetSciTE(SciTEWin *pSciTEWin_) noexcept;
-	UserControl *FindControl(int control);
+	UserControl *FindControl(int control) noexcept;
 	void Set(int control, const char *value);
 	void SetList(int control, const char *value);
 	std::string GetValue(int control);
