@@ -85,9 +85,6 @@ SciTEWin *Caller(HWND hDlg, UINT message, LPARAM lParam) noexcept {
 
 void SciTEWin::WarnUser(int warnID) {
 	std::string warning;
-	char flashDuration[10] = "";
-	char sound[_MAX_PATH] = "";
-	char soundDuration[10] = "";
 
 	switch (warnID) {
 	case warnFindWrapped:
@@ -112,16 +109,25 @@ void SciTEWin::WarnUser(int warnID) {
 		warning = "";
 		break;
 	}
-	const char *warn = warning.c_str();
-	const char *next = GetNextPropItem(warn, flashDuration, 10);
-	next = GetNextPropItem(next, sound, _MAX_PATH);
-	GetNextPropItem(next, soundDuration, 10);
 
-	const int flashLen = atoi(flashDuration);
+	const std::vector<std::string> warningFields = StringSplit(warning, ',');
+	int duration = 0;
+	if (warningFields.size() > 2) {
+		duration = IntegerFromString(warningFields[2], 0);
+	}
+	std::string sound;
+	if (warningFields.size() > 1) {
+		sound = warningFields[1];
+	}
+	int flashLen = 0;
+	if (warningFields.size() > 0) {
+		flashLen = IntegerFromString(warningFields[0], 0);
+	}
+
 	if (flashLen) {
 		FlashThisWindow(HwndOf(wEditor), flashLen);
 	}
-	PlayThisSound(sound, atoi(soundDuration), hMM);
+	PlayThisSound(sound.c_str(), duration, hMM);
 }
 
 bool SciTEWin::DialogHandled(GUI::WindowID id, MSG *pmsg) noexcept {
