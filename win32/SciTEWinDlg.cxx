@@ -6,11 +6,14 @@
 // The License.txt file describes the conditions under which this software may be distributed.
 
 #include "SciTEWin.h"
+#include "DLLFunction.h"
+
+namespace {
 
 /**
  * Flash the given window for the asked @a duration to visually warn the user.
  */
-static void FlashThisWindow(
+void FlashThisWindow(
 	HWND hWnd,    		///< Window to flash handle.
 	int duration) noexcept {	///< Duration of the flash state.
 
@@ -28,7 +31,7 @@ static void FlashThisWindow(
 /**
  * Play the given sound, loading if needed the corresponding DLL function.
  */
-static void PlayThisSound(
+void PlayThisSound(
 	const char *sound,    	///< Path to a .wav file or string with a frequency value.
 	int duration,    		///< If @a sound is a frequency, gives the duration of the sound.
 	HMODULE &hMM) noexcept {		///< Multimedia DLL handle.
@@ -46,8 +49,8 @@ static void PlayThisSound(
 		}
 
 		if (hMM) {
-			typedef BOOL (WINAPI *MMFn)(LPCSTR, HMODULE, DWORD);
-			MMFn fnMM = reinterpret_cast<MMFn>(::GetProcAddress(hMM, "PlaySoundA"));
+			using MMFn = BOOL(WINAPI *)(LPCSTR, HMODULE, DWORD);
+			MMFn fnMM = DLLFunction<MMFn>(hMM, "PlaySoundA");
 			if (fnMM) {
 				bPlayOK = fnMM(sound, NULL, SND_ASYNC | SND_FILENAME);
 			}
@@ -71,11 +74,13 @@ static void PlayThisSound(
 	}
 }
 
-static SciTEWin *Caller(HWND hDlg, UINT message, LPARAM lParam) noexcept {
+SciTEWin *Caller(HWND hDlg, UINT message, LPARAM lParam) noexcept {
 	if (message == WM_INITDIALOG) {
 		::SetWindowLongPtr(hDlg, DWLP_USER, lParam);
 	}
 	return reinterpret_cast<SciTEWin *>(::GetWindowLongPtr(hDlg, DWLP_USER));
+}
+
 }
 
 void SciTEWin::WarnUser(int warnID) {
