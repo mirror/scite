@@ -495,7 +495,7 @@ SystemAppearance SciTEWin::WindowsAppearance() const noexcept {
 		DWORD val = 99;
 		DWORD cbData = sizeof(val);
 		const LSTATUS status = ::RegQueryValueExW(hkeyPersonalize, L"AppsUseLightTheme", nullptr,
-			&type, reinterpret_cast<LPBYTE>(&val), reinterpret_cast<LPDWORD>(&cbData));
+			&type, reinterpret_cast<LPBYTE>(&val), &cbData);
 		RegCloseKey(hkeyPersonalize);
 		if (status == ERROR_SUCCESS) {
 			currentAppearance.dark = val == 0;
