@@ -168,7 +168,8 @@ SciTEWinDlg.o: \
 	UniqueInstance.h \
 	../src/StripDefinition.h \
 	Strips.h \
-	../src/SciTEKeys.h
+	../src/SciTEKeys.h \
+	DLLFunction.h
 Strips.o: \
 	Strips.cxx \
 	SciTEWin.h \
