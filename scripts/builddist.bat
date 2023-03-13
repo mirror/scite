@@ -24,8 +24,8 @@ hg archive -R %REPOSITORY_DIRECTORY%/scite scite
 
 :: Find the Lexilla and Scintilla versions corresponding to the SciTE version
 
-if not [%1] == [] for /F %%i IN (scite\src\lexillaVersion.txt) do set "LEXILLA_WANTED=%%i"
-if not [%1] == [] for /F %%i IN (scite\src\scintillaVersion.txt) do set "SCINTILLA_WANTED=%%i"
+for /F %%i IN (scite\src\lexillaVersion.txt) do set "LEXILLA_WANTED=%%i"
+for /F %%i IN (scite\src\scintillaVersion.txt) do set "SCINTILLA_WANTED=%%i"
 
 echo Lexilla wanted = %LEXILLA_WANTED%
 
@@ -48,7 +48,7 @@ git clone %REPOSITORY_DIRECTORY%/lexilla lexilla
 git -c advice.detachedHead=false clone --branch %LEXILLA_TAG% %REPOSITORY_DIRECTORY%/lexilla lexilla
 )
 
-hg archive -R %REPOSITORY_DIRECTORY%/scintilla scintilla
+hg archive -R %REPOSITORY_DIRECTORY%/scintilla --rev %SCINTILLA_TAG% scintilla
 
 for /F %%i IN (%REPOSITORY_DIRECTORY%\lexilla\version.txt) do set "LEXILLA_VERSION=%%i"
 for /F %%i IN (%REPOSITORY_DIRECTORY%\scintilla\version.txt) do set "SCINTILLA_VERSION=%%i"
