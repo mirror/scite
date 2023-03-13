@@ -1073,6 +1073,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_GD_DEFAULT",0},
 	{"SCE_GD_FUNCNAME",9},
 	{"SCE_GD_IDENTIFIER",11},
+	{"SCE_GD_NODEPATH",16},
 	{"SCE_GD_NUMBER",2},
 	{"SCE_GD_OPERATOR",10},
 	{"SCE_GD_STRING",3},
@@ -3807,7 +3808,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 326,
-	ifaceConstantCount = 3080,
+	ifaceConstantCount = 3081,
 	ifacePropertyCount = 264
 };
 
