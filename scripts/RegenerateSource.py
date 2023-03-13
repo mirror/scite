@@ -121,14 +121,14 @@ def UpdateVersionNumbers(sci, pathSciTE, lexVersion, scintillaVersion):
         "       Release",
         "       Release " + sci.versionDotted)
     ReplaceREInFile(pathDownload,
-        r"/www.scintilla.org/([a-zA-Z]+)\d\d\d",
+        r"/www.scintilla.org/([a-zA-Z]+)\d{3,5}",
         r"/www.scintilla.org/\g<1>" +  sci.version,
         0)
     ReplaceREInFile(pathDownload,
-        r"/www.scintilla.org/(wscite32_)\d\d\d",
+        r"/www.scintilla.org/(wscite32_)\d{3,5}",
         r"/www.scintilla.org/\g<1>" +  sci.version)
     ReplaceREInFile(pathDownload,
-        r"/www.scintilla.org/(Sc32_)\d\d\d",
+        r"/www.scintilla.org/(Sc32_)\d{3,5}",
         r"/www.scintilla.org/\g<1>" +  sci.version)
 
     pathMain = pathSciTE / "doc" / "SciTE.html"
