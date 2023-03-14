@@ -179,9 +179,9 @@ for identifier in sorted(propertyNames - propertiesInGlobal - knownOutputAndLexe
 		print(identifier)
 
 print("\n# Missing localization of resource")
-for l in sorted(resourceSet):
-	if l.lower() not in localeSet:
-		print(l)
+for r in sorted(resourceSet):
+	if r.lower() not in localeSet:
+		print(r)
 
 print("\n# Duplicate properties")
 for property, files in sorted(propertyToFiles.items()):

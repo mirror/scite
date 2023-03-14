@@ -23,7 +23,7 @@ lexDirectory = baseDirectory / "lexilla"
 sys.path.append(str(sciDirectory / "scripts"))
 sys.path.append(str(lexDirectory / "scripts"))
 
-from FileGenerator import lineEnd, Generate, Regenerate, UpdateFile, UpdateLineInFile, ReplaceREInFile
+from FileGenerator import lineEnd, Regenerate, UpdateFile, UpdateLineInFile, ReplaceREInFile
 import ScintillaData
 import LexGen
 import LexillaData
@@ -42,15 +42,15 @@ def FindCredits(historyFile, removeLinks=True):
     credits = []
     stage = 0
     with historyFile.open(encoding="utf-8") as f:
-        for l in f.readlines():
-            l = l.strip()
-            if stage == 0 and l == "<table>":
+        for line in f.readlines():
+            s = line.strip()
+            if stage == 0 and s == "<table>":
                 stage = 1
-            elif stage == 1 and l == "</table>":
+            elif stage == 1 and s == "</table>":
                 stage = 2
-            if stage == 1 and l.startswith("<td>"):
-                credit = l[4:-5]
-                if removeLinks and "<a" in l:
+            if stage == 1 and s.startswith("<td>"):
+                credit = s[4:-5]
+                if removeLinks and "<a" in s:
                     title, _a, rest = credit.partition("<a href=")
                     urlplus, _bracket, end = rest.partition(">")
                     name = end.split("<")[0]
@@ -77,7 +77,7 @@ class SciTEData:
         self.lexillaVersion = self.lexillaVersionFile.read_text().strip()
 
         with (sciteRoot / "doc" / "SciTE.html").open() as f:
-            self.dateModified = [l for l in f.readlines() if "Date.Modified" in l]\
+            self.dateModified = [d for d in f.readlines() if "Date.Modified" in d]\
                 [0].split('\"')[3]
             # 20130602
             # index.html, SciTE.html
@@ -205,24 +205,24 @@ def ExtractItems(pathHistory):
     items = []
     with pathHistory.open(encoding='utf-8') as history:
         afterStart = False
-        for l in history:
-            if markEnd in l:
+        for s in history:
+            if markEnd in s:
                 break
             if afterStart:
-                if "</li>" in l or "<ul>" in l or "</ul>" in l or "<h3>" in l or "</h3>" in l:
+                if "</li>" in s or "<ul>" in s or "</ul>" in s or "<h3>" in s or "</h3>" in s:
                     pass
-                elif "<li>" in l:
+                elif "<li>" in s:
                     items.append("")
-                elif "Lexilla became a separate project at this point." in l:
+                elif "Lexilla became a separate project at this point." in s:
                     pass
-                elif '<a href="https://www.scintilla.org/' in l:
+                elif '<a href="https://www.scintilla.org/' in s:
                     pass
-                elif re.match(r"Released \d+ \w+ \d+", l.strip()):
+                elif re.match(r"Released \d+ \w+ \d+", s.strip()):
                     #Released 5 March 2021.
                     pass
                 else:
-                    items[-1] = items[-1] + l
-            if markStart in l:
+                    items[-1] = items[-1] + s
+            if markStart in s:
                 afterStart = True
     # Remove empty items
     items = [i for i in items if i]
@@ -230,7 +230,7 @@ def ExtractItems(pathHistory):
     return items
 
 def CondenseItem(item):
-    return " ".join(l.strip() for l in item.splitlines())
+    return " ".join(line.strip() for line in item.splitlines())
 
 def NewItems(sciteHistory, items):
     condensedHistory = [CondenseItem(i) for i in sciteHistory]
@@ -255,8 +255,8 @@ def NewsFormatted(section, items):
     text += "\t</ul>" + lineEnd
     return text
 
-def SortListInsensitive(l):
-    l.sort(key=lambda p: str(p).lower())
+def SortListInsensitive(list):
+    list.sort(key=lambda p: str(p).lower())
 
 def CheckOrder(sciteItems, items, name):
     # Check that sciteItems is in the same order as items except for repeated values
@@ -277,7 +277,7 @@ def CheckOrder(sciteItems, items, name):
                 print(f"{indexPrevious} or {indexItem} out of order")
                 print(f"{previous}")
                 print(f"{itCondensed}")
-                print(f"")
+                print()
                 shownName = True
         previous = itCondensed
 
@@ -326,10 +326,10 @@ def RegenerateAll():
     scite = SciTEData(pathSciTE)
 
     if scite.lexillaVersion != lex.version:
-        print(f"{scite.lexillaVersionFile}:0: Lexilla version ", end = '');
+        print(f"{scite.lexillaVersionFile}:0: Lexilla version ", end = '')
         print(f"{DottedVersion(scite.lexillaVersion)} different from {lex.versionDotted}")
     if scite.scintillaVersion != sci.version:
-        print(f"{scite.scintillaVersionFile}:0: Scintilla version ", end = '');
+        print(f"{scite.scintillaVersionFile}:0: Scintilla version ", end = '')
         print(f"{DottedVersion(scite.scintillaVersion)} different from {sci.versionDotted}")
 
     # Generate HTML to document each property

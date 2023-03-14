@@ -76,12 +76,16 @@ for p in srcPaths:
 # Check whether a header guard is present
 for header in headerPaths:
 	# For Cocoa, using #import avoids need for guards
-	if "cocoa" in header.parent.parts: continue
+	if "cocoa" in header.parent.parts:
+		continue
 	# global.h generated for ScintillaEditPy
-	if header.parent.name == "ScintillaEditPy" and header.name == "global.h": continue
+	if header.parent.name == "ScintillaEditPy" and header.name == "global.h":
+		continue
 	# XPM pixmap files may need to be edited with a graphics program
-	if header.name == "pixmapsGNOME.h": continue
-	if header.name == "SciIcon.h": continue
+	if header.name == "pixmapsGNOME.h":
+		continue
+	if header.name == "SciIcon.h":
+		continue
 
 	with header.open(encoding=neutralEncoding) as f:
 		# ScintillaWidget.h -> SCINTILLAWIDGET_H

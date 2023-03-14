@@ -41,11 +41,11 @@ def menuFeatures(out):
 	out.write("<table>\n")
 	out.write("<thead><tr>%s%s</tr></thead>\n" % (head("Command"), head("Menu text")))
 	with open(os.path.join("..", "win32", "SciTERes.rc"), "rt") as f:
-		for l in f:
-			l = l.strip()
-			if l.startswith("MENUITEM") and "SEPARATOR" not in l:
-				l = l.replace("MENUITEM", "").strip()
-				text, symbol = l.split('",', 1)
+		for line in f:
+			s = line.strip()
+			if s.startswith("MENUITEM") and "SEPARATOR" not in s:
+				s = s.replace("MENUITEM", "").strip()
+				text, symbol = s.split('",', 1)
 				symbol = symbol.strip()
 				text = text[1:].replace("&", "").replace("...", "")
 				if "\\t" in text:

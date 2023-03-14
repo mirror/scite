@@ -7,7 +7,6 @@
 # Requires Python 3.6 or later
 
 import sys
-import os
 
 srcRoot = "../.."
 
@@ -81,7 +80,7 @@ properties - a sorted list of (name, property), where property is a
 		setterValue, setterIndex, setterIndexName, setterType = 0, None, None, None
 		propType, propIndex, propIndexName = None, None, None
 
-		isok = (getterName or setterName) and not (getter is setter)
+		isok = (getterName or setterName) and getter is not setter
 
 		if isok and getter:
 			if getter['Param2Type'] == 'stringresult':
@@ -107,7 +106,8 @@ properties - a sorted list of (name, property), where property is a
 			isok = (setter['ReturnType'] == 'void') or (setter['ReturnType'] == 'int' and setterType=='string')
 
 		if isok and getter and setter:
-			isok = ((getterType == setterType) or (getterType == 'stringresult' and setterType == 'string')) and (getterIndex == setterIndex)
+			isok = ((getterType == setterType) or (getterType == 'stringresult' and setterType == 'string')) and \
+				(getterIndex == setterIndex)
 
 		propType = getterType or setterType
 		propIndex = getterIndex or setterIndex
@@ -273,16 +273,24 @@ def idsFromDocumentation(filename):
 	idsInOrder = []
 	segment = ""
 	with open(filename) as f:
-		for l in f:
-			if "<h2" in l:
-				segment = l.split(">")[1].split("<")[0]
-			if 'id="SCI_' in l:
-				idFeature = l.split('"')[1]
+		for s in f:
+			if "<h2" in s:
+				segment = s.split(">")[1].split("<")[0]
+			if 'id="SCI_' in s:
+				idFeature = s.split('"')[1]
 				#~ print(idFeature)
 				idsInOrder.append([segment, idFeature])
 	return idsInOrder
 
-nonScriptableTypes = ["cells", "textrange", "findtext", "formatrange", "textrangefull", "findtextfull", "formatrangefull"]
+nonScriptableTypes = [
+	"cells",
+	"textrange",
+	"findtext",
+	"formatrange",
+	"textrangefull",
+	"findtextfull",
+	"formatrangefull"
+]
 
 def printIFaceTableHTMLFile(faceAndIDs):
 	out = []
@@ -376,20 +384,17 @@ def printIFaceTableHTMLFile(faceAndIDs):
 
 def ReadMenuIDs(filename):
 	ids = []
-	f = open(filename)
-	try:
-		for l in f:
-			if l.startswith("#define"):
-				#~ print l
+	with open(filename) as f:
+		for line in f:
+			if line.startswith("#define"):
+				#~ print line
 				try:
-					_d, name, number = l.split()
+					_d, name, number = line.split()
 					if name.startswith("IDM_"):
 						ids.append((name, {"Value":number}))
 				except ValueError:
 					# No value present
 					pass
-	finally:
-		f.close()
 	return ids
 
 def RegenerateAll():
@@ -400,7 +405,8 @@ def RegenerateAll():
 	menuIDs  = ReadMenuIDs(srcRoot + "/scite/src/SciTE.h")
 	idsInOrder = idsFromDocumentation(srcRoot + "/scintilla/doc/ScintillaDoc.html")
 	FileGenerator.Regenerate(srcRoot + "/scite/src/IFaceTable.cxx", "//", printIFaceTableCXXFile([face, faceLex, menuIDs]))
-	FileGenerator.Regenerate(srcRoot + "/scite/doc/PaneAPI.html", "<!--", printIFaceTableHTMLFile([face, menuIDs, idsInOrder]))
+	FileGenerator.Regenerate(srcRoot + "/scite/doc/PaneAPI.html", "<!--",
+		printIFaceTableHTMLFile([face, menuIDs, idsInOrder]))
 
 if __name__=="__main__":
 	RegenerateAll()
