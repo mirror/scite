@@ -1165,11 +1165,8 @@ void SciTEBase::ReadProperties() {
 			static_cast<unsigned char>(autoCompleteTypeSeparator[0]));
 	}
 
-	sval = props.GetNewExpandString("autocomplete.*.ignorecase");
+	sval = FindLanguageProperty("autocomplete.*.ignorecase");
 	autoCompleteIgnoreCase = sval == "1";
-	sval = props.GetNewExpandString(Join("autocomplete.", "*", ".ignorecase"));
-	if (sval != "")
-		autoCompleteIgnoreCase = sval == "1";
 	wEditor.AutoCSetIgnoreCase(autoCompleteIgnoreCase);
 	wOutput.AutoCSetIgnoreCase(true);
 	autoCompleteVisibleItemCount = props.GetInt("autocomplete.visible.item.count", 9);
