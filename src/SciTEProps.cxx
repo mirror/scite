@@ -634,6 +634,7 @@ static const char *propertiesToForward[] = {
 	"lexer.tex.comment.process",
 	"lexer.tex.interface.default",
 	"lexer.tex.use.keywords",
+	"lexer.vb.strings.multiline",
 	"lexer.verilog.allupperkeywords",
 	"lexer.verilog.fold.preprocessor.else",
 	"lexer.verilog.portstyling",
