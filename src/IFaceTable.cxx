@@ -566,6 +566,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_BAAN_WORD7",15},
 	{"SCE_BAAN_WORD8",16},
 	{"SCE_BAAN_WORD9",17},
+	{"SCE_BAT_AFTER_LABEL",8},
 	{"SCE_BAT_COMMAND",5},
 	{"SCE_BAT_COMMENT",1},
 	{"SCE_BAT_DEFAULT",0},
@@ -3808,7 +3809,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 326,
-	ifaceConstantCount = 3081,
+	ifaceConstantCount = 3082,
 	ifacePropertyCount = 264
 };
 
