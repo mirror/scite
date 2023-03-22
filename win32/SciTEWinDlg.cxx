@@ -785,12 +785,8 @@ public:
 		return TextOfWindow(Item(id));
 	}
 
-	void SetItemText(int id, const GUI::gui_char *s) noexcept {
-		::SetDlgItemTextW(hDlg, id, s);
-	}
-
 	void SetItemText(int id, const GUI::gui_string &s) noexcept {
-		SetItemText(id, s.c_str());
+		::SetDlgItemTextW(hDlg, id, s.c_str());
 	}
 
 	// Handle Unicode controls (assume strings to be UTF-8 on Windows NT)
@@ -1616,14 +1612,14 @@ BOOL SciTEWin::ParametersMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			wParameters = hDlg;
 			Dialog dlg(hDlg);
 			if (modalParameters) {
-				GUI::gui_string sCommand = GUI::StringFromUTF8(parameterisedCommand);
-				dlg.SetItemText(IDCMD, sCommand.c_str());
+				const GUI::gui_string sCommand = GUI::StringFromUTF8(parameterisedCommand);
+				dlg.SetItemText(IDCMD, sCommand);
 			}
 			for (int param = 0; param < maxParam; param++) {
 				std::string paramText = StdStringFromInteger(param + 1);
 				std::string paramTextVal = props.GetString(paramText);
-				GUI::gui_string sVal = GUI::StringFromUTF8(paramTextVal);
-				dlg.SetItemText(IDPARAMSTART + param, sVal.c_str());
+				const GUI::gui_string sVal = GUI::StringFromUTF8(paramTextVal);
+				dlg.SetItemText(IDPARAMSTART + param, sVal);
 			}
 		}
 		return TRUE;
