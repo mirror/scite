@@ -1447,7 +1447,6 @@ void ReplaceStrip::HandleReplaceCommand(int cmd, bool reverseFind) {
 		SetComboFromMemory(wReplace, pSearcher->memReplaces);
 		SetComboText(wReplace, pSearcher->replaceWhat, ComboSelection::atEnd);
 	}
-	//int replacements = 0;
 	if (cmd == IDOK) {
 		if (pSearcher->FindHasText()) {
 			pSearcher->FindNext(reverseFind);
@@ -1456,13 +1455,9 @@ void ReplaceStrip::HandleReplaceCommand(int cmd, bool reverseFind) {
 		pSearcher->ReplaceOnce(incrementalBehaviour == IncrementalBehaviour::simple);
 		NextIncremental(ChangingSource::edit);	// Show not found colour if no more matches.
 	} else if ((cmd == IDREPLACEALL) || (cmd == IDREPLACEINSEL)) {
-		//~ replacements = pSciTEWin->ReplaceAll(cmd == IDREPLACEINSEL);
 		pSearcher->ReplaceAll(cmd == IDREPLACEINSEL);
 		NextIncremental(ChangingSource::edit);	// Show not found colour if no more matches.
 	}
-
-	//GUI::gui_string replDone = GUI::StringFromInteger(replacements);
-	//dlg.SetItemText(IDREPLDONE, replDone.c_str());
 }
 
 bool ReplaceStrip::Command(WPARAM wParam) {
