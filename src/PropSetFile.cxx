@@ -151,9 +151,10 @@ std::string PropSetFile::GetString(std::string_view key) const {
 	return std::string(Get(key));
 }
 
-static std::string ShellEscape(const char *toEscape) {
-	std::string str(toEscape);
-	for (ptrdiff_t i = str.length()-1; i >= 0; --i) {
+namespace {
+
+void ShellEscape(std::string &str) {
+	for (ptrdiff_t i = str.length() - 1; i >= 0; --i) {
 		switch (str[i]) {
 		case ' ':
 		case '|':
@@ -183,15 +184,16 @@ static std::string ShellEscape(const char *toEscape) {
 			break;
 		}
 	}
-	return str;
+}
+
 }
 
 std::string PropSetFile::Evaluate(std::string_view key) const {
 	if (key.find(' ') != std::string_view::npos) {
 		if (StartsWith(key, "escape ")) {
 			std::string val(Get(key.substr(7)));
-			std::string escaped = ShellEscape(val.c_str());
-			return escaped;
+			ShellEscape(val);
+			return val;
 		} else if (StartsWith(key, "= ")) {
 			const std::string sExpressions(key.substr(2));
 			std::vector<std::string> parts = StringSplit(sExpressions, ';');
