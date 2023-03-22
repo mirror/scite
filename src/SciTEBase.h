@@ -653,7 +653,7 @@ protected:
 	SA::Span GetSelection();
 	SelectedRange GetSelectedRange();
 	void SetSelection(SA::Position anchor, SA::Position currentPos);
-	std::string GetCTag();
+	std::string GetCTag(GUI::ScintillaWindow *pw);
 	virtual std::string GetRangeInUIEncoding(GUI::ScintillaWindow &win, SA::Span span);
 	static std::string GetLine(GUI::ScintillaWindow &win, SA::Line line);
 	void RangeExtend(GUI::ScintillaWindow &wCurrent, SA::Span &range,

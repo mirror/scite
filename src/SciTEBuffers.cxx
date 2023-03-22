@@ -2094,13 +2094,11 @@ void SciTEBase::GoMessage(int dir) {
 
 				// If ctag then get line number after search tag or use ctag line number
 				if (style == SCE_ERR_CTAG) {
-					//without following focus GetCTag wouldn't work correct
-					WindowSetFocus(wOutput);
-					std::string cTag = GetCTag();
-					if (cTag.length() != 0) {
-						if (atoi(cTag.c_str()) > 0) {
+					const std::string cTag = GetCTag(&wOutput);
+					if (!cTag.empty()) {
+						if (IsADigit(cTag[0])) {
 							//if tag is linenumber, get line
-							sourceLine = IntegerFromText(cTag.c_str()) - 1;
+							sourceLine = IntPtrFromString(cTag, 0) - 1;
 						} else {
 							findWhat = cTag;
 							FindNext(false);

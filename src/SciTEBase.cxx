@@ -683,11 +683,11 @@ void SciTEBase::SetSelection(SA::Position anchor, SA::Position currentPos) {
 	wEditor.SetSel(anchor, currentPos);
 }
 
-std::string SciTEBase::GetCTag() {
-	const SA::Position lengthDoc = pwFocussed->Length();
-	SA::Position selEnd = pwFocussed->SelectionEnd();
+std::string SciTEBase::GetCTag(GUI::ScintillaWindow *pw) {
+	const SA::Position lengthDoc = pw->Length();
+	SA::Position selEnd = pw->SelectionEnd();
 	SA::Position selStart = selEnd;
-	TextReader acc(*pwFocussed);
+	TextReader acc(*pw);
 	int mustStop = 0;
 	while (!mustStop) {
 		if (selStart < lengthDoc - 1) {
@@ -728,7 +728,7 @@ std::string SciTEBase::GetCTag() {
 	}
 
 	if (selStart < selEnd) {
-		return pwFocussed->StringOfSpan(SA::Span(selStart, selEnd));
+		return pw->StringOfSpan(SA::Span(selStart, selEnd));
 	} else {
 		return std::string();
 	}

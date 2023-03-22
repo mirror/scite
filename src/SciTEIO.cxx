@@ -711,7 +711,7 @@ bool SciTEBase::OpenSelected() {
 		// Support the ctags format
 
 		if (lineNumber == 0) {
-			cTag = GetCTag();
+			cTag = GetCTag(pwFocussed);
 		}
 	}
 
@@ -748,8 +748,8 @@ bool SciTEBase::OpenSelected() {
 		if (Open(pathReturned, of)) {
 			if (lineNumber > 0) {
 				wEditor.GotoLine(lineNumber - 1);
-			} else if (cTag.length() != 0) {
-				const SA::Line cTagLine = IntegerFromText(cTag.c_str());
+			} else if (!cTag.empty()) {
+				const SA::Line cTagLine = IntPtrFromString(cTag, 0);
 				if (cTagLine > 0) {
 					wEditor.GotoLine(cTagLine - 1);
 				} else {
