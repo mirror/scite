@@ -195,135 +195,133 @@ struct SciTEItemFactoryEntry {
 
 }
 
-long SciTEKeys::ParseKeyCode(const char *mnemonic) {
+long SciTEKeys::ParseKeyCode(std::string_view mnemonic) {
+	std::string sKey(mnemonic);
+
 	int modsInKey = 0;
+	if (RemoveStringOnce(sKey, "Ctrl+"))
+		modsInKey |= GDK_CONTROL_MASK;
+	if (RemoveStringOnce(sKey, "Shift+"))
+		modsInKey |= GDK_SHIFT_MASK;
+	if (RemoveStringOnce(sKey, "Alt+"))
+		modsInKey |= GDK_MOD1_MASK;
+	if (RemoveStringOnce(sKey, "Super+"))
+		modsInKey |= GDK_MOD4_MASK;
+
 	int keyval = -1;
 
-	if (mnemonic && *mnemonic) {
-		std::string sKey = mnemonic;
-
-		if (RemoveStringOnce(sKey, "Ctrl+"))
-			modsInKey |= GDK_CONTROL_MASK;
-		if (RemoveStringOnce(sKey, "Shift+"))
-			modsInKey |= GDK_SHIFT_MASK;
-		if (RemoveStringOnce(sKey, "Alt+"))
-			modsInKey |= GDK_MOD1_MASK;
-		if (RemoveStringOnce(sKey, "Super+"))
-			modsInKey |= GDK_MOD4_MASK;
-
-		if (sKey.length() == 1) {
-			if (modsInKey & GDK_CONTROL_MASK && !(modsInKey & GDK_SHIFT_MASK))
-				LowerCaseAZ(sKey);
-			keyval = sKey[0];
-		} else if ((sKey.length() > 1)) {
-			if ((sKey[0] == 'F') && (IsADigit(sKey[1]))) {
-				sKey.erase(0, 1);
-				const int fkeyNum = atoi(sKey.c_str());
-				if (fkeyNum >= 1 && fkeyNum <= 12)
+	if (sKey.length() == 1) {
+		if (modsInKey & GDK_CONTROL_MASK && !(modsInKey & GDK_SHIFT_MASK))
+			LowerCaseAZ(sKey);
+		keyval = sKey[0];
+	} else if ((sKey.length() > 1)) {
+		if ((sKey[0] == 'F') && (IsADigit(sKey[1]))) {
+			sKey.erase(0, 1);
+			const int fkeyNum = IntegerFromString(sKey, 0);
+			if (fkeyNum >= 1 && fkeyNum <= 12)
 #if GTK_CHECK_VERSION(3,0,0)
-					keyval = fkeyNum - 1 + GDK_KEY_F1;
+				keyval = fkeyNum - 1 + GDK_KEY_F1;
 #else
-					keyval = fkeyNum - 1 + GDK_F1;
+				keyval = fkeyNum - 1 + GDK_F1;
 #endif
-			} else {
+		} else {
 #if GTK_CHECK_VERSION(3,0,0)
-				if (sKey == "Left") {
-					keyval = GDK_KEY_Left;
-				} else if (sKey == "Right") {
-					keyval = GDK_KEY_Right;
-				} else if (sKey == "Up") {
-					keyval = GDK_KEY_Up;
-				} else if (sKey == "Down") {
-					keyval = GDK_KEY_Down;
-				} else if (sKey == "Insert") {
-					keyval = GDK_KEY_Insert;
-				} else if (sKey == "End") {
-					keyval = GDK_KEY_End;
-				} else if (sKey == "Home") {
-					keyval = GDK_KEY_Home;
-				} else if (sKey == "Enter") {
-					keyval = GDK_KEY_Return;
-				} else if (sKey == "Space") {
-					keyval = GDK_KEY_space;
-				} else if (sKey == "Tab") {
-					keyval = GDK_KEY_Tab;
-				} else if (sKey == "KeypadPlus") {
-					keyval = GDK_KEY_KP_Add;
-				} else if (sKey == "KeypadMinus") {
-					keyval = GDK_KEY_KP_Subtract;
-				} else if (sKey == "KeypadMultiply") {
-					keyval = GDK_KEY_KP_Multiply;
-				} else if (sKey == "KeypadDivide") {
-					keyval = GDK_KEY_KP_Divide;
-				} else if (sKey == "Escape") {
-					keyval = GDK_KEY_Escape;
-				} else if (sKey == "Delete") {
-					keyval = GDK_KEY_Delete;
-				} else if (sKey == "PageUp") {
-					keyval = GDK_KEY_Page_Up;
-				} else if (sKey == "PageDown") {
-					keyval = GDK_KEY_Page_Down;
-				} else if (sKey == "Slash") {
-					keyval = GDK_KEY_slash;
-				} else if (sKey == "Question") {
-					keyval = GDK_KEY_question;
-				} else if (sKey == "Equal") {
-					keyval = GDK_KEY_equal;
-				} else if (sKey == "Win") {
-					keyval = GDK_KEY_Super_L;
-				} else if (sKey == "Menu") {
-					keyval = GDK_KEY_Menu;
-				}
-#else
-				if (sKey == "Left") {
-					keyval = GDK_Left;
-				} else if (sKey == "Right") {
-					keyval = GDK_Right;
-				} else if (sKey == "Up") {
-					keyval = GDK_Up;
-				} else if (sKey == "Down") {
-					keyval = GDK_Down;
-				} else if (sKey == "Insert") {
-					keyval = GDK_Insert;
-				} else if (sKey == "End") {
-					keyval = GDK_End;
-				} else if (sKey == "Home") {
-					keyval = GDK_Home;
-				} else if (sKey == "Enter") {
-					keyval = GDK_Return;
-				} else if (sKey == "Space") {
-					keyval = GDK_space;
-				} else if (sKey == "Tab") {
-					keyval = GDK_Tab;
-				} else if (sKey == "KeypadPlus") {
-					keyval = GDK_KP_Add;
-				} else if (sKey == "KeypadMinus") {
-					keyval = GDK_KP_Subtract;
-				} else if (sKey == "KeypadMultiply") {
-					keyval = GDK_KP_Multiply;
-				} else if (sKey == "KeypadDivide") {
-					keyval = GDK_KP_Divide;
-				} else if (sKey == "Escape") {
-					keyval = GDK_Escape;
-				} else if (sKey == "Delete") {
-					keyval = GDK_Delete;
-				} else if (sKey == "PageUp") {
-					keyval = GDK_Page_Up;
-				} else if (sKey == "PageDown") {
-					keyval = GDK_Page_Down;
-				} else if (sKey == "Slash") {
-					keyval = GDK_slash;
-				} else if (sKey == "Question") {
-					keyval = GDK_question;
-				} else if (sKey == "Equal") {
-					keyval = GDK_equal;
-				} else if (sKey == "Win") {
-					keyval = GDK_Super_L;
-				} else if (sKey == "Menu") {
-					keyval = GDK_Menu;
-				}
-#endif
+			if (sKey == "Left") {
+				keyval = GDK_KEY_Left;
+			} else if (sKey == "Right") {
+				keyval = GDK_KEY_Right;
+			} else if (sKey == "Up") {
+				keyval = GDK_KEY_Up;
+			} else if (sKey == "Down") {
+				keyval = GDK_KEY_Down;
+			} else if (sKey == "Insert") {
+				keyval = GDK_KEY_Insert;
+			} else if (sKey == "End") {
+				keyval = GDK_KEY_End;
+			} else if (sKey == "Home") {
+				keyval = GDK_KEY_Home;
+			} else if (sKey == "Enter") {
+				keyval = GDK_KEY_Return;
+			} else if (sKey == "Space") {
+				keyval = GDK_KEY_space;
+			} else if (sKey == "Tab") {
+				keyval = GDK_KEY_Tab;
+			} else if (sKey == "KeypadPlus") {
+				keyval = GDK_KEY_KP_Add;
+			} else if (sKey == "KeypadMinus") {
+				keyval = GDK_KEY_KP_Subtract;
+			} else if (sKey == "KeypadMultiply") {
+				keyval = GDK_KEY_KP_Multiply;
+			} else if (sKey == "KeypadDivide") {
+				keyval = GDK_KEY_KP_Divide;
+			} else if (sKey == "Escape") {
+				keyval = GDK_KEY_Escape;
+			} else if (sKey == "Delete") {
+				keyval = GDK_KEY_Delete;
+			} else if (sKey == "PageUp") {
+				keyval = GDK_KEY_Page_Up;
+			} else if (sKey == "PageDown") {
+				keyval = GDK_KEY_Page_Down;
+			} else if (sKey == "Slash") {
+				keyval = GDK_KEY_slash;
+			} else if (sKey == "Question") {
+				keyval = GDK_KEY_question;
+			} else if (sKey == "Equal") {
+				keyval = GDK_KEY_equal;
+			} else if (sKey == "Win") {
+				keyval = GDK_KEY_Super_L;
+			} else if (sKey == "Menu") {
+				keyval = GDK_KEY_Menu;
 			}
+#else
+			if (sKey == "Left") {
+				keyval = GDK_Left;
+			} else if (sKey == "Right") {
+				keyval = GDK_Right;
+			} else if (sKey == "Up") {
+				keyval = GDK_Up;
+			} else if (sKey == "Down") {
+				keyval = GDK_Down;
+			} else if (sKey == "Insert") {
+				keyval = GDK_Insert;
+			} else if (sKey == "End") {
+				keyval = GDK_End;
+			} else if (sKey == "Home") {
+				keyval = GDK_Home;
+			} else if (sKey == "Enter") {
+				keyval = GDK_Return;
+			} else if (sKey == "Space") {
+				keyval = GDK_space;
+			} else if (sKey == "Tab") {
+				keyval = GDK_Tab;
+			} else if (sKey == "KeypadPlus") {
+				keyval = GDK_KP_Add;
+			} else if (sKey == "KeypadMinus") {
+				keyval = GDK_KP_Subtract;
+			} else if (sKey == "KeypadMultiply") {
+				keyval = GDK_KP_Multiply;
+			} else if (sKey == "KeypadDivide") {
+				keyval = GDK_KP_Divide;
+			} else if (sKey == "Escape") {
+				keyval = GDK_Escape;
+			} else if (sKey == "Delete") {
+				keyval = GDK_Delete;
+			} else if (sKey == "PageUp") {
+				keyval = GDK_Page_Up;
+			} else if (sKey == "PageDown") {
+				keyval = GDK_Page_Down;
+			} else if (sKey == "Slash") {
+				keyval = GDK_slash;
+			} else if (sKey == "Question") {
+				keyval = GDK_question;
+			} else if (sKey == "Equal") {
+				keyval = GDK_equal;
+			} else if (sKey == "Win") {
+				keyval = GDK_Super_L;
+			} else if (sKey == "Menu") {
+				keyval = GDK_Menu;
+			}
+#endif
 		}
 	}
 
@@ -3050,7 +3048,7 @@ KeyToCommand kmap[] = {
                                  {0, 0, 0},
                              };
 
-bool KeyMatch(const char *menuKey, int keyval, int modifiers) {
+bool KeyMatch(std::string_view menuKey, int keyval, int modifiers) {
 	return SciTEKeys::MatchKeyCode(
 		SciTEKeys::ParseKeyCode(menuKey), keyval, modifiers);
 }
@@ -3088,7 +3086,7 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 	if (!commandID) {
 		// Look through language menu
 		for (unsigned int j = 0; j < languageMenu.size(); j++) {
-			if (KeyMatch(languageMenu[j].menuKey.c_str(), event->keyval, modifiers)) {
+			if (KeyMatch(languageMenu[j].menuKey, event->keyval, modifiers)) {
 				commandID = IDM_LANGUAGE + j;
 			}
 		}
@@ -3119,7 +3117,7 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 
 	// check user defined keys
 	for (const ShortcutItem &scut : shortCutItemList) {
-		if (KeyMatch(scut.menuKey.c_str(), event->keyval, modifiers)) {
+		if (KeyMatch(scut.menuKey, event->keyval, modifiers)) {
 			const int commandNum = SciTEBase::GetMenuCommandAsInt(scut.menuCommand);
 			if (commandNum != -1) {
 				if (commandNum < 2000) {

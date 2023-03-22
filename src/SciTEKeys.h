@@ -10,7 +10,7 @@
 
 class SciTEKeys {
 public:
-	static long ParseKeyCode(const char *mnemonic);
+	static long ParseKeyCode(std::string_view mnemonic);
 	static bool MatchKeyCode(long parsedKeyCode, int keyval, int modifiers) noexcept;
 };
 

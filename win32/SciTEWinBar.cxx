@@ -520,7 +520,7 @@ void SciTEWin::SetMenuItem(int menuNumber, int position, int itemID,
 	GUI::gui_string sTextMnemonic = text;
 	long keycode = 0;
 	if (mnemonic && *mnemonic) {
-		keycode = SciTEKeys::ParseKeyCode(GUI::UTF8FromString(mnemonic).c_str());
+		keycode = SciTEKeys::ParseKeyCode(GUI::UTF8FromString(mnemonic));
 		if (keycode) {
 			sTextMnemonic += GUI_TEXT("\t");
 			sTextMnemonic += mnemonic;

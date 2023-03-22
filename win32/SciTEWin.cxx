@@ -51,87 +51,85 @@ static GUI::gui_string GetErrorMessage(DWORD nRet) {
 	}
 }
 
-long SciTEKeys::ParseKeyCode(const char *mnemonic) {
-	SA::KeyMod modsInKey = static_cast<SA::KeyMod>(0);
+long SciTEKeys::ParseKeyCode(std::string_view mnemonic) {
+	std::string sKey(mnemonic);
+
+	SA::KeyMod modsInKey = SA::KeyMod::Norm;
+	if (RemoveStringOnce(sKey, "Ctrl+"))
+		modsInKey = SA::KeyMod::Ctrl;
+	if (RemoveStringOnce(sKey, "Shift+"))
+		modsInKey = modsInKey | SA::KeyMod::Shift;
+	if (RemoveStringOnce(sKey, "Alt+"))
+		modsInKey = modsInKey | SA::KeyMod::Alt;
+
 	int keyval = -1;
 
-	if (mnemonic && *mnemonic) {
-		std::string sKey = mnemonic;
-
-		if (RemoveStringOnce(sKey, "Ctrl+"))
-			modsInKey = modsInKey | SA::KeyMod::Ctrl;
-		if (RemoveStringOnce(sKey, "Shift+"))
-			modsInKey = modsInKey | SA::KeyMod::Shift;
-		if (RemoveStringOnce(sKey, "Alt+"))
-			modsInKey = modsInKey | SA::KeyMod::Alt;
-
-		if (sKey.length() == 1) {
-			keyval = VkKeyScan(sKey.at(0)) & 0xFF;
-		} else if (sKey.length() > 1) {
-			if ((sKey.at(0) == 'F') && (IsADigit(sKey.at(1)))) {
-				sKey.erase(0, 1);
-				const int fkeyNum = atoi(sKey.c_str());
-				if (fkeyNum >= 1 && fkeyNum <= 12)
-					keyval = fkeyNum - 1 + VK_F1;
-			} else if ((sKey.at(0) == 'V') && (IsADigit(sKey.at(1)))) {
-				sKey.erase(0, 1);
-				const int vkey = atoi(sKey.c_str());
-				if (vkey > 0 && vkey <= 0x7FFF)
-					keyval = vkey;
-			} else if (StartsWith(sKey, "Keypad")) {
-				sKey.erase(0, strlen("Keypad"));
-				if ((sKey.length() > 0) && IsADigit(sKey.at(0))) {
-					const int keyNum = atoi(sKey.c_str());
-					if (keyNum >= 0 && keyNum <= 9)
-						keyval = keyNum + VK_NUMPAD0;
-				} else if (sKey == "Plus") {
-					keyval = VK_ADD;
-				} else if (sKey == "Minus") {
-					keyval = VK_SUBTRACT;
-				} else if (sKey == "Decimal") {
-					keyval = VK_DECIMAL;
-				} else if (sKey == "Divide") {
-					keyval = VK_DIVIDE;
-				} else if (sKey == "Multiply") {
-					keyval = VK_MULTIPLY;
-				}
-			} else if (sKey == "Left") {
-				keyval = VK_LEFT;
-			} else if (sKey == "Right") {
-				keyval = VK_RIGHT;
-			} else if (sKey == "Up") {
-				keyval = VK_UP;
-			} else if (sKey == "Down") {
-				keyval = VK_DOWN;
-			} else if (sKey == "Insert") {
-				keyval = VK_INSERT;
-			} else if (sKey == "End") {
-				keyval = VK_END;
-			} else if (sKey == "Home") {
-				keyval = VK_HOME;
-			} else if (sKey == "Enter") {
-				keyval = VK_RETURN;
-			} else if (sKey == "Space") {
-				keyval = VK_SPACE;
-			} else if (sKey == "Tab") {
-				keyval = VK_TAB;
-			} else if (sKey == "Escape") {
-				keyval = VK_ESCAPE;
-			} else if (sKey == "Delete") {
-				keyval = VK_DELETE;
-			} else if (sKey == "PageUp") {
-				keyval = VK_PRIOR;
-			} else if (sKey == "PageDown") {
-				keyval = VK_NEXT;
-			} else if (sKey == "Win") {
-				keyval = VK_LWIN;
-			} else if (sKey == "Menu") {
-				keyval = VK_APPS;
-			} else if (sKey == "Backward") {
-				keyval = VK_BROWSER_BACK;
-			} else if (sKey == "Forward") {
-				keyval = VK_BROWSER_FORWARD;
+	if (sKey.length() == 1) {
+		keyval = VkKeyScan(sKey.at(0)) & 0xFF;
+	} else if (sKey.length() > 1) {
+		if ((sKey.at(0) == 'F') && (IsADigit(sKey.at(1)))) {
+			sKey.erase(0, 1);
+			const int fkeyNum = IntegerFromString(sKey, 0);
+			if (fkeyNum >= 1 && fkeyNum <= 12)
+				keyval = fkeyNum - 1 + VK_F1;
+		} else if ((sKey.at(0) == 'V') && (IsADigit(sKey.at(1)))) {
+			sKey.erase(0, 1);
+			const int vkey = IntegerFromString(sKey, 0);
+			if (vkey > 0 && vkey <= 0x7FFF)
+				keyval = vkey;
+		} else if (StartsWith(sKey, "Keypad")) {
+			sKey.erase(0, strlen("Keypad"));
+			if ((sKey.length() > 0) && IsADigit(sKey.at(0))) {
+				const int keyNum = IntegerFromString(sKey, -1);
+				if (keyNum >= 0 && keyNum <= 9)
+					keyval = keyNum + VK_NUMPAD0;
+			} else if (sKey == "Plus") {
+				keyval = VK_ADD;
+			} else if (sKey == "Minus") {
+				keyval = VK_SUBTRACT;
+			} else if (sKey == "Decimal") {
+				keyval = VK_DECIMAL;
+			} else if (sKey == "Divide") {
+				keyval = VK_DIVIDE;
+			} else if (sKey == "Multiply") {
+				keyval = VK_MULTIPLY;
 			}
+		} else if (sKey == "Left") {
+			keyval = VK_LEFT;
+		} else if (sKey == "Right") {
+			keyval = VK_RIGHT;
+		} else if (sKey == "Up") {
+			keyval = VK_UP;
+		} else if (sKey == "Down") {
+			keyval = VK_DOWN;
+		} else if (sKey == "Insert") {
+			keyval = VK_INSERT;
+		} else if (sKey == "End") {
+			keyval = VK_END;
+		} else if (sKey == "Home") {
+			keyval = VK_HOME;
+		} else if (sKey == "Enter") {
+			keyval = VK_RETURN;
+		} else if (sKey == "Space") {
+			keyval = VK_SPACE;
+		} else if (sKey == "Tab") {
+			keyval = VK_TAB;
+		} else if (sKey == "Escape") {
+			keyval = VK_ESCAPE;
+		} else if (sKey == "Delete") {
+			keyval = VK_DELETE;
+		} else if (sKey == "PageUp") {
+			keyval = VK_PRIOR;
+		} else if (sKey == "PageDown") {
+			keyval = VK_NEXT;
+		} else if (sKey == "Win") {
+			keyval = VK_LWIN;
+		} else if (sKey == "Menu") {
+			keyval = VK_APPS;
+		} else if (sKey == "Backward") {
+			keyval = VK_BROWSER_BACK;
+		} else if (sKey == "Forward") {
+			keyval = VK_BROWSER_FORWARD;
 		}
 	}
 
@@ -1886,7 +1884,7 @@ void SciTEWin::ScaleChanged(WPARAM wParam, LPARAM lParam) {
 
 inline bool KeyMatch(const std::string &sKey, int keyval, int modifiers) {
 	return SciTEKeys::MatchKeyCode(
-		       SciTEKeys::ParseKeyCode(sKey.c_str()), keyval, modifiers);
+		       SciTEKeys::ParseKeyCode(sKey), keyval, modifiers);
 }
 
 LRESULT SciTEWin::KeyDown(WPARAM wParam) {
