@@ -85,10 +85,8 @@ int curBufferIndex = -1;
 int GetPropertyInt(const char *propName) {
 	int propVal = 0;
 	if (host) {
-		std::string sPropVal = host->Property(propName);
-		if (sPropVal.length()) {
-			propVal = atoi(sPropVal.c_str());
-		}
+		const std::string sPropVal = host->Property(propName);
+		propVal = IntegerFromString(sPropVal, 0);
 	}
 	return propVal;
 }

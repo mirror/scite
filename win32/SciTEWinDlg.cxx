@@ -914,7 +914,7 @@ void DialogFindReplace::GrabFields() {
 	pSearcher->contextVisible = Checked(IDCONTEXTVISIBLE);
 	if (advanced) {
 		pSearcher->findInStyle = Checked(IDFINDINSTYLE);
-		pSearcher->findStyle = atoi(ItemTextU(IDFINDSTYLE).c_str());
+		pSearcher->findStyle = IntegerFromString(ItemTextU(IDFINDSTYLE), 0);
 	}
 }
 

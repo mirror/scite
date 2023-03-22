@@ -876,7 +876,7 @@ void SciTEBase::ReadProperties() {
 			ssSubStylesKey += ".";
 			ssSubStylesKey += sStyleBase;
 			std::string ssNumber = props.GetNewExpandString(ssSubStylesKey);
-			int subStyleIdentifiers = atoi(ssNumber.c_str());
+			int subStyleIdentifiers = IntegerFromString(ssNumber, 0);
 
 			int subStyleIdentifiersStart = 0;
 			if (subStyleIdentifiers) {
@@ -1018,8 +1018,9 @@ void SciTEBase::ReadProperties() {
 
 	const std::string caretPeriod = props.GetString("caret.period");
 	if (caretPeriod.length()) {
-		wEditor.SetCaretPeriod(atoi(caretPeriod.c_str()));
-		wOutput.SetCaretPeriod(atoi(caretPeriod.c_str()));
+		const int caretPeriodValue = IntegerFromString(caretPeriod, 0);
+		wEditor.SetCaretPeriod(caretPeriodValue);
+		wOutput.SetCaretPeriod(caretPeriodValue);
 	}
 
 	const int caretZoneX = props.GetInt("caret.policy.width", 50);
@@ -1209,9 +1210,7 @@ void SciTEBase::ReadProperties() {
 	wEditor.SetMarginWidthN(1, margin ? marginWidth : 0);
 
 	const std::string lineMarginProp = props.GetString("line.margin.width");
-	lineNumbersWidth = atoi(lineMarginProp.c_str());
-	if (lineNumbersWidth == 0)
-		lineNumbersWidth = lineNumbersWidthDefault;
+	lineNumbersWidth = IntegerFromString(lineMarginProp, lineNumbersWidthDefault);
 	lineNumbersExpand = lineMarginProp.find('+') != std::string::npos;
 
 	SetLineNumberWidth();
@@ -1249,7 +1248,7 @@ void SciTEBase::ReadProperties() {
 	}
 
 	const std::string viewIndentExamine = GetFileNameProperty("view.indentation.examine");
-	indentExamine = viewIndentExamine.length() ? static_cast<SA::IndentView>(atoi(viewIndentExamine.c_str())) : SA::IndentView::Real;
+	indentExamine = static_cast<SA::IndentView>(IntegerFromString(viewIndentExamine, 1));
 	wEditor.SetIndentationGuides(props.GetInt("view.indentation.guides") ?
 				     indentExamine : SA::IndentView::None);
 
@@ -1259,20 +1258,17 @@ void SciTEBase::ReadProperties() {
 	wEditor.CallTipUseStyle(32);
 
 	std::string useStripTrailingSpaces = props.GetNewExpandString("strip.trailing.spaces.", ExtensionFileName());
-	if (useStripTrailingSpaces.length() > 0) {
-		stripTrailingSpaces = atoi(useStripTrailingSpaces.c_str()) != 0;
-	} else {
-		stripTrailingSpaces = props.GetInt("strip.trailing.spaces") != 0;
-	}
+	stripTrailingSpaces = IntegerFromString(useStripTrailingSpaces, props.GetInt("strip.trailing.spaces")) != 0;
+
 	ensureFinalLineEnd = props.GetInt("ensure.final.line.end") != 0;
 	ensureConsistentLineEnds = props.GetInt("ensure.consistent.line.ends") != 0;
 
 	indentOpening = props.GetInt("indent.opening");
 	indentClosing = props.GetInt("indent.closing");
-	indentMaintain = atoi(props.GetNewExpandString("indent.maintain.", fileNameForExtension).c_str());
+	indentMaintain = IntegerFromString(props.GetNewExpandString("indent.maintain.", fileNameForExtension), 0);
 
 	const std::string lookback = props.GetNewExpandString("statement.lookback.", fileNameForExtension);
-	statementLookback = atoi(lookback.c_str());
+	statementLookback = IntegerFromString(lookback, 0);
 	statementIndent = GetStyleAndWords("statement.indent.");
 	statementEnd = GetStyleAndWords("statement.end.");
 	blockStart = GetStyleAndWords("block.start.");
@@ -2044,5 +2040,5 @@ int SciTEBase::GetMenuCommandAsInt(const std::string &commandName) {
 	}
 
 	// Otherwise we might have entered a number as command to access a "SCI_" command
-	return atoi(commandName.c_str());
+	return IntegerFromString(commandName, 0);
 }

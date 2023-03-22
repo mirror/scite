@@ -861,32 +861,27 @@ void SciTEBase::SaveSessionFile(const GUI::gui_char *sessionName) {
 
 void SciTEBase::SetIndentSettings() {
 	// Get default values
-	const int useTabs = props.GetInt("use.tabs", 1);
-	const int tabSize = props.GetInt("tabsize");
-	const int indentSize = props.GetInt("indent.size");
+	const int useTabsDefault = props.GetInt("use.tabs", 1);
+	const int tabSizeDefault = props.GetInt("tabsize");
+	const int indentSizeDefault = props.GetInt("indent.size");
+
 	// Either set the settings related to the extension or the default ones
-	std::string fileNameForExtension = ExtensionFileName();
-	std::string useTabsChars = props.GetNewExpandString("use.tabs.",
+	const std::string fileNameForExtension = ExtensionFileName();
+
+	const std::string useTabsChars = props.GetNewExpandString("use.tabs.",
 				   fileNameForExtension);
-	if (useTabsChars.length() != 0) {
-		wEditor.SetUseTabs(atoi(useTabsChars.c_str()));
-	} else {
-		wEditor.SetUseTabs(useTabs);
-	}
-	std::string tabSizeForExt = props.GetNewExpandString("tab.size.",
+	const int useTabs = IntegerFromString(useTabsChars, useTabsDefault);
+	wEditor.SetUseTabs(useTabs);
+
+	const std::string tabSizeForExt = props.GetNewExpandString("tab.size.",
 				    fileNameForExtension);
-	if (tabSizeForExt.length() != 0) {
-		wEditor.SetTabWidth(atoi(tabSizeForExt.c_str()));
-	} else if (tabSize != 0) {
-		wEditor.SetTabWidth(tabSize);
-	}
-	std::string indentSizeForExt = props.GetNewExpandString("indent.size.",
+	const int tabSize = IntegerFromString(tabSizeForExt, tabSizeDefault);
+	wEditor.SetTabWidth(tabSize);
+
+	const std::string indentSizeForExt = props.GetNewExpandString("indent.size.",
 				       fileNameForExtension);
-	if (indentSizeForExt.length() != 0) {
-		wEditor.SetIndent(atoi(indentSizeForExt.c_str()));
-	} else {
-		wEditor.SetIndent(indentSize);
-	}
+	const int indentSize = IntegerFromString(indentSizeForExt, indentSizeDefault);
+	wEditor.SetIndent(indentSize);
 }
 
 void SciTEBase::SetEol() {

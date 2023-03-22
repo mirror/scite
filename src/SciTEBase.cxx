@@ -334,9 +334,9 @@ void SciTEBase::ViewWhitespace(bool view) {
 
 StyleAndWords SciTEBase::GetStyleAndWords(const char *base) {
 	StyleAndWords sw;
-	std::string fileNameForExtension = ExtensionFileName();
-	std::string sAndW = props.GetNewExpandString(base, fileNameForExtension);
-	sw.styleNumber = atoi(sAndW.c_str());
+	const std::string fileNameForExtension = ExtensionFileName();
+	const std::string sAndW = props.GetNewExpandString(base, fileNameForExtension);
+	sw.styleNumber = IntegerFromString(sAndW, 0);
 	const char *space = strchr(sAndW.c_str(), ' ');
 	if (space)
 		sw.words = space + 1;
