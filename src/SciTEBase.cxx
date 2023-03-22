@@ -1362,10 +1362,8 @@ void SciTEBase::UIClosed() {
 void SciTEBase::UIHasFocus() {
 }
 
-void SciTEBase::OutputAppendString(const char *s, SA::Position len) {
-	if (len == -1)
-		len = strlen(s);
-	wOutput.AppendText(len, s);
+void SciTEBase::OutputAppendString(std::string_view s) {
+	wOutput.AppendText(s.length(), s.data());
 	if (scrollOutput) {
 		const SA::Line line = wOutput.LineCount();
 		const SA::Position lineStart = wOutput.LineStart(line);
@@ -1373,11 +1371,9 @@ void SciTEBase::OutputAppendString(const char *s, SA::Position len) {
 	}
 }
 
-void SciTEBase::OutputAppendStringSynchronised(const char *s, SA::Position len) {
+void SciTEBase::OutputAppendStringSynchronised(std::string_view s) {
 	// This may be called from secondary thread so always use Send instead of Call
-	if (len == -1)
-		len = strlen(s);
-	wOutput.Send(SCI_APPENDTEXT, len, SptrFromString(s));
+	wOutput.Send(SCI_APPENDTEXT, s.length(), SptrFromString(s.data()));
 	if (scrollOutput) {
 		const SA::Line line = wOutput.Send(SCI_GETLINECOUNT);
 		const SA::Position lineStart = wOutput.Send(SCI_POSITIONFROMLINE, line);

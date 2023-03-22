@@ -2262,7 +2262,7 @@ void SciTEGTK::ContinueExecute(int fromPoll) {
 			wEditor.Send(SCI_SETSEL, cpMin, cpMin+lastOutput.length());
 		}
 		sExitMessage.append("\n");
-		OutputAppendString(sExitMessage.c_str());
+		OutputAppendString(sExitMessage);
 		// Move selection back to beginning of this run so that F4 will go
 		// to first error of this run.
 		if ((scrollOutput == 1) && returnOutputToCommand)
@@ -2366,7 +2366,7 @@ void SciTEGTK::Execute() {
 
 	if (jobQueue.jobQueue[icmd].jobType != JobSubsystem::extension) {
 		OutputAppendString(">");
-		OutputAppendString(jobQueue.jobQueue[icmd].command.c_str());
+		OutputAppendString(jobQueue.jobQueue[icmd].command);
 		OutputAppendString("\n");
 	}
 

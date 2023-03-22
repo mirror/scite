@@ -1667,7 +1667,7 @@ void SciTEBase::ReadEditorConfig(const std::string &fileNameForExtension) {
 			diagnostic += "=";
 			diagnostic += pss.second;
 			diagnostic += "'.\n";
-			OutputAppendString(diagnostic.c_str());
+			OutputAppendString(diagnostic);
 			SetOutputVisibility(true);
 		}
 	}

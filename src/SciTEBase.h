@@ -725,8 +725,8 @@ protected:
 	void GoMatchingBrace(bool select);
 	void GoMatchingPreprocCond(int direction, bool select);
 	virtual void FindReplace(bool replace) = 0;
-	void OutputAppendString(const char *s, SA::Position len = -1);
-	virtual void OutputAppendStringSynchronised(const char *s, SA::Position len = -1);
+	void OutputAppendString(std::string_view s);
+	virtual void OutputAppendStringSynchronised(std::string_view s);
 	virtual void Execute();
 	virtual void StopExecute() = 0;
 	void ShowMessages(SA::Line line);

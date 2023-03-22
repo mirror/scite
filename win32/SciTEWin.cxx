@@ -806,7 +806,7 @@ static UINT CodePageFromCharSet(SA::CharacterSet characterSet, UINT documentCode
 
 void SciTEWin::OutputAppendEncodedStringSynchronised(const GUI::gui_string &s, int codePageDocument) {
 	const std::string sMulti = StringEncode(s, codePageDocument);
-	OutputAppendStringSynchronised(sMulti.c_str(), sMulti.length());
+	OutputAppendStringSynchronised(sMulti);
 }
 
 CommandWorker::CommandWorker() noexcept : pSciTE(nullptr) {
@@ -1025,7 +1025,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 			Substitute(input, "\n", "\n>> ");
 
 			OutputAppendStringSynchronised(">> ");
-			OutputAppendStringSynchronised(input.c_str());
+			OutputAppendStringSynchronised(input);
 			OutputAppendStringSynchronised("\n");
 		}
 
@@ -1114,7 +1114,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 							cmdWorker.seenOutput = true;
 						}
 						// Display the data
-						OutputAppendStringSynchronised(&buffer[0], bytesRead);
+						OutputAppendStringSynchronised(std::string_view(buffer.data(), bytesRead));
 					}
 
 					::UpdateWindow(MainHWND());
@@ -1157,7 +1157,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 			stExitMessage << std::setprecision(4) << cmdWorker.commandTime.Duration();
 		}
 		stExitMessage << "\n";
-		OutputAppendStringSynchronised(stExitMessage.str().c_str());
+		OutputAppendStringSynchronised(stExitMessage.str());
 
 		::CloseHandle(pi.hProcess);
 		::CloseHandle(pi.hThread);
@@ -1358,7 +1358,7 @@ void SciTEWin::StopExecute() {
 			LONG errCode = GetLastError();
 			OutputAppendStringSynchronised("\n>BREAK Failed ");
 			std::string sError = StdStringFromInteger(errCode);
-			OutputAppendStringSynchronised(sError.c_str());
+			OutputAppendStringSynchronised(sError);
 			OutputAppendStringSynchronised("\n");
 		}
 		Sleep(100L);
