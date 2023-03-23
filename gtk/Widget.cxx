@@ -10,6 +10,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <memory>
 #include <chrono>
 
 #include <gtk/gtk.h>
@@ -209,9 +210,8 @@ void WCheckDraw::Create(int cmd_, const char **xpmImage, const GUI::gui_string &
 	gtk_button_set_relief(GTK_BUTTON(button), GTK_RELIEF_NONE);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), FALSE);
 
-	GdkPixbuf *pbGrey = gdk_pixbuf_new_from_xpm_data(xpmImage);
-	GdkPixbuf *pbAlpha = gdk_pixbuf_add_alpha(pbGrey, TRUE, 0xff, 0xff, 0);
-	g_object_unref(pbGrey);
+	UniquePixbuf pbGrey(gdk_pixbuf_new_from_xpm_data(xpmImage));
+	UniquePixbuf pbAlpha(gdk_pixbuf_add_alpha(pbGrey.get(), TRUE, 0xff, 0xff, 0));
 
 #if GTK_CHECK_VERSION(3, 0, 0)
 	GtkStyleContext *context = gtk_widget_get_style_context(button);
@@ -229,9 +229,8 @@ void WCheckDraw::Create(int cmd_, const char **xpmImage, const GUI::gui_string &
 #endif
 
 	// Convert the grey to alpha and make black
-	GreyToAlpha(pbAlpha, fore);
-	GtkWidget *image = gtk_image_new_from_pixbuf(pbAlpha);
-	g_object_unref(pbAlpha);
+	GreyToAlpha(pbAlpha.get(), fore);
+	GtkWidget *image = gtk_image_new_from_pixbuf(pbAlpha.get());
 
 	SetID(button);
 	gtk_container_add(GTK_CONTAINER(button), image);

@@ -475,10 +475,10 @@ protected:
 	gint	fileSelectorWidth;
 	gint	fileSelectorHeight;
 
-	GtkSettings *settings;
+	UniqueSettings settings;
 
-	GtkPrintSettings *printSettings;
-	GtkPageSetup *pageSetup;
+	UniquePrintSettings printSettings;
+	UniquePageSetup pageSetup;
 	std::vector<int> pageStarts;
 
 	GtkWidget *AddMBButton(GtkWidget *dialog, const char *label,
@@ -724,9 +724,9 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 
 	pathAbbreviations = GetAbbrevPropertiesFileName();
 
-	settings = gtk_settings_get_default();
+	settings.reset(gtk_settings_get_default());
 	appearance = CurrentAppearance();
-	g_signal_connect(settings, "notify::gtk-theme-name", G_CALLBACK(ThemeSignal), this);
+	g_signal_connect(settings.get(), "notify::gtk-theme-name", G_CALLBACK(ThemeSignal), this);
 
 	ReadGlobalPropFile();
 	ReadAbbrevPropFile();
@@ -756,9 +756,7 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	instance = this;
 }
 
-SciTEGTK::~SciTEGTK() {
-	g_object_unref(settings);
-}
+SciTEGTK::~SciTEGTK()=default;
 
 static void destroyDialog(GtkWidget *, gpointer *window) {
 	if (window) {
@@ -1603,10 +1601,12 @@ void SciTEGTK::SaveSessionDialog() {
 	}
 }
 
-static PangoLayout *PangoLayoutFromStyleDefinition(GtkPrintContext *context, const StyleDefinition &sd) {
-	PangoLayout *layout = gtk_print_context_create_pango_layout(context);
+namespace {
+
+UniquePangoLayout PangoLayoutFromStyleDefinition(GtkPrintContext *context, const StyleDefinition &sd) {
+	UniquePangoLayout layout(gtk_print_context_create_pango_layout(context));
 	if (layout) {
-		pango_layout_set_alignment(layout, PANGO_ALIGN_LEFT);
+		pango_layout_set_alignment(layout.get(), PANGO_ALIGN_LEFT);
 		PangoFontDescription *pfd = pango_font_description_new();
 		if (pfd) {
 			const char *fontName = "Sans";
@@ -1619,11 +1619,13 @@ static PangoLayout *PangoLayoutFromStyleDefinition(GtkPrintContext *context, con
 				(sd.specified & StyleDefinition::sdSize) ? sd.sizeFractional : 9.0));
 			pango_font_description_set_weight(pfd, static_cast<PangoWeight>(sd.weight));
 			pango_font_description_set_style(pfd, sd.italics ? PANGO_STYLE_ITALIC : PANGO_STYLE_NORMAL);
-			pango_layout_set_font_description(layout, pfd);
+			pango_layout_set_font_description(layout.get(), pfd);
 			pango_font_description_free(pfd);
 		}
 	}
 	return layout;
+}
+
 }
 
 void SciTEGTK::SetupFormat(Sci_RangeToFormat &frPrint, GtkPrintContext *context) {
@@ -1658,24 +1660,22 @@ void SciTEGTK::SetupFormat(Sci_RangeToFormat &frPrint, GtkPrintContext *context)
 
 	std::string headerFormat = props.GetString("print.header.format");
 	if (headerFormat.size()) {
-		StyleDefinition sdHeader(props.GetString("print.header.style").c_str());
-		PangoLayout *layout = PangoLayoutFromStyleDefinition(context, sdHeader);
-		pango_layout_set_text(layout, "Xg", -1);
+		StyleDefinition sdHeader(props.GetString("print.header.style"));
+		UniquePangoLayout layout = PangoLayoutFromStyleDefinition(context, sdHeader);
+		pango_layout_set_text(layout.get(), "Xg", -1);
 		gint layoutHeight;
-		pango_layout_get_size(layout, NULL, &layoutHeight);
+		pango_layout_get_size(layout.get(), NULL, &layoutHeight);
 		frPrint.rc.top += doubleFromPangoUnits(layoutHeight) * 1.5;
-		g_object_unref(layout);
 	}
 
 	std::string footerFormat = props.GetString("print.footer.format");
 	if (footerFormat.size()) {
-		StyleDefinition sdFooter(props.GetString("print.footer.style").c_str());
-		PangoLayout *layout = PangoLayoutFromStyleDefinition(context, sdFooter);
-		pango_layout_set_text(layout, "Xg", -1);
+		StyleDefinition sdFooter(props.GetString("print.footer.style"));
+		UniquePangoLayout layout = PangoLayoutFromStyleDefinition(context, sdFooter);
+		pango_layout_set_text(layout.get(), "Xg", -1);
 		gint layoutHeight;
-		pango_layout_get_size(layout, NULL, &layoutHeight);
+		pango_layout_get_size(layout.get(), NULL, &layoutHeight);
 		frPrint.rc.bottom -= doubleFromPangoUnits(layoutHeight) * 1.5;
-		g_object_unref(layout);
 	}
 }
 
@@ -1715,20 +1715,19 @@ void SciTEGTK::DrawPageThis(GtkPrintOperation * /* operation */, GtkPrintContext
 
 	std::string headerFormat = props.GetString("print.header.format");
 	if (headerFormat.size()) {
-		StyleDefinition sdHeader(props.GetString("print.header.style").c_str());
+		StyleDefinition sdHeader(props.GetString("print.header.style"));
 
-		PangoLayout *layout = PangoLayoutFromStyleDefinition(context, sdHeader);
+		UniquePangoLayout layout = PangoLayoutFromStyleDefinition(context, sdHeader);
 
 		SetCairoColour(cr, sdHeader.Fore());
 
-		pango_layout_set_text(layout, propsPrint.GetExpandedString("print.header.format").c_str(), -1);
+		pango_layout_set_text(layout.get(), propsPrint.GetExpandedString("print.header.format").c_str(), -1);
 
 		gint layout_height;
-		pango_layout_get_size(layout, NULL, &layout_height);
+		pango_layout_get_size(layout.get(), NULL, &layout_height);
 		const gdouble text_height = doubleFromPangoUnits(layout_height);
 		cairo_move_to(cr, frPrint.rc.left, frPrint.rc.top - text_height * 1.5);
-		pango_cairo_show_layout(cr, layout);
-		g_object_unref(layout);
+		pango_cairo_show_layout(cr, layout.get());
 
 		cairo_move_to(cr, frPrint.rc.left, frPrint.rc.top - text_height * 0.25);
 		cairo_line_to(cr, frPrint.rc.right, frPrint.rc.top - text_height * 0.25);
@@ -1737,20 +1736,19 @@ void SciTEGTK::DrawPageThis(GtkPrintOperation * /* operation */, GtkPrintContext
 
 	std::string footerFormat = props.GetString("print.footer.format");
 	if (footerFormat.size()) {
-		StyleDefinition sdFooter(props.GetString("print.footer.style").c_str());
+		StyleDefinition sdFooter(props.GetString("print.footer.style"));
 
-		PangoLayout *layout = PangoLayoutFromStyleDefinition(context, sdFooter);
+		UniquePangoLayout layout = PangoLayoutFromStyleDefinition(context, sdFooter);
 
 		SetCairoColour(cr, sdFooter.Fore());
 
-		pango_layout_set_text(layout, propsPrint.GetExpandedString("print.footer.format").c_str(), -1);
+		pango_layout_set_text(layout.get(), propsPrint.GetExpandedString("print.footer.format").c_str(), -1);
 
 		gint layout_height;
-		pango_layout_get_size(layout, NULL, &layout_height);
+		pango_layout_get_size(layout.get(), NULL, &layout_height);
 		const gdouble text_height = doubleFromPangoUnits(layout_height);
 		cairo_move_to(cr, frPrint.rc.left, frPrint.rc.bottom + text_height * 0.5);
-		pango_cairo_show_layout(cr, layout);
-		g_object_unref(layout);
+		pango_cairo_show_layout(cr, layout.get());
 
 		cairo_move_to(cr, frPrint.rc.left, frPrint.rc.bottom + text_height * 0.25);
 		cairo_line_to(cr, frPrint.rc.right, frPrint.rc.bottom + text_height * 0.25);
@@ -1774,42 +1772,35 @@ void SciTEGTK::Print(bool) {
 	RemoveFindMarks();
 	SelectionIntoProperties();
 	// Printing through the GTK API
-	GtkPrintOperation *printOp = gtk_print_operation_new();
-	gtk_print_operation_set_job_name(printOp, gtk_window_get_title(GTK_WINDOW(PWidget(wSciTE))));
+	UniquePrintOperation printOp(gtk_print_operation_new());
+	gtk_print_operation_set_job_name(printOp.get(), gtk_window_get_title(GTK_WINDOW(PWidget(wSciTE))));
 
-	if (printSettings != NULL)
-		gtk_print_operation_set_print_settings(printOp, printSettings);
-	if (pageSetup != NULL)
-		gtk_print_operation_set_default_page_setup(printOp, pageSetup);
+	if (printSettings)
+		gtk_print_operation_set_print_settings(printOp.get(), printSettings.get());
+	if (pageSetup)
+		gtk_print_operation_set_default_page_setup(printOp.get(), pageSetup.get());
 
-	g_signal_connect(printOp, "begin_print", G_CALLBACK(BeginPrint), this);
-	g_signal_connect(printOp, "draw_page", G_CALLBACK(DrawPage), this);
+	g_signal_connect(printOp.get(), "begin_print", G_CALLBACK(BeginPrint), this);
+	g_signal_connect(printOp.get(), "draw_page", G_CALLBACK(DrawPage), this);
 
 	const GtkPrintOperationResult res = gtk_print_operation_run(
-		printOp, GTK_PRINT_OPERATION_ACTION_PRINT_DIALOG,
+		printOp.get(), GTK_PRINT_OPERATION_ACTION_PRINT_DIALOG,
 		GTK_WINDOW(PWidget(wSciTE)), NULL);
 
 	if (res == GTK_PRINT_OPERATION_RESULT_APPLY) {
-		if (printSettings != NULL)
-			g_object_unref(printSettings);
-		printSettings = gtk_print_operation_get_print_settings(printOp);
-		g_object_ref(printSettings);
+		printSettings.reset(gtk_print_operation_get_print_settings(printOp.get()));
+		g_object_ref(printSettings.get());
 	}
-
-	g_object_unref(printOp);
 }
 
 void SciTEGTK::PrintSetup() {
-	if (printSettings == NULL)
-		printSettings = gtk_print_settings_new();
+	if (!printSettings)
+		printSettings.reset(gtk_print_settings_new());
 
 	GtkPageSetup *newPageSetup = gtk_print_run_page_setup_dialog(
-		GTK_WINDOW(PWidget(wSciTE)), pageSetup, printSettings);
+		GTK_WINDOW(PWidget(wSciTE)), pageSetup.get(), printSettings.get());
 
-	if (pageSetup)
-		g_object_unref(pageSetup);
-
-	pageSetup = newPageSetup;
+	pageSetup.reset(newPageSetup);
 }
 
 std::string SciTEGTK::GetRangeInUIEncoding(GUI::ScintillaWindow &win, SA::Span span) {
@@ -1873,7 +1864,7 @@ static void FillComboFromProps(WComboBoxEntry *combo, const PropSetFile &props) 
 static void FillComboFromMemory(WComboBoxEntry *combo, const ComboMemory &mem, bool useTop = false) {
 	combo->ClearList();
 	for (size_t i = 0; i < mem.Length(); i++) {
-		combo->AppendText(mem.At(i).c_str());
+		combo->AppendText(mem.At(i));
 	}
 	if (useTop && mem.Length() > 0) {
 		combo->SetText(mem.At(0));
@@ -2661,7 +2652,7 @@ bool SciTEGTK::ParametersDialog(bool modal) {
 
 	for (int param = 0; param < maxParam; param++) {
 		std::string paramText = StdStringFromInteger(param + 1);
-		std::string paramTextVal = props.GetString(paramText.c_str());
+		std::string paramTextVal = props.GetString(paramText);
 		paramText.insert(0, "_");
 		paramText.append(":");
 		GtkWidget *label = gtk_label_new_with_mnemonic(paramText.c_str());
@@ -2821,7 +2812,7 @@ void SciTEGTK::DestroyFindReplace() {
 
 SciTEBase::MessageBoxChoice SciTEGTK::WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, MessageBoxStyle style) {
 	if (!messageBoxDialog) {
-		std::string sMsg(msg.c_str());
+		std::string sMsg(msg);
 		dialogsOnScreen++;
 		GtkAccelGroup *accel_group = gtk_accel_group_new();
 
@@ -3325,10 +3316,10 @@ std::string SciTEGTK::TranslatePath(const char *path) {
 		size_t end = spath.find("/");
 		while (spath.length() > 1) {
 			std::string segment(spath, 0, end);
-			GUI::gui_string segmentLocalised = localiser.Text(segment.c_str());
+			GUI::gui_string segmentLocalised = localiser.Text(segment);
 			std::replace(segmentLocalised.begin(), segmentLocalised.end(), '/', '|');
 			spathTranslated.append("/");
-			spathTranslated.append(segmentLocalised.c_str());
+			spathTranslated.append(segmentLocalised);
 			spath.erase(0, end + 1);
 			end = spath.find("/");
 		}
@@ -3359,7 +3350,7 @@ void SciTEGTK::CreateTranslatedMenu(int n, const SciTEItemFactoryEntry items[],
 		Substitute(menuPath, " ", "_");	// menupath="menukey.File.Save_As"
 		LowerCaseAZ(menuPath);		// menupath="menukey.file.save_as"
 
-		std::string accelKey = props.GetString(menuPath.c_str());
+		std::string accelKey = props.GetString(menuPath);
 
 		const char *itemAccel = items[i].accelerator;
 		if (!accelKey.empty()) {
@@ -3706,7 +3697,7 @@ void SciTEGTK::CreateMenu() {
 SystemAppearance SciTEGTK::CurrentAppearance() const noexcept {
 	SystemAppearance currentAppearance{};
 	gchar *themeName = nullptr;
-	g_object_get(settings, "gtk-theme-name", &themeName, nullptr);
+	g_object_get(settings.get(), "gtk-theme-name", &themeName, nullptr);
 	currentAppearance.dark = g_str_has_suffix(themeName, "-dark");
 	currentAppearance.highContrast = g_str_has_prefix(themeName, "HighContrast");
 	if (g_strcmp0(themeName, "HighContrastInverse") == 0) {
@@ -3983,12 +3974,12 @@ void SciTEGTK::CreateUI() {
 #if GTK_CHECK_VERSION(3,0,0)
 	// Create a named style "entryInvalid" that can be applied to a search entry
 	// when the text can not be found.
-	GtkCssProvider *provider = gtk_css_provider_new();
+	UniqueCssProvider provider(gtk_css_provider_new());
 	GdkScreen *screen = gtk_widget_get_screen(PWidget(wSciTE));
 	gtk_style_context_add_provider_for_screen(screen,
-		GTK_STYLE_PROVIDER(provider),
+		GTK_STYLE_PROVIDER(provider.get()),
 		GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
-	gtk_css_provider_load_from_data(GTK_CSS_PROVIDER(provider),
+	gtk_css_provider_load_from_data(GTK_CSS_PROVIDER(provider.get()),
 		"#toggler {\n"
 		"    padding: 2px;\n"
 		"}\n"
@@ -3999,7 +3990,6 @@ void SciTEGTK::CreateUI() {
 		"#entryInvalid:selected {\n"
 		"    background: #771111;\n"
 		"}\n", -1, NULL);
-	g_object_unref(provider);
 #endif
 
 	UIAvailable();
@@ -4096,9 +4086,8 @@ void SciTEGTK::SetIcon() {
 	if (!gtk_window_set_icon_from_file(
 		GTK_WINDOW(PWidget(wSciTE)), pathPixmap.AsInternal(), &err)) {
 		// Failed to load from file so use backup inside executable
-		GdkPixbuf *pixbufIcon = gdk_pixbuf_new_from_xpm_data(SciIcon_xpm);
-		gtk_window_set_icon(GTK_WINDOW(PWidget(wSciTE)), pixbufIcon);
-		g_object_unref(pixbufIcon);
+		UniquePixbuf pixbufIcon(gdk_pixbuf_new_from_xpm_data(SciIcon_xpm));
+		gtk_window_set_icon(GTK_WINDOW(PWidget(wSciTE)), pixbufIcon.get());
 	}
 }
 
