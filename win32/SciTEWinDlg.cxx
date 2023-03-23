@@ -574,7 +574,7 @@ void SciTEWin::Print(
 	TEXTMETRIC tm {};
 
 	std::string headerStyle = props.GetString("print.header.style");
-	StyleDefinition sdHeader(headerStyle.c_str());
+	StyleDefinition sdHeader(headerStyle);
 
 	int headerLineHeight = ::MulDiv(
 				       (sdHeader.specified & StyleDefinition::sdSize) ? sdHeader.size : 9,
@@ -592,7 +592,7 @@ void SciTEWin::Print(
 	headerLineHeight = tm.tmHeight + tm.tmExternalLeading;
 
 	std::string footerStyle = props.GetString("print.footer.style");
-	StyleDefinition sdFooter(footerStyle.c_str());
+	StyleDefinition sdFooter(footerStyle);
 
 	int footerLineHeight = ::MulDiv(
 				       (sdFooter.specified & StyleDefinition::sdSize) ? sdFooter.size : 9,
