@@ -358,10 +358,6 @@ static bool GetFullLine(const char *&fpc, size_t &lenData, char *s, size_t len) 
 	return false;
 }
 
-static constexpr bool IsSpaceOrTab(char ch) noexcept {
-	return (ch == ' ') || (ch == '\t');
-}
-
 static bool IsCommentLine(const char *line) noexcept {
 	while (IsSpaceOrTab(*line)) ++line;
 	return (*line == '#');

@@ -59,6 +59,10 @@ constexpr bool IsASpace(int ch) noexcept {
 	return (ch == ' ') || ((ch >= 0x09) && (ch <= 0x0d));
 }
 
+constexpr bool IsSpaceOrTab(int ch) noexcept {
+	return (ch == ' ') || (ch == '\t');
+}
+
 constexpr bool IsADigit(int ch) noexcept {
 	return (ch >= '0') && (ch <= '9');
 }

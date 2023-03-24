@@ -595,7 +595,7 @@ protected:
 	void PerformDeferredTasks();
 	enum class OpenCompletion { synchronous, completeCurrent, completeSwitch };
 	void CompleteOpen(OpenCompletion oc);
-	virtual bool PreOpenCheck(const GUI::gui_char *file);
+	virtual bool PreOpenCheck(const GUI::gui_string &file);
 	bool Open(const FilePath &file, OpenFlags of = ofNone);
 	bool OpenSelected();
 	void Revert();
@@ -907,7 +907,7 @@ protected:
 	void AskMacroList();
 	bool StartMacroList(const char *words);
 	void ContinueMacroList(const char *stext);
-	bool ProcessCommandLine(const GUI::gui_string &args, int phase);
+	bool ProcessCommandLine(const std::vector<GUI::gui_string> &args, int phase);
 	virtual bool IsStdinBlocked();
 	void OpenFromStdin(bool UseOutputPane);
 	void OpenFilesFromStdin();

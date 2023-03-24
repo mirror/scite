@@ -4266,12 +4266,10 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 		g_free(progPath);
 	}
 
-	// Collect the argv into one string with each argument separated by '\n'
-	GUI::gui_string args;
+	// Collect the argv into a vector
+	std::vector<GUI::gui_string> args;
 	for (int arg = 1; arg < argc; arg++) {
-		if (arg > 1)
-			args += '\n';
-		args += argv[arg];
+		args.push_back(argv[arg]);
 	}
 
 	// Process any initial switches

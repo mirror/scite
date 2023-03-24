@@ -93,7 +93,7 @@ LRESULT UniqueInstance::CopyData(const COPYDATASTRUCT *pcds) {
 		}
 		const char *text = static_cast<const char *>(pcds->lpData);
 		if (text && strlen(text) > 0) {
-			GUI::gui_string args = stw->ProcessArgs(GUI::StringFromUTF8(text).c_str());
+			const std::vector<GUI::gui_string> args = stw->ProcessArgs(GUI::StringFromUTF8(text));
 			stw->ProcessCommandLine(args, 0);
 			stw->ProcessCommandLine(args, 1);
 		}

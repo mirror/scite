@@ -1493,46 +1493,47 @@ void SciTEWin::CreateUI() {
 	UIAvailable();
 }
 
-static constexpr bool IsSpaceOrTab(GUI::gui_char ch) noexcept {
-	return (ch == ' ') || (ch == '\t');
+namespace {
+
+constexpr GUI::gui_string_view whiteSpace = GUI_TEXT("\t ");
+
+void RemoveInitialSpace(GUI::gui_string_view &s) noexcept {
+	while (!s.empty() && IsSpaceOrTab(s.front())) {
+		s.remove_prefix(1);
+	}
+}
+
 }
 
 /**
  * Break up the command line into individual arguments and strip double quotes
  * from each argument.
- * @return A string with each argument separated by '\n'.
+ * @return a vector of strings.
  */
-GUI::gui_string SciTEWin::ProcessArgs(const GUI::gui_char *cmdLine) {
-	GUI::gui_string args;
-	const GUI::gui_char *startArg = cmdLine;
-	while (*startArg) {
-		while (IsSpaceOrTab(*startArg)) {
-			startArg++;
-		}
-		const GUI::gui_char *endArg = startArg;
-		if (*startArg == '"') {	// Opening double-quote
-			startArg++;
-			endArg = startArg;
-			while (*endArg && *endArg != '\"') {
-				endArg++;
-			}
+std::vector<GUI::gui_string> SciTEWin::ProcessArgs(GUI::gui_string_view cmdLine) {
+	std::vector<GUI::gui_string> args;
+	GUI::gui_string_view cmds = cmdLine;
+	RemoveInitialSpace(cmds);
+	while (!cmds.empty()) {
+		size_t endArg = 0;
+		if (cmds.front() == '"') {	// Opening double-quote
+			cmds.remove_prefix(1);
+			endArg = cmds.find('"');
 		} else {	// No double-quote, end of argument on first space
-			while (*endArg && !IsSpaceOrTab(*endArg)) {
-				endArg++;
-			}
+			endArg = cmds.find_first_of(whiteSpace);
 		}
-		GUI::gui_string arg(startArg, 0, endArg - startArg);
-		if (args.size() > 0)
-			args += GUI_TEXT("\n");
-		args += arg;
-		startArg = endArg;	// On a space or a double-quote, or on the end of the command line
-		if (*startArg == '"') {	// Closing double-quote
-			startArg++;	// Consume the double-quote
+		GUI::gui_string_view arg = cmds;
+		if (endArg != GUI::gui_string_view::npos) {
+			// Reached end character
+			arg = cmds.substr(0, endArg);
+			cmds.remove_prefix(endArg+1);
+		} else {
+			// Ended at end of string without finding terminator
+			cmds.remove_prefix(cmds.length());
 		}
-		while (IsSpaceOrTab(*startArg)) {
-			// Consume spaces between arguments
-			startArg++;
-		}
+		args.emplace_back(arg);
+		// Consume spaces between arguments
+		RemoveInitialSpace(cmds);
 	}
 
 	return args;
@@ -1550,7 +1551,7 @@ void SciTEWin::Run(const GUI::gui_char *cmdLine) {
 	}
 
 	// Break up the command line into individual arguments
-	GUI::gui_string args = ProcessArgs(cmdLine);
+	const std::vector<GUI::gui_string> args = ProcessArgs(cmdLine);
 	// Read the command line parameters:
 	// In case the check.if.already.open property has been set or reset on the command line,
 	// we still get a last chance to force checking or to open a separate instance;
@@ -1708,13 +1709,13 @@ void SciTEWin::DropFiles(HDROP hdrop) {
 /**
  * Handle simple wild-card file patterns and directory requests.
  */
-bool SciTEWin::PreOpenCheck(const GUI::gui_char *arg) {
+bool SciTEWin::PreOpenCheck(const GUI::gui_string &file) {
 	bool isHandled = false;
 	HANDLE hFFile {};
 	WIN32_FIND_DATA ffile {};
-	const DWORD fileattributes = ::GetFileAttributes(arg);
+	const DWORD fileattributes = ::GetFileAttributes(file.c_str());
 	int nbuffers = props.GetInt("buffers");
-	FilePath fpArg(arg);
+	FilePath fpArg(file);
 
 	if (fileattributes != INVALID_FILE_ATTRIBUTES) {	// arg is an existing directory or filename
 		// if the command line argument is a directory, use OpenDialog()
@@ -1722,7 +1723,7 @@ bool SciTEWin::PreOpenCheck(const GUI::gui_char *arg) {
 			OpenDialog(fpArg, GUI::StringFromUTF8(props.GetExpandedString("open.filter")).c_str());
 			isHandled = true;
 		}
-	} else if (nbuffers > 1 && (hFFile = ::FindFirstFile(arg, &ffile)) != INVALID_HANDLE_VALUE) {
+	} else if (nbuffers > 1 && (hFFile = ::FindFirstFile(file.c_str(), &ffile)) != INVALID_HANDLE_VALUE) {
 		// If several buffers is accepted and the arg is a filename pattern matching at least an existing file
 		isHandled = true;
 		FilePath fpDir = fpArg.Directory();

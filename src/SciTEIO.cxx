@@ -517,7 +517,7 @@ void SciTEBase::UpdateProgress(Worker *) {
 	}
 }
 
-bool SciTEBase::PreOpenCheck(const GUI::gui_char *) {
+bool SciTEBase::PreOpenCheck(const GUI::gui_string &) {
 	return false;
 }
 

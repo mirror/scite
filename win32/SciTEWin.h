@@ -274,7 +274,7 @@ protected:
 	void SaveAsXML() override;
 	void LoadSessionDialog() override;
 	void SaveSessionDialog() override;
-	bool PreOpenCheck(const GUI::gui_char *arg) override;
+	bool PreOpenCheck(const GUI::gui_string &file) override;
 	bool IsStdinBlocked() override;
 
 	/// Print the current buffer.
@@ -293,7 +293,7 @@ protected:
 	void SettingChanged(WPARAM wParam, LPARAM lParam);
 	void SysColourChanged(WPARAM wParam, LPARAM lParam);
 	void ScaleChanged(WPARAM wParam, LPARAM lParam);
-	static GUI::gui_string ProcessArgs(const GUI::gui_char *cmdLine);
+	static std::vector<GUI::gui_string> ProcessArgs(GUI::gui_string_view cmdLine);
 	void QuitProgram() override;
 
 	FilePath GetDefaultDirectory() override;

@@ -4335,16 +4335,23 @@ void SciTEBase::UIAvailable() {
 	}
 }
 
+namespace {
+
+constexpr bool IsNameCharacter(GUI::gui_char ch) {
+	return ch == '.' || IsAlphabetic(ch);
+}
+
 /**
  * Find the character following a name which is made up of characters from
  * the set [a-zA-Z.]
  */
-static GUI::gui_char AfterName(const GUI::gui_char *s) noexcept {
-	while (*s && ((*s == '.') ||
-			(*s >= 'a' && *s <= 'z') ||
-			(*s >= 'A' && *s <= 'Z')))
-		s++;
-	return *s;
+GUI::gui_char AfterName(GUI::gui_string_view s) noexcept {
+	while (!s.empty() && IsNameCharacter(s.front())) {
+		s.remove_prefix(1);
+	}
+	return s.empty() ? 0 : s.front();
+}
+
 }
 
 void SciTEBase::PerformOne(char *action) {
@@ -4715,40 +4722,39 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
  * to be evaluated before creating the UI.
  * Call twice, first with phase=0, then with phase=1 after creating UI.
  */
-bool SciTEBase::ProcessCommandLine(const GUI::gui_string &args, int phase) {
+
+bool SciTEBase::ProcessCommandLine(const std::vector<GUI::gui_string> &args, int phase) {
 	bool performPrint = false;
 	bool evaluate = phase == 0;
-	std::vector<GUI::gui_string> wlArgs = ListFromString(args);
-	// Convert args to vector
-	for (size_t i = 0; i < wlArgs.size(); i++) {
-		const GUI::gui_char *arg = wlArgs[i].c_str();
-		if (IsSwitchCharacter(arg[0])) {
-			arg++;
-			if (arg[0] == '\0' || (arg[0] == '-' && arg[1] == '\0')) {
+	for (size_t i = 0; i < args.size(); i++) {
+		GUI::gui_string_view arg = args[i];
+		if (!arg.empty() && IsSwitchCharacter(arg[0])) {
+			arg.remove_prefix(1);
+			if (arg.empty() || arg == GUI_TEXT("-")) {
 				if (phase == 1) {
 					OpenFromStdin(arg[0] == '-');
 				}
-			} else if (arg[0] == '@') {
+			} else if (StartsWith(arg, GUI_TEXT("@"))) {
 				if (phase == 1) {
 					OpenFilesFromStdin();
 				}
-			} else if ((arg[0] == 'p' || arg[0] == 'P') && (arg[1] == 0)) {
+			} else if (arg == GUI_TEXT("p") || arg == GUI_TEXT("P")) {
 				performPrint = true;
-			} else if (GUI::gui_string(arg) == GUI_TEXT("grep") && (wlArgs.size() - i >= 5) && (wlArgs[i+1].size() >= 4)) {
+			} else if (arg == GUI_TEXT("grep") && (args.size() - i >= 5) && (args[i+1].size() >= 4)) {
 				// in form -grep [w~][c~][d~][b~] "<file-patterns>" "<excluded-patterns>" "<search-string>"
 				GrepFlags gf = GrepFlags::stdOut;
-				if (wlArgs[i+1][0] == 'w')
+				if (args[i+1][0] == 'w')
 					gf = gf | GrepFlags::wholeWord;
-				if (wlArgs[i+1][1] == 'c')
+				if (args[i+1][1] == 'c')
 					gf = gf | GrepFlags::matchCase;
-				if (wlArgs[i+1][2] == 'd')
+				if (args[i+1][2] == 'd')
 					gf = gf | GrepFlags::dot;
-				if (wlArgs[i+1][3] == 'b')
+				if (args[i+1][3] == 'b')
 					gf = gf | GrepFlags::binary;
-				std::string sSearch = GUI::UTF8FromString(wlArgs[i+4]);
+				std::string sSearch = GUI::UTF8FromString(args[i+4]);
 				std::string unquoted = UnSlashString(sSearch);
 				SA::Position originalEnd = 0;
-				InternalGrep(gf, FilePath::GetWorkingDirectory(), wlArgs[i+2], wlArgs[i+3], unquoted, originalEnd);
+				InternalGrep(gf, FilePath::GetWorkingDirectory(), args[i+2], args[i+3], unquoted, originalEnd);
 				exit(0);
 			} else {
 				if (AfterName(arg) == ':') {
@@ -4759,10 +4765,8 @@ bool SciTEBase::ProcessCommandLine(const GUI::gui_string &args, int phase) {
 							evaluate = true;
 					}
 					if (evaluate) {
-						const std::string sArg = GUI::UTF8FromString(arg);
-						std::vector<char> vcArg(sArg.size() + 1);
-						std::copy(sArg.begin(), sArg.end(), vcArg.begin());
-						PerformOne(&vcArg[0]);
+						std::string sArg = GUI::UTF8FromString(arg);
+						PerformOne(sArg.data());
 					}
 				} else {
 					if (evaluate) {
@@ -4783,8 +4787,8 @@ bool SciTEBase::ProcessCommandLine(const GUI::gui_string &args, int phase) {
 					RestoreRecentMenu();
 			}
 
-			if (!PreOpenCheck(arg))
-				Open(arg, static_cast<OpenFlags>(ofQuiet|ofSynchronous));
+			if (!PreOpenCheck(args[i]))
+				Open(args[i], static_cast<OpenFlags>(ofQuiet|ofSynchronous));
 		}
 	}
 	if (phase == 1) {
