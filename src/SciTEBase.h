@@ -898,7 +898,7 @@ protected:
 
 	void SetHomeProperties();
 	void UIAvailable();
-	void PerformOne(char *action);
+	void PerformOne(std::string_view action);
 	void StartRecordMacro();
 	void StopRecordMacro();
 	void StartPlayMacro();
@@ -919,7 +919,7 @@ protected:
 	void EnumProperties(const char *propkind);
 	void SendOneProperty(const char *kind, const char *key, const char *val);
 	void PropertyFromDirector(const char *arg);
-	void PropertyToDirector(const char *arg);
+	void PropertyToDirector(std::string_view arg);
 	// ExtensionAPI
 	intptr_t Send(Pane p, SA::Message msg, uintptr_t wParam = 0, intptr_t lParam = 0) override;
 	std::string Range(Pane p, SA::Span range) override;

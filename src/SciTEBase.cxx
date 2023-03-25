@@ -4354,42 +4354,43 @@ GUI::gui_char AfterName(GUI::gui_string_view s) noexcept {
 
 }
 
-void SciTEBase::PerformOne(char *action) {
-	const size_t len = UnSlash(action);
-	char *arg = strchr(action, ':');
-	if (arg) {
-		arg++;
-		if (isprefix(action, "askfilename:")) {
+void SciTEBase::PerformOne(std::string_view action) {
+	const size_t colon = action.find(':');
+	if (colon != std::string::npos) {
+		const std::string_view cmd = action.substr(0, colon);
+		const std::string argument = UnSlashString(action.substr(colon+1));
+		const char *arg = argument.c_str();
+		if (cmd == "askfilename") {
 			extender->OnMacro("filename", filePath.AsUTF8().c_str());
-		} else if (isprefix(action, "askproperty:")) {
+		} else if (cmd == "askproperty") {
 			PropertyToDirector(arg);
-		} else if (isprefix(action, "close:")) {
+		} else if (cmd == "close") {
 			Close();
 			WindowSetFocus(wEditor);
-		} else if (isprefix(action, "currentmacro:")) {
+		} else if (cmd == "currentmacro") {
 			currentMacro = arg;
-		} else if (isprefix(action, "cwd:")) {
+		} else if (cmd == "cwd") {
 			FilePath dirTarget(GUI::StringFromUTF8(arg));
 			if (!dirTarget.SetWorkingDirectory()) {
 				GUI::gui_string msg = LocaliseMessage("Invalid directory '^0'.", dirTarget.AsInternal());
 				WindowMessageBox(wSciTE, msg);
 			}
-		} else if (isprefix(action, "enumproperties:")) {
+		} else if (cmd == "enumproperties") {
 			EnumProperties(arg);
-		} else if (isprefix(action, "exportashtml:")) {
+		} else if (cmd == "exportashtml") {
 			SaveToHTML(GUI::StringFromUTF8(arg));
-		} else if (isprefix(action, "exportasrtf:")) {
+		} else if (cmd == "exportasrtf") {
 			SaveToRTF(GUI::StringFromUTF8(arg));
-		} else if (isprefix(action, "exportaspdf:")) {
+		} else if (cmd == "exportaspdf") {
 			SaveToPDF(GUI::StringFromUTF8(arg));
-		} else if (isprefix(action, "exportaslatex:")) {
+		} else if (cmd == "exportaslatex") {
 			SaveToTEX(GUI::StringFromUTF8(arg));
-		} else if (isprefix(action, "exportasxml:")) {
+		} else if (cmd == "exportasxml") {
 			SaveToXML(GUI::StringFromUTF8(arg));
-		} else if (isprefix(action, "find:") && wEditor.Created()) {
+		} else if (cmd == "find" && wEditor.Created()) {
 			findWhat = arg;
 			FindNext(false, false);
-		} else if (isprefix(action, "goto:") && wEditor.Created()) {
+		} else if (cmd == "goto" && wEditor.Created()) {
 			const SA::Line line = IntegerFromText(arg) - 1;
 			GotoLineEnsureVisible(line);
 			// jump to column if given and greater than 0
@@ -4404,56 +4405,56 @@ void SciTEBase::PerformOne(char *action) {
 					wEditor.SetSel(wordStart, wordEnd);
 				}
 			}
-		} else if (isprefix(action, "insert:") && wEditor.Created()) {
+		} else if (cmd == "insert" && wEditor.Created()) {
 			wEditor.ReplaceSel(arg);
-		} else if (isprefix(action, "loadsession:")) {
+		} else if (cmd == "loadsession") {
 			if (*arg) {
 				LoadSessionFile(GUI::StringFromUTF8(arg).c_str());
 				RestoreSession();
 			}
-		} else if (isprefix(action, "macrocommand:")) {
+		} else if (cmd == "macrocommand") {
 			ExecuteMacroCommand(arg);
-		} else if (isprefix(action, "macroenable:")) {
+		} else if (cmd == "macroenable") {
 			macrosEnabled = atoi(arg);
 			SetToolsMenu();
-		} else if (isprefix(action, "macrolist:")) {
+		} else if (cmd == "macrolist") {
 			StartMacroList(arg);
-		} else if (isprefix(action, "menucommand:")) {
+		} else if (cmd == "menucommand") {
 			MenuCommand(atoi(arg));
-		} else if (isprefix(action, "open:")) {
-			Open(GUI::StringFromUTF8(arg), ofSynchronous);
-		} else if (isprefix(action, "output:") && wOutput.Created()) {
+		} else if (cmd == "open") {
+			Open(GUI::StringFromUTF8(argument), ofSynchronous);
+		} else if (cmd == "output" && wOutput.Created()) {
 			wOutput.ReplaceSel(arg);
-		} else if (isprefix(action, "property:")) {
+		} else if (cmd == "property") {
 			PropertyFromDirector(arg);
-		} else if (isprefix(action, "reloadproperties:")) {
+		} else if (cmd == "reloadproperties") {
 			ReloadProperties();
-		} else if (isprefix(action, "quit:")) {
+		} else if (cmd == "quit") {
 			QuitProgram();
-		} else if (isprefix(action, "replaceall:") && wEditor.Created()) {
-			if (len > strlen(action)) {
-				const char *arg2 = arg + strlen(arg) + 1;
-				findWhat = arg;
-				replaceWhat = arg2;
+		} else if (cmd == "replaceall" && wEditor.Created()) {
+			const size_t nulPos = argument.find('\0');
+			if (nulPos != std::string::npos) {
+				findWhat = argument.substr(0,nulPos);
+				replaceWhat = argument.substr(nulPos+1);
 				ReplaceAll(false);
 			}
-		} else if (isprefix(action, "saveas:")) {
+		} else if (cmd == "saveas") {
 			if (*arg) {
 				SaveAs(GUI::StringFromUTF8(arg).c_str(), true);
 			} else {
 				SaveAsDialog();
 			}
-		} else if (isprefix(action, "savesession:")) {
+		} else if (cmd == "savesession") {
 			if (*arg) {
 				SaveSessionFile(GUI::StringFromUTF8(arg).c_str());
 			}
-		} else if (isprefix(action, "setdefaultcwd:")) {
+		} else if (cmd == "setdefaultcwd") {
 			// This sets cwd to a value that should stay valid: either SciTE_HOME or the
 			// SciTE installation directory or directory of SciTE executable.
 			GetDefaultDirectory().SetWorkingDirectory();
-		} else if (isprefix(action, "extender:")) {
+		} else if (cmd == "extender") {
 			extender->OnExecute(arg);
-		} else if (isprefix(action, "focus:")) {
+		} else if (cmd == "focus") {
 			ActivateWindow(arg);
 		}
 	}
@@ -4515,7 +4516,7 @@ void SciTEBase::PropertyFromDirector(const char *arg) {
 	props.SetLine(arg, false);
 }
 
-void SciTEBase::PropertyToDirector(const char *arg) {
+void SciTEBase::PropertyToDirector(std::string_view arg) {
 	if (!extender)
 		return;
 	SelectionIntoProperties();
@@ -4765,8 +4766,8 @@ bool SciTEBase::ProcessCommandLine(const std::vector<GUI::gui_string> &args, int
 							evaluate = true;
 					}
 					if (evaluate) {
-						std::string sArg = GUI::UTF8FromString(arg);
-						PerformOne(sArg.data());
+						const std::string sArg = GUI::UTF8FromString(arg);
+						PerformOne(sArg);
 					}
 				} else {
 					if (evaluate) {
