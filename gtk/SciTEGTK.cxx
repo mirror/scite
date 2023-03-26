@@ -515,7 +515,7 @@ protected:
 	void ResetExecution();
 
 	void OpenUriList(const char *list) override;
-	bool OpenDialog(const FilePath &directory, const char *filesFilter) override;
+	bool OpenDialog(const FilePath &directory, const GUI::gui_string &filesFilter) override;
 	bool HandleSaveAs(const char *savePath);
 	bool SaveAsXXX(FileFormat fmt, const char *title, const char *ext=0);
 	bool SaveAsDialog() override;
@@ -1385,7 +1385,7 @@ void SciTEGTK::OpenUriList(const char *list) {
 #define SCITE_STOCK_OK GTK_STOCK_OK
 #endif
 
-bool SciTEGTK::OpenDialog(const FilePath &directory, const char *filesFilter) {
+bool SciTEGTK::OpenDialog(const FilePath &directory, const GUI::gui_string &filesFilter) {
 	bool canceled = true;
 	if (!dlgFileSelector.Created()) {
 		GtkWidget *dlg = gtk_file_chooser_dialog_new(

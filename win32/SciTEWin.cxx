@@ -1720,7 +1720,7 @@ bool SciTEWin::PreOpenCheck(const GUI::gui_string &file) {
 	if (fileattributes != INVALID_FILE_ATTRIBUTES) {	// arg is an existing directory or filename
 		// if the command line argument is a directory, use OpenDialog()
 		if (fileattributes & FILE_ATTRIBUTE_DIRECTORY) {
-			OpenDialog(fpArg, GUI::StringFromUTF8(props.GetExpandedString("open.filter")).c_str());
+			OpenDialog(fpArg, GUI::StringFromUTF8(props.GetExpandedString("open.filter")));
 			isHandled = true;
 		}
 	} else if (nbuffers > 1 && (hFFile = ::FindFirstFile(file.c_str(), &ffile)) != INVALID_HANDLE_VALUE) {
@@ -1749,7 +1749,7 @@ bool SciTEWin::PreOpenCheck(const GUI::gui_string &file) {
 			wildcard += GUI_TEXT("|*");
 			wildcard += fpName.AsInternal();
 
-			OpenDialog(fpDir, wildcard.c_str());
+			OpenDialog(fpDir, wildcard);
 		} else if (!fpArg.Extension().IsSet()) {
 			// if the filename has no extension, try to match a file with list of standard extensions
 			std::string extensions = props.GetExpandedString("source.default.extensions");
