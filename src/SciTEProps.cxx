@@ -100,7 +100,7 @@ void SciTEBase::SetLanguageMenu() {
 	}
 	for (unsigned int item = 0; item < languageMenu.size(); item++) {
 		const int itemID = languageCmdID + item;
-		const GUI::gui_string entry = localiser.Text(languageMenu[item].menuItem.c_str());
+		const GUI::gui_string entry = localiser.Text(languageMenu[item].menuItem);
 		const GUI::gui_string menuKey = GUI::StringFromUTF8(languageMenu[item].menuKey);
 		if (entry.size() && entry[0] != '#') {
 			SetMenuItem(menuLanguage, item, itemID, entry.c_str(), menuKey.c_str());

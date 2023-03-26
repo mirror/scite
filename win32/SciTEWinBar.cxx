@@ -320,7 +320,7 @@ void SciTEWin::Notify(SCNotification *notification) {
 				break;
 			}
 			if (ttext) {
-				GUI::gui_string localised = localiser.Text(GUI::UTF8FromString(ttext).c_str());
+				GUI::gui_string localised = localiser.Text(GUI::UTF8FromString(ttext));
 				StringCopy(tooltipText, localised.c_str());
 				pDispInfo->lpszText = tooltipText;
 			}
@@ -619,7 +619,7 @@ void SciTEWin::LocaliseMenu(HMENU hmenu) {
 					} else {
 						accel = GUI_TEXT("");
 					}
-					text = localiser.Text(GUI::UTF8FromString(text).c_str(), true);
+					text = localiser.Text(GUI::UTF8FromString(text), true);
 					if (text.length()) {
 						if (accel != GUI_TEXT("")) {
 							text += GUI_TEXT("\t");
@@ -642,7 +642,7 @@ void SciTEWin::LocaliseMenus() {
 
 void SciTEWin::LocaliseControl(HWND w) {
 	std::string originalText = GUI::UTF8FromString(TextOfWindow(w));
-	GUI::gui_string translatedText = localiser.Text(originalText.c_str(), false);
+	GUI::gui_string translatedText = localiser.Text(originalText, false);
 	if (translatedText.length())
 		::SetWindowTextW(w, translatedText.c_str());
 }

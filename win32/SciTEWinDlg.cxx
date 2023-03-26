@@ -216,7 +216,7 @@ GUI::gui_string SciTEWin::DialogFilterFromProperty(const GUI::gui_char *filterPr
 				next += wcslen(filterText.c_str() + next) + 1;
 				filterText.erase(start, next - start);
 			} else {
-				GUI::gui_string localised = localiser.Text(GUI::UTF8FromString(filterName).c_str(), false);
+				GUI::gui_string localised = localiser.Text(GUI::UTF8FromString(filterName), false);
 				if (localised.size()) {
 					filterText.erase(start, wcslen(filterName));
 					filterText.insert(start, localised);
