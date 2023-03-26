@@ -313,7 +313,7 @@ FilePath SciTEWin::ChooseSaveName(const FilePath &directory, const char *title, 
 	FilePath path;
 	if (0 == dialogsOnScreen) {
 		GUI::gui_char saveName[MAX_PATH] = GUI_TEXT("");
-		FilePath savePath = SaveName(ext);
+		const FilePath savePath = SaveName(ext);
 		if (!savePath.IsUntitled()) {
 			StringCopy(saveName, savePath.AsInternal());
 		}

@@ -888,24 +888,22 @@ void SciTEBase::Activate(bool activeApp) {
 }
 
 FilePath SciTEBase::SaveName(const char *ext) const {
-	GUI::gui_string savePath = filePath.AsInternal();
-	if (ext) {
-		int dot = static_cast<int>(savePath.length() - 1);
-		while ((dot >= 0) && (savePath[dot] != '.')) {
-			dot--;
-		}
-		if (dot >= 0) {
-			const int keepExt = props.GetInt("export.keep.ext");
-			if (keepExt == 0) {
-				savePath.erase(dot);
-			} else if (keepExt == 2) {
-				savePath[dot] = '_';
-			}
-		}
-		savePath += GUI::StringFromUTF8(ext);
+	if (!ext) {
+		return filePath;
 	}
-	//~ fprintf(stderr, "SaveName <%s> <%s> <%s>\n", filePath.AsInternal(), savePath.c_str(), ext);
-	return FilePath(savePath.c_str());
+	const FilePath directory = filePath.Directory();
+	GUI::gui_string name = filePath.Name().AsInternal();
+	const size_t dot = name.rfind('.');
+	if (dot != GUI::gui_string::npos) {
+		const int keepExt = props.GetInt("export.keep.ext");
+		if (keepExt == 0) {
+			name.erase(dot);
+		} else if (keepExt == 2) {
+			name[dot] = '_';
+		}
+	}
+	name += GUI::StringFromUTF8(ext);
+	return FilePath(directory, name);
 }
 
 SciTEBase::SaveResult SciTEBase::SaveIfUnsure(bool forceQuestion, SaveFlags sf) {
