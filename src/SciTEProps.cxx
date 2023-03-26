@@ -1430,10 +1430,10 @@ void SciTEBase::ReadProperties() {
 
 	const int foldStrokeWidth = props.GetInt("fold.stroke.width", 100);
 	// Isolated and connected fold markers use foreground and background colours differently
-	MarkerAppearance isolated {
+	const MarkerAppearance isolated {
 		colourFoldFore, colourFoldBack, colourFoldBlockHighlight, foldStrokeWidth
 	};
-	MarkerAppearance connected {
+	const MarkerAppearance connected {
 		colourFoldBack, colourFoldFore, colourFoldBlockHighlight, foldStrokeWidth
 	};
 	switch (foldSymbols) {

@@ -2226,7 +2226,7 @@ LRESULT ContentWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			}
 
 		case WM_ERASEBKGND: {
-				RECT rc = {0, 0, 2000, 2000};
+				const RECT rc = {0, 0, 2000, 2000};
 				HBRUSH hbrFace = CreateSolidBrush(::GetSysColor(COLOR_3DFACE));
 				::FillRect(reinterpret_cast<HDC>(wParam), &rc, hbrFace);
 				::DeleteObject(hbrFace);

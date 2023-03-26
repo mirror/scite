@@ -441,7 +441,7 @@ void SciTEWin::SizeSubWindows() {
 					    rcClient.right, rcClient.top + heightTab + visHeightTools));
 	}
 
-	RECT r = { rcClient.left, 0, rcClient.right, 0 };
+	const RECT r = { rcClient.left, 0, rcClient.right, 0 };
 	TabCtrl_AdjustRect(HwndOf(wTabBar), TRUE, &r);
 	bands[bandTab].height = r.bottom - r.top - 4;
 
@@ -791,7 +791,7 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 				const GUI::Point ptClient = ClientFromScreen(hWnd, PointOfCursor());
 				const int tab = TabAtPoint(hWnd, ptClient);
 
-				RECT tabrc {};
+				const RECT tabrc {};
 				if (tab != -1 &&
 						tab != iDraggingTab &&
 						TabCtrl_GetItemRect(hWnd, tab, &tabrc)) {
