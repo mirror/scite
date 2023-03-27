@@ -75,7 +75,7 @@ vpath %.h ../src ../../lexilla/include ../../lexilla/access ../../scintilla/incl
 vpath %.cxx ../src ../../lexilla/access ../../scintilla/call
 vpath %.a ../../lexilla/bin ../../scintilla/bin
 
-LIBS += -lgdi32 -luser32 -limm32 -lole32 -luuid -loleaut32 -lmsimg32 -lshell32 -lcomdlg32 -lcomctl32 -ladvapi32
+LIBS += -lgdi32 -luser32 -limm32 -lole32 -luuid -loleaut32 -lshell32 -lcomdlg32 -lcomctl32 -ladvapi32
 
 CXXFLAGS += --std=c++17
 

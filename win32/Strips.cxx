@@ -659,7 +659,7 @@ LRESULT Strip::CustomDraw(NMHDR *pnmh) noexcept {
 
 		HDC hdcBM = ::CreateCompatibleDC({});
 		HBITMAP hbmOriginal = SelectBitmap(hdcBM, hBitmap);
-		::TransparentBlt(pcd->hdc, xOffset, yOffset,
+		::GdiTransparentBlt(pcd->hdc, xOffset, yOffset,
 				 rbmi.bmiHeader.biWidth, rbmi.bmiHeader.biHeight,
 				 hdcBM, 0, 0, rbmi.bmiHeader.biWidth, rbmi.bmiHeader.biHeight, colourTransparent);
 		SelectBitmap(hdcBM, hbmOriginal);
