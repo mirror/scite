@@ -24,7 +24,9 @@ using UniqueSettings = std::unique_ptr<GtkSettings, GObjectReleaser>;
 using UniquePrintSettings = std::unique_ptr<GtkPrintSettings, GObjectReleaser>;
 using UniquePageSetup = std::unique_ptr<GtkPageSetup, GObjectReleaser>;
 using UniquePrintOperation = std::unique_ptr<GtkPrintOperation, GObjectReleaser>;
+#if GTK_CHECK_VERSION(3,0,0)
 using UniqueCssProvider = std::unique_ptr<GtkCssProvider, GObjectReleaser>;
+#endif
 
 // Callback thunk class connects GTK signals to an instance method.
 template< class T, void (T::*method)() >
