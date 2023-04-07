@@ -99,6 +99,9 @@
 #define GKEY_F2 GDK_KEY_F2
 #define GKEY_F3 GDK_KEY_F3
 #define GKEY_F4 GDK_KEY_F4
+#define GKEY_F6 GDK_KEY_F6
+#define GKEY_F7 GDK_KEY_F7
+#define GKEY_F11 GDK_KEY_F11
 #else
 #define GKEY_Tab GDK_Tab
 #define GKEY_ISO_Left_Tab GDK_ISO_Left_Tab
@@ -110,6 +113,9 @@
 #define GKEY_F2 GDK_F2
 #define GKEY_F3 GDK_F3
 #define GKEY_F4 GDK_F4
+#define GKEY_F6 GDK_F6
+#define GKEY_F7 GDK_F7
+#define GKEY_F11 GDK_F11
 #endif
 
 const char appName[] = "SciTE";
@@ -3028,9 +3034,13 @@ KeyToCommand kmap[] = {
                                  {m_C, GKEY_KP_Enter, IDM_COMPLETEWORD},
                                  {GDK_MOD1_MASK, GKEY_F2, IDM_BOOKMARK_NEXT_SELECT},
                                  {GDK_MOD1_MASK|GDK_SHIFT_MASK, GKEY_F2, IDM_BOOKMARK_PREV_SELECT},
+                                 {m_C, GKEY_F2, IDM_BOOKMARK_TOGGLE},
                                  {m_C, GKEY_F3, IDM_FINDNEXTSEL},
                                  {mSC, GKEY_F3, IDM_FINDNEXTBACKSEL},
                                  {m_C, GKEY_F4, IDM_CLOSE},
+                                 {m_C, GKEY_F6, IDM_SWITCHPANE},
+                                 {m_C, GKEY_F7, IDM_COMPILE},
+                                 {m_C, GKEY_F11, IDM_MONOFONT},
                                  {m_C, 'j', IDM_PREVMATCHPPC},
                                  {mSC, 'J', IDM_SELECTTOPREVMATCHPPC},
                                  {m_C, 'k', IDM_NEXTMATCHPPC},
@@ -3088,7 +3098,11 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 	if ((commandID == IDM_NEXTFILE) ||
 		(commandID == IDM_PREVFILE) ||
 		(commandID == IDM_NEXTFILESTACK) ||
-		(commandID == IDM_PREVFILESTACK)) {
+		(commandID == IDM_PREVFILESTACK) ||
+		(commandID == IDM_BOOKMARK_TOGGLE) ||
+		(commandID == IDM_SWITCHPANE) ||
+		(commandID == IDM_COMPILE) ||
+		(commandID == IDM_MONOFONT)) {
 		// Stop the default key processing from moving the focus
 		g_signal_stop_emission_by_name(
 		    G_OBJECT(PWidget(wSciTE)), "key_press_event");
