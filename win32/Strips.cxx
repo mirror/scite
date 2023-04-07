@@ -72,17 +72,17 @@ SIZE SizeButton(const GUI::Window &wButton) noexcept {
 	return sz;
 }
 
-SIZE SizeText(HFONT hfont, const GUI::gui_char *text) noexcept {
+SIZE SizeText(HFONT hfont, GUI::gui_string_view text) noexcept {
 	HDC hdcMeasure = ::CreateCompatibleDC({});
 	HFONT hfontOriginal = SelectFont(hdcMeasure, hfont);
 	RECT rcText = {0, 0, 2000, 2000};
-	::DrawText(hdcMeasure, text, -1, &rcText, DT_CALCRECT);
+	::DrawText(hdcMeasure, text.data(), static_cast<int>(text.length()), &rcText, DT_CALCRECT);
 	SelectFont(hdcMeasure, hfontOriginal);
 	::DeleteDC(hdcMeasure);
 	return SIZE{ rcText.right - rcText.left, rcText.bottom - rcText.top, };
 }
 
-int WidthText(HFONT hfont, const GUI::gui_char *text) noexcept {
+int WidthText(HFONT hfont, GUI::gui_string_view text) noexcept {
 	return SizeText(hfont, text).cx;
 }
 
@@ -266,7 +266,7 @@ SearchOption toggles[] = {
 
 GUI::Window Strip::CreateText(const char *text) {
 	GUI::gui_string localised = localiser->Text(text);
-	const int width = WidthText(fontText, localised.c_str()) + 4;
+	const int width = WidthText(fontText, localised) + 4;
 	GUI::Window w;
 	w.SetID(::CreateWindowEx(0, TEXT("Static"), localised.c_str(),
 				 WS_CHILD | WS_CLIPSIBLINGS | SS_RIGHT,
@@ -279,7 +279,7 @@ GUI::Window Strip::CreateText(const char *text) {
 
 GUI::Window Strip::CreateButton(const char *text, size_t ident, bool check) {
 	GUI::gui_string localised = localiser->Text(text);
-	int width = WidthText(fontText, localised.c_str());
+	int width = WidthText(fontText, localised);
 	int height = 19 + 2 * ::GetSystemMetrics(SM_CYEDGE);
 	if (check) {
 		width += 6;
@@ -287,7 +287,7 @@ GUI::Window Strip::CreateButton(const char *text, size_t ident, bool check) {
 		width += checkSize;
 	} else {
 		width += 2 * ::GetSystemMetrics(SM_CXEDGE);	// Allow for 3D borders
-		width += 2 * WidthText(fontText, TEXT(" "));	// Allow a bit of space
+		width += 2 * WidthText(fontText, GUI_TEXT(" "));	// Allow a bit of space
 	}
 
 	int bmpDimension = 16;
@@ -361,7 +361,7 @@ GUI::Window Strip::CreateButton(const char *text, size_t ident, bool check) {
 	if (!check) {
 		const SIZE sz = SizeButton(w);
 		if (sz.cx > 0) {
-			const GUI::Rectangle rc(0, 0, sz.cx + 2 * WidthText(fontText, TEXT(" ")), sz.cy);
+			const GUI::Rectangle rc(0, 0, sz.cx + 2 * WidthText(fontText, GUI_TEXT(" ")), sz.cy);
 			w.SetPosition(rc);
 		}
 	}
@@ -1749,7 +1749,7 @@ void UserStrip::Size() {
 			if (ctl.controlType == UserControl::ucButton) {
 				const SIZE sz = SizeButton(ctl.w);
 				if (sz.cx > 0) {
-					ctl.widthDesired = sz.cx + 2 * WidthText(fontText, TEXT(" "));
+					ctl.widthDesired = sz.cx + 2 * WidthText(fontText, GUI_TEXT(" "));
 				}
 			}
 		}
@@ -1912,9 +1912,9 @@ void UserStrip::SetDescription(const char *description) {
 
 			case UserControl::ucButton:
 			case UserControl::ucDefaultButton:
-				ctl.widthDesired = WidthText(fontText, ctl.text.c_str()) +
+				ctl.widthDesired = WidthText(fontText, ctl.text) +
 						   2 * ::GetSystemMetrics(SM_CXEDGE) +
-						   2 * WidthText(fontText, TEXT(" "));
+						   2 * WidthText(fontText, GUI_TEXT(" "));
 				ctl.w = ::CreateWindowEx(0, TEXT("Button"), ctl.text.c_str(),
 							 WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS |
 							 ((ctl.controlType == UserControl::ucDefaultButton) ? BS_DEFPUSHBUTTON : BS_PUSHBUTTON),
@@ -1923,7 +1923,7 @@ void UserStrip::SetDescription(const char *description) {
 				break;
 
 			default:
-				ctl.widthDesired = WidthText(fontText, ctl.text.c_str());
+				ctl.widthDesired = WidthText(fontText, ctl.text);
 				ctl.w = ::CreateWindowEx(0, TEXT("Static"), ctl.text.c_str(),
 							 WS_CHILD | WS_CLIPSIBLINGS | ES_RIGHT,
 							 left, top, ctl.widthDesired, lineHeight - 5,
