@@ -30,6 +30,7 @@
 
 // C++ standard library
 #include <stdexcept>
+#include <system_error>
 #include <tuple>
 #include <string>
 #include <string_view>
