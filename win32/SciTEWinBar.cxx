@@ -596,13 +596,17 @@ void SciTEWin::CheckMenus() {
 
 void SciTEWin::LocaliseMenu(HMENU hmenu) {
 	for (int i = 0; i <= ::GetMenuItemCount(hmenu); i++) {
-		GUI::gui_char buff[200] {};
 		MENUITEMINFOW mii {};
 		mii.cbSize = sizeof(mii);
 		mii.fMask = MIIM_CHECKMARKS | MIIM_DATA | MIIM_ID |
 			    MIIM_STATE | MIIM_SUBMENU | MIIM_TYPE;
-		mii.dwTypeData = buff;
-		mii.cch = sizeof(buff) - 1;
+		mii.dwTypeData = nullptr;
+		if (!::GetMenuItemInfoW(hmenu, i, TRUE, &mii)) {
+			continue;
+		}
+		GUI::gui_string buff(mii.cch, 0);
+		mii.dwTypeData = buff.data();
+		mii.cch++;
 		if (::GetMenuItemInfoW(hmenu, i, TRUE, &mii)) {
 			if (mii.hSubMenu) {
 				LocaliseMenu(mii.hSubMenu);
