@@ -16,7 +16,7 @@ propsFileName = srcDir / "SciTEGlobal.properties"
 localeFileName = srcRoot / "win32" / "locale.properties"
 resourceFileName = srcRoot / "win32" / "SciTERes.rc"
 
-neutralEncoding = "cp437"	# Each byte value is valid in cp437
+neutralEncoding = "iso-8859-1"	# Each byte value is valid in iso-8859-1
 
 identCharacters = "_*." + string.ascii_letters + string.digits
 

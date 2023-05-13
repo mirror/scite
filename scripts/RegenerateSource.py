@@ -36,7 +36,7 @@ sys.path.append(str(sciteBase))
 import win32.AppDepGen
 import gtk.AppDepGen
 
-neutralEncoding = "cp437"	# Each byte value is valid in cp437
+neutralEncoding = "iso-8859-1"	# Each byte value is valid in iso-8859-1
 
 def FindCredits(historyFile, removeLinks=True):
     credits = []
