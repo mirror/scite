@@ -644,9 +644,11 @@
 		<a href="https://sourceforge.net/p/scintilla/feature-requests/1033/">Feature #1033</a>.
 		</li>
 		<li>
-		Bash: add choice to style command substitutions with surrounding "$(" and ")" as operators
-		and interior styled as bash code.
-		Controlled with property lexer.bash.command.substitution.
+		Bash: add property lexer.bash.command.substitution to choose how to style command substitutions.
+		0 &rarr; SCE_SH_BACKTICKS;
+		1 &rarr; surrounding "$(" and ")" as operators and contents styled as bash code;
+		2 &rarr; use distinct styles (base style + 64) for contents.
+		Choice (2) is a provisional feature and details may change before it is finalized.
 		<a href="https://github.com/ScintillaOrg/lexilla/issues/153">Issue #153</a>.
 		</li>
 		<li>
@@ -670,6 +672,10 @@
 		<a href="https://github.com/ScintillaOrg/lexilla/issues/148">Issue #148</a>.
 		</li>
 		<li>
+		F#: Lex interpolated verbatim strings as verbatim.
+		<a href="https://github.com/ScintillaOrg/lexilla/issues/156">Issue #156</a>.
+		</li>
+		<li>
 		VB: allow multiline strings when lexer.vb.strings.multiline set.
 		<a href="https://github.com/ScintillaOrg/lexilla/issues/151">Issue #151</a>.
 		</li>
@@ -687,6 +693,9 @@
 		</li>
 		<li>
 		On Qt, stop movement of IME candidate box.
+		</li>
+		<li>
+		On Qt, report correct caret position within paragraph for IME retrieve surrounding text.
 		</li>
 		<li>
 		On Qt for Cocoa, fix crash in entry of multi-character strings with IME.
