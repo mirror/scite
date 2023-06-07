@@ -473,8 +473,8 @@ void SciTEWin::ReadEmbeddedProperties() {
 		if (hmem) {
 			const void *pv = ::LockResource(hmem);
 			if (pv) {
-				propsEmbed.ReadFromMemory(
-					static_cast<const char *>(pv), size, FilePath(), filter, nullptr, 0);
+				propsEmbed.ReadFromMemory(std::string_view(static_cast<const char *>(pv), size),
+					FilePath(), filter, nullptr, 0);
 			}
 		}
 		::FreeResource(handProps);

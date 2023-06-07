@@ -49,7 +49,7 @@ public:
 	enum class ReadLineState { active, excludedModule, conditionFalse };
 	ReadLineState ReadLine(const char *lineBuffer, ReadLineState rls, const FilePath &directoryForImports, const ImportFilter &filter,
 			       FilePathSet *imports, size_t depth);
-	void ReadFromMemory(const char *data, size_t len, const FilePath &directoryForImports, const ImportFilter &filter,
+	void ReadFromMemory(std::string_view data, const FilePath &directoryForImports, const ImportFilter &filter,
 			    FilePathSet *imports, size_t depth);
 	void Import(const FilePath &filename, const FilePath &directoryForImports, const ImportFilter &filter,
 		    FilePathSet *imports, size_t depth);

@@ -441,9 +441,10 @@ PropSetFile::ReadLineState PropSetFile::ReadLine(const char *lineBuffer, ReadLin
 	return rls;
 }
 
-void PropSetFile::ReadFromMemory(const char *data, size_t len, const FilePath &directoryForImports,
+void PropSetFile::ReadFromMemory(std::string_view data, const FilePath &directoryForImports,
 				 const ImportFilter &filter, FilePathSet *imports, size_t depth) {
-	const char *pd = data;
+	const char *pd = data.data();
+	size_t len = data.length();
 	std::vector<char> lineBuffer(len+1);	// +1 for NUL
 	ReadLineState rls = ReadLineState::active;
 	while (len > 0) {
@@ -467,7 +468,7 @@ bool PropSetFile::Read(const FilePath &filename, const FilePath &directoryForImp
 		if (StartsWith(data, svUtf8BOM)) {
 			data.remove_prefix(svUtf8BOM.length());
 		}
-		ReadFromMemory(data.data(), data.length(), directoryForImports, filter, imports, depth);
+		ReadFromMemory(data, directoryForImports, filter, imports, depth);
 		return true;
 	}
 	return false;
