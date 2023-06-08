@@ -51,7 +51,7 @@ JobSubsystem SubsystemFromChar(char c) noexcept {
 	return JobSubsystem::cli;
 }
 
-JobMode::JobMode(PropSetFile &props, int item, const char *fileNameExt) : jobType(JobSubsystem::cli), saveBefore(0), isFilter(false), flags(0) {
+JobMode::JobMode(const PropSetFile &props, int item, std::string_view fileNameExt) : jobType(JobSubsystem::cli), saveBefore(0), isFilter(false), flags(0) {
 	bool quiet = false;
 	int repSel = 0;
 	bool groupUndo = false;

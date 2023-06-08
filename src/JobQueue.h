@@ -34,7 +34,7 @@ struct JobMode {
 	bool isFilter;
 	int flags;
 	std::string input;
-	JobMode(PropSetFile &props, int item, const char *fileNameExt);
+	JobMode(const PropSetFile &props, int item, std::string_view fileNameExt);
 };
 
 class Job {

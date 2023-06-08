@@ -1494,7 +1494,7 @@ bool SciTEBase::ToolIsImmediate(int item) {
 
 	const std::string_view command = props.GetWild(propName, FileNameExt().AsUTF8());
 	if (command.length()) {
-		JobMode jobMode(props, item, FileNameExt().AsUTF8().c_str());
+		JobMode jobMode(props, item, FileNameExt().AsUTF8());
 		return jobMode.jobType == JobSubsystem::immediate;
 	}
 	return false;
@@ -1558,7 +1558,7 @@ void SciTEBase::ToolsMenu(int item) {
 	const std::string propName = std::string("command.") + itemSuffix;
 	std::string command(props.GetWild(propName, FileNameExt().AsUTF8()));
 	if (command.length()) {
-		JobMode jobMode(props, item, FileNameExt().AsUTF8().c_str());
+		JobMode jobMode(props, item, FileNameExt().AsUTF8());
 		if (jobQueue.IsExecuting() && (jobMode.jobType != JobSubsystem::immediate))
 			// Busy running a tool and running a second can cause failures.
 			return;
