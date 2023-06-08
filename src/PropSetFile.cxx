@@ -536,7 +536,7 @@ bool MatchWildSet(std::string_view patternSet, std::string_view text, bool caseS
 
 }
 
-std::string_view PropSetFile::GetWildUsingStart(const PropSetFile &psStart, std::string_view keybase, std::string_view filename) {
+std::string_view PropSetFile::GetWildUsingStart(const PropSetFile &psStart, std::string_view keybase, std::string_view filename) const {
 	const PropSetFile *psf = this;
 	while (psf) {
 		mapss::const_iterator it = psf->props.lower_bound(keybase);
@@ -571,14 +571,14 @@ std::string_view PropSetFile::GetWildUsingStart(const PropSetFile &psStart, std:
 	return "";
 }
 
-std::string_view PropSetFile::GetWild(std::string_view keybase, std::string_view filename) {
+std::string_view PropSetFile::GetWild(std::string_view keybase, std::string_view filename) const {
 	return GetWildUsingStart(*this, keybase, filename);
 }
 
 // GetNewExpandString does not use Expand as it has to use GetWild with the filename for each
 // variable reference found.
 
-std::string PropSetFile::GetNewExpandString(std::string_view keybase, std::string_view filename) {
+std::string PropSetFile::GetNewExpandString(std::string_view keybase, std::string_view filename) const {
 	std::string withVars(GetWild(keybase, filename));
 	size_t varStart = withVars.find("$(");
 	int maxExpands = 1000;	// Avoid infinite expansion of recursive definitions
