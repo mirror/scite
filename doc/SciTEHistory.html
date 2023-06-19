@@ -624,6 +624,31 @@
 		<a href="https://sourceforge.net/p/scintilla/bugs/2387/">Bug #2387</a>.
 		</li>
 	</ul>
+	<li>Lexilla 5.2.6</li>
+	<ul>
+		<li>
+		Include empty word list names in value returned by DescribeWordListSets and SCI_DESCRIBEKEYWORDSETS.
+		<a href="https://github.com/ScintillaOrg/lexilla/issues/175">Issue #175</a>,
+		<a href="https://github.com/ScintillaOrg/lexilla/pull/176">Pull request #176</a>.
+		</li>
+		<li>
+		Bash: style here-doc end delimiters as SCE_SH_HERE_DELIM instead of SCE_SH_HERE_Q.
+		<a href="https://github.com/ScintillaOrg/lexilla/issues/177">Issue #177</a>.
+		</li>
+		<li>
+		Visual Prolog: add support for embedded syntax with SCE_VISUALPROLOG_EMBEDDED
+		and SCE_VISUALPROLOG_PLACEHOLDER.<br />
+		Styling of string literals changed with no differentiation between literals with quotes and those
+		that are prefixed with "@".
+		Quote characters are in a separate style (SCE_VISUALPROLOG_STRING_QUOTE)
+		to contents (SCE_VISUALPROLOG_STRING).<br />
+		SCE_VISUALPROLOG_CHARACTER, SCE_VISUALPROLOG_CHARACTER_TOO_MANY,
+		SCE_VISUALPROLOG_CHARACTER_ESCAPE_ERROR, SCE_VISUALPROLOG_STRING_EOL_OPEN,
+		and SCE_VISUALPROLOG_STRING_VERBATIM_SPECIAL were removed (replaced with
+		SCE_VISUALPROLOG_UNUSED[1-5]).
+		<a href="https://github.com/ScintillaOrg/lexilla/pull/178">Pull request #178</a>.
+		</li>
+	</ul>
 	<li>Scintilla 5.3.6</li>
 	<ul>
 		<li>
@@ -639,17 +664,9 @@
 		On Qt, for IMEs, update micro focus when selection changes.
 		This may move the location of IME popups to align with the caret.
 		</li>
-	</ul>
-	<li>Lexilla 5.2.6</li>
-	<ul>
 		<li>
-		Include empty word list names in value returned by DescribeWordListSets and SCI_DESCRIBEKEYWORDSETS.
-		<a href="https://github.com/ScintillaOrg/lexilla/issues/175">Issue #175</a>,
-		<a href="https://github.com/ScintillaOrg/lexilla/pull/176">Pull request #176</a>.
-		</li>
-		<li>
-		Bash: style here-doc end delimiters as SCE_SH_HERE_DELIM instead of SCE_SH_HERE_Q.
-		<a href="https://github.com/ScintillaOrg/lexilla/issues/177">Issue #177</a>.
+		On Qt, implement replacement for IMEs which may help with actions like reconversion.
+		This is similar to delete-surrounding on GTK.
 		</li>
 	</ul>
     </ul>
