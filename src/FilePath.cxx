@@ -602,14 +602,17 @@ bool FilePath::Matches(GUI::gui_string_view pattern) const {
 	Lowercase(pat);
 	Lowercase(nameCopy);
 #endif
-	std::replace(pat.begin(), pat.end(), ' ', '\0');
-	size_t start = 0;
-	while (start < pat.length()) {
-		const GUI::gui_string_view patElement(pat.c_str() + start);
+	GUI::gui_string_view patView(pat);
+	while (!patView.empty()) {
+		const size_t separator = patView.find_first_of(' ');
+		const GUI::gui_string_view patElement(patView.substr(0, separator));
 		if (PatternMatch(patElement, nameCopy)) {
 			return true;
 		}
-		start += patElement.length() + 1;
+		if (separator == std::string::npos) {
+			break;
+		}
+		patView.remove_prefix(separator + 1);
 	}
 	return false;
 }

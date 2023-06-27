@@ -461,9 +461,8 @@ void PropSetFile::ReadFromMemory(std::string_view data, const FilePath &director
 bool PropSetFile::Read(const FilePath &filename, const FilePath &directoryForImports,
 		       const ImportFilter &filter, FilePathSet *imports, size_t depth) {
 	const std::string propsData = filename.Read();
-	const size_t lenFile = propsData.size();
-	if (lenFile > 0) {
-		std::string_view data(propsData.c_str(), lenFile);
+	if (!propsData.empty()) {
+		std::string_view data(propsData);
 		const std::string_view svUtf8BOM(UTF8BOM);
 		if (StartsWith(data, svUtf8BOM)) {
 			data.remove_prefix(svUtf8BOM.length());

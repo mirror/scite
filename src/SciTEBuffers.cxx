@@ -712,7 +712,7 @@ void SciTEBase::RestoreSession() {
 		bufferState.file.Set(GUI::StringFromUTF8(propStr));
 
 		propKey = IndexPropKey("buffer", i, "current");
-		if (propsSession.GetInt(propKey.c_str()))
+		if (propsSession.GetInt(propKey))
 			session.pathActive = bufferState.file;
 
 		propKey = IndexPropKey("buffer", i, "scroll");
