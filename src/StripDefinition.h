@@ -42,7 +42,7 @@ public:
 	std::vector<std::vector<UserControl> > controls;
 	std::vector<ColumnWidth> widths;
 
-	explicit StripDefinition(GUI::gui_string definition) {
+	explicit StripDefinition(const GUI::gui_string &definition) {
 		hasClose = false;
 		controls.clear();
 		columns = 0;
