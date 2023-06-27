@@ -264,7 +264,7 @@ SciTEWin::~SciTEWin() {
 		// Show debugger in this case.
 		assert(!buffer.doc);
 		// Drop ownership, leads to leak but exiting anyway.
-		buffer.doc.release();
+		std::ignore = buffer.doc.release();
 	}
 
 	if (hDevMode)
