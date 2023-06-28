@@ -1350,31 +1350,29 @@ static void unquote(char *s) {
 void SciTEGTK::OpenUriList(const char *list) {
 	if (list && *list) {
 		std::vector<char> uriList(list, list+strlen(list) + 1);
-		char *uri = &uriList[0];
-		if (uri) {
-			char *lastenduri = uri + strlen(uri);
-			while (uri < lastenduri) {
-				char *enduri = strchr(uri, '\r');
-				if (enduri == NULL)
-					enduri = lastenduri;	// if last URI has no "\r\n".
-				*enduri = '\0';
-				if (isprefix(uri, "file:")) {
-					uri += strlen("file:");
-					if (isprefix(uri, "///")) {
-						uri += 2;	// There can be an optional // before the file path that starts with /
-					}
-
-					unquote(uri);
-					Open(uri);
-				} else {
-					GUI::gui_string msg = LocaliseMessage("URI '^0' not understood.", uri);
-					WindowMessageBox(wSciTE, msg);
+		char *uri = uriList.data();
+		char *lastenduri = uri + strlen(uri);
+		while (uri < lastenduri) {
+			char *enduri = strchr(uri, '\r');
+			if (enduri == NULL)
+				enduri = lastenduri;	// if last URI has no "\r\n".
+			*enduri = '\0';
+			if (isprefix(uri, "file:")) {
+				uri += strlen("file:");
+				if (isprefix(uri, "///")) {
+					uri += 2;	// There can be an optional // before the file path that starts with /
 				}
 
-				uri = enduri + 1;
-				if (*uri == '\n')
-					uri++;
+				unquote(uri);
+				Open(uri);
+			} else {
+				GUI::gui_string msg = LocaliseMessage("URI '^0' not understood.", uri);
+				WindowMessageBox(wSciTE, msg);
 			}
+
+			uri = enduri + 1;
+			if (*uri == '\n')
+				uri++;
 		}
 	}
 }
