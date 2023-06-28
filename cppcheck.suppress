@@ -1,5 +1,6 @@
 // File to suppress cppcheck warnings for files that will not be fixed.
 // Does not suppress warnings where an additional occurrence of the warning may be of interest.
+// Configured for cppcheck 2.11
 
 // These may be interesting but its not clear without examining each instance closely
 useStlAlgorithm
@@ -13,6 +14,14 @@ noExplicitConstructor:scite/src/FilePath.h
 
 // Cppcheck wrongly flags check as always true
 knownConditionTrueFalse:scite/src/PropSetFile.cxx
+
+// Cppcheck wrongly assumes string_view::remove_prefix can not empty the view
+knownConditionTrueFalse:scite/src/Cookie.cxx
+knownConditionTrueFalse:scite/src/FilePath.cxx
+knownConditionTrueFalse:scite/src/PathMatch.cxx
+
+// cppcheck 2.11 can't find system headers on Win32.
+missingIncludeSystem
 
 // Windows and GTK define classes with the same name
 ctuOneDefinitionRuleViolation:scite/win32/Strips.h
@@ -31,8 +40,14 @@ knownConditionTrueFalse:scite/src/SciTEIO.cxx
 // This code is using NULs inside strings to terminate early so fixing warning causes failure.
 stlcstrConstructor:scite/gtk/SciTEGTK.cxx
 
+// Changing events to const pointers changes signature and would require casts when hooking up
+constParameterCallback:scite/gtk/SciTEGTK.cxx
+constParameterPointer:scite/gtk/SciTEGTK.cxx
+constParameterCallback:scite/gtk/Widget.cxx
+constParameterCallback:scite/gtk/Strips.cxx
+
 // Physically but not logically const.
-constParameter:scite/gtk/Widget.cxx
+constParameterReference:scite/gtk/Widget.cxx
 
 // Suppress everything in lua as that comes from the Lua distribution
 *:scite/lua/*
