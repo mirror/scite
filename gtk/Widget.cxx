@@ -64,7 +64,7 @@ int WEntry::Value() {
 	return atoi(Text());
 }
 
-void WEntry::SetText(GUI::gui_string text) {
+void WEntry::SetText(const GUI::gui_string &text) {
 	return gtk_entry_set_text(GTK_ENTRY(GetID()), text.c_str());
 }
 
@@ -502,7 +502,7 @@ void Strip::MenuSignal(GtkMenuItem *menuItem, Strip *pStrip) {
 
 void Strip::AddToPopUp(GUI::Menu &popup, const GUI::gui_string &label, int cmd, bool checked) {
 	allowMenuActions = false;
-	GUI::gui_string localised = localiser->Text(label.c_str());
+	GUI::gui_string localised = localiser->Text(label);
 	GtkWidget *menuItem = gtk_check_menu_item_new_with_mnemonic(localised.c_str());
 	gtk_menu_shell_append(GTK_MENU_SHELL(popup.GetID()), menuItem);
 	g_object_set_data(G_OBJECT(menuItem), "CmdNum", GINT_TO_POINTER(cmd));

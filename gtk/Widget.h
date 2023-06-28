@@ -70,7 +70,7 @@ public:
 	void ActivatesDefault();
 	const GUI::gui_char *Text();
 	int Value();
-	void SetText(GUI::gui_string text);
+	void SetText(const GUI::gui_string &text);
 	static void SetValid(GtkEntry *entry, bool valid);
 };
 
