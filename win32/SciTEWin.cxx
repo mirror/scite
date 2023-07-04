@@ -1478,17 +1478,13 @@ void SciTEWin::CreateUI() {
 		RestorePosition();
 
 	LocaliseMenus();
-	std::string pageSetup = props.GetString("print.margins");
-	char val[32] = "";
-	const char *ps = pageSetup.c_str();
-	const char *next = GetNextPropItem(ps, val, 32);
-	pagesetupMargin.left = atol(val);
-	next = GetNextPropItem(next, val, 32);
-	pagesetupMargin.right = atol(val);
-	next = GetNextPropItem(next, val, 32);
-	pagesetupMargin.top = atol(val);
-	GetNextPropItem(next, val, 32);
-	pagesetupMargin.bottom = atol(val);
+	std::vector<std::string> printMargins = StringSplit(
+		props.GetString("print.margins"), ',');
+	printMargins.resize(4); // Ensure indexing won't fail
+	pagesetupMargin.left = IntegerFromString(printMargins[0], 0);
+	pagesetupMargin.right = IntegerFromString(printMargins[1], 0);
+	pagesetupMargin.top = IntegerFromString(printMargins[2], 0);
+	pagesetupMargin.bottom = IntegerFromString(printMargins[3], 0);
 
 	UIAvailable();
 }

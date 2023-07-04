@@ -288,35 +288,6 @@ void SciTEBase::SetElementColour(SA::Element element, const char *key) {
 	OptionalSetColour(wOutput, element, props, key);
 }
 
-/**
- * Put the next property item from the given property string
- * into the buffer pointed by @a pPropItem.
- * @return NULL if the end of the list is met, else, it points to the next item.
- */
-const char *SciTEBase::GetNextPropItem(
-	const char *pStart,	/**< the property string to parse for the first call,
-						 * pointer returned by the previous call for the following. */
-	char *pPropItem,	///< pointer on a buffer receiving the requested prop item
-	size_t maxLen) noexcept {	///< size of the above buffer
-	ptrdiff_t size = maxLen - 1;
-
-	*pPropItem = '\0';
-	if (!pStart) {
-		return nullptr;
-	}
-	const char *pNext = strchr(pStart, ',');
-	if (pNext) {	// Separator is found
-		if (size > pNext - pStart) {
-			// Found string fits in buffer
-			size = pNext - pStart;
-		}
-		pNext++;
-	}
-	strncpy(pPropItem, pStart, size);
-	pPropItem[size] = '\0';
-	return pNext;
-}
-
 StyleDefinition SciTEBase::StyleDefinitionFor(int style) {
 	const std::string ssDefault = props.GetExpandedString(StyleName("*", style));
 	std::string ss = props.GetExpandedString(StyleName(language, style));

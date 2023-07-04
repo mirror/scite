@@ -860,7 +860,6 @@ protected:
 	StyleAndWords GetStyleAndWords(const char *base);
 	std::string ExtensionFileName() const;
 	void SetElementColour(SA::Element element, const char *key);
-	static const char *GetNextPropItem(const char *pStart, char *pPropItem, size_t maxLen) noexcept;
 	void ForwardPropertyToEditor(const char *key);
 	struct MarkerAppearance {
 		SA::ColourAlpha fore;
