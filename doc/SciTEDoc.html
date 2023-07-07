@@ -2437,9 +2437,17 @@ representations=π=Pi,\u20AA=shekel(\u20AA),!0,#FF000090,\x0D\x0A=crlf</div>
         <td>fold.cil.comment.multiline</td>
         <td>Set this property to 0 to disable folding multi-line comments when fold.comment=1.</td>
         </tr>
+        <tr id='property-fold.coffeescript.comment'>
+        <td>fold.coffeescript.comment</td>
+        <td>Set to 1 to allow folding of comment blocks in CoffeeScript.</td>
+        </tr>
         <tr id='property-fold.comment'>
         <td>fold.comment</td>
         <td>This option enables folding multi-line comments and explicit fold points when using the C++ lexer. Explicit fold points allows adding extra folding by placing a //{ comment at the start and a //} at the end of a section that should fold.</td>
+        </tr>
+        <tr id='property-fold.comment.yaml'>
+        <td>fold.comment.yaml</td>
+        <td>Set to 1 to allow folding of comment blocks in YAML.</td>
         </tr>
         <tr id='property-fold.cpp.comment.explicit'>
         <td>fold.cpp.comment.explicit</td>
@@ -2604,6 +2612,10 @@ representations=π=Pi,\u20AA=shekel(\u20AA),!0,#FF000090,\x0D\x0A=crlf</div>
         <tr id='property-fold.sql.at.else'>
         <td>fold.sql.at.else</td>
         <td>This option enables SQL folding on a "ELSE" and "ELSIF" line of an IF statement.</td>
+        </tr>
+        <tr id='property-fold.sql.only.begin'>
+        <td>fold.sql.only.begin</td>
+        <td>Set to 1 to only fold on 'begin' but not other keywords.</td>
         </tr>
         <tr id='property-fold.verilog.flags'>
         <td>fold.verilog.flags</td>
@@ -2837,6 +2849,10 @@ representations=π=Pi,\u20AA=shekel(\u20AA),!0,#FF000090,\x0D\x0A=crlf</div>
         <td>lexer.sql.allow.dotted.word</td>
         <td>Set to 1 to colourise recognized words with dots (recommended for Oracle PL/SQL objects).</td>
         </tr>
+        <tr id='property-lexer.sql.backticks.identifier'>
+        <td>lexer.sql.backticks.identifier</td>
+        <td>Recognise backtick quoting of identifiers.</td>
+        </tr>
         <tr id='property-lexer.sql.numbersign.comment'>
         <td>lexer.sql.numbersign.comment</td>
         <td>If "lexer.sql.numbersign.comment" property is set to 0 a line beginning with '#' will not be a comment.</td>
@@ -2876,6 +2892,18 @@ representations=π=Pi,\u20AA=shekel(\u20AA),!0,#FF000090,\x0D\x0A=crlf</div>
         <tr id='property-lexer.xml.allow.scripts'>
         <td>lexer.xml.allow.scripts</td>
         <td>Set to 0 to disable scripts in XML.</td>
+        </tr>
+        <tr id='property-nsis.ignorecase'>
+        <td>nsis.ignorecase</td>
+        <td>Set to 1 to ignore case for NSIS.</td>
+        </tr>
+        <tr id='property-nsis.uservars'>
+        <td>nsis.uservars</td>
+        <td>Set to 1 to recognise user defined variables in NSIS.</td>
+        </tr>
+        <tr id='property-ps.level'>
+        <td>ps.level</td>
+        <td>Define level (0..3) of PostScript handled and thus set of keywords. Default is 3.</td>
         </tr>
         <tr id='property-sql.backslash.escapes'>
         <td>sql.backslash.escapes</td>
