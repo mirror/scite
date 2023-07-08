@@ -1506,19 +1506,15 @@ void SciTEBase::SetToolsMenu() {
 	RemoveToolsMenu();
 	int menuPos = TOOLS_START;
 	for (int item = 0; item < toolMax; item++) {
-		std::string prefix = "command.name.";
-		prefix += StdStringFromInteger(item);
-		prefix += ".";
-		std::string commandName = props.GetNewExpandString(prefix, FileNameExt().AsUTF8());
-		if (commandName.length()) {
-			std::string sMenuItem = commandName;
-			prefix = "command.shortcut.";
-			prefix += StdStringFromInteger(item);
-			prefix += ".";
-			std::string sMnemonic = props.GetNewExpandString(prefix, FileNameExt().AsUTF8());
-			if (item < 10 && sMnemonic.length() == 0) {
-				sMnemonic += "Ctrl+";
-				sMnemonic += StdStringFromInteger(item);
+		const std::string itemText = StdStringFromInteger(item);
+		const std::string itemSuffix = itemText + ".";
+		const std::string commandNamePrefix = "command.name." + itemSuffix;
+		const std::string commandName = props.GetNewExpandString(commandNamePrefix, FileNameExt().AsUTF8());
+		if (!commandName.empty()) {
+			const std::string shortcutPrefix = "command.shortcut." + itemSuffix;
+			std::string sMnemonic = props.GetNewExpandString(shortcutPrefix, FileNameExt().AsUTF8());
+			if (item < 10 && sMnemonic.empty()) {
+				sMnemonic = "Ctrl+" + itemText;
 			}
 			const int itemID = IDM_TOOLS + item;
 			SetMenuItemLocalised(menuTools, menuPos, itemID, commandName, sMnemonic);
