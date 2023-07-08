@@ -1480,8 +1480,8 @@ void SciTEBase::RemoveToolsMenu() {
 }
 
 void SciTEBase::SetMenuItemLocalised(int menuNumber, int position, int itemID,
-				     const char *text, const char *mnemonic) {
-	GUI::gui_string localised = localiser.Text(text);
+				     std::string_view text, std::string_view mnemonic) {
+	const GUI::gui_string localised = localiser.Text(text);
 	SetMenuItem(menuNumber, position, itemID, localised.c_str(), GUI::StringFromUTF8(mnemonic).c_str());
 }
 
@@ -1506,7 +1506,6 @@ void SciTEBase::SetToolsMenu() {
 	RemoveToolsMenu();
 	int menuPos = TOOLS_START;
 	for (int item = 0; item < toolMax; item++) {
-		const int itemID = IDM_TOOLS + item;
 		std::string prefix = "command.name.";
 		prefix += StdStringFromInteger(item);
 		prefix += ".";
@@ -1521,8 +1520,8 @@ void SciTEBase::SetToolsMenu() {
 				sMnemonic += "Ctrl+";
 				sMnemonic += StdStringFromInteger(item);
 			}
-			SetMenuItemLocalised(menuTools, menuPos, itemID, sMenuItem.c_str(),
-					     sMnemonic.length() ? sMnemonic.c_str() : nullptr);
+			const int itemID = IDM_TOOLS + item;
+			SetMenuItemLocalised(menuTools, menuPos, itemID, commandName, sMnemonic);
 			menuPos++;
 		}
 	}

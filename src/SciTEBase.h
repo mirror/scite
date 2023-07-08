@@ -837,7 +837,7 @@ protected:
 
 	void RemoveToolsMenu();
 	void SetMenuItemLocalised(int menuNumber, int position, int itemID,
-				  const char *text, const char *mnemonic);
+				  std::string_view text, std::string_view mnemonic);
 	bool ToolIsImmediate(int item);
 	void SetToolsMenu();
 	JobSubsystem SubsystemType(const char *cmd);
