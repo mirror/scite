@@ -122,6 +122,65 @@ bool &Searcher::FlagFromCmd(int cmd) noexcept {
 	return notFound;
 }
 
+StyleAndWords::StyleAndWords() noexcept = default;
+
+// Set of words separated by spaces. First is style number, rest are symbols.
+// <styleNumber> [symbol]*
+StyleAndWords::StyleAndWords(const std::string &definition) {
+	styleNumber = IntegerFromString(definition, 0);
+
+	std::string_view symbols(definition);
+
+	// Remove initial style number
+	const size_t endNumber = symbols.find_first_of(' ');
+	if (endNumber == std::string::npos) {
+		return;
+	}
+	symbols.remove_prefix(endNumber + 1);
+
+	words = SetFromString(symbols, ' ');
+}
+
+bool StyleAndWords::IsEmpty() const noexcept {
+	return words.empty();
+}
+
+bool StyleAndWords::IsSingleChar() const noexcept {
+	if (words.size() != 1) {
+		return false;
+	}
+	const std::string &first = *words.begin();
+	return first.length() == 1;
+}
+
+bool StyleAndWords::IsCharacter(char ch) const noexcept {
+	if (words.size() != 1) {
+		return false;
+	}
+	const std::string &first = *words.begin();
+	return (first.length() == 1) && (ch == first[0]);
+}
+
+int StyleAndWords::Style() const noexcept {
+	return styleNumber;
+}
+
+bool StyleAndWords::Includes(const std::string &value) const {
+	if (words.empty()) {
+		return false;
+	}
+	const std::string &first = *words.begin();
+	if (first.empty()) {
+		return false;
+	}
+	if (IsAlphabetic(first[0])) {
+		return words.count(value) != 0;
+	}
+	// Set of individual characters. Only one character allowed for now
+	const char ch = first[0];
+	return value.find(ch) != std::string::npos;
+}
+
 SciTEBase::SciTEBase(Extension *ext) : apis(true), pwFocussed(&wEditor), extender(ext) {
 	needIdle = false;
 	codePage = 0;
@@ -334,14 +393,9 @@ void SciTEBase::ViewWhitespace(bool view) {
 }
 
 StyleAndWords SciTEBase::GetStyleAndWords(const char *base) {
-	StyleAndWords sw;
 	const std::string fileNameForExtension = ExtensionFileName();
 	const std::string sAndW = props.GetNewExpandString(base, fileNameForExtension);
-	sw.styleNumber = IntegerFromString(sAndW, 0);
-	const char *space = strchr(sAndW.c_str(), ' ');
-	if (space)
-		sw.words = space + 1;
-	return sw;
+	return StyleAndWords(sAndW);
 }
 
 void SciTEBase::AssignKey(SA::Keys key, SA::KeyMod mods, int cmd) {
@@ -2468,7 +2522,7 @@ std::vector<std::string> SciTEBase::GetLinePartsInStyle(SA::Line line, const Sty
 	const SA::Position thisLineStart = wEditor.LineStart(line);
 	const SA::Position nextLineStart = wEditor.LineStart(line + 1);
 	for (SA::Position pos = thisLineStart; pos < nextLineStart; pos++) {
-		if (acc.StyleAt(pos) == saw.styleNumber) {
+		if (acc.StyleAt(pos) == saw.Style()) {
 			if (separateCharacters) {
 				// Add one character at a time, even if there is an adjacent character in the same style
 				if (s.length() > 0) {
@@ -2488,54 +2542,25 @@ std::vector<std::string> SciTEBase::GetLinePartsInStyle(SA::Line line, const Sty
 	return sv;
 }
 
-static bool includes(const StyleAndWords &symbols, const std::string &value) {
-	if (symbols.words.length() == 0) {
-		return false;
-	} else if (IsAlphabetic(symbols.words[0])) {
-		// Set of symbols separated by spaces
-		const size_t lenVal = value.length();
-		const char *symbol = symbols.words.c_str();
-		while (symbol) {
-			const char *symbolEnd = strchr(symbol, ' ');
-			size_t lenSymbol = strlen(symbol);
-			if (symbolEnd)
-				lenSymbol = symbolEnd - symbol;
-			if (lenSymbol == lenVal) {
-				if (strncmp(symbol, value.c_str(), lenSymbol) == 0) {
-					return true;
-				}
-			}
-			symbol = symbolEnd;
-			if (symbol)
-				symbol++;
-		}
-	} else {
-		// Set of individual characters. Only one character allowed for now
-		const char ch = symbols.words[0];
-		return strchr(value.c_str(), ch) != nullptr;
-	}
-	return false;
-}
-
 IndentationStatus SciTEBase::GetIndentState(SA::Line line) {
 	// C like language indentation defined by braces and keywords
 	IndentationStatus indentState = IndentationStatus::none;
 	const std::vector<std::string> controlIndents = GetLinePartsInStyle(line, statementIndent);
 	for (const std::string &sIndent : controlIndents) {
-		if (includes(statementIndent, sIndent))
+		if (statementIndent.Includes(sIndent))
 			indentState = IndentationStatus::keyWordStart;
 	}
 	const std::vector<std::string> controlEnds = GetLinePartsInStyle(line, statementEnd);
 	for (const std::string &sEnd : controlEnds) {
-		if (includes(statementEnd, sEnd))
+		if (statementEnd.Includes(sEnd))
 			indentState = IndentationStatus::none;
 	}
 	// Braces override keywords
 	const std::vector<std::string> controlBlocks = GetLinePartsInStyle(line, blockEnd);
 	for (const std::string &sBlock : controlBlocks) {
-		if (includes(blockEnd, sBlock))
+		if (blockEnd.Includes(sBlock))
 			indentState = IndentationStatus::blockEnd;
-		if (includes(blockStart, sBlock))
+		if (blockStart.Includes(sBlock))
 			indentState = IndentationStatus::blockStart;
 	}
 	return indentState;
@@ -2639,7 +2664,7 @@ void SciTEBase::AutomaticIndentation(char ch) {
 		return;
 	}
 
-	if (blockEnd.IsSingleChar() && ch == blockEnd.words[0]) {	// Dedent maybe
+	if (blockEnd.IsCharacter(ch)) {	// Dedent maybe
 		if (!indentClosing) {
 			if (RangeIsAllWhitespace(thisLineStart, selStart - 1)) {
 				SetLineIndentation(curLine, indentBlock - indentSize);
@@ -2647,7 +2672,7 @@ void SciTEBase::AutomaticIndentation(char ch) {
 		}
 	} else if (!blockEnd.IsSingleChar() && (ch == ' ')) {	// Dedent maybe
 		if (!indentClosing && (GetIndentState(curLine) == IndentationStatus::blockEnd)) {}
-	} else if (blockStart.IsSingleChar() && (ch == blockStart.words[0])) {
+	} else if (blockStart.IsCharacter(ch)) {
 		// Dedent maybe if first on line and previous line was starting keyword
 		if (!indentOpening && (GetIndentState(curLine - 1) == IndentationStatus::keyWordStart)) {
 			if (RangeIsAllWhitespace(thisLineStart, selStart - 1)) {
@@ -2658,7 +2683,7 @@ void SciTEBase::AutomaticIndentation(char ch) {
 		if (!indentClosing && !blockEnd.IsSingleChar()) {	// Dedent previous line maybe
 			const std::vector<std::string> controlWords = GetLinePartsInStyle(curLine - 1, blockEnd);
 			if (!controlWords.empty()) {
-				if (includes(blockEnd, controlWords[0])) {
+				if (blockEnd.Includes(controlWords[0])) {
 					// Check if first keyword on line is an ender
 					SetLineIndentation(curLine - 1, IndentOfBlock(curLine - 2) - indentSize);
 					// Recalculate as may have changed previous line

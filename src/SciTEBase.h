@@ -219,13 +219,17 @@ enum class IndentationStatus {
 	keyWordStart	// Keywords that cause indentation
 };
 
-struct StyleAndWords {
-	int styleNumber;
-	std::string words;
-	StyleAndWords() noexcept : styleNumber(0) {
-	}
-	bool IsEmpty() const noexcept { return words.length() == 0; }
-	bool IsSingleChar() const noexcept { return words.length() == 1; }
+class StyleAndWords {
+	int styleNumber = 0;
+	std::set<std::string> words;
+public:
+	StyleAndWords() noexcept;
+	explicit StyleAndWords(const std::string &definition);
+	[[nodiscard]] bool IsEmpty() const noexcept;
+	[[nodiscard]] bool IsSingleChar() const noexcept;
+	[[nodiscard]] bool IsCharacter(char ch) const noexcept;
+	[[nodiscard]] int Style() const noexcept;
+	[[nodiscard]] bool Includes(const std::string &value) const;
 };
 
 struct CurrentWordHighlight {
