@@ -43,19 +43,9 @@
 // The comparison and case changing functions here assume ASCII
 // or extended ASCII such as the normal Windows code page.
 
-static std::set<std::string> FilterFromString(const std::string &values) {
-	std::vector<std::string> vsFilter = StringSplit(values, ' ');
-	std::set<std::string> fs;
-	for (std::vector<std::string>::const_iterator it=vsFilter.begin(); it != vsFilter.end(); ++it) {
-		if (!it->empty())
-			fs.insert(*it);
-	}
-	return fs;
-}
-
 void ImportFilter::SetFilter(const std::string &sExcludes, const std::string &sIncludes) {
-	excludes = FilterFromString(sExcludes);
-	includes = FilterFromString(sIncludes);
+	excludes = SetFromString(sExcludes, ' ');
+	includes = SetFromString(sIncludes, ' ');
 }
 
 bool ImportFilter::IsValid(const std::string &name) const {

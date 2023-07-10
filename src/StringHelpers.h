@@ -109,6 +109,8 @@ inline std::vector<GUI::gui_string> ListFromString(const GUI::gui_string &args) 
 	return StringSplit(args, '\n');
 }
 
+std::set<std::string> SetFromString(std::string_view text, char separator);
+
 typedef std::tuple<std::string_view, std::string_view> ViewPair;
 
 // Split view around first separator returning the portion before and after the separator.
