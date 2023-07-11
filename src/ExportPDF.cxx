@@ -94,8 +94,6 @@ short PDFfontAscenders[] =  { 629, 718, 699 };
 short PDFfontDescenders[] = { 157, 207, 217 };
 short PDFfontWidths[] =     { 600,   0,   0 };
 
-}
-
 std::string getPDFRGB(std::string_view stylecolour) {
 	std::string ret;
 	// grab colour components (max string length produced = 18)
@@ -111,6 +109,8 @@ std::string getPDFRGB(std::string_view stylecolour) {
 		ret += val;
 	}
 	return ret;
+}
+
 }
 
 void SciTEBase::SaveToPDF(const FilePath &saveName) {
