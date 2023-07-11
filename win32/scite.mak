@@ -143,15 +143,14 @@ $(DIR_BIN)\lot.properties $(DIR_BIN)\lout.properties $(DIR_BIN)\lua.properties \
 $(DIR_BIN)\markdown.properties $(DIR_BIN)\matlab.properties \
 $(DIR_BIN)\maxima.properties $(DIR_BIN)\metapost.properties \
 $(DIR_BIN)\mmixal.properties $(DIR_BIN)\modula3.properties \
-$(DIR_BIN)\nim.properties $(DIR_BIN)\nimrod.properties \
-$(DIR_BIN)\nncrontab.properties $(DIR_BIN)\nsis.properties \
-$(DIR_BIN)\opal.properties $(DIR_BIN)\oscript.properties \
-$(DIR_BIN)\others.properties $(DIR_BIN)\pascal.properties \
-$(DIR_BIN)\perl.properties $(DIR_BIN)\pov.properties \
-$(DIR_BIN)\powerpro.properties $(DIR_BIN)\powershell.properties \
-$(DIR_BIN)\ps.properties $(DIR_BIN)\purebasic.properties \
-$(DIR_BIN)\python.properties $(DIR_BIN)\r.properties \
-$(DIR_BIN)\raku.properties $(DIR_BIN)\rebol.properties \
+$(DIR_BIN)\nim.properties $(DIR_BIN)\nncrontab.properties \
+$(DIR_BIN)\nsis.properties $(DIR_BIN)\opal.properties \
+$(DIR_BIN)\oscript.properties $(DIR_BIN)\others.properties \
+$(DIR_BIN)\pascal.properties $(DIR_BIN)\perl.properties \
+$(DIR_BIN)\pov.properties $(DIR_BIN)\powerpro.properties \
+$(DIR_BIN)\powershell.properties $(DIR_BIN)\ps.properties \
+$(DIR_BIN)\purebasic.properties $(DIR_BIN)\python.properties \
+$(DIR_BIN)\r.properties $(DIR_BIN)\raku.properties $(DIR_BIN)\rebol.properties \
 $(DIR_BIN)\registry.properties $(DIR_BIN)\ruby.properties \
 $(DIR_BIN)\rust.properties $(DIR_BIN)\sas.properties \
 $(DIR_BIN)\scriptol.properties $(DIR_BIN)\smalltalk.properties \
