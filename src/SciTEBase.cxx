@@ -1624,7 +1624,7 @@ void SciTEBase::FillFunctionDefinition(SA::Position pos /*= -1*/) {
 		if (words.empty())
 			return;
 		// Counts how many call tips
-		maxCallTips = static_cast<int>(std::count(words.begin(), words.end(), ' ') + 1);
+		maxCallTips = std::count(words.begin(), words.end(), ' ') + 1;
 
 		// Should get current api definition
 		std::string word = apis.GetNearestWord(currentCallTipWord.c_str(), currentCallTipWord.length(),

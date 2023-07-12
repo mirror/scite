@@ -446,8 +446,8 @@ protected:
 	std::string wordCharacters;
 	std::string whitespaceCharacters;
 	SA::Position startCalltipWord;
-	int currentCallTip;
-	int maxCallTips;
+	ptrdiff_t currentCallTip;
+	ptrdiff_t maxCallTips;
 	std::string currentCallTipWord;
 	SA::Position lastPosCallTip;
 

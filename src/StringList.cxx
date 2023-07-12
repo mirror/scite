@@ -152,7 +152,7 @@ struct CompareStringInsensitive {
 
 template<typename Compare>
 std::string GetMatch(std::vector<char *>::iterator start, std::vector<char *>::iterator end,
-		     const char *wordStart, const std::string &wordCharacters, int wordIndex, Compare comp) {
+		     const char *wordStart, const std::string &wordCharacters, ptrdiff_t wordIndex, Compare comp) {
 	std::vector<char *>::iterator elem = std::lower_bound(start, end, wordStart, comp);
 	if (!comp(wordStart, *elem) && !comp(*elem, wordStart)) {
 		// Found a matching element, now move forward wordIndex matching elements
@@ -177,7 +177,7 @@ std::string GetMatch(std::vector<char *>::iterator start, std::vector<char *>::i
  * The length of the word to compare is passed too.
  * Letter case can be ignored or preserved.
  */
-std::string StringList::GetNearestWord(const char *wordStart, size_t searchLen, bool ignoreCase, const std::string &wordCharacters, int wordIndex) {
+std::string StringList::GetNearestWord(const char *wordStart, size_t searchLen, bool ignoreCase, const std::string &wordCharacters, ptrdiff_t wordIndex) {
 	if (words.empty())
 		return std::string();
 	SortIfNeeded(ignoreCase);
