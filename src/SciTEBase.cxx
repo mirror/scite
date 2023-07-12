@@ -2413,6 +2413,7 @@ void SciTEBase::UpdateStatusBar(bool bUpdateSlowData) {
 		propsStatus.Set("LineNumber", std::to_string(GetCurrentLineNumber() + 1));
 		propsStatus.Set("ColumnNumber", std::to_string(GetCurrentColumnNumber() + 1));
 		propsStatus.Set("OverType", wEditor.Overtype() ? "OVR" : "INS");
+		propsStatus.Set("ZoomFactor", std::to_string(wEditor.Zoom()));
 
 		const std::string sbKey = "statusbar.text." + std::to_string(sbNum);
 		std::string msg = propsStatus.GetExpandedString(sbKey);
@@ -4168,6 +4169,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 
 	case SA::Notification::Zoom:
 		SetLineNumberWidth();
+		UpdateStatusBar(false);
 		break;
 
 	case SA::Notification::ModifyAttemptRO:
