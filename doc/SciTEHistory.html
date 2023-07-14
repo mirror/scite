@@ -642,6 +642,11 @@
 		<a href="https://github.com/ScintillaOrg/lexilla/issues/177">Issue #177</a>.
 		</li>
 		<li>
+		Bash: allow '$' as last character in string.
+		<a href="https://github.com/ScintillaOrg/lexilla/issues/180">Issue #180</a>,
+		<a href="https://github.com/ScintillaOrg/lexilla/pull/181">Pull request #181</a>.
+		</li>
+		<li>
 		Matlab: improve arguments blocks.
 		Add support for multiple arguments blocks.
 		Prevent "arguments" from being keyword in function declaration line.
@@ -676,6 +681,14 @@
 		<li>
 		On Win32 hide cursor when typing if that system preference has been chosen.
 		<a href="https://sourceforge.net/p/scintilla/bugs/2333/">Bug #2333</a>.
+		</li>
+		<li>
+		On Win32 and Qt, stop aligning IME candidate window to target.
+		It is now always aligned to start of composition string.
+		This undoes part of feature #1300.
+		<a href="https://sourceforge.net/p/scintilla/feature-requests/1488/">Feature #1488</a>,
+		<a href="https://sourceforge.net/p/scintilla/bugs/2391/">Bug #2391</a>,
+		<a href="https://sourceforge.net/p/scintilla/feature-requests/1300/">Feature #1300</a>.
 		</li>
 		<li>
 		On Qt, for IMEs, update micro focus when selection changes.
