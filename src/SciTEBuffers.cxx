@@ -1906,6 +1906,14 @@ static SA::Line DecodeMessage(const char *cdoc, std::string &sourcePath, int for
 			break;
 		}
 
+	case SCE_ERR_BASH: {
+			const char *bashDiagnosticMark = ": line ";
+			const char *line = strstr(cdoc, bashDiagnosticMark);
+			sourcePath.assign(cdoc, line);
+			const SA::Line sourceNumber = IntegerFromText(line + strlen(bashDiagnosticMark)) - 1;
+			return sourceNumber;
+		}
+
 	case SCE_ERR_DIFF_MESSAGE: {
 			// Diff file header, either +++ <filename> or --- <filename>, may be followed by \t
 			// Often followed by a position line @@ <linenumber>

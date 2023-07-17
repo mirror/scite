@@ -913,6 +913,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_ERLANG_UNKNOWN",31},
 	{"SCE_ERLANG_VARIABLE",2},
 	{"SCE_ERR_ABSF",18},
+	{"SCE_ERR_BASH",26},
 	{"SCE_ERR_BORLAND",5},
 	{"SCE_ERR_CMD",4},
 	{"SCE_ERR_CTAG",9},
@@ -3812,7 +3813,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 326,
-	ifaceConstantCount = 3084,
+	ifaceConstantCount = 3085,
 	ifacePropertyCount = 264
 };
 
