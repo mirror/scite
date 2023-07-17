@@ -550,6 +550,7 @@ static const char *propertiesToForward[] = {
 	"lexer.asm.comment.delimiter",
 	"lexer.baan.styling.within.preprocessor",
 	"lexer.bash.command.substitution",
+	"lexer.bash.special.parameter",
 	"lexer.bash.styling.inside.backticks",
 	"lexer.bash.styling.inside.heredoc",
 	"lexer.bash.styling.inside.parameter",
