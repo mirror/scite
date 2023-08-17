@@ -600,6 +600,8 @@
 	<td>Ferdinand Oeinck</td>
 	<td>Chengzhi Li</td>
 	<td>James Gaskell</td>
+	<td>Gary James</td>
+      </tr><tr>
       </tr>
     </table>
     <p>
@@ -620,6 +622,28 @@
 		<li>
 		Fix compilation with g++ 12.3.
 		<a href="https://sourceforge.net/p/scintilla/bugs/2396/">Bug #2396</a>.
+		</li>
+	</ul>
+	<li>Lexilla 5.2.7</li>
+	<ul>
+		<li>
+		Bash: fix line continuation for comments and when multiple backslashes at line end.
+		<a href="https://github.com/ScintillaOrg/lexilla/issues/195">Issue #195</a>.
+		</li>
+		<li>
+		Bash: treat  += as operator and, inside arithmetic expressions, treat ++ and -- as operators.
+		<a href="https://github.com/ScintillaOrg/lexilla/issues/197">Issue #197</a>.
+		</li>
+		<li>
+		HTML: fix invalid entity at line end and terminate invalid entity before invalid character.
+		<a href="https://github.com/ScintillaOrg/lexilla/issues/192">Issue #192</a>.
+		</li>
+	</ul>
+	<li>Scintilla 5.3.7</li>
+	<ul>
+		<li>
+		For Qt, allow parent window to handle context menu events by setting as ignored.
+		<a href="https://sourceforge.net/p/scintilla/bugs/2395/">Bug #2395</a>.
 		</li>
 	</ul>
     </ul>
