@@ -191,4 +191,3 @@ fi
 cppcheck --enable=all --max-configs=120 --suppressions-list=lexilla/cppcheck.suppress -I lexilla/include -I lexilla/lexlib -I lexilla/access -I scintilla/include --template=gcc --quiet lexilla
 cppcheck --enable=all --max-configs=100 --suppressions-list=scintilla/cppcheck.suppress -I scintilla/src -I scintilla/include -I scintilla/qt/ScintillaEditBase "-DSTDMETHODIMP_(type) type STDMETHODCALLTYPE" --template=gcc --quiet scintilla
 cppcheck --enable=all --max-configs=100 --suppressions-list=scite/cppcheck.suppress -I scite/src -I scintilla/include -I lexilla/access -I scite/lua/src -Ulua_assert -DPATH_MAX=260 --template=gcc --quiet scite
-)
