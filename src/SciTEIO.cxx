@@ -154,7 +154,8 @@ void SciTEBase::DiscoverEOLSetting() {
 
 // Look inside the first line for a #! clue regarding the language
 std::string SciTEBase::DiscoverLanguage() {
-	const SA::Position length = std::min<SA::Position>(LengthDocument(), 64 * 1024);
+	constexpr SA::Position oneK = 1024;
+	const SA::Position length = std::min(LengthDocument(), 64 * oneK);
 	std::string buf = wEditor.StringOfSpan(SA::Span(0, length));
 	std::string languageOverride;
 	std::string_view line = ExtractLine(buf);
@@ -247,7 +248,17 @@ void SciTEBase::DiscoverIndentSetting() {
 	}
 }
 
-void SciTEBase::OpenCurrentFile(long long fileSize, bool suppressMessage, bool asynchronous) {
+void SciTEBase::OpenCurrentFile(const long long fileSize, bool suppressMessage, bool asynchronous) {
+	// Allocate a bit extra to allow minor edits without reallocation.
+	const long long fileAllocationSize = fileSize + 1000;
+	if (fileAllocationSize >= PTRDIFF_MAX || fileSize < 0) {
+		if (!suppressMessage) {
+			GUI::gui_string msg = LocaliseMessage("Could not open file '^0'.", filePath.AsInternal());
+			WindowMessageBox(wSciTE, msg);
+		}
+		return;
+	}
+
 	if (CurrentBuffer()->pFileWorker) {
 		// Already performing an asynchronous load or save so do not restart load
 		if (!suppressMessage) {
@@ -269,6 +280,8 @@ void SciTEBase::OpenCurrentFile(long long fileSize, bool suppressMessage, bool a
 		return;
 	}
 
+	const SA::Position bufferSize = static_cast<SA::Position>(fileAllocationSize);
+
 	CurrentBuffer()->SetTimeFromFile();
 
 	wEditor.BeginUndoAction();	// Group together clear and insert
@@ -280,7 +293,7 @@ void SciTEBase::OpenCurrentFile(long long fileSize, bool suppressMessage, bool a
 		wEditor.StyleSetBack(StyleDefault, 0xEEEEEE);
 		wEditor.SetReadOnly(true);
 		assert(CurrentBufferConst()->pFileWorker == nullptr);
-		Scintilla::ILoader *pdocLoad;
+		Scintilla::ILoader *pdocLoad = nullptr;
 		try {
 			SA::DocumentOption docOptions = SA::DocumentOption::Default;
 
@@ -294,8 +307,7 @@ void SciTEBase::OpenCurrentFile(long long fileSize, bool suppressMessage, bool a
 						     static_cast<int>(docOptions) | static_cast<int>(SA::DocumentOption::StylesNone));
 
 			pdocLoad = static_cast<Scintilla::ILoader *>(
-					   wEditor.CreateLoader(static_cast<SA::Position>(fileSize) + 1000,
-								docOptions));
+					   wEditor.CreateLoader(bufferSize, docOptions));
 		} catch (...) {
 			wEditor.SetStatus(SA::Status::Ok);
 			return;
@@ -304,7 +316,7 @@ void SciTEBase::OpenCurrentFile(long long fileSize, bool suppressMessage, bool a
 		CurrentBuffer()->pFileWorker->sleepTime = props.GetInt("asynchronous.sleep");
 		PerformOnNewThread(CurrentBuffer()->pFileWorker.get());
 	} else {
-		wEditor.Allocate(static_cast<SA::Position>(fileSize) + 1000);
+		wEditor.Allocate(bufferSize);
 
 		Utf8_16_Read convert;
 		std::vector<char> data(blockSize);
@@ -1199,8 +1211,8 @@ bool SciTEBase::SaveBuffer(const FilePath &saveName, SaveFlags sf) {
 						grabSize = blockSize;
 					// Round down so only whole characters retrieved.
 					grabSize = wEditor.PositionBefore(i + grabSize + 1) - i;
-					const SA::Span rangeGrab(static_cast<SA::Position>(i),
-								  static_cast<SA::Position>(i + grabSize));
+					const SA::Position startBlock = i;
+					const SA::Span rangeGrab(startBlock, startBlock + grabSize);
 					wEditor.SetTarget(rangeGrab);
 					wEditor.TargetText(&data[0]);
 					const size_t written = convert.fwrite(&data[0], grabSize);
@@ -1467,7 +1479,7 @@ public:
 	bool Exhausted() const noexcept {
 		return exhausted;
 	}
-	int NextByte() noexcept {
+	char NextByte() noexcept {
 		EnsureData();
 		if (pos >= valid) {
 			return 0;
@@ -1505,14 +1517,14 @@ public:
 		}
 		lineToShow.clear();
 		while (!bf->Exhausted()) {
-			const int ch = bf->NextByte();
+			const char ch = bf->NextByte();
 			if (lastWasCR && ch == '\n' && lineToShow.empty()) {
 				lastWasCR = false;
 			} else if (ch == '\r' || ch == '\n') {
 				lastWasCR = ch == '\r';
 				break;
 			} else {
-				lineToShow.push_back(static_cast<char>(ch));
+				lineToShow.push_back(ch);
 			}
 		}
 		lineNum++;
