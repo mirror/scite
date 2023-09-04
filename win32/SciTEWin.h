@@ -275,7 +275,7 @@ protected:
 	void LoadSessionDialog() override;
 	void SaveSessionDialog() override;
 	bool PreOpenCheck(const GUI::gui_string &file) override;
-	bool IsStdinBlocked() override;
+	bool IsStdinBlocked() noexcept override;
 
 	/// Print the current buffer.
 	void Print(bool showDialog) override;
@@ -343,7 +343,7 @@ protected:
 	void CloseOtherFinders(int cmdID);
 	void FindIncrement() override;
 	void Filter() override;
-	bool FilterShowing() override;
+	bool FilterShowing() noexcept override;
 
 	void Find() override;
 	void FindInFiles() override;

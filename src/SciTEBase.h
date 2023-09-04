@@ -164,15 +164,15 @@ public:
 	Buffer *CurrentBuffer() noexcept;
 	const Buffer *CurrentBufferConst() const noexcept;
 	void SetCurrent(BufferIndex index) noexcept;
-	BufferIndex StackNext();
-	BufferIndex StackPrev();
+	BufferIndex StackNext() noexcept;
+	BufferIndex StackPrev() noexcept;
 	void CommitStackSelection();
 	void MoveToStackTop(BufferIndex index);
 	void ShiftTo(BufferIndex indexFrom, BufferIndex indexTo);
 	void Swap(BufferIndex indexA, BufferIndex indexB);
 	bool SingleBuffer() const noexcept;
 	BackgroundActivities CountBackgroundActivities() const;
-	bool SavingInBackground() const;
+	bool SavingInBackground() const noexcept;
 	bool GetVisible(BufferIndex index) const noexcept;
 	void SetVisible(BufferIndex index, bool visible);
 private:
@@ -538,8 +538,8 @@ protected:
 	virtual SystemAppearance CurrentAppearance() const noexcept;
 	void CheckAppearanceChanged();
 	void SetPaneFocus(bool editPane) noexcept;
-	GUI::ScintillaWindow &PaneFocused();
-	GUI::ScintillaWindow &PaneSource(int destination);
+	GUI::ScintillaWindow &PaneFocused() noexcept;
+	GUI::ScintillaWindow &PaneSource(int destination) noexcept;
 	intptr_t CallFocusedElseDefault(int defaultValue, SA::Message msg, uintptr_t wParam = 0, intptr_t lParam = 0);
 	void CallChildren(SA::Message msg, uintptr_t wParam = 0, intptr_t lParam = 0);
 	std::string GetTranslationToAbout(const char *const propname, bool retainIfNotFound = true);
@@ -706,7 +706,7 @@ protected:
 	virtual void FindIncrement() = 0;
 	int IncrementSearchMode();
 	virtual void Filter() = 0;
-	virtual bool FilterShowing() { return false; }
+	virtual bool FilterShowing() noexcept { return false; }
 	int FilterSearch();
 	virtual void FindInFiles() = 0;
 	virtual void Replace() = 0;
@@ -911,7 +911,7 @@ protected:
 	bool StartMacroList(const char *words);
 	void ContinueMacroList(const char *stext);
 	bool ProcessCommandLine(const std::vector<GUI::gui_string> &args, int phase);
-	virtual bool IsStdinBlocked();
+	virtual bool IsStdinBlocked() noexcept;
 	void OpenFromStdin(bool UseOutputPane);
 	void OpenFilesFromStdin();
 	virtual bool GrepIntoDirectory(const FilePath &directory);
@@ -939,9 +939,9 @@ protected:
 	SA::ScintillaCall &PaneCaller(Pane p) noexcept override;
 
 	// Valid CurrentWord characters
-	bool iswordcharforsel(char ch);
-	bool isfilenamecharforsel(char ch);
-	bool islexerwordcharforsel(char ch);
+	bool iswordcharforsel(char ch) noexcept;
+	bool isfilenamecharforsel(char ch) noexcept;
+	bool islexerwordcharforsel(char ch) noexcept;
 
 	CurrentWordHighlight currentWordHighlight;
 	void HighlightCurrentWord(bool highlight);

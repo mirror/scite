@@ -1360,7 +1360,7 @@ void SciTEBase::AbandonAutomaticSave() {
 	CurrentBuffer()->AbandonAutomaticSave();
 }
 
-bool SciTEBase::IsStdinBlocked() {
+bool SciTEBase::IsStdinBlocked() noexcept {
 	return false; /* always default to blocked */
 }
 

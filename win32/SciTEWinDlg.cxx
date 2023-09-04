@@ -1136,7 +1136,7 @@ void SciTEWin::Filter() {
 	filterStrip.ShowStrip();
 }
 
-bool SciTEWin::FilterShowing() {
+bool SciTEWin::FilterShowing() noexcept {
 	return filterStrip.visible || (replaceStrip.visible && filterState);
 }
 

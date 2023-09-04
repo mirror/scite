@@ -279,13 +279,13 @@ void BufferList::PopStack() {
 	}
 }
 
-BufferIndex BufferList::StackNext() {
+BufferIndex BufferList::StackNext() noexcept {
 	if (++stackcurrent >= length)
 		stackcurrent = 0;
 	return stack[stackcurrent];
 }
 
-BufferIndex BufferList::StackPrev() {
+BufferIndex BufferList::StackPrev() noexcept {
 	if (--stackcurrent < 0)
 		stackcurrent = length - 1;
 	return stack[stackcurrent];
@@ -376,7 +376,7 @@ BackgroundActivities BufferList::CountBackgroundActivities() const {
 	return bg;
 }
 
-bool BufferList::SavingInBackground() const {
+bool BufferList::SavingInBackground() const noexcept {
 	for (int i = 0; i<length; i++) {
 		if (buffers[i].pFileWorker && !buffers[i].pFileWorker->IsLoading() && !buffers[i].pFileWorker->FinishedJob()) {
 			return true;

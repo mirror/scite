@@ -1779,7 +1779,7 @@ bool SciTEWin::PreOpenCheck(const GUI::gui_string &file) {
 	- the pipe cannot be peeked, which appears to be from command lines such as "scite <file.txt"
 	otherwise it is unblocked
 */
-bool SciTEWin::IsStdinBlocked() {
+bool SciTEWin::IsStdinBlocked() noexcept {
 	DWORD unreadMessages = 0;
 	INPUT_RECORD irec[1] = {};
 	char bytebuffer = '\0';

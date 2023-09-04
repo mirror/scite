@@ -558,7 +558,7 @@ protected:
 	void CloseOtherFinders(int cmdID);
 	void FindIncrement() override;
 	void Filter() override;
-	bool FilterShowing() override;
+	bool FilterShowing() noexcept override;
 	void FindInFilesResponse(int responseID);
 	void FindInFiles() override;
 	void Replace() override;
@@ -4088,7 +4088,7 @@ void SciTEGTK::Filter() {
 	filterStrip.Show(props.GetInt("strip.button.height", -1));
 }
 
-bool SciTEGTK::FilterShowing() {
+bool SciTEGTK::FilterShowing() noexcept {
 	return filterStrip.visible || (replaceStrip.visible && filterState);
 }
 

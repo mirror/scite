@@ -346,11 +346,11 @@ void SciTEBase::SetPaneFocus(bool editPane) noexcept {
 	pwFocussed = editPane ? &wEditor : &wOutput;
 }
 
-GUI::ScintillaWindow &SciTEBase::PaneFocused() {
+GUI::ScintillaWindow &SciTEBase::PaneFocused() noexcept {
 	return wOutput.HasFocus() ? wOutput : wEditor;
 }
 
-GUI::ScintillaWindow &SciTEBase::PaneSource(int destination) {
+GUI::ScintillaWindow &SciTEBase::PaneSource(int destination) noexcept {
 	if (destination == IDM_SRCWIN)
 		return wEditor;
 	else if (destination == IDM_RUNWIN)
@@ -791,7 +791,7 @@ std::string SciTEBase::GetCTag(GUI::ScintillaWindow *pw) {
 }
 
 // Default characters that can appear in a word
-bool SciTEBase::iswordcharforsel(char ch) {
+bool SciTEBase::iswordcharforsel(char ch) noexcept {
 	return !strchr("\t\n\r !\"#$%&'()*+,-./:;<=>?@[\\]^`{|}~", ch);
 }
 
@@ -800,11 +800,11 @@ bool SciTEBase::iswordcharforsel(char ch) {
 // Accept path separators '/' and '\', extension separator '.', and ':', MS drive unit
 // separator, and also used for separating the line number for grep. Same for '(' and ')' for cl.
 // Accept '?' and '%' which are used in URL.
-bool SciTEBase::isfilenamecharforsel(char ch) {
+bool SciTEBase::isfilenamecharforsel(char ch) noexcept {
 	return !strchr("\t\n\r \"$'*,;<>[]^`{|}", ch);
 }
 
-bool SciTEBase::islexerwordcharforsel(char ch) {
+bool SciTEBase::islexerwordcharforsel(char ch) noexcept {
 	// If there are no word.characters defined for the current file, fall back on the original function
 	if (wordCharacters.length())
 		return Contains(wordCharacters, ch);
