@@ -123,7 +123,7 @@ bool &Searcher::FlagFromCmd(int cmd) noexcept {
 }
 
 StyleAndWords::StyleAndWords() noexcept {
-};
+}
 
 // Set of words separated by spaces. First is style number, rest are symbols.
 // <styleNumber> [symbol]*
