@@ -897,19 +897,10 @@ std::string SciTEBase::RangeExtendAndGrab(
 	bool stripEol /*=true*/) {
 
 	RangeExtend(wCurrent, span, ischarforsel);
-	std::string selected;
-	if (span.start != span.end) {
-		selected = GetRangeInUIEncoding(wCurrent, span);
-	}
+	std::string selected = GetRangeInUIEncoding(wCurrent, span);
 	if (stripEol) {
-		// Change whole line selected but normally end of line characters not wanted.
-		// Remove possible terminating \r, \n, or \r\n.
-		const size_t sellen = selected.length();
-		if (sellen >= 2 && (selected[sellen - 2] == '\r' && selected[sellen - 1] == '\n')) {
-			selected.erase(sellen - 2);
-		} else if (sellen >= 1 && (selected[sellen - 1] == '\r' || selected[sellen - 1] == '\n')) {
-			selected.erase(sellen - 1);
-		}
+		// Whole line may be selected but normally end of line characters not wanted.
+		StripEOL(selected);
 	}
 
 	return selected;
@@ -917,11 +908,10 @@ std::string SciTEBase::RangeExtendAndGrab(
 
 /**
  * If there is selected text, either in the editor or the output pane,
- * put the selection in the @a sel buffer, up to @a len characters.
+ * return the selected text.
  * Otherwise, try and select characters around the caret, as long as they are OK
  * for the @a ischarforsel function.
- * Remove the last two character controls from the result, as they are likely
- * to be CR and/or LF.
+ * For @a stripEol, remove one trailing line end if present.
  */
 std::string SciTEBase::SelectionExtend(
 	bool (SciTEBase::*ischarforsel)(char ch),	///< Function returning @c true if the given char. is part of the selection.

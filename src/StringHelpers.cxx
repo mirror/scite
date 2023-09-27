@@ -76,6 +76,16 @@ bool RemoveStringOnce(std::string &s, const char *marker) {
 	return false;
 }
 
+// Remove terminating \r, \n, or \r\n when present.
+void StripEOL(std::string &s) {
+	const size_t length = s.length();
+	if (length >= 2 && (s[length - 2] == '\r' && s[length - 1] == '\n')) {
+		s.erase(length - 2);
+	} else if (length >= 1 && (s[length - 1] == '\r' || s[length - 1] == '\n')) {
+		s.erase(length - 1);
+	}
+}
+
 std::string StdStringFromInteger(int i) {
 	return std::to_string(i);
 }

@@ -23,6 +23,7 @@ int Remove(T &s, const T &sFind) {
 }
 
 bool RemoveStringOnce(std::string &s, const char *marker);
+void StripEOL(std::string &s);
 
 std::string StdStringFromInteger(int i);
 std::string StdStringFromSizeT(size_t i);
