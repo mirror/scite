@@ -47,7 +47,7 @@ public:
 	long long GetLongLong(std::string_view key, long long defaultValue=0) const;
 
 	enum class ReadLineState { active, excludedModule, conditionFalse };
-	ReadLineState ReadLine(const char *lineBuffer, ReadLineState rls, const FilePath &directoryForImports, const ImportFilter &filter,
+	ReadLineState ReadLine(const std::string &lineBuffer, ReadLineState rls, const FilePath &directoryForImports, const ImportFilter &filter,
 			       FilePathSet *imports, size_t depth);
 	void ReadFromMemory(std::string_view data, const FilePath &directoryForImports, const ImportFilter &filter,
 			    FilePathSet *imports, size_t depth);

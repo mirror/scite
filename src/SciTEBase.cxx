@@ -4790,7 +4790,7 @@ bool SciTEBase::ProcessCommandLine(const std::vector<GUI::gui_string> &args, int
 					}
 				} else {
 					if (evaluate) {
-						props.ReadLine(GUI::UTF8FromString(arg).c_str(), PropSetFile::ReadLineState::active,
+						props.ReadLine(GUI::UTF8FromString(arg), PropSetFile::ReadLineState::active,
 							       FilePath::GetWorkingDirectory(), filter, nullptr, 0);
 					}
 				}

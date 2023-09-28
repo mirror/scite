@@ -312,52 +312,47 @@ long long PropSetFile::GetLongLong(std::string_view key, long long defaultValue)
 	return LongLongFromString(GetExpandedString(key), defaultValue);
 }
 
+namespace {
+
 /**
  * Get a line of input. If end of line escaped with '\\' then continue reading.
  */
-static bool GetFullLine(const char *&fpc, size_t &lenData, char *s, size_t len) noexcept {
-	bool continuation = true;
-	s[0] = '\0';
-	while ((len > 1) && lenData > 0) {
-		char ch = *fpc;
-		fpc++;
-		lenData--;
+void GetFullLine(std::string_view &data, std::string &lineBuffer) {
+	lineBuffer.clear();
+	while (!data.empty()) {
+		const char ch = data[0];
+		data.remove_prefix(1);
 		if ((ch == '\r') || (ch == '\n')) {
-			if (!continuation) {
-				if ((lenData > 0) && (ch == '\r') && ((*fpc) == '\n')) {
-					// munch the second half of a crlf
-					fpc++;
-					lenData--;
-				}
-				*s = '\0';
-				return true;
+			if ((data.length() > 0) && (ch == '\r') && (data[0] == '\n')) {
+				// munch the second half of a crlf
+				data.remove_prefix(1);
 			}
-		} else if ((ch == '\\') && (lenData > 0) && ((*fpc == '\r') || (*fpc == '\n'))) {
-			continuation = true;
-			if ((lenData > 1) && (((*fpc == '\r') && (*(fpc+1) == '\r')) || ((*fpc == '\n') && (*(fpc+1) == '\n'))))
-				continuation = false;
-			else if ((lenData > 2) && ((*fpc == '\r') && (*(fpc+1) == '\n') && (*(fpc+2) == '\n' || *(fpc+2) == '\r')))
-				continuation = false;
+			return;
+		} else if ((ch == '\\') && (data.length() > 0) && ((data[0] == '\r') || (data[0] == '\n'))) {
+			const char next = data[0];
+			data.remove_prefix(1);
+			if ((data.length() > 0) && (next == '\r') && (data[0] == '\n')) {
+				data.remove_prefix(1);
+			}
 		} else {
-			continuation = false;
-			*s++ = ch;
-			*s = '\0';
-			len--;
+			lineBuffer.push_back(ch);
 		}
 	}
-	return false;
 }
 
-static bool IsCommentLine(const char *line) noexcept {
-	while (IsSpaceOrTab(*line)) ++line;
-	return (*line == '#');
+bool IsCommentLine(std::string_view line) noexcept {
+	while (!line.empty() && IsSpaceOrTab(line.front()))
+		line.remove_prefix(1);
+	return StartsWith(line, "#");
 }
 
-static bool GenericPropertiesFile(const FilePath &filename) {
+bool GenericPropertiesFile(const FilePath &filename) {
 	std::string name = filename.BaseName().AsUTF8();
 	if (name == "abbrev" || name == "Embedded")
 		return true;
 	return name.find("SciTE") != std::string::npos;
+}
+
 }
 
 void PropSetFile::Import(const FilePath &filename, const FilePath &directoryForImports, const ImportFilter &filter,
@@ -371,12 +366,12 @@ void PropSetFile::Import(const FilePath &filename, const FilePath &directoryForI
 	}
 }
 
-PropSetFile::ReadLineState PropSetFile::ReadLine(const char *lineBuffer, ReadLineState rls, const FilePath &directoryForImports,
+PropSetFile::ReadLineState PropSetFile::ReadLine(const std::string &lineBuffer, ReadLineState rls, const FilePath &directoryForImports,
 		const ImportFilter &filter, FilePathSet *imports, size_t depth) {
 	if ((rls == ReadLineState::conditionFalse) && (!IsSpaceOrTab(lineBuffer[0])))    // If clause ends with first non-indented line
 		rls = ReadLineState::active;
-	if (isprefix(lineBuffer, "module ")) {
-		std::string module = lineBuffer + strlen("module") + 1;
+	if (StartsWith(lineBuffer, "module ")) {
+		std::string module = lineBuffer.substr(strlen("module") + 1);
 		if (module.empty() || filter.IsValid(module)) {
 			rls = ReadLineState::active;
 		} else {
@@ -387,8 +382,9 @@ PropSetFile::ReadLineState PropSetFile::ReadLine(const char *lineBuffer, ReadLin
 	if (rls != ReadLineState::active) {
 		return rls;
 	}
-	if (isprefix(lineBuffer, "if ")) {
-		const char *expr = lineBuffer + strlen("if") + 1;
+	if (StartsWith(lineBuffer, "if ")) {
+		std::string_view expr = lineBuffer;
+		expr.remove_prefix(strlen("if") + 1);
 		std::string value = Expand(expr);
 		if (value == "0" || value == "") {
 			rls = ReadLineState::conditionFalse;
@@ -397,15 +393,15 @@ PropSetFile::ReadLineState PropSetFile::ReadLine(const char *lineBuffer, ReadLin
 		} else {
 			rls = (GetInt(value) != 0) ? ReadLineState::active : ReadLineState::conditionFalse;
 		}
-	} else if (superPS && isprefix(lineBuffer, "match ")) {
+	} else if (superPS && StartsWith(lineBuffer, "match ")) {
 		// Don't match on stand-alone property sets like localiser
-		const std::string pattern = lineBuffer + strlen("match") + 1;
+		const std::string pattern = lineBuffer.substr(strlen("match") + 1);
 		const std::string relPath(Get("RelativePath"));
 		const bool matches = PathMatch(pattern, relPath);
 		rls = matches ? ReadLineState::active : ReadLineState::conditionFalse;
-	} else if (isprefix(lineBuffer, "import ")) {
+	} else if (StartsWith(lineBuffer, "import ")) {
 		if (directoryForImports.IsSet()) {
-			std::string importName(lineBuffer + strlen("import") + 1);
+			std::string importName = lineBuffer.substr(strlen("import") + 1);
 			if (importName == "*") {
 				// Import all .properties files in this directory except for system properties
 				FilePathSet directories;
@@ -426,25 +422,25 @@ PropSetFile::ReadLineState PropSetFile::ReadLine(const char *lineBuffer, ReadLin
 			}
 		}
 	} else if (!IsCommentLine(lineBuffer)) {
-		SetLine(lineBuffer, true);
+		SetLine(lineBuffer.c_str(), true);
 	}
 	return rls;
 }
 
 void PropSetFile::ReadFromMemory(std::string_view data, const FilePath &directoryForImports,
 				 const ImportFilter &filter, FilePathSet *imports, size_t depth) {
-	const char *pd = data.data();
-	size_t len = data.length();
-	std::vector<char> lineBuffer(len+1);	// +1 for NUL
+	std::string lineBuffer;
 	ReadLineState rls = ReadLineState::active;
-	while (len > 0) {
-		GetFullLine(pd, len, &lineBuffer[0], lineBuffer.size());
+	while (!data.empty()) {
+		GetFullLine(data, lineBuffer);
 		if (lowerKeys) {
-			for (int i=0; lineBuffer[i] && (lineBuffer[i] != '='); i++) {
-				lineBuffer[i] = MakeLowerCase(lineBuffer[i]);
+			for (char &ch : lineBuffer) {
+				if (ch == '=')
+					break;
+				ch = MakeLowerCase(ch);
 			}
 		}
-		rls = ReadLine(&lineBuffer[0], rls, directoryForImports, filter, imports, depth);
+		rls = ReadLine(lineBuffer, rls, directoryForImports, filter, imports, depth);
 	}
 }
 
