@@ -25,12 +25,11 @@ void *SetWindowPointerFromCreate(HWND hWnd, LPARAM lParam) noexcept {
 
 GUI::gui_string TextOfWindow(HWND hWnd) {
 	const int len = ::GetWindowTextLengthW(hWnd);
-	std::vector<GUI::gui_char> itemText(len+1);
-	GUI::gui_string gsText;
-	if (::GetWindowTextW(hWnd, &itemText[0], len+1)) {
-		gsText = GUI::gui_string(&itemText[0], len);
+	GUI::gui_string gsText(len, 0);
+	if (::GetWindowTextW(hWnd, gsText.data(), len + 1)) {
+		return gsText;
 	}
-	return gsText;
+	return {};
 }
 
 GUI::gui_string ClassNameOfWindow(HWND hWnd) {
