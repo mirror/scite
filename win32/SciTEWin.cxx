@@ -973,12 +973,11 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 	PROCESS_INFORMATION pi = {};
 
 	// Make a mutable copy as the CreateProcess parameter is mutable
-	const GUI::gui_string sCommand = GUI::StringFromUTF8(jobToRun.command);
-	std::vector<wchar_t> vwcCommand(sCommand.c_str(), sCommand.c_str() + sCommand.length() + 1);
+	GUI::gui_string sCommand = GUI::StringFromUTF8(jobToRun.command);
 
 	BOOL running = ::CreateProcessW(
 			       nullptr,
-			       &vwcCommand[0],
+			       sCommand.data(),
 			       nullptr, nullptr,
 			       TRUE, CREATE_NEW_PROCESS_GROUP,
 			       nullptr,
@@ -994,12 +993,11 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 		std::string runComLine = "cmd.exe /c ";
 		runComLine = runComLine.append(jobToRun.command);
 
-		const GUI::gui_string sRunComLine = GUI::StringFromUTF8(runComLine);
-		std::vector<wchar_t> vwcRunComLine(sRunComLine.c_str(), sRunComLine.c_str() + sRunComLine.length() + 1);
+		GUI::gui_string sRunComLine = GUI::StringFromUTF8(runComLine);
 
 		running = ::CreateProcessW(
 				  nullptr,
-				  &vwcRunComLine[0],
+				  sRunComLine.data(),
 				  nullptr, nullptr,
 				  TRUE, CREATE_NEW_PROCESS_GROUP,
 				  nullptr,

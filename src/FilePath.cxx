@@ -742,11 +742,11 @@ std::string CommandExecute(const GUI::gui_char *command, const GUI::gui_char *di
 
 	PROCESS_INFORMATION pi = {};
 
-	std::vector<wchar_t> vwcCommand(command, command + wcslen(command) + 1);
+	std::wstring wsCommand(command);
 
 	const BOOL running = ::CreateProcessW(
 				     nullptr,
-				     &vwcCommand[0],
+				     wsCommand.data(),
 				     nullptr, nullptr,
 				     TRUE, CREATE_NEW_PROCESS_GROUP,
 				     nullptr,
