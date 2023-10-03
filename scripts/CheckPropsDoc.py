@@ -87,7 +87,7 @@ for sourcePath in sourcePaths:
 		for srcLine in srcFile:
 			srcLine = stripComment(srcLine).strip()
 			# "[ .\)]Get.*(.*\".*\""
-			if re.search('[ .(]Get[a-zA-Z]*\(\".*\"', srcLine):
+			if re.search(r'[ .(]Get[a-zA-Z]*\(".*"', srcLine):
 				parts = srcLine.split('\"')
 				if len(parts) > 1 and "GetTranslationToAbout" not in srcLine:
 					propertyName = parts[1]
