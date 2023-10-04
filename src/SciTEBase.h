@@ -223,7 +223,7 @@ class StyleAndWords {
 	int styleNumber = 0;
 	std::set<std::string> words;
 public:
-	StyleAndWords() noexcept;
+	StyleAndWords();
 	explicit StyleAndWords(const std::string &definition);
 	[[nodiscard]] bool IsEmpty() const noexcept;
 	[[nodiscard]] bool IsSingleChar() const noexcept;
