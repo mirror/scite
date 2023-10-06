@@ -90,16 +90,16 @@ int WidthControl(GUI::Window &w) {
 	return rc.Width();
 }
 
-GUI::gui_string ControlGText(GUI::Window w) {
+GUI::gui_string ControlGText(const GUI::Window &w) {
 	return TextOfWindow(HwndOf(w));
 }
 
-std::string ControlText(GUI::Window w) {
+std::string ControlText(const GUI::Window &w) {
 	const GUI::gui_string gsText = ControlGText(w);
 	return GUI::UTF8FromString(gsText);
 }
 
-std::string ComboSelectionText(GUI::Window w) {
+std::string ComboSelectionText(const GUI::Window &w) {
 	HWND combo = HwndOf(w);
 	const int selection = ComboBox_GetCurSel(combo);
 	if (selection != CB_ERR) {
@@ -115,7 +115,7 @@ std::string ComboSelectionText(GUI::Window w) {
 
 enum class ComboSelection { all, atEnd };
 
-void SetComboText(GUI::Window w, const std::string &s, ComboSelection selection) {
+void SetComboText(const GUI::Window &w, const std::string &s, ComboSelection selection) {
 	HWND combo = HwndOf(w);
 	GUI::gui_string text = GUI::StringFromUTF8(s);
 	ComboBox_SetText(combo, text.c_str());

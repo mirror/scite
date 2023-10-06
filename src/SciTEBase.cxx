@@ -944,14 +944,13 @@ void SciTEBase::SelectionIntoProperties() {
 }
 
 void SciTEBase::SelectionIntoFind(bool stripEol /*=true*/) {
-	std::string sel = SelectionWord(stripEol);
+	const std::string sel = SelectionWord(stripEol);
 	if (sel.length() && (sel.find_first_of("\r\n") == std::string::npos)) {
 		// The selection does not include a new line, so is likely to be
 		// the expression to search...
 		findWhat = sel;
 		if (unSlash) {
-			std::string slashedFind = Slash(findWhat, false);
-			findWhat = slashedFind;
+			findWhat = Slash(findWhat, false);
 		}
 	}
 	// else findWhat remains the same as last time.
