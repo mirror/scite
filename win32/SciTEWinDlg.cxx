@@ -328,6 +328,7 @@ FilePath SciTEWin::ChooseSaveName(const FilePath &directory, const char *title, 
 		ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR;
 		ofn.lpstrFilter = filesFilter;
 		ofn.lpstrInitialDir = directory.AsInternal();
+		ofn.lpstrDefExt = GUI_TEXT("");
 
 		dialogsOnScreen++;
 		if (::GetSaveFileNameW(&ofn)) {
