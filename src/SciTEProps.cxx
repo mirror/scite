@@ -1155,6 +1155,9 @@ void SciTEBase::ReadProperties() {
 	const int autoCChooseSingle = props.GetInt("autocomplete.choose.single");
 	wEditor.AutoCSetChooseSingle(autoCChooseSingle);
 
+	const Scintilla::MultiAutoComplete autoCMulti = static_cast<Scintilla::MultiAutoComplete>(props.GetInt("autocomplete.multi"));
+	wEditor.AutoCSetMulti(autoCMulti);
+
 	wEditor.AutoCSetCancelAtStart(false);
 	wEditor.AutoCSetDropRestOfWord(false);
 
