@@ -790,6 +790,19 @@ std::string SciTEBase::GetCTag(GUI::ScintillaWindow *pw) {
 	}
 }
 
+void SciTEBase::DropSelectionAt(GUI::ScintillaWindow &win, SA::Position position) {
+	if (win.SelectionMode() != SA::SelectionMode::Stream) {
+		return;
+	}
+	const int selections = win.Selections();
+	for (int sel = 0; sel < selections; ++sel) {
+		if (position >= win.SelectionNStart(sel) && position < win.SelectionNEnd(sel)) {
+			win.DropSelectionN(sel);
+			return;
+		}
+	}
+}
+
 // Default characters that can appear in a word
 bool SciTEBase::iswordcharforsel(char ch) noexcept {
 	return !strchr("\t\n\r !\"#$%&'()*+,-./:;<=>?@[\\]^`{|}~", ch);
@@ -3222,6 +3235,9 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 			PaneFocused().LineDown();
 		}
 		break;
+	case IDM_DROPSELECTION:
+		DropSelectionAt(PaneFocused(), contextPosition);
+		break;
 	case IDM_CLEAR:
 		PaneSource(source).Clear();
 		break;
@@ -4229,9 +4245,12 @@ void SciTEBase::CheckMenus() {
 	EnableAMenuItem(IDM_MACROSTOPRECORD, recording);
 }
 
-void SciTEBase::ContextMenu(GUI::ScintillaWindow &wSource, GUI::Point pt, GUI::Window wCmd) {
+void SciTEBase::ContextMenu(GUI::ScintillaWindow &wSource, GUI::Point pt, GUI::Point ptClient, GUI::Window wCmd) {
 	const SA::Position currentPos = wSource.CurrentPos();
 	const SA::Position anchor = wSource.Anchor();
+	contextPosition = wSource.CharPositionFromPoint(ptClient.x, ptClient.y);
+	const bool isStreamSelction = wSource.SelectionMode() == SA::SelectionMode::Stream;
+	const bool allowDrop = isStreamSelction && (contextPosition != SA::InvalidPosition);
 	popup.CreatePopUp();
 	const bool writable = !wSource.ReadOnly();
 	AddToPopUp("Undo", IDM_UNDO, writable && wSource.CanUndo());
@@ -4243,6 +4262,7 @@ void SciTEBase::ContextMenu(GUI::ScintillaWindow &wSource, GUI::Point pt, GUI::W
 	AddToPopUp("Delete", IDM_CLEAR, writable && currentPos != anchor);
 	AddToPopUp("");
 	AddToPopUp("Select All", IDM_SELECTALL);
+	AddToPopUp("Drop Selection", IDM_DROPSELECTION, allowDrop);
 	AddToPopUp("");
 	if (wSource.GetID() == wOutput.GetID()) {
 		AddToPopUp("Hide", IDM_TOGGLEOUTPUT, true);

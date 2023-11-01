@@ -1981,7 +1981,8 @@ LRESULT SciTEWin::ContextMenuMessage(UINT iMessage, WPARAM wParam, LPARAM lParam
 		}
 	}
 	menuSource = ::GetDlgCtrlID(HwndOf(*w));
-	ContextMenu(*w, pt, wSciTE);
+	const GUI::Point ptClient = ClientFromScreen(HwndOf(*w), pt);
+	ContextMenu(*w, pt, ptClient, wSciTE);
 	return 0;
 }
 

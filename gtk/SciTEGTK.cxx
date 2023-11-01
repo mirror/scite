@@ -9,6 +9,7 @@
 #include <cstdio>
 #include <cstdarg>
 #include <ctime>
+#include <cmath>
 #include <cerrno>
 #include <csignal>
 
@@ -3194,12 +3195,13 @@ gint SciTEGTK::Mouse(GdkEventButton *event) {
 				return FALSE;
 			}
 		}
+		const GUI::Point ptClient(static_cast<int>(std::lround(event->x)), static_cast<int>(std::lround(event->y)));
 		// Convert to screen
 		int ox = 0;
 		int oy = 0;
 		gdk_window_get_origin(WindowFromWidget(PWidget(*w)), &ox, &oy);
-		ContextMenu(*w, GUI::Point(static_cast<int>(event->x) + ox,
-		                     static_cast<int>(event->y) + oy), wSciTE);
+		const GUI::Point ptScreen(ptClient.x + ox, ptClient.y + oy);
+		ContextMenu(*w, ptScreen, ptClient, wSciTE);
 		//fprintf(stderr, "Menu source %s\n",
 		//	(menuSource == IDM_SRCWIN) ? "IDM_SRCWIN" : "IDM_RUNWIN");
 	} else {
