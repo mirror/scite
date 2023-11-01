@@ -122,96 +122,28 @@
 	<p>string editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_TARGETASUTF8'>TargetAsUTF8</a>()<span class="comment"> -- Returns the target converted to UTF8. Return the length in bytes.</span></p>
 	<p>string editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_ENCODEDFROMUTF8'>EncodedFromUTF8</a>(string utf8)<span class="comment"> -- Translates a UTF8 string into the document encoding. Return the length of the result in bytes. On error return 0.</span></p>
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETLENGTHFORENCODE'>SetLengthForEncode</a>(position bytes)<span class="comment"> -- Set the length of the utf8 argument for calling EncodedFromUTF8. Set to -1 and the string will be measured to the first nul.</span></p>
-	<h2>Searching</h2>
-	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETTARGETSTART'>TargetStart</a><span class="comment"> -- Sets the position that starts the target which is used for updating the document without affecting the scroll position.</span></p>
-	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETTARGETSTARTVIRTUALSPACE'>TargetStartVirtualSpace</a><span class="comment"> -- Sets the virtual space of the target start</span></p>
-	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETTARGETEND'>TargetEnd</a><span class="comment"> -- Sets the position that ends the target which is used for updating the document without affecting the scroll position.</span></p>
-	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETTARGETENDVIRTUALSPACE'>TargetEndVirtualSpace</a><span class="comment"> -- Sets the virtual space of the target end</span></p>
-	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETTARGETRANGE'>SetTargetRange</a>(position start, position end)<span class="comment"> -- Sets both the start and end of the target in one call.</span></p>
-	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_TARGETFROMSELECTION'>TargetFromSelection</a>()<span class="comment"> -- Make the target range start and end be the same as the selection range start and end.</span></p>
-	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_TARGETWHOLEDOCUMENT'>TargetWholeDocument</a>()<span class="comment"> -- Sets the target to the whole document.</span></p>
-	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETSEARCHFLAGS'>SearchFlags</a><span class="comment"> -- Set the search flags used by SearchInTarget.</span></p>
-	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SEARCHINTARGET'>SearchInTarget</a>(string text)<span class="comment"> -- Search for a counted string in the target and set the target to the found range. Text is counted so it can contain NULs. Returns start of found range or -1 for failure in which case target is not moved.</span></p>
-	<p>string editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETTARGETTEXT'>TargetText</a> read-only</p>
-	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_REPLACETARGET'>ReplaceTarget</a>(string text)<span class="comment"> -- Replace the target text with the argument text. Text is counted so it can contain NULs. Returns the length of the replacement text.</span></p>
-	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_REPLACETARGETMINIMAL'>ReplaceTargetMinimal</a>(string text)<span class="comment"> -- Replace the target text with the argument text but ignore prefix and suffix that are the same as current.</span></p>
-	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_REPLACETARGETRE'>ReplaceTargetRE</a>(string text)<span class="comment"> -- Replace the target text with the argument text after \d processing. Text is counted so it can contain NULs. Looks for \d where d is between 1 and 9 and replaces these with the strings matched in the last search operation which were surrounded by \( and \). Returns the length of the replacement text including any change caused by processing the \d patterns.</span></p>
-	<p>string editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETTAG'>Tag</a>[int tagNumber] read-only</p>
-	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SEARCHANCHOR'>SearchAnchor</a>()<span class="comment"> -- Sets the current caret position to be the search anchor.</span></p>
-	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SEARCHNEXT'>SearchNext</a>(int searchFlags, string text)<span class="comment"> -- Find some text starting at the search anchor. Does not ensure the selection is visible.</span></p>
-	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SEARCHPREV'>SearchPrev</a>(int searchFlags, string text)<span class="comment"> -- Find some text starting at the search anchor and moving backwards. Does not ensure the selection is visible.</span></p>
-	<h2>Overtype</h2>
-	<p>bool editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETOVERTYPE'>Overtype</a><span class="comment"> -- Set to overtype (true) or insert mode.</span></p>
-	<h2>Cut, copy and paste</h2>
-	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_CUT'>Cut</a>()<span class="comment"> -- Cut the selection to the clipboard.</span></p>
-	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_COPY'>Copy</a>()<span class="comment"> -- Copy the selection to the clipboard.</span></p>
-	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_PASTE'>Paste</a>()<span class="comment"> -- Paste the contents of the clipboard into the document replacing the selection.</span></p>
-	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_CLEAR'>Clear</a>()<span class="comment"> -- Clear the selection.</span></p>
-	<p>bool editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_CANPASTE'>CanPaste</a>()<span class="comment"> -- Will a paste succeed?</span></p>
-	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_COPYALLOWLINE'>CopyAllowLine</a>()<span class="comment"> -- Copy the selection, if selection empty copy the line with the caret</span></p>
-	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_COPYRANGE'>CopyRange</a>(position start, position end)<span class="comment"> -- Copy a range of text to the clipboard. Positions are clipped into the document.</span></p>
-	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_COPYTEXT'>CopyText</a>(string text)<span class="comment"> -- Copy argument text to the clipboard.</span></p>
-	<p>bool editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETPASTECONVERTENDINGS'>PasteConvertEndings</a><span class="comment"> -- Enable/Disable convert-on-paste for line endings</span></p>
-	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_REPLACERECTANGULAR'>ReplaceRectangular</a>(string text)<span class="comment"> -- Replace the selection with text like a rectangular paste.</span></p>
-	<h2>Error handling</h2>
-	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETSTATUS'>Status</a><span class="comment"> -- Change error status - 0 = OK.</span></p>
-	<h2>Undo and Redo</h2>
-	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_UNDO'>Undo</a>()<span class="comment"> -- Undo one action in the undo history.</span></p>
-	<p>bool editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_CANUNDO'>CanUndo</a>()<span class="comment"> -- Are there any undoable actions in the undo history?</span></p>
-	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_REDO'>Redo</a>()<span class="comment"> -- Redoes the next action on the undo history.</span></p>
-	<p>bool editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_CANREDO'>CanRedo</a>()<span class="comment"> -- Are there any redoable actions in the undo history?</span></p>
-	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_EMPTYUNDOBUFFER'>EmptyUndoBuffer</a>()<span class="comment"> -- Delete the undo history.</span></p>
-	<p>bool editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETUNDOCOLLECTION'>UndoCollection</a><span class="comment"> -- Choose between collecting actions into the undo history and discarding them.</span></p>
-	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_BEGINUNDOACTION'>BeginUndoAction</a>()<span class="comment"> -- Start a sequence of actions that is undone and redone as a unit. May be nested.</span></p>
-	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_ENDUNDOACTION'>EndUndoAction</a>()<span class="comment"> -- End a sequence of actions that is undone and redone as a unit.</span></p>
-	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_ADDUNDOACTION'>AddUndoAction</a>(int token, int flags)<span class="comment"> -- Add a container action to the undo stack</span></p>
-	<h2>Change history</h2>
-	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETCHANGEHISTORY'>ChangeHistory</a><span class="comment"> -- Enable or disable change history.</span></p>
-	<h2>Selection and information</h2>
+	<h2>Information</h2>
 	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETTEXTLENGTH'>TextLength</a> read-only</p>
 	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETLENGTH'>Length</a> read-only</p>
 	<p>line editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETLINECOUNT'>LineCount</a> read-only</p>
 	<p>line editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_LINESONSCREEN'>LinesOnScreen</a> read-only</p>
 	<p>bool editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETMODIFY'>Modify</a> read-only</p>
-	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETSEL'>SetSel</a>(position anchor, position caret)<span class="comment"> -- Select a range of text.</span></p>
-	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GOTOPOS'>GotoPos</a>(position caret)<span class="comment"> -- Set caret to a position and ensure it is visible.</span></p>
-	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GOTOLINE'>GotoLine</a>(line line)<span class="comment"> -- Set caret to start of a line and ensure it is visible.</span></p>
-	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETCURRENTPOS'>CurrentPos</a><span class="comment"> -- Sets the position of the caret.</span></p>
-	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETANCHOR'>Anchor</a><span class="comment"> -- Set the selection anchor to a position. The anchor is the opposite end of the selection from the caret.</span></p>
-	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETSELECTIONSTART'>SelectionStart</a><span class="comment"> -- Sets the position that starts the selection - this becomes the anchor.</span></p>
-	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETSELECTIONEND'>SelectionEnd</a><span class="comment"> -- Sets the position that ends the selection - this becomes the caret.</span></p>
-	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETEMPTYSELECTION'>SetEmptySelection</a>(position caret)<span class="comment"> -- Set caret to a position, while removing any existing selection.</span></p>
-	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SELECTALL'>SelectAll</a>()<span class="comment"> -- Select all the text in the document.</span></p>
 	<p>line editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_LINEFROMPOSITION'>LineFromPosition</a>(position pos)<span class="comment"> -- Retrieve the line containing a position.</span></p>
 	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_POSITIONFROMLINE'>PositionFromLine</a>(line line)<span class="comment"> -- Retrieve the position at the start of a line.</span></p>
 	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETLINEENDPOSITION'>LineEndPosition</a>[line line] read-only</p>
 	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_LINELENGTH'>LineLength</a>(line line)<span class="comment"> -- How many characters are on a line, including end of line characters?</span></p>
-	<p>string editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETSELTEXT'>GetSelText</a>()<span class="comment"> -- Retrieve the selected text. Return the length of the text. Result is NUL-terminated.</span></p>
-	<p>string editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETCURLINE'>GetCurLine</a>()<span class="comment"> -- Retrieve the text of the line containing the caret. Returns the index of the caret on the line. Result is NUL-terminated.</span></p>
-	<p>bool editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SELECTIONISRECTANGLE'>SelectionIsRectangle</a> read-only</p>
-	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETSELECTIONMODE'>SelectionMode</a><span class="comment"> -- Set the selection mode to stream (SC_SEL_STREAM) or rectangular (SC_SEL_RECTANGLE/SC_SEL_THIN) or by lines (SC_SEL_LINES).</span></p>
-	<p>bool editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETMOVEEXTENDSSELECTION'>MoveExtendsSelection</a> read-only</p>
-	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETLINESELSTARTPOSITION'>GetLineSelStartPosition</a>(line line)<span class="comment"> -- Retrieve the position of the start of the selection at the given line (INVALID_POSITION if no selection on this line).</span></p>
-	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETLINESELENDPOSITION'>GetLineSelEndPosition</a>(line line)<span class="comment"> -- Retrieve the position of the end of the selection at the given line (INVALID_POSITION if no selection on this line).</span></p>
-	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_MOVECARETINSIDEVIEW'>MoveCaretInsideView</a>()<span class="comment"> -- Move the caret inside current view if it's not there already.</span></p>
+	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETCOLUMN'>Column</a>[position pos] read-only</p>
+	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_FINDCOLUMN'>FindColumn</a>(line line, position column)<span class="comment"> -- Find the position of a column on a line taking into account tabs and multi-byte characters. If beyond end of line, return line end position.</span></p>
 	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_POSITIONBEFORE'>PositionBefore</a>(position pos)<span class="comment"> -- Given a valid document position, return the previous position taking code page into account. Returns 0 if passed 0.</span></p>
 	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_POSITIONAFTER'>PositionAfter</a>(position pos)<span class="comment"> -- Given a valid document position, return the next position taking code page into account. Maximum value returned is the last position in the document.</span></p>
 	<p>int editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_TEXTWIDTH'>TextWidth</a>(int style, string text)<span class="comment"> -- Measure the pixel width of some text in a particular style. NUL terminated text argument. Does not handle tab or control characters.</span></p>
 	<p>int editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_TEXTHEIGHT'>TextHeight</a>(line line)<span class="comment"> -- Retrieve the height of a particular line of text in pixels.</span></p>
-	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETCOLUMN'>Column</a>[position pos] read-only</p>
-	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_FINDCOLUMN'>FindColumn</a>(line line, position column)<span class="comment"> -- Find the position of a column on a line taking into account tabs and multi-byte characters. If beyond end of line, return line end position.</span></p>
 	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_POSITIONFROMPOINT'>PositionFromPoint</a>(int x, int y)<span class="comment"> -- Find the position from a point within the window.</span></p>
 	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_POSITIONFROMPOINTCLOSE'>PositionFromPointClose</a>(int x, int y)<span class="comment"> -- Find the position from a point within the window but return INVALID_POSITION if not close to text.</span></p>
 	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_CHARPOSITIONFROMPOINT'>CharPositionFromPoint</a>(int x, int y)<span class="comment"> -- Find the position of a character from a point within the window.</span></p>
 	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_CHARPOSITIONFROMPOINTCLOSE'>CharPositionFromPointClose</a>(int x, int y)<span class="comment"> -- Find the position of a character from a point within the window. Return INVALID_POSITION if not close to text.</span></p>
 	<p>int editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_POINTXFROMPOSITION'>PointXFromPosition</a>(position pos)<span class="comment"> -- Retrieve the x value of the point in the window where a position is displayed.</span></p>
 	<p>int editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_POINTYFROMPOSITION'>PointYFromPosition</a>(position pos)<span class="comment"> -- Retrieve the y value of the point in the window where a position is displayed.</span></p>
-	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_HIDESELECTION'>HideSelection</a>(bool hide)<span class="comment"> -- Draw the selection either highlighted or in normal (non-highlighted) style.</span></p>
-	<p>bool editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETSELECTIONHIDDEN'>SelectionHidden</a> read-only</p>
-	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_CHOOSECARETX'>ChooseCaretX</a>()<span class="comment"> -- Set the last x chosen value to be the caret x position.</span></p>
-	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_MOVESELECTEDLINESUP'>MoveSelectedLinesUp</a>()<span class="comment"> -- Move the selected lines up one line, shifting the line above after the selection</span></p>
-	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_MOVESELECTEDLINESDOWN'>MoveSelectedLinesDown</a>()<span class="comment"> -- Move the selected lines down one line, shifting the line below before the selection</span></p>
-	<p>bool editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETMOUSESELECTIONRECTANGULARSWITCH'>MouseSelectionRectangularSwitch</a><span class="comment"> -- Set whether switching to rectangular mode while selecting with the mouse is allowed.</span></p>
 	<h2>By character or UTF-16 code unit</h2>
 	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_POSITIONRELATIVE'>PositionRelative</a>(position pos, position relative)<span class="comment"> -- Given a valid document position, return a position that differs in a number of characters. Returned value is always between 0 and last position in document.</span></p>
 	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_COUNTCHARACTERS'>CountCharacters</a>(position start, position end)<span class="comment"> -- Count characters between two positions.</span></p>
@@ -222,6 +154,32 @@
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_RELEASELINECHARACTERINDEX'>ReleaseLineCharacterIndex</a>(int lineCharacterIndex)<span class="comment"> -- Decrease use count of line character index and remove if 0.</span></p>
 	<p>line editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_LINEFROMINDEXPOSITION'>LineFromIndexPosition</a>(position pos, int lineCharacterIndex)<span class="comment"> -- Retrieve the document line containing a position measured in index units.</span></p>
 	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_INDEXPOSITIONFROMLINE'>IndexPositionFromLine</a>(line line, int lineCharacterIndex)<span class="comment"> -- Retrieve the position measured in index units at the start of a document line.</span></p>
+	<h2>Error handling</h2>
+	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETSTATUS'>Status</a><span class="comment"> -- Change error status - 0 = OK.</span></p>
+	<h2>Selection</h2>
+	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETSEL'>SetSel</a>(position anchor, position caret)<span class="comment"> -- Select a range of text.</span></p>
+	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GOTOPOS'>GotoPos</a>(position caret)<span class="comment"> -- Set caret to a position and ensure it is visible.</span></p>
+	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GOTOLINE'>GotoLine</a>(line line)<span class="comment"> -- Set caret to start of a line and ensure it is visible.</span></p>
+	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETCURRENTPOS'>CurrentPos</a><span class="comment"> -- Sets the position of the caret.</span></p>
+	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETANCHOR'>Anchor</a><span class="comment"> -- Set the selection anchor to a position. The anchor is the opposite end of the selection from the caret.</span></p>
+	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETSELECTIONSTART'>SelectionStart</a><span class="comment"> -- Sets the position that starts the selection - this becomes the anchor.</span></p>
+	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETSELECTIONEND'>SelectionEnd</a><span class="comment"> -- Sets the position that ends the selection - this becomes the caret.</span></p>
+	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETEMPTYSELECTION'>SetEmptySelection</a>(position caret)<span class="comment"> -- Set caret to a position, while removing any existing selection.</span></p>
+	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SELECTALL'>SelectAll</a>()<span class="comment"> -- Select all the text in the document.</span></p>
+	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_HIDESELECTION'>HideSelection</a>(bool hide)<span class="comment"> -- Draw the selection either highlighted or in normal (non-highlighted) style.</span></p>
+	<p>bool editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETSELECTIONHIDDEN'>SelectionHidden</a> read-only</p>
+	<p>string editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETSELTEXT'>GetSelText</a>()<span class="comment"> -- Retrieve the selected text. Return the length of the text. Result is NUL-terminated.</span></p>
+	<p>string editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETCURLINE'>GetCurLine</a>()<span class="comment"> -- Retrieve the text of the line containing the caret. Returns the index of the caret on the line. Result is NUL-terminated.</span></p>
+	<p>bool editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SELECTIONISRECTANGLE'>SelectionIsRectangle</a> read-only</p>
+	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETSELECTIONMODE'>SelectionMode</a><span class="comment"> -- Set the selection mode to stream (SC_SEL_STREAM) or rectangular (SC_SEL_RECTANGLE/SC_SEL_THIN) or by lines (SC_SEL_LINES).</span></p>
+	<p>bool editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETMOVEEXTENDSSELECTION'>MoveExtendsSelection</a> read-only</p>
+	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETLINESELSTARTPOSITION'>GetLineSelStartPosition</a>(line line)<span class="comment"> -- Retrieve the position of the start of the selection at the given line (INVALID_POSITION if no selection on this line).</span></p>
+	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETLINESELENDPOSITION'>GetLineSelEndPosition</a>(line line)<span class="comment"> -- Retrieve the position of the end of the selection at the given line (INVALID_POSITION if no selection on this line).</span></p>
+	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_MOVECARETINSIDEVIEW'>MoveCaretInsideView</a>()<span class="comment"> -- Move the caret inside current view if it's not there already.</span></p>
+	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_CHOOSECARETX'>ChooseCaretX</a>()<span class="comment"> -- Set the last x chosen value to be the caret x position.</span></p>
+	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_MOVESELECTEDLINESUP'>MoveSelectedLinesUp</a>()<span class="comment"> -- Move the selected lines up one line, shifting the line above after the selection</span></p>
+	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_MOVESELECTEDLINESDOWN'>MoveSelectedLinesDown</a>()<span class="comment"> -- Move the selected lines down one line, shifting the line below before the selection</span></p>
+	<p>bool editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETMOUSESELECTIONRECTANGULARSWITCH'>MouseSelectionRectangularSwitch</a><span class="comment"> -- Set whether switching to rectangular mode while selecting with the mouse is allowed.</span></p>
 	<h2>Multiple Selection and Virtual Space</h2>
 	<p>bool editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETMULTIPLESELECTION'>MultipleSelection</a><span class="comment"> -- Set whether multiple selections can be made</span></p>
 	<p>bool editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETADDITIONALSELECTIONTYPING'>AdditionalSelectionTyping</a><span class="comment"> -- Set whether typing can be performed into multiple selections</span></p>
@@ -257,6 +215,49 @@
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_ROTATESELECTION'>RotateSelection</a>()<span class="comment"> -- Set the main selection to the next selection.</span></p>
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_MULTIPLESELECTADDNEXT'>MultipleSelectAddNext</a>()<span class="comment"> -- Add the next occurrence of the main selection to the set of selections as main. If the current selection is empty then select word around caret.</span></p>
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_MULTIPLESELECTADDEACH'>MultipleSelectAddEach</a>()<span class="comment"> -- Add each occurrence of the main selection in the target to the set of selections. If the current selection is empty then select word around caret.</span></p>
+	<h2>Overtype</h2>
+	<p>bool editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETOVERTYPE'>Overtype</a><span class="comment"> -- Set to overtype (true) or insert mode.</span></p>
+	<h2>Searching</h2>
+	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETTARGETSTART'>TargetStart</a><span class="comment"> -- Sets the position that starts the target which is used for updating the document without affecting the scroll position.</span></p>
+	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETTARGETSTARTVIRTUALSPACE'>TargetStartVirtualSpace</a><span class="comment"> -- Sets the virtual space of the target start</span></p>
+	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETTARGETEND'>TargetEnd</a><span class="comment"> -- Sets the position that ends the target which is used for updating the document without affecting the scroll position.</span></p>
+	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETTARGETENDVIRTUALSPACE'>TargetEndVirtualSpace</a><span class="comment"> -- Sets the virtual space of the target end</span></p>
+	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETTARGETRANGE'>SetTargetRange</a>(position start, position end)<span class="comment"> -- Sets both the start and end of the target in one call.</span></p>
+	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_TARGETFROMSELECTION'>TargetFromSelection</a>()<span class="comment"> -- Make the target range start and end be the same as the selection range start and end.</span></p>
+	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_TARGETWHOLEDOCUMENT'>TargetWholeDocument</a>()<span class="comment"> -- Sets the target to the whole document.</span></p>
+	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETSEARCHFLAGS'>SearchFlags</a><span class="comment"> -- Set the search flags used by SearchInTarget.</span></p>
+	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SEARCHINTARGET'>SearchInTarget</a>(string text)<span class="comment"> -- Search for a counted string in the target and set the target to the found range. Text is counted so it can contain NULs. Returns start of found range or -1 for failure in which case target is not moved.</span></p>
+	<p>string editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETTARGETTEXT'>TargetText</a> read-only</p>
+	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_REPLACETARGET'>ReplaceTarget</a>(string text)<span class="comment"> -- Replace the target text with the argument text. Text is counted so it can contain NULs. Returns the length of the replacement text.</span></p>
+	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_REPLACETARGETMINIMAL'>ReplaceTargetMinimal</a>(string text)<span class="comment"> -- Replace the target text with the argument text but ignore prefix and suffix that are the same as current.</span></p>
+	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_REPLACETARGETRE'>ReplaceTargetRE</a>(string text)<span class="comment"> -- Replace the target text with the argument text after \d processing. Text is counted so it can contain NULs. Looks for \d where d is between 1 and 9 and replaces these with the strings matched in the last search operation which were surrounded by \( and \). Returns the length of the replacement text including any change caused by processing the \d patterns.</span></p>
+	<p>string editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETTAG'>Tag</a>[int tagNumber] read-only</p>
+	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SEARCHANCHOR'>SearchAnchor</a>()<span class="comment"> -- Sets the current caret position to be the search anchor.</span></p>
+	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SEARCHNEXT'>SearchNext</a>(int searchFlags, string text)<span class="comment"> -- Find some text starting at the search anchor. Does not ensure the selection is visible.</span></p>
+	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SEARCHPREV'>SearchPrev</a>(int searchFlags, string text)<span class="comment"> -- Find some text starting at the search anchor and moving backwards. Does not ensure the selection is visible.</span></p>
+	<h2>Cut, copy and paste</h2>
+	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_CUT'>Cut</a>()<span class="comment"> -- Cut the selection to the clipboard.</span></p>
+	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_COPY'>Copy</a>()<span class="comment"> -- Copy the selection to the clipboard.</span></p>
+	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_PASTE'>Paste</a>()<span class="comment"> -- Paste the contents of the clipboard into the document replacing the selection.</span></p>
+	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_CLEAR'>Clear</a>()<span class="comment"> -- Clear the selection.</span></p>
+	<p>bool editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_CANPASTE'>CanPaste</a>()<span class="comment"> -- Will a paste succeed?</span></p>
+	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_COPYALLOWLINE'>CopyAllowLine</a>()<span class="comment"> -- Copy the selection, if selection empty copy the line with the caret</span></p>
+	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_COPYRANGE'>CopyRange</a>(position start, position end)<span class="comment"> -- Copy a range of text to the clipboard. Positions are clipped into the document.</span></p>
+	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_COPYTEXT'>CopyText</a>(string text)<span class="comment"> -- Copy argument text to the clipboard.</span></p>
+	<p>bool editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETPASTECONVERTENDINGS'>PasteConvertEndings</a><span class="comment"> -- Enable/Disable convert-on-paste for line endings</span></p>
+	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_REPLACERECTANGULAR'>ReplaceRectangular</a>(string text)<span class="comment"> -- Replace the selection with text like a rectangular paste.</span></p>
+	<h2>Undo and Redo</h2>
+	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_UNDO'>Undo</a>()<span class="comment"> -- Undo one action in the undo history.</span></p>
+	<p>bool editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_CANUNDO'>CanUndo</a>()<span class="comment"> -- Are there any undoable actions in the undo history?</span></p>
+	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_REDO'>Redo</a>()<span class="comment"> -- Redoes the next action on the undo history.</span></p>
+	<p>bool editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_CANREDO'>CanRedo</a>()<span class="comment"> -- Are there any redoable actions in the undo history?</span></p>
+	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_EMPTYUNDOBUFFER'>EmptyUndoBuffer</a>()<span class="comment"> -- Delete the undo history.</span></p>
+	<p>bool editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETUNDOCOLLECTION'>UndoCollection</a><span class="comment"> -- Choose between collecting actions into the undo history and discarding them.</span></p>
+	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_BEGINUNDOACTION'>BeginUndoAction</a>()<span class="comment"> -- Start a sequence of actions that is undone and redone as a unit. May be nested.</span></p>
+	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_ENDUNDOACTION'>EndUndoAction</a>()<span class="comment"> -- End a sequence of actions that is undone and redone as a unit.</span></p>
+	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_ADDUNDOACTION'>AddUndoAction</a>(int token, int flags)<span class="comment"> -- Add a container action to the undo stack</span></p>
+	<h2>Change history</h2>
+	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETCHANGEHISTORY'>ChangeHistory</a><span class="comment"> -- Enable or disable change history.</span></p>
 	<h2>Scrolling and automatic scrolling</h2>
 	<p>line editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETFIRSTVISIBLELINE'>FirstVisibleLine</a><span class="comment"> -- Scroll so that a display line is at the top of the display.</span></p>
 	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETXOFFSET'>XOffset</a><span class="comment"> -- Set the xOffset (ie, horizontal scroll position).</span></p>
