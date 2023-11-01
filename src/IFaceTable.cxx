@@ -191,6 +191,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"IDM_CUT",203},
 	{"IDM_DIRECTIONDOWN",806},
 	{"IDM_DIRECTIONUP",805},
+	{"IDM_DROPSELECTION",209},
 	{"IDM_DUPLICATE",250},
 	{"IDM_ENCODING_DEFAULT",150},
 	{"IDM_ENCODING_UCOOKIE",154},
@@ -3813,7 +3814,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 326,
-	ifaceConstantCount = 3085,
+	ifaceConstantCount = 3086,
 	ifacePropertyCount = 264
 };
 
