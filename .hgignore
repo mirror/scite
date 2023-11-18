@@ -2,6 +2,7 @@ syntax: glob
 *.o
 *.a
 *.obj
+*.iobj
 __pycache__
 *.pyc
 *.dll
@@ -26,7 +27,6 @@ __pycache__
 *.nativecodeanalysis.all.xml
 *.lastcodeanalysissucceeded
 *.ilk
-*.iobj
 *.psess
 *.ncb
 *.tlog
@@ -42,6 +42,7 @@ __pycache__
 Release
 Debug
 x64
+ARM64
 _UpgradeReport_Files
 UpgradeLog.XML
 bin
