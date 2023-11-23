@@ -2642,6 +2642,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCI_SETMOUSEDWELLTIME",2264},
 	{"SCI_SETMOUSESELECTIONRECTANGULARSWITCH",2668},
 	{"SCI_SETMOUSEWHEELCAPTURES",2696},
+	{"SCI_SETMOVEEXTENDSSELECTION",2719},
 	{"SCI_SETMULTIPASTE",2614},
 	{"SCI_SETMULTIPLESELECTION",2563},
 	{"SCI_SETOVERTYPE",2186},
@@ -3256,6 +3257,7 @@ static IFaceFunction ifaceFunctions[] = {
 	{"Cancel", 2325, iface_void, {iface_void, iface_void}},
 	{"ChangeInsertion", 2672, iface_void, {iface_length, iface_string}},
 	{"ChangeLexerState", 2617, iface_int, {iface_position, iface_position}},
+	{"ChangeSelectionMode", 2659, iface_void, {iface_int, iface_void}},
 	{"CharLeft", 2304, iface_void, {iface_void, iface_void}},
 	{"CharLeftExtend", 2305, iface_void, {iface_void, iface_void}},
 	{"CharLeftRectExtend", 2428, iface_void, {iface_void, iface_void}},
@@ -3468,6 +3470,7 @@ static IFaceFunction ifaceFunctions[] = {
 	{"SearchPrev", 2368, iface_position, {iface_int, iface_string}},
 	{"SelectAll", 2013, iface_void, {iface_void, iface_void}},
 	{"SelectionDuplicate", 2469, iface_void, {iface_void, iface_void}},
+	{"SelectionFromPoint", 2474, iface_int, {iface_int, iface_int}},
 	{"SetCharsDefault", 2444, iface_void, {iface_void, iface_void}},
 	{"SetDefaultFoldDisplayText", 2722, iface_void, {iface_void, iface_string}},
 	{"SetElementColour", 2753, iface_void, {iface_int, iface_colouralpha}},
@@ -3709,7 +3712,7 @@ static IFaceProperty ifaceProperties[] = {
 	{"MouseDwellTime", 2265, 2264, iface_int, iface_void},
 	{"MouseSelectionRectangularSwitch", 2669, 2668, iface_bool, iface_void},
 	{"MouseWheelCaptures", 2697, 2696, iface_bool, iface_void},
-	{"MoveExtendsSelection", 2706, 0, iface_bool, iface_void},
+	{"MoveExtendsSelection", 2706, 2719, iface_bool, iface_void},
 	{"MultiEdgeColumn", 2749, 0, iface_position, iface_int},
 	{"MultiPaste", 2615, 2614, iface_int, iface_void},
 	{"MultipleSelection", 2564, 2563, iface_bool, iface_void},
@@ -3813,8 +3816,8 @@ static IFaceProperty ifaceProperties[] = {
 };
 
 enum {
-	ifaceFunctionCount = 326,
-	ifaceConstantCount = 3086,
+	ifaceFunctionCount = 328,
+	ifaceConstantCount = 3087,
 	ifacePropertyCount = 264
 };
 

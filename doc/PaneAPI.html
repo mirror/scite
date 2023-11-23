@@ -172,7 +172,8 @@
 	<p>string editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETCURLINE'>GetCurLine</a>()<span class="comment"> -- Retrieve the text of the line containing the caret. Returns the index of the caret on the line. Result is NUL-terminated.</span></p>
 	<p>bool editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SELECTIONISRECTANGLE'>SelectionIsRectangle</a> read-only</p>
 	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETSELECTIONMODE'>SelectionMode</a><span class="comment"> -- Set the selection mode to stream (SC_SEL_STREAM) or rectangular (SC_SEL_RECTANGLE/SC_SEL_THIN) or by lines (SC_SEL_LINES).</span></p>
-	<p>bool editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETMOVEEXTENDSSELECTION'>MoveExtendsSelection</a> read-only</p>
+	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_CHANGESELECTIONMODE'>ChangeSelectionMode</a>(int selectionMode)<span class="comment"> -- Set the selection mode to stream (SC_SEL_STREAM) or rectangular (SC_SEL_RECTANGLE/SC_SEL_THIN) or by lines (SC_SEL_LINES) without changing MoveExtendsSelection.</span></p>
+	<p>bool editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETMOVEEXTENDSSELECTION'>MoveExtendsSelection</a><span class="comment"> -- Set whether or not regular caret moves will extend or reduce the selection.</span></p>
 	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETLINESELSTARTPOSITION'>GetLineSelStartPosition</a>(line line)<span class="comment"> -- Retrieve the position of the start of the selection at the given line (INVALID_POSITION if no selection on this line).</span></p>
 	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETLINESELENDPOSITION'>GetLineSelEndPosition</a>(line line)<span class="comment"> -- Retrieve the position of the end of the selection at the given line (INVALID_POSITION if no selection on this line).</span></p>
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_MOVECARETINSIDEVIEW'>MoveCaretInsideView</a>()<span class="comment"> -- Move the caret inside current view if it's not there already.</span></p>
@@ -191,6 +192,7 @@
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_CLEARSELECTIONS'>ClearSelections</a>()<span class="comment"> -- Clear selections to a single empty stream selection</span></p>
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETSELECTION'>SetSelection</a>(position caret, position anchor)<span class="comment"> -- Set a simple selection</span></p>
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_ADDSELECTION'>AddSelection</a>(position caret, position anchor)<span class="comment"> -- Add a selection</span></p>
+	<p>int editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SELECTIONFROMPOINT'>SelectionFromPoint</a>(int x, int y)<span class="comment"> -- Find the selection index for a point. -1 when not at a selection.</span></p>
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_DROPSELECTIONN'>DropSelectionN</a>(int selection)<span class="comment"> -- Drop one selection</span></p>
 	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETMAINSELECTION'>MainSelection</a><span class="comment"> -- Set the main selection</span></p>
 	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETSELECTIONNCARET'>SelectionNCaret</a>[int selection]<span class="comment"> -- Set the caret position of the nth selection.</span></p>
