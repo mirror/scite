@@ -790,16 +790,12 @@ std::string SciTEBase::GetCTag(GUI::ScintillaWindow *pw) {
 	}
 }
 
-void SciTEBase::DropSelectionAt(GUI::ScintillaWindow &win, SA::Position position) {
+void SciTEBase::DropSelectionAt(GUI::ScintillaWindow &win, int selection) {
 	if (win.SelectionMode() != SA::SelectionMode::Stream) {
 		return;
 	}
-	const int selections = win.Selections();
-	for (int sel = 0; sel < selections; ++sel) {
-		if (position >= win.SelectionNStart(sel) && position < win.SelectionNEnd(sel)) {
-			win.DropSelectionN(sel);
-			return;
-		}
+	if (selection >= 0) {
+		win.DropSelectionN(selection);
 	}
 }
 
@@ -3236,7 +3232,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		}
 		break;
 	case IDM_DROPSELECTION:
-		DropSelectionAt(PaneFocused(), contextPosition);
+		DropSelectionAt(PaneFocused(), contextSelection);
 		break;
 	case IDM_CLEAR:
 		PaneSource(source).Clear();
@@ -4248,9 +4244,9 @@ void SciTEBase::CheckMenus() {
 void SciTEBase::ContextMenu(GUI::ScintillaWindow &wSource, GUI::Point pt, GUI::Point ptClient, GUI::Window wCmd) {
 	const SA::Position currentPos = wSource.CurrentPos();
 	const SA::Position anchor = wSource.Anchor();
-	contextPosition = wSource.CharPositionFromPoint(ptClient.x, ptClient.y);
-	const bool isStreamSelction = wSource.SelectionMode() == SA::SelectionMode::Stream;
-	const bool allowDrop = isStreamSelction && (contextPosition != SA::InvalidPosition);
+	contextSelection = wSource.SelectionFromPoint(ptClient.x, ptClient.y);
+	const bool isStreamSelection = wSource.SelectionMode() == SA::SelectionMode::Stream;
+	const bool allowDrop = isStreamSelection && (contextSelection >= 0);
 	popup.CreatePopUp();
 	const bool writable = !wSource.ReadOnly();
 	AddToPopUp("Undo", IDM_UNDO, writable && wSource.CanUndo());

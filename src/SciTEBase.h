@@ -376,7 +376,7 @@ protected:
 	GUI::Window wStatusBar;
 	GUI::Window wTabBar;
 	GUI::Menu popup;
-	SA::Position contextPosition = SA::InvalidPosition;
+	int contextSelection = -1;
 	bool tbVisible;
 	bool tabVisible;
 	bool tabHideOne; // Hide tab bar if one buffer is opened only
@@ -659,7 +659,7 @@ protected:
 	SelectedRange GetSelectedRange();
 	void SetSelection(SA::Position anchor, SA::Position currentPos);
 	std::string GetCTag(GUI::ScintillaWindow *pw);
-	static void DropSelectionAt(GUI::ScintillaWindow &win, SA::Position position);
+	static void DropSelectionAt(GUI::ScintillaWindow &win, int selection);
 	virtual std::string GetRangeInUIEncoding(GUI::ScintillaWindow &win, SA::Span span);
 	static std::string GetLine(GUI::ScintillaWindow &win, SA::Line line);
 	void RangeExtend(GUI::ScintillaWindow &wCurrent, SA::Span &range,
