@@ -686,6 +686,13 @@ bool SciTEBase::OpenSelected() {
 		}
 	}
 
+	if (StartsWith(selName, "~/")) {
+		selName.erase(0, 2);
+		const FilePath selPath(GUI::StringFromUTF8(selName));
+		const FilePath expandedPath(FilePath::UserHomeDirectory(), selPath);
+		selName = expandedPath.AsUTF8();
+	}
+
 	std::string fileNameForExtension = ExtensionFileName();
 	std::string openSuffix = props.GetNewExpandString("open.suffix.", fileNameForExtension);
 	selName += openSuffix;
