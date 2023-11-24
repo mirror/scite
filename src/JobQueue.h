@@ -25,7 +25,8 @@ enum JobFlags {
 	jobRepSelMask = 48,
 	jobRepSelYes = 16,
 	jobRepSelAuto = 32,
-	jobGroupUndo = 64
+	jobGroupUndo = 64,
+	jobLowPriority = 128
 };
 
 struct JobMode {

@@ -4245,13 +4245,19 @@ quiet - accepts keyword arguments yes and no<br />
 replaceselection - accepts yes, no, and auto<br />
 savebefore - accepts yes, no, and prompt<br />
 subsystem - console, windows, shellexec, lua, director, winhelp, htmlhelp, immediate<br />
-groupundo - yes or no
+groupundo - yes or no<br />
+<span class="windowsonly">lowpriority - accepts keyword arguments yes and no</span>
 </div>
-        Currently, all of these except groupundo are based on individual properties with
-        similar names, and so are not described separately here.  The groupundo setting
+        Currently, all of these except groupundo and lowpriority are based on individual properties with
+        similar names, and so are not described separately here.<br />
+        The groupundo setting
         works with subsystem 3 (lua / director), and indicates that SciTE should treat any
         changes made by the command as a single undo action.  A command that uses the
         groupundo setting should not change which buffer is active in the editor.<br />
+	
+        The lowpriority setting works on Windows with console or windows subsystem only and sets
+        the priority class of the process to below normal.
+        This can improve interactive use of the computer while the command is executing.<br />
 
         The command.shortcut property allows you to specify a keyboard shortcut for the
         command.  By default, commands 0 to 9 have keyboard shortcuts Ctrl+0 to Ctrl+9

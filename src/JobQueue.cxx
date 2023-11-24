@@ -51,10 +51,22 @@ JobSubsystem SubsystemFromChar(char c) noexcept {
 	return JobSubsystem::cli;
 }
 
+namespace {
+
+void SetOptionFromValidString(bool &option, const std::string &s) {
+	if (s.empty() || s[0] == '1' || s == "yes")
+		option = true;
+	else if (s[0] == '0' || s == "no")
+		option = false;
+}
+
+}
+
 JobMode::JobMode(const PropSetFile &props, int item, std::string_view fileNameExt) : jobType(JobSubsystem::cli), saveBefore(0), isFilter(false), flags(0) {
 	bool quiet = false;
 	int repSel = 0;
 	bool groupUndo = false;
+	bool lowPriority = false;
 
 	const std::string itemSuffix = StdStringFromInteger(item) + ".";
 	std::string propName = std::string("command.mode.") + itemSuffix;
@@ -107,10 +119,7 @@ JobMode::JobMode(const PropSetFile &props, int item, std::string_view fileNameEx
 		}
 
 		if (opt == "filter") {
-			if (value.empty() || value[0] == '1' || value == "yes")
-				isFilter = true;
-			else if (value[0] == '0' || value == "no")
-				isFilter = false;
+			SetOptionFromValidString(isFilter, value);
 		}
 
 		if (opt == "replaceselection") {
@@ -123,10 +132,11 @@ JobMode::JobMode(const PropSetFile &props, int item, std::string_view fileNameEx
 		}
 
 		if (opt == "groupundo") {
-			if (value.empty() || value[0] == '1' || value == "yes")
-				groupUndo = true;
-			else if (value[0] == '0' || value == "no")
-				groupUndo = false;
+			SetOptionFromValidString(groupUndo, value);
+		}
+
+		if (opt == "lowpriority") {
+			SetOptionFromValidString(lowPriority, value);
 		}
 	}
 
@@ -177,6 +187,9 @@ JobMode::JobMode(const PropSetFile &props, int item, std::string_view fileNameEx
 
 	if (groupUndo)
 		flags |= jobGroupUndo;
+
+	if (lowPriority)
+		flags |= jobLowPriority;
 }
 
 Job::Job() noexcept : jobType(JobSubsystem::cli), flags(0) {

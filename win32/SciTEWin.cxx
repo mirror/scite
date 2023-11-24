@@ -975,11 +975,14 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 	// Make a mutable copy as the CreateProcess parameter is mutable
 	GUI::gui_string sCommand = GUI::StringFromUTF8(jobToRun.command);
 
+	const DWORD creationFlags = CREATE_NEW_PROCESS_GROUP |
+		((jobToRun.flags & jobLowPriority) ? BELOW_NORMAL_PRIORITY_CLASS : 0);
+
 	BOOL running = ::CreateProcessW(
 			       nullptr,
 			       sCommand.data(),
 			       nullptr, nullptr,
-			       TRUE, CREATE_NEW_PROCESS_GROUP,
+			       TRUE, creationFlags,
 			       nullptr,
 			       startDirectory.IsSet() ?
 			       startDirectory.AsInternal() : nullptr,
@@ -999,7 +1002,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 				  nullptr,
 				  sRunComLine.data(),
 				  nullptr, nullptr,
-				  TRUE, CREATE_NEW_PROCESS_GROUP,
+				  TRUE, creationFlags,
 				  nullptr,
 				  startDirectory.IsSet() ?
 				  startDirectory.AsInternal() : nullptr,
