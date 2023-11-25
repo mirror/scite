@@ -248,6 +248,24 @@ void SciTEBase::DiscoverIndentSetting() {
 	}
 }
 
+namespace {
+
+SA::DocumentOption LoadingOptions(const PropSetFile &props, const long long fileSize) {
+	SA::DocumentOption docOptions = SA::DocumentOption::Default;
+
+	const long long sizeLarge = props.GetLongLong("file.size.large");
+	if (sizeLarge && (fileSize > sizeLarge))
+		docOptions = SA::DocumentOption::TextLarge;
+
+	const long long sizeNoStyles = props.GetLongLong("file.size.no.styles");
+	if (sizeNoStyles && (fileSize > sizeNoStyles))
+		docOptions = docOptions | SA::DocumentOption::StylesNone;
+
+	return docOptions;
+}
+
+}
+
 void SciTEBase::OpenCurrentFile(const long long fileSize, bool suppressMessage, bool asynchronous) {
 	// Allocate a bit extra to allow minor edits without reallocation.
 	const long long fileAllocationSize = fileSize + 1000;
@@ -295,17 +313,7 @@ void SciTEBase::OpenCurrentFile(const long long fileSize, bool suppressMessage, 
 		assert(CurrentBufferConst()->pFileWorker == nullptr);
 		Scintilla::ILoader *pdocLoad = nullptr;
 		try {
-			SA::DocumentOption docOptions = SA::DocumentOption::Default;
-
-			const long long sizeLarge = props.GetLongLong("file.size.large");
-			if (sizeLarge && (fileSize > sizeLarge))
-				docOptions = SA::DocumentOption::TextLarge;
-
-			const long long sizeNoStyles = props.GetLongLong("file.size.no.styles");
-			if (sizeNoStyles && (fileSize > sizeNoStyles))
-				docOptions = static_cast<SA::DocumentOption>(
-						     static_cast<int>(docOptions) | static_cast<int>(SA::DocumentOption::StylesNone));
-
+			const SA::DocumentOption docOptions = LoadingOptions(props, fileSize);
 			pdocLoad = static_cast<Scintilla::ILoader *>(
 					   wEditor.CreateLoader(bufferSize, docOptions));
 		} catch (...) {
@@ -627,21 +635,32 @@ bool SciTEBase::Open(const FilePath &file, OpenFlags of) {
 	if (!filePath.IsUntitled()) {
 		wEditor.SetReadOnly(false);
 		wEditor.Cancel();
-		if (of & ofPreserveUndo) {
+
+		bool allowUndoLoad = of & ofPreserveUndo;
+
+		asynchronous = (fileSize > props.GetInt("background.open.size", -1)) &&
+			!(of & (ofPreserveUndo | ofSynchronous));
+		const SA::DocumentOption loadingOptions = LoadingOptions(props, fileSize);
+		if (!asynchronous && loadingOptions != wEditor.DocumentOptions()) {
+			// File needs different options than current document so create new.
+			SwitchDocumentAt(buffers.Current(), wEditor.CreateDocument(0, loadingOptions));
+			allowUndoLoad = false;
+		}
+
+		if (allowUndoLoad) {
 			wEditor.BeginUndoAction();
 		} else {
 			wEditor.SetUndoCollection(false);
 		}
 
-		asynchronous = (fileSize > props.GetInt("background.open.size", -1)) &&
-			       !(of & (ofPreserveUndo|ofSynchronous));
 		OpenCurrentFile(fileSize, of & ofQuiet, asynchronous);
 
-		if (of & ofPreserveUndo) {
+		if (allowUndoLoad) {
 			wEditor.EndUndoAction();
 		} else {
 			wEditor.EmptyUndoBuffer();
 		}
+
 		CurrentBuffer()->isReadOnly = props.GetInt("read.only");
 		wEditor.SetReadOnly(CurrentBuffer()->isReadOnly);
 	}
