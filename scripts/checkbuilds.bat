@@ -5,13 +5,14 @@
 @rem machine so must be modified for other installations.
 @rem Assumes environment set up so gcc, MSVC amd cppcheck can be called.
 @rem
+set THREADS=8
 @cd ..\..
 @rem
 rem ************************************************************
 rem Target 1: basic unit tests with gcc
 @call scite\scripts\clearboth
 @pushd scintilla\test\unit
-mingw32-make -j
+mingw32-make -j%THREADS%
 @if ERRORLEVEL 2 goto ERROR
 .\unitTest
 @if ERRORLEVEL 2 goto ERROR
@@ -22,7 +23,7 @@ rem Target 2: Build and check Lexilla
 @call scite\scripts\clearboth
 @pushd lexilla\src
 mingw32-make clean
-mingw32-make -j
+mingw32-make -j%THREADS%
 @if ERRORLEVEL 2 goto ERROR
 @popd
 @pushd lexilla\test
@@ -38,11 +39,11 @@ rem ************************************************************
 rem Target 3: Normal gcc build
 @call scite\scripts\clearboth
 @pushd scintilla\win32
-mingw32-make -j
+mingw32-make -j%THREADS%
 @if ERRORLEVEL 2 goto ERROR
 @popd
 @pushd lexilla\src
-mingw32-make -j
+mingw32-make -j%THREADS%
 @if ERRORLEVEL 2 goto ERROR
 @popd
 @pushd scintilla\test
@@ -52,7 +53,7 @@ pythonw win32Tests.py
 pythonw simpleTests.py -large
 @popd
 @pushd scite\win32
-mingw32-make -j
+mingw32-make -j%THREADS%
 @if ERRORLEVEL 2 goto ERROR
 @popd
 @rem
@@ -98,7 +99,7 @@ rem Target 6: GTK+ version using gcc on scintilla\gtk\makefile
 @pushd scintilla\gtk
 set PATH=c:\opt\gtk\bin;%PATH%
 rem -Wno-parentheses is temporary for GTK+ header gtkfilechooserbutton.h
-mingw32-make -j CXXFLAGS=-Wno-parentheses static
+mingw32-make -j%THREADS% CXXFLAGS=-Wno-parentheses static
 @if ERRORLEVEL 2 goto ERROR
 @popd ..\..
 @rem
@@ -135,11 +136,11 @@ rem ************************************************************
 rem Target 9: Clang build
 @call scite\scripts\clearboth
 @pushd scintilla\win32
-mingw32-make CLANG=1 -j
+mingw32-make CLANG=1 -j%THREADS%
 @if ERRORLEVEL 2 goto ERROR
 @popd
 @pushd lexilla\src
-mingw32-make CLANG=1 -j
+mingw32-make CLANG=1 -j%THREADS%
 @if ERRORLEVEL 2 goto ERROR
 @popd
 @pushd scintilla\test
@@ -148,7 +149,7 @@ pythonw performanceTests.py
 pythonw win32Tests.py
 @popd
 @pushd scite\win32
-mingw32-make CLANG=1 SANITIZE=undefined -j
+mingw32-make CLANG=1 SANITIZE=undefined -j%THREADS%
 @if ERRORLEVEL 2 goto ERROR
 @popd
 @rem
@@ -173,9 +174,9 @@ nmake distclean
 rem ************************************************************
 rem Target 11: cppcheck
 @call scite\scripts\clearboth
-cppcheck -j 8 --enable=all --suppressions-list=lexilla/cppcheck.suppress --max-configs=120 -I lexilla/include -I lexilla/access -I lexilla/lexlib -I scintilla/include --template=gcc --quiet lexilla
-cppcheck -j 8 --enable=all --suppressions-list=scintilla/cppcheck.suppress --max-configs=100 -I scintilla/src -I scintilla/include -I scintilla/qt/ScintillaEditBase "-DSTDMETHODIMP_(type) type STDMETHODCALLTYPE" --template=gcc --quiet scintilla
-cppcheck -j 8 --enable=all --suppressions-list=scite/cppcheck.suppress --max-configs=100 -I scite/src -I lexilla/include -I lexilla/access -I scintilla/include -I scite/lua/src -Ulua_assert -DINVALID_HANDLE_VALUE=((HANDLE)(LONG_PTR)-1) --template=gcc --quiet scite
+cppcheck -j %THREADS% --enable=all --suppressions-list=lexilla/cppcheck.suppress --max-configs=120 -I lexilla/include -I lexilla/access -I lexilla/lexlib -I scintilla/include --template=gcc --quiet lexilla
+cppcheck -j %THREADS% --enable=all --suppressions-list=scintilla/cppcheck.suppress --max-configs=100 -I scintilla/src -I scintilla/include -I scintilla/qt/ScintillaEditBase "-DSTDMETHODIMP_(type) type STDMETHODCALLTYPE" --template=gcc --quiet scintilla
+cppcheck -j %THREADS% --enable=all --suppressions-list=scite/cppcheck.suppress --max-configs=100 -I scite/src -I lexilla/include -I lexilla/access -I scintilla/include -I scite/lua/src -Ulua_assert -DINVALID_HANDLE_VALUE=((HANDLE)(LONG_PTR)-1) --template=gcc --quiet scite
 @rem
 rem ************************************************************
 rem Target 12: header order check
