@@ -635,6 +635,14 @@
 	</ul>
 	<li>Lexilla 5.3.0</li>
 	<ul>
+		<li>
+		Bash: Fix shift operator &lt;&lt; incorrectly recognized as here-doc.
+		<a href="https://github.com/ScintillaOrg/lexilla/issues/215">Issue #215</a>.
+		</li>
+		<li>
+		HTML: JavaScript double-quoted strings may escape line end with '\'.
+		<a href="https://github.com/ScintillaOrg/lexilla/issues/214">Issue #214</a>.
+		</li>
 	</ul>
 	<li>Scintilla 5.4.1</li>
 	<ul>
@@ -651,6 +659,11 @@
 		<li>
 		Improve performance of global replace by reducing cache invalidation overhead.
 		<a href="https://sourceforge.net/p/scintilla/feature-requests/1502/">Feature #1502</a>.
+		</li>
+		<li>
+		Fix regular expression search for "\&lt;" matching beginning of search when not beginning of word and
+		for "\&gt;" not matching line end.
+		<a href="https://sourceforge.net/p/scintilla/bugs/2157/">Bug #2157</a>.
 		</li>
 		<li>
 		Fix regular expression search failure when search for "\&lt;" followed by search for "\&gt;".
