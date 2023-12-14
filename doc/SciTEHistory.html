@@ -605,6 +605,8 @@
 	<td>Tsuyoshi Miyake</td>
 	<td>Gladys Monagan</td>
 	<td>Juarez Rudsatz</td>
+	<td>Martin Schäfer</td>
+      </tr><tr>
       </tr>
     </table>
     <p>
@@ -639,6 +641,10 @@
 	</ul>
 	<li>Lexilla 5.3.0</li>
 	<ul>
+		<li>
+		Fix calling AddStaticLexerModule by defining as C++ instead of C which matches header.
+		<a href="https://sourceforge.net/p/scintilla/bugs/2421/">Bug #2421</a>.
+		</li>
 		<li>
 		Bash: Fix shift operator &lt;&lt; incorrectly recognized as here-doc.
 		<a href="https://github.com/ScintillaOrg/lexilla/issues/215">Issue #215</a>.
@@ -684,6 +690,10 @@
 		</li>
 		<li>
 		Fix regular expression assertion (^, $, \b. \B) failures when using SCFIND_CXX11REGEX.
+		<a href="https://sourceforge.net/p/scintilla/bugs/2405/">Bug #2405</a>.
+		</li>
+		<li>
+		Fix regular expression bug in reverse direction where shortened match returned.
 		<a href="https://sourceforge.net/p/scintilla/bugs/2405/">Bug #2405</a>.
 		</li>
 		<li>
