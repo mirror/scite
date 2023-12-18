@@ -156,7 +156,7 @@ void SciTEBase::DiscoverEOLSetting() {
 std::string SciTEBase::DiscoverLanguage() {
 	constexpr SA::Position oneK = 1024;
 	const SA::Position length = std::min(LengthDocument(), 64 * oneK);
-	std::string buf = wEditor.StringOfSpan(SA::Span(0, length));
+	std::string buf = wEditor.StringOfRange(SA::Span(0, length));
 	std::string languageOverride;
 	std::string_view line = ExtractLine(buf);
 	if (StartsWith(line, "<?xml")) {
@@ -1239,9 +1239,8 @@ bool SciTEBase::SaveBuffer(const FilePath &saveName, SaveFlags sf) {
 					grabSize = wEditor.PositionBefore(i + grabSize + 1) - i;
 					const SA::Position startBlock = i;
 					const SA::Span rangeGrab(startBlock, startBlock + grabSize);
-					wEditor.SetTarget(rangeGrab);
-					wEditor.TargetText(&data[0]);
-					const size_t written = convert.fwrite(&data[0], grabSize);
+					CopyText(wEditor, data.data(), rangeGrab);
+					const size_t written = convert.fwrite(data.data(), grabSize);
 					if (written == 0) {
 						retVal = false;
 						break;

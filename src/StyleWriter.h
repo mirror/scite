@@ -86,4 +86,6 @@ public:
 	void SetLevel(Scintilla::Line line, Scintilla::FoldLevel level);
 };
 
+void CopyText(Scintilla::ScintillaCall &sc_, char *buffer, Scintilla::Span range);
+
 #endif

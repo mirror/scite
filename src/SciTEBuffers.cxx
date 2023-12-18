@@ -1976,7 +1976,7 @@ void SciTEBase::ShowMessages(SA::Line line) {
 	while ((line < maxLine) && (acc.StyleAt(acc.LineStart(line)) != SCE_ERR_CMD)) {
 		const SA::Position startPosLine = wOutput.LineStart(line);
 		const SA::Position lineEnd = wOutput.LineEnd(line);
-		std::string message = wOutput.StringOfSpan(SA::Span(startPosLine, lineEnd));
+		std::string message = wOutput.StringOfRange(SA::Span(startPosLine, lineEnd));
 		std::string source;
 		SA::Position column = 0;
 		int style = acc.StyleAt(startPosLine);
@@ -2049,7 +2049,7 @@ void SciTEBase::GoMessage(int dir) {
 					      "error.marker.back", ColourRGB(0xff, 0xff, 0)));
 			wOutput.MarkerAdd(lookLine, 0);
 			wOutput.SetSel(startPosLine, startPosLine);
-			std::string message = wOutput.StringOfSpan(SA::Span(startPosLine, startPosLine + lineLength));
+			std::string message = wOutput.StringOfRange(SA::Span(startPosLine, startPosLine + lineLength));
 			if ((style == SCE_ERR_ESCSEQ) || (style == SCE_ERR_ESCSEQ_UNKNOWN) || (style >= SCE_ERR_ES_BLACK)) {
 				// GCC message with ANSI escape sequences
 				RemoveEscSeq(message);

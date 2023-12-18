@@ -437,7 +437,7 @@ SA::Position SciTEBase::GetCaretInLine() {
 
 std::string SciTEBase::GetLine(SA::Line line) {
 	const SA::Span rangeLine(wEditor.LineStart(line), wEditor.LineEnd(line));
-	return wEditor.StringOfSpan(rangeLine);
+	return wEditor.StringOfRange(rangeLine);
 }
 
 std::string SciTEBase::GetCurrentLine() {
@@ -784,7 +784,7 @@ std::string SciTEBase::GetCTag(GUI::ScintillaWindow *pw) {
 	}
 
 	if (selStart < selEnd) {
-		return pw->StringOfSpan(SA::Span(selStart, selEnd));
+		return pw->StringOfRange(SA::Span(selStart, selEnd));
 	} else {
 		return std::string();
 	}
@@ -868,7 +868,7 @@ void SciTEBase::HighlightCurrentWord(bool highlight) {
 }
 
 std::string SciTEBase::GetRangeInUIEncoding(GUI::ScintillaWindow &win, SA::Span span) {
-	return win.StringOfSpan(span);
+	return win.StringOfRange(span);
 }
 
 std::string SciTEBase::GetLine(GUI::ScintillaWindow &win, SA::Line line) {
@@ -876,7 +876,7 @@ std::string SciTEBase::GetLine(GUI::ScintillaWindow &win, SA::Line line) {
 	const SA::Position lineEnd = win.LineEnd(line);
 	if ((lineStart < 0) || (lineEnd < 0))
 		return std::string();
-	return win.StringOfSpan(SA::Span(lineStart, lineEnd));
+	return win.StringOfRange(SA::Span(lineStart, lineEnd));
 }
 
 void SciTEBase::RangeExtend(
@@ -1843,7 +1843,7 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 				wordEnd++;
 			const SA::Position wordLength = wordEnd - posFind;
 			if (wordLength > rootLength) {
-				const std::string word = wEditor.StringOfSpan(SA::Span(posFind, wordEnd));
+				const std::string word = wEditor.StringOfRange(SA::Span(posFind, wordEnd));
 				if (wordList.Add(word)) {
 					if (onlyOneWord && wordList.Count() > 1) {
 						return true;
@@ -2114,7 +2114,7 @@ bool SciTEBase::StartBlockComment() {
 		if (!placeCommentsAtLineStart) {
 			lineIndent = GetLineIndentPosition(i);
 		}
-		std::string linebuf = wEditor.StringOfSpan(SA::Span(lineIndent, lineEnd));
+		std::string linebuf = wEditor.StringOfRange(SA::Span(lineIndent, lineEnd));
 		// empty lines are not commented
 		if (linebuf.length() < 1)
 			continue;
@@ -2220,7 +2220,7 @@ bool SciTEBase::StartBoxComment() {
 
 	// Insert startComment if needed
 	SA::Position lineStart = wEditor.LineStart(selStartLine);
-	std::string tempString = wEditor.StringOfSpan(SA::Span(lineStart, lineStart + startCommentLength));
+	std::string tempString = wEditor.StringOfRange(SA::Span(lineStart, lineStart + startCommentLength));
 	if (startComment != tempString) {
 		wEditor.InsertText(lineStart, startComment.c_str());
 		selectionStart += startCommentLength;
@@ -2230,7 +2230,7 @@ bool SciTEBase::StartBoxComment() {
 	if (lines <= 1) {
 		// Only a single line was selected, so just append whitespace + end-comment at end of line if needed
 		const SA::Position lineEnd = wEditor.LineEnd(selEndLine);
-		tempString = wEditor.StringOfSpan(SA::Span(lineEnd - endCommentLength, lineEnd));
+		tempString = wEditor.StringOfRange(SA::Span(lineEnd - endCommentLength, lineEnd));
 		if (endComment != tempString) {
 			endComment.insert(0, whiteSpace);
 			wEditor.InsertText(lineEnd, endComment.c_str());
@@ -2239,7 +2239,7 @@ bool SciTEBase::StartBoxComment() {
 		// More than one line selected, so insert middleComments where needed
 		for (SA::Line i = selStartLine + 1; i < selEndLine; i++) {
 			lineStart = wEditor.LineStart(i);
-			tempString = wEditor.StringOfSpan(SA::Span(lineStart, lineStart + middleCommentLength));
+			tempString = wEditor.StringOfRange(SA::Span(lineStart, lineStart + middleCommentLength));
 			if (middleComment != tempString) {
 				wEditor.InsertText(lineStart, middleComment.c_str());
 				selectionEnd += middleCommentLength;
@@ -2251,9 +2251,9 @@ bool SciTEBase::StartBoxComment() {
 		// and end-comment tag after the last line (extra logic is necessary to
 		// deal with the case that user selected the end-comment tag)
 		lineStart = wEditor.LineStart(selEndLine);
-		tempString = wEditor.StringOfSpan(SA::Span(lineStart, lineStart + endCommentLength));
+		tempString = wEditor.StringOfRange(SA::Span(lineStart, lineStart + endCommentLength));
 		if (endComment != tempString) {
-			tempString = wEditor.StringOfSpan(SA::Span(lineStart, lineStart + middleCommentLength));
+			tempString = wEditor.StringOfRange(SA::Span(lineStart, lineStart + middleCommentLength));
 			if (middleComment != tempString) {
 				wEditor.InsertText(lineStart, middleComment.c_str());
 				selectionEnd += middleCommentLength;
@@ -2262,7 +2262,7 @@ bool SciTEBase::StartBoxComment() {
 			// And since we didn't find the end-comment string yet, we need to check the *next* line
 			//  to see if it's necessary to insert an end-comment string and a linefeed there....
 			lineStart = wEditor.LineStart(selEndLine + 1);
-			tempString = wEditor.StringOfSpan(SA::Span(lineStart, lineStart + endCommentLength));
+			tempString = wEditor.StringOfRange(SA::Span(lineStart, lineStart + endCommentLength));
 			if (endComment != tempString) {
 				endComment += eol;
 				wEditor.InsertText(lineStart, endComment.c_str());
@@ -2494,7 +2494,7 @@ void SciTEBase::ConvertIndentation(int tabSize, int useTabs) {
 		const SA::Position indentPos = GetLineIndentPosition(line);
 		constexpr int maxIndentation = 1000;
 		if (indent < maxIndentation) {
-			std::string indentationNow = wEditor.StringOfSpan(SA::Span(lineStart, indentPos));
+			std::string indentationNow = wEditor.StringOfRange(SA::Span(lineStart, indentPos));
 			std::string indentationWanted = CreateIndentation(indent, tabSize, !useTabs);
 			if (indentationNow != indentationWanted) {
 				wEditor.SetTarget(SA::Span(lineStart, indentPos));
@@ -2852,7 +2852,7 @@ bool SciTEBase::HandleXml(char ch) {
 	if (nCaret - nMin < 3) {
 		return false; // Smallest tag is 3 characters ex. <p>
 	}
-	std::string sel = wEditor.StringOfSpan(SA::Span(nMin, nCaret));
+	std::string sel = wEditor.StringOfRange(SA::Span(nMin, nCaret));
 
 	if (sel[nCaret - nMin - 2] == '/') {
 		// User typed something like "<br/>"
@@ -4853,9 +4853,9 @@ intptr_t SciTEBase::Send(Pane p, SA::Message msg, uintptr_t wParam, intptr_t lPa
 }
 std::string SciTEBase::Range(Pane p, SA::Span range) {
 	if (p == paneEditor)
-		return wEditor.StringOfSpan(range);
+		return wEditor.StringOfRange(range);
 	else
-		return wOutput.StringOfSpan(range);
+		return wOutput.StringOfRange(range);
 }
 void SciTEBase::Remove(Pane p, SA::Position start, SA::Position end) {
 	if (p == paneEditor) {

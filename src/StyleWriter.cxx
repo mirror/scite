@@ -13,6 +13,7 @@
 
 #include "ScintillaTypes.h"
 #include "ScintillaCall.h"
+#include "ScintillaStructures.h"
 
 #include "GUI.h"
 #include "StyleWriter.h"
@@ -43,8 +44,7 @@ void TextReader::Fill(SA::Position position) {
 	endPos = startPos + bufferSize;
 	if (endPos > lenDoc)
 		endPos = lenDoc;
-	sc.SetTarget(SA::Span(startPos, endPos));
-	sc.TargetText(buf);
+	CopyText(sc, buf, SA::Span(startPos, endPos));
 }
 
 bool TextReader::Match(SA::Position pos, const char *s) {
@@ -128,5 +128,14 @@ void StyleWriter::Flush() {
 	if (validLen > 0) {
 		sc.SetStylingEx(validLen, styleBuf);
 		validLen = 0;
+	}
+}
+
+// Copy text from Scintilla to a buffer.
+// Should move to scintilla/call/ScintillaCall.cxx.
+void CopyText(Scintilla::ScintillaCall &sc_, char *buffer, Scintilla::Span range) {
+	if (range.end > range.start) {
+		Scintilla::TextRangeFull tr{ {range.start, range.end}, buffer };
+		sc_.GetTextRangeFull(&tr);
 	}
 }
