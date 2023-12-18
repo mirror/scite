@@ -1150,18 +1150,15 @@ private:
 void SciTEBase::StripTrailingSpaces() {
 	const SA::Line maxLines = wEditor.LineCount();
 	SelectionKeeper keeper(wEditor);
-	for (int line = 0; line < maxLines; line++) {
+	for (SA::Line line = 0; line < maxLines; line++) {
 		const SA::Position lineStart = wEditor.LineStart(line);
 		const SA::Position lineEnd = wEditor.LineEnd(line);
-		SA::Position i = lineEnd - 1;
-		char ch = wEditor.CharacterAt(i);
-		while ((i >= lineStart) && ((ch == ' ') || (ch == '\t'))) {
+		SA::Position i = lineEnd;
+		while ((i > lineStart) && IsSpaceOrTab(wEditor.CharacterAt(i-1))) {
 			i--;
-			ch = wEditor.CharacterAt(i);
 		}
-		if (i < (lineEnd - 1)) {
-			wEditor.SetTarget(SA::Span(i + 1, lineEnd));
-			wEditor.ReplaceTarget("");
+		if (i < lineEnd) {
+			wEditor.DeleteRange(i, lineEnd-i);
 		}
 	}
 }
