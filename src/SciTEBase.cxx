@@ -189,7 +189,6 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), pwFocussed(&wEditor), extende
 	language = "java";
 	lexLanguage = SCLEX_CPP;
 	functionDefinition = "";
-	docReleaser.pSci = &wEditor;
 	diagnosticStyleStart = 0;
 	stripTrailingSpaces = false;
 	ensureFinalLineEnd = false;

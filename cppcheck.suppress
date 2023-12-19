@@ -47,5 +47,8 @@ constParameterPointer:scite/gtk/SciTEGTK.cxx
 constParameterCallback:scite/gtk/Widget.cxx
 constParameterCallback:scite/gtk/Strips.cxx
 
+// Don't understand what is happening here in SwitchDocumentAt
+constParameterPointer:scite/src/SciTEBuffers.cxx
+
 // Suppress everything in lua as that comes from the Lua distribution
 *:scite/lua/*

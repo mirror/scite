@@ -54,12 +54,12 @@
 
 const GUI::gui_char defaultSessionFileName[] = GUI_TEXT("SciTE.session");
 
-void BufferDocReleaser::operator()(void *pDoc) noexcept {
+void BufferDocReleaser::operator()(SA::IDocumentEditable *pDoc) noexcept {
 	if (pDoc) {
 		try {
-			pSci->ReleaseDocument(pDoc);
+			pDoc->Release();
 		} catch (...) {
-			// ReleaseDocument must not throw, ignore if it does.
+			// Release must not throw, ignore if it does.
 		}
 	}
 }
@@ -409,22 +409,22 @@ void BufferList::SetVisible(BufferIndex index, bool visible) {
 	}
 }
 
-void *SciTEBase::GetDocumentAt(BufferIndex index) {
+SA::IDocumentEditable *SciTEBase::GetDocumentAt(BufferIndex index) {
 	if (index < 0 || index >= buffers.size()) {
 		return nullptr;
 	}
 	if (!buffers.buffers[index].doc) {
 		// Create a new document buffer
-		buffers.buffers[index].doc = BufferDoc(wEditor.CreateDocument(0, SA::DocumentOption::Default), docReleaser);
+		buffers.buffers[index].doc.reset(wEditor.CreateDocument(0, SA::DocumentOption::Default));
 	}
 	return buffers.buffers[index].doc.get();
 }
 
-void SciTEBase::SwitchDocumentAt(BufferIndex index, void *pdoc) {
+void SciTEBase::SwitchDocumentAt(BufferIndex index, SA::IDocumentEditable *pdoc) {
 	if (index < 0 || index >= buffers.size()) {
 		return;
 	}
-	buffers.buffers[index].doc = BufferDoc(pdoc, docReleaser);
+	buffers.buffers[index].doc.reset(pdoc);
 	if (index == buffers.Current()) {
 		wEditor.SetDocPointer(buffers.buffers[index].doc.get());
 	}
@@ -576,8 +576,8 @@ void SciTEBase::InitialiseBuffers() {
 	if (!buffers.initialised) {
 		buffers.initialised = true;
 		// First document is the default from creation of control
-		buffers.buffers[0].doc = BufferDoc(wEditor.DocPointer(), docReleaser);
-		wEditor.AddRefDocument(buffers.buffers[0].doc.get()); // We own this reference
+		buffers.buffers[0].doc.reset(wEditor.DocPointer());
+		buffers.buffers[0].doc->AddRef(); // We own this reference
 		if (buffers.size() == 1) {
 			// Single buffer mode, delete the Buffers main menu entry
 			DestroyMenuItem(menuBuffers, 0);
@@ -917,7 +917,7 @@ void SciTEBase::New() {
 		buffers.SetCurrent(buffers.Add());
 	}
 
-	void *doc = GetDocumentAt(buffers.Current());
+	SA::IDocumentEditable *doc = GetDocumentAt(buffers.Current());
 	wEditor.SetDocPointer(doc);
 
 	FilePath curDirectory(filePath.Directory());

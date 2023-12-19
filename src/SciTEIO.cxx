@@ -372,7 +372,8 @@ void SciTEBase::TextRead(FileWorker *pFileWorker) {
 			buffers.buffers[iBuffer].lifeState = Buffer::LifeState::empty;
 		}
 		// Switch documents
-		void *pdocLoading = pFileLoader->pLoader->ConvertToDocument();
+		SA::IDocumentEditable *pdocLoading = static_cast<SA::IDocumentEditable *>(
+			pFileLoader->pLoader->ConvertToDocument());
 		pFileLoader->pLoader = nullptr;
 		SwitchDocumentAt(iBuffer, pdocLoading);
 		if (iBuffer == buffers.Current()) {

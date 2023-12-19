@@ -81,11 +81,10 @@ struct FileWorker;
 // Scintilla documents can only be released by calling a method on a Scintilla
 // instance so store a Scintilla instance in the release functor
 struct BufferDocReleaser {
-	GUI::ScintillaWindow *pSci = nullptr;	// Non-owning
-	void operator()(void *pDoc) noexcept;
+	void operator()(SA::IDocumentEditable *pDoc) noexcept;
 };
 
-using BufferDoc = std::unique_ptr<void, BufferDocReleaser>;
+using BufferDoc = std::unique_ptr<SA::IDocumentEditable, BufferDocReleaser>;
 
 class Buffer {
 public:
@@ -344,7 +343,6 @@ protected:
 	StringList apis;
 	std::string apisFileNames;
 	std::string functionDefinition;
-	BufferDocReleaser docReleaser;
 
 	int diagnosticStyleStart;
 	enum { diagnosticStyles=4};
@@ -499,8 +497,8 @@ protected:
 	BufferList buffers;
 
 	// Handle buffers
-	void *GetDocumentAt(BufferIndex index);
-	void SwitchDocumentAt(BufferIndex index, void *pdoc);
+	SA::IDocumentEditable *GetDocumentAt(BufferIndex index);
+	void SwitchDocumentAt(BufferIndex index, SA::IDocumentEditable *pdoc);
 	void SaveFolds(std::vector<SA::Line> &folds);
 	void RestoreFolds(const std::vector<SA::Line> &folds);
 	void UpdateBuffersCurrent();

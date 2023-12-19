@@ -260,11 +260,9 @@ SciTEWin::~SciTEWin() {
 	for (Buffer &buffer : buffers.buffers) {
 		// At this point, there should be no documents but sometimes there are
 		// which may be due to asynchronous I/O.
-		// wEditor has been closed so can't perform correct release of documents.
-		// Show debugger in this case.
-		assert(!buffer.doc);
-		// Drop ownership, leads to leak but exiting anyway.
-		std::ignore = buffer.doc.release();
+		// To break in debugger to see any documents that still exist:
+		//assert(!buffer.doc);
+		buffer.doc.reset();
 	}
 
 	if (hDevMode)
