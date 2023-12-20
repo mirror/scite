@@ -882,7 +882,7 @@ void SciTEBase::RangeExtend(
 	GUI::ScintillaWindow &wCurrent,
 	SA::Span &span,
 	bool (SciTEBase::*ischarforsel)(char ch)) {	///< Function returning @c true if the given char. is part of the selection.
-	if (span.start == span.end && ischarforsel) {
+	if (span.start == span.end) {
 		// Empty span and have a function to extend it
 		const SA::Position lengthDoc = wCurrent.Length();
 		TextReader acc(wCurrent);
@@ -938,17 +938,18 @@ std::string SciTEBase::SelectionFilename() {
 }
 
 void SciTEBase::SelectionIntoProperties() {
-	std::string currentSelection = SelectionExtend(nullptr, false);
+	const SA::Span range = pwFocussed->SelectionSpan();
+
+	const std::string currentSelection = GetRangeInUIEncoding(*pwFocussed, range);
 	props.Set("CurrentSelection", currentSelection);
 
-	std::string word = SelectionWord();
+	const std::string word = SelectionWord();
 	props.Set("CurrentWord", word);
 
-	const SA::Span range = PaneFocused().SelectionSpan();
-	props.Set("SelectionStartLine", std::to_string(PaneFocused().LineFromPosition(range.start) + 1));
-	props.Set("SelectionStartColumn", std::to_string(PaneFocused().Column(range.start) + 1));
-	props.Set("SelectionEndLine", std::to_string(PaneFocused().LineFromPosition(range.end) + 1));
-	props.Set("SelectionEndColumn", std::to_string(PaneFocused().Column(range.end) + 1));
+	props.Set("SelectionStartLine", std::to_string(pwFocussed->LineFromPosition(range.start) + 1));
+	props.Set("SelectionStartColumn", std::to_string(pwFocussed->Column(range.start) + 1));
+	props.Set("SelectionEndLine", std::to_string(pwFocussed->LineFromPosition(range.end) + 1));
+	props.Set("SelectionEndColumn", std::to_string(pwFocussed->Column(range.end) + 1));
 }
 
 void SciTEBase::SelectionIntoFind(bool stripEol /*=true*/) {
