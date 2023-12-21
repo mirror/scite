@@ -594,12 +594,11 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, SA::Position &braceAtCare
 	char charBefore = '\0';
 	int styleBefore = 0;
 	const SA::Position lengthDoc = win.Length();
-	TextReader acc(win);
 	if ((lengthDoc > 0) && (caretPos > 0)) {
 		// Check to ensure not matching brace that is part of a multibyte character
 		if (win.PositionBefore(caretPos) == (caretPos - 1)) {
-			charBefore = acc[caretPos - 1];
-			styleBefore = acc.StyleAt(caretPos - 1);
+			charBefore = win.CharacterAt(caretPos - 1);
+			styleBefore = win.UnsignedStyleAt(caretPos - 1);
 		}
 	}
 	// Priority goes to character before caret
@@ -618,8 +617,8 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, SA::Position &braceAtCare
 		// No brace found so check other side
 		// Check to ensure not matching brace that is part of a multibyte character
 		if (win.PositionAfter(caretPos) == (caretPos + 1)) {
-			const char charAfter = acc[caretPos];
-			const int styleAfter = acc.StyleAt(caretPos);
+			const char charAfter = win.CharacterAt(caretPos);
+			const int styleAfter = win.UnsignedStyleAt(caretPos);
 			if (charAfter && IsBrace(charAfter) && ((styleAfter == bracesStyleCheck) || (!bracesStyle))) {
 				braceAtCaret = caretPos;
 				isAfter = false;
