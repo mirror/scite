@@ -431,6 +431,7 @@ StyleWriter.o: \
 	../src/StyleWriter.cxx \
 	../../scintilla/include/ScintillaTypes.h \
 	../../scintilla/include/ScintillaCall.h \
+	../../scintilla/include/ScintillaStructures.h \
 	../src/GUI.h \
 	../src/StyleWriter.h
 Utf8_16.o: \
