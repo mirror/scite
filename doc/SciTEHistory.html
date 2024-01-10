@@ -629,8 +629,16 @@
 	<li>Lexilla 5.3.1</li>
 	<ul>
 		<li>
+		Assembler: After comments, treat \r\n line ends the same as \n. This makes testing easier.
+		</li>
+		<li>
 		Batch: Fix handling ':' next to keywords.
 		<a href="https://github.com/ScintillaOrg/lexilla/issues/222">Issue #222</a>.
+		</li>
+		<li>
+		JavaScript: in cpp lexer, add lexer.cpp.backquoted.strings=2 mode to treat ` back-quoted
+		strings as template literals which allow embedded ${expressions}.
+		<a href="https://github.com/ScintillaOrg/lexilla/issues/94">Issue #94</a>.
 		</li>
 	</ul>
 	<li>Scintilla 5.4.2</li>
