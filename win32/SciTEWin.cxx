@@ -1236,7 +1236,7 @@ void SciTEWin::ShellExec(std::string_view cmd, std::string_view dir) {
 		s = strstr(mycmdLowered, ".com");
 	std::string cmdcopy(cmd);
 	char *mycmdcopy = &cmdcopy[0];
-	char *mycmd;
+	const char *mycmd;
 	char *mycmdEnd = nullptr;
 	if (s && ((*(s + 4) == '\0') || (*(s + 4) == ' '))) {
 		ptrdiff_t len_mycmd = s - mycmdLowered + 4;

@@ -796,7 +796,7 @@ LRESULT Strip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	return 0;
 }
 
-void Strip::AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked) const {
+void Strip::AddToPopUp(const GUI::Menu &popup, const char *label, int cmd, bool checked) const {
 	const GUI::gui_string localised = localiser->Text(label);
 	HMENU menu = static_cast<HMENU>(popup.GetID());
 	if (localised.empty())

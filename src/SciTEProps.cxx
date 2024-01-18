@@ -797,7 +797,7 @@ void SciTEBase::ReadProperties() {
 	Lexilla::Load(lexillaPath.empty() ? "." : lexillaPath);
 
 	std::vector<std::string> libraryProperties = Lexilla::LibraryProperties();
-	for (std::string property : libraryProperties) {
+	for (const std::string &property : libraryProperties) {
 		std::string key("lexilla.context.");
 		key += property;
 		std::string value = props.GetExpandedString(key);

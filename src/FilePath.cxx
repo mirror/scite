@@ -344,7 +344,7 @@ FilePath FilePath::NormalizePath() const {
 	return FilePath(absPathString);
 }
 
-GUI::gui_string FilePath::RelativePathTo(FilePath filePath) const {
+GUI::gui_string FilePath::RelativePathTo(const FilePath &filePath) const {
 	// Only handles simple case where filePath is in this directory or a subdirectory
 	GUI::gui_string relPath = filePath.fileName;
 	if (!fileName.empty() && StartsWith(relPath, fileName)) {
@@ -451,7 +451,7 @@ void FilePath::List(FilePathSet &directories, FilePathSet &files) const {
 		//~ fprintf(stderr, "%s: cannot open for reading: %s\n", AsInternal(), strerror(errno));
 		return;
 	}
-	struct dirent *ent;
+	const dirent *ent;
 	while ((ent = readdir(dp)) != NULL) {
 		std::string_view entryName = ent->d_name;
 		if ((entryName != currentDirectory) && (entryName != parentDirectory)) {

@@ -67,7 +67,7 @@ protected:
 	virtual LRESULT EditColour(HWND hwnd, HDC hdc) noexcept;
 	virtual LRESULT CustomDraw(NMHDR *pnmh) noexcept;
 	LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) override;
-	void AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked) const;
+	void AddToPopUp(const GUI::Menu &popup, const char *label, int cmd, bool checked) const;
 	virtual void ShowPopup();
 public:
 	bool visible;
