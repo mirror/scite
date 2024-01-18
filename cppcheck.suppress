@@ -41,14 +41,25 @@ stlcstrConstructor:scite/gtk/SciTEGTK.cxx
 // gtk_print_operation_set_default_page_setup takes a non const pointer so ancestor variables should be non-const
 constVariablePointer:scite/gtk/SciTEGTK.cxx
 
+// HandleStringMessage uses char* for variable 'cmd' as derived variable 'colon' is written to
+constVariablePointer:scite/win32/DirectorExtension.cxx
+
 // Changing events to const pointers changes signature and would require casts when hooking up
 constParameterCallback:scite/gtk/SciTEGTK.cxx
 constParameterPointer:scite/gtk/SciTEGTK.cxx
 constParameterCallback:scite/gtk/Widget.cxx
 constParameterCallback:scite/gtk/Strips.cxx
+// Since LuaPanicFunction is callback of form prescribed by Lua match signature exactly rather than add const
+constParameterCallback:scite/src/LuaExtension.cxx
 
 // Don't understand what is happening here in SwitchDocumentAt
 constParameterPointer:scite/src/SciTEBuffers.cxx
+
+// Menu::Show is cross-platform and may have to mutate its second argument
+constParameterReference:scite/win32/GUIWin.cxx
+
+// Prefer uniform use of | instead of special casing first which is just assignment
+badBitmaskCheck:scite/win32/SciTEWin.cxx
 
 // Suppress everything in lua as that comes from the Lua distribution
 *:scite/lua/*
