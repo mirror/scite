@@ -516,13 +516,13 @@ void SciTEBase::TextWritten(FileWorker *pFileWorker) {
 }
 
 void SciTEBase::UpdateProgress(Worker *) {
-	GUI::gui_string prog;
 	BackgroundActivities bgActivities = buffers.CountBackgroundActivities();
 	const int countBoth = bgActivities.loaders + bgActivities.storers;
 	if (countBoth == 0) {
 		// Should hide UI
 		ShowBackgroundProgress(GUI_TEXT(""), 0, 0);
 	} else {
+		GUI::gui_string prog;
 		if (countBoth == 1) {
 			prog += LocaliseMessage(bgActivities.loaders ? "Opening '^0'" : "Saving '^0'",
 						bgActivities.fileNameLast.c_str());
