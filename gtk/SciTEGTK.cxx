@@ -1423,13 +1423,15 @@ bool SciTEGTK::OpenDialog(const FilePath &directory, const GUI::gui_string &file
 			std::replace(openFilter.begin(), openFilter.end(), '|', '\0');
 			size_t start = 0;
 			while (start < openFilter.length()) {
+				// Localise the filter name such as "All Source" -> "Alle Quelldateien"
 				const char *filterName = openFilter.c_str() + start;
-				GUI::gui_string localised = localiser.Text(filterName, false);
+				const GUI::gui_string localised = localiser.Text(filterName, false);
 				if (localised.length()) {
-					openFilter.erase(start, strlen(filterName));
-					openFilter.insert(start, localised.c_str());
+					openFilter.replace(start, strlen(filterName), localised);
 				}
-				if (openFilter.c_str()[start] == '#') {
+
+				if (openFilter[start] == '#') {
+					// This filter commented out
 					start += strlen(openFilter.c_str() + start) + 1;
 				} else {
 					GtkFileFilter *fileFilter = gtk_file_filter_new();
