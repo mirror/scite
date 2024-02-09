@@ -208,6 +208,7 @@
     <ClCompile Include="..\..\lexilla\lexlib\CharacterCategory.cxx" />
     <ClCompile Include="..\..\lexilla\lexlib\CharacterSet.cxx" />
     <ClCompile Include="..\..\lexilla\lexlib\DefaultLexer.cxx" />
+    <ClCompile Include="..\..\lexilla\lexlib\InList.cxx" />
     <ClCompile Include="..\..\lexilla\lexlib\LexAccessor.cxx" />
     <ClCompile Include="..\..\lexilla\lexlib\LexerBase.cxx" />
     <ClCompile Include="..\..\lexilla\lexlib\LexerModule.cxx" />
