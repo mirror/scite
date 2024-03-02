@@ -623,7 +623,7 @@
 	<li>SciTE</li>
 	<ul>
 		<li>
-		Released 27 December 2023.
+		Released 5 March 2024.
 		</li>
 	</ul>
 	<li>Lexilla 5.3.1</li>
@@ -664,6 +664,12 @@
 		Add APIs for saving and restoring undo history.
 		</li>
 		<li>
+		For GTK, when laying out text, detect runs with both left-to-right and right-to-left ranges and divide into an ASCII prefix and
+		more complex suffix. Lay out the ASCII prefix in the standard manner but, for the suffix, measure the whole width
+		and spread that over the suffix bytes. This produces more usable results where the caret moves over the ASCII prefix correctly
+		and over the suffix reasonably but not accurately.
+		</li>
+		<li>
 		For ScintillaEdit on Qt, fix reference from ScintillaDocument to Document to match change in 5.4.1
 		using IDocumentEditable for SCI_GETDOCPOINTER and SCI_SETDOCPOINTER.
 		</li>
@@ -671,6 +677,9 @@
 		For Direct2D on Win32, use the multi-threaded option to avoid crashes when Scintilla instances
 		created on different threads. There may be more problems with this scenario so it should be avoided.
 		<a href="https://sourceforge.net/p/scintilla/bugs/2420/">Bug #2420</a>.
+		</li>
+		<li>
+		For Win32, ensure keyboard-initiated context menu appears in multi-screen situations.
 		</li>
 	</ul>
     </ul>
