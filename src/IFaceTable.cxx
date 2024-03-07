@@ -2935,6 +2935,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SC_ALPHA_TRANSPARENT",0},
 	{"SC_AUTOCOMPLETE_FIXED_SIZE",1},
 	{"SC_AUTOCOMPLETE_NORMAL",0},
+	{"SC_AUTOCOMPLETE_SELECT_FIRST_ITEM",2},
 	{"SC_AUTOMATICFOLD_CHANGE",0x0004},
 	{"SC_AUTOMATICFOLD_CLICK",0x0002},
 	{"SC_AUTOMATICFOLD_NONE",0x0000},
@@ -3839,7 +3840,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 330,
-	ifaceConstantCount = 3099,
+	ifaceConstantCount = 3100,
 	ifacePropertyCount = 272
 };
 
