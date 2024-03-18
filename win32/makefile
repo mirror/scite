@@ -77,7 +77,7 @@ vpath %.a ../../lexilla/bin ../../scintilla/bin
 
 LIBS += -lgdi32 -luser32 -limm32 -lole32 -luuid -loleaut32 -lshell32 -lcomdlg32 -lcomctl32 -ladvapi32
 
-CXXFLAGS += --std=c++17
+CXXFLAGS += --std=c++20
 
 DEFINES += -D$(if $(DEBUG),DEBUG,NDEBUG)
 BASE_FLAGS += $(if $(DEBUG),-g,-O3)

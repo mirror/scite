@@ -105,13 +105,13 @@ LIBS += -ldl
 endif
 
 %.o: %.cxx
-	$(CXX) $(CPPFLAGS) --std=c++17 $(DEFINES) $(INCLUDES) $(WARNINGS) $(CONFIGFLAGS) $(BASE_FLAGS) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CPPFLAGS) --std=c++20 $(DEFINES) $(INCLUDES) $(WARNINGS) $(CONFIGFLAGS) $(BASE_FLAGS) $(CXXFLAGS) -c $< -o $@
 
 clean:
 	rm -f *.o *.plist $(PROG)
 
 analyze:
-	clang --analyze --std=c++17 $(DEFINES) $(INCLUDES) $(WARNINGS) $(CONFIGFLAGS) $(BASE_FLAGS) $(CXXFLAGS) $(srcdir)/*.cxx $(srcdir)/../src/*.cxx
+	clang --analyze --std=c++20 $(DEFINES) $(INCLUDES) $(WARNINGS) $(CONFIGFLAGS) $(BASE_FLAGS) $(CXXFLAGS) $(srcdir)/*.cxx $(srcdir)/../src/*.cxx
 
 depend deps.mak:
 	$(PYTHON) AppDepGen.py
