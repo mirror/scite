@@ -2,15 +2,14 @@
 :: Build all of Lexilla, Scintilla and SciTE for distribution and place into a subdirectory called upload%SCITE_VERSION%
 :: This batch file is distributed inside scite but is commonly copied out into its own working directory
 
-:: Requires hg and zip to be in the path. nmake, cl, and link are found by vcvars*.bat
+:: Requires hg, git and zip to be in the path. nmake, cl, and link are found by vcvars*.bat
 
 :: Define local paths here
 
-:: Running after Visual C++ set up with vcvars64 or vcvars32 will fail to build for XP
+:: Running after Visual C++ set up with vcvars64 or vcvars32 may cause confusing failures
 IF DEFINED VisualStudioVersion (ECHO VisualStudio is active && exit)
 
 set "MSVC_DIRECTORY=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build"
-set "MSVC17_DIRECTORY=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build"
 set REPOSITORY_DIRECTORY=..\hg
 
 :: Discover the SciTE version as that is used in file and directory names, override on command line
@@ -71,20 +70,20 @@ call "%MSVC_DIRECTORY%\vcvars64.bat"
 
 pushd lexilla
 pushd src
-nmake -f lexilla.mak SUPPORT_XP=1
+nmake -f lexilla.mak
 popd
 popd
 
 pushd scintilla
 pushd win32
-nmake -f scintilla.mak SUPPORT_XP=1
+nmake -f scintilla.mak
 popd
 del/q bin\*.pdb
 popd
 
 pushd scite
 pushd win32
-nmake -f scite.mak SUPPORT_XP=1
+nmake -f scite.mak
 popd
 copy bin\Sc1.exe ..\Sc1.exe
 call zipwscite
@@ -113,24 +112,24 @@ popd
 endlocal
 
 :: Build the 32-bit executables with MSVC 2017 as it suports XP
-call "%MSVC17_DIRECTORY%\vcvars32.bat"
+call "%MSVC_DIRECTORY%\vcvars32.bat"
 
 pushd lexilla
 pushd src
-nmake -f lexilla.mak SUPPORT_XP=1
+nmake -f lexilla.mak
 popd
 popd
 
 pushd scintilla
 pushd win32
-nmake -f scintilla.mak SUPPORT_XP=1
+nmake -f scintilla.mak
 popd
 del/q bin\*.pdb
 popd
 
 pushd scite
 pushd win32
-nmake -f scite.mak SUPPORT_XP=1
+nmake -f scite.mak
 popd
 move bin\SciTE.exe bin\SciTE32.exe
 copy bin\Sc1.exe ..\Sc1.exe
