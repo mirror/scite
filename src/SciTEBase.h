@@ -674,6 +674,7 @@ protected:
 	virtual std::string EncodeString(const std::string &s);
 	virtual void Find() = 0;
 	enum class MessageBoxChoice {
+		invalid = -1,
 		ok,
 		cancel,
 		yes,

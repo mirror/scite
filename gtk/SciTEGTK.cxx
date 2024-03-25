@@ -431,6 +431,13 @@ class SciTEGTK : public SciTEBase, UserStripWatcher {
 
 	friend class UserStrip;
 
+private:
+	static MessageBoxChoice messageBoxResult;
+
+	static gint messageBoxKey(GtkWidget *w, GdkEventKey *event, gpointer p);
+	static void messageBoxDestroy(GtkWidget *, gpointer *);
+	static void messageBoxOK(GtkWidget *, gpointer p);
+
 protected:
 
 	GtkWidget *splitPane;
@@ -796,27 +803,27 @@ static void destroyDialogFindReplace(GtkWidget *, gpointer *window) {
 void SciTEGTK::WarnUser(int) {}
 
 static GtkWidget *messageBoxDialog = 0;
-static int messageBoxResult = 0;
+SciTEGTK::MessageBoxChoice SciTEGTK::messageBoxResult = MessageBoxChoice::cancel;
 
-static gint messageBoxKey(GtkWidget *w, GdkEventKey *event, gpointer p) {
+gint SciTEGTK::messageBoxKey(GtkWidget *w, GdkEventKey *event, gpointer p) {
 	if (event->keyval == GKEY_Escape) {
 		g_signal_stop_emission_by_name(G_OBJECT(w), "key_press_event");
 		gtk_widget_destroy(GTK_WIDGET(w));
 		messageBoxDialog = 0;
-		messageBoxResult = GPOINTER_TO_INT(p);
+		messageBoxResult = static_cast<MessageBoxChoice>(GPOINTER_TO_INT(p));
 	}
 	return FALSE;
 }
 
-static void messageBoxDestroy(GtkWidget *, gpointer *) {
+void SciTEGTK::messageBoxDestroy(GtkWidget *, gpointer *) {
 	messageBoxDialog = 0;
-	messageBoxResult = 0;
+	messageBoxResult = MessageBoxChoice::cancel;
 }
 
-static void messageBoxOK(GtkWidget *, gpointer p) {
+void SciTEGTK::messageBoxOK(GtkWidget *, gpointer p) {
 	gtk_widget_destroy(GTK_WIDGET(messageBoxDialog));
 	messageBoxDialog = 0;
-	messageBoxResult = GPOINTER_TO_INT(p);
+	messageBoxResult = static_cast<MessageBoxChoice>(GPOINTER_TO_INT(p));
 }
 
 GtkWidget *SciTEGTK::AddMBButton(GtkWidget *dialog, const char *label,
@@ -2837,7 +2844,7 @@ SciTEBase::MessageBoxChoice SciTEGTK::WindowMessageBox(GUI::Window &w, const GUI
 		dialogsOnScreen++;
 		GtkAccelGroup *accel_group = gtk_accel_group_new();
 
-		messageBoxResult = -1;
+		messageBoxResult = MessageBoxChoice::invalid;
 		messageBoxDialog = gtk_dialog_new();
 		gtk_window_set_title(GTK_WINDOW(messageBoxDialog), appName);
 		gtk_container_set_border_width(GTK_CONTAINER(messageBoxDialog), 0);
@@ -2903,7 +2910,7 @@ SciTEBase::MessageBoxChoice SciTEGTK::WindowMessageBox(GUI::Window &w, const GUI
 
 		gtk_widget_show(messageBoxDialog);
 		gtk_window_add_accel_group(GTK_WINDOW(messageBoxDialog), accel_group);
-		while (messageBoxResult < 0) {
+		while (messageBoxResult == MessageBoxChoice::invalid) {
 			gtk_main_iteration();
 		}
 		dialogsOnScreen--;

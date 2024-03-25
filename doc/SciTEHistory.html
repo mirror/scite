@@ -608,6 +608,7 @@
 	<td>Martin Schäfer</td>
       </tr><tr>
 	<td>RainRat</td>
+	<td>Mavroudis Chatzilazaridis</td>
       </tr>
     </table>
     <p>
@@ -634,6 +635,11 @@
 		<li>
 		Fix read failure for UTF-16LE files where surrogate pair straddles block boundary and lead
 		surrogate is a multiple of 256.
+		</li>
+		<li>
+		On GTK, treat message box close as cancel.
+		This is safer when closing a file with unsaved changes.
+		<a href="https://sourceforge.net/p/scintilla/bugs/2434/">Bug #2434</a>.
 		</li>
 	</ul>
 	<li>Scintilla 5.5.0</li>
