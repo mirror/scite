@@ -15,16 +15,16 @@ private:
 	std::atomic_size_t jobSize;
 	std::atomic_size_t jobProgress;
 public:
-	Worker() : completed(false), cancelling(false), jobSize(1), jobProgress(0) {
+	Worker() noexcept : completed(false), cancelling(false), jobSize(1), jobProgress(0) {
 	}
 	// Deleted so Worker objects can not be copied.
 	Worker(const Worker &) = delete;
 	Worker(Worker &&) = delete;
 	void operator=(const Worker &) = delete;
 	void operator=(Worker &&) = delete;
-	virtual ~Worker() {
+	virtual ~Worker() noexcept {
 	}
-	virtual void Execute() {}
+	virtual void Execute() noexcept {}
 	bool FinishedJob() const noexcept {
 		return completed;
 	}
@@ -46,7 +46,7 @@ public:
 	void IncrementProgress(size_t increment) noexcept {
 		jobProgress += increment;
 	}
-	virtual void Cancel() {
+	virtual void Cancel() noexcept {
 		cancelling = true;
 		// Wait for writing thread to finish
 		for (;;) {

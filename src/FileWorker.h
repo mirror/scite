@@ -22,9 +22,9 @@ struct FileWorker : public Worker {
 	double nextProgress;
 
 	FileWorker(WorkerListener *pListener_, const FilePath &path_, size_t size_, FILE *fp_);
-	~FileWorker() override;
+	~FileWorker() noexcept override;
 	virtual double Duration() noexcept;
-	void Cancel() override {
+	void Cancel() noexcept override {
 		Worker::Cancel();
 	}
 	virtual bool IsLoading() const noexcept = 0;
@@ -37,8 +37,8 @@ public:
 	UniMode unicodeMode;
 
 	FileLoader(WorkerListener *pListener_, Scintilla::ILoader *pLoader_, const FilePath &path_, size_t size_, FILE *fp_);
-	void Execute() override;
-	void Cancel() override;
+	void Execute() noexcept override;
+	void Cancel() noexcept override;
 	bool IsLoading() const noexcept override {
 		return true;
 	}
@@ -53,8 +53,8 @@ public:
 
 	FileStorer(WorkerListener *pListener_, std::string_view bytes_, const FilePath &path_,
 		   FILE *fp_, UniMode unicodeMode_, bool visibleProgress_);
-	void Execute() override;
-	void Cancel() override;
+	void Execute() noexcept override;
+	void Cancel() noexcept override;
 	bool IsLoading() const noexcept override {
 		return false;
 	}

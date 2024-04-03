@@ -33,7 +33,7 @@ FileWorker::FileWorker(WorkerListener *pListener_, const FilePath &path_, size_t
 	pListener(pListener_), path(path_), size(size_), err(0), fp(fp_), sleepTime(0), nextProgress(timeBetweenProgress) {
 }
 
-FileWorker::~FileWorker() {
+FileWorker::~FileWorker() noexcept {
 }
 
 double FileWorker::Duration() noexcept {
@@ -45,48 +45,60 @@ FileLoader::FileLoader(WorkerListener *pListener_, Scintilla::ILoader *pLoader_,
 	SetSizeJob(size);
 }
 
-void FileLoader::Execute() {
-	if (fp) {
-		Utf8_16_Read convert;
-		std::vector<char> data(blockSize);
-		size_t lenFile = fread(&data[0], 1, blockSize, fp);
-		const UniMode umCodingCookie = CodingCookieValue(std::string_view(data.data(), lenFile));
-		while ((lenFile > 0) && (err == 0) && (!Cancelling())) {
-			GUI::SleepMilliseconds(sleepTime);
-			lenFile = convert.convert(&data[0], lenFile);
-			const char *dataBlock = convert.getNewBuf();
-			err = pLoader->AddData(dataBlock, lenFile);
-			IncrementProgress(lenFile);
-			if (et.Duration() > nextProgress) {
-				nextProgress = et.Duration() + timeBetweenProgress;
-				pListener->PostOnMainThread(WORK_FILEPROGRESS, this);
-			}
-			lenFile = fread(&data[0], 1, blockSize, fp);
-			if ((lenFile == 0) && (err == 0)) {
-				// Handle case where convert is holding a lead surrogate but no more data
-				const size_t lenFileTrail = convert.convert(nullptr, lenFile);
-				if (lenFileTrail) {
-					const char *dataTrail = convert.getNewBuf();
-					err = pLoader->AddData(dataTrail, lenFileTrail);
+void FileLoader::Execute() noexcept {
+	try {
+		if (fp) {
+			Utf8_16_Read convert;
+			std::vector<char> data(blockSize);
+			size_t lenFile = fread(&data[0], 1, blockSize, fp);
+			const UniMode umCodingCookie = CodingCookieValue(std::string_view(data.data(), lenFile));
+			while ((lenFile > 0) && (err == 0) && (!Cancelling())) {
+				GUI::SleepMilliseconds(sleepTime);
+				lenFile = convert.convert(&data[0], lenFile);
+				const char *dataBlock = convert.getNewBuf();
+				err = pLoader->AddData(dataBlock, lenFile);
+				IncrementProgress(lenFile);
+				if (et.Duration() > nextProgress) {
+					nextProgress = et.Duration() + timeBetweenProgress;
+					pListener->PostOnMainThread(WORK_FILEPROGRESS, this);
+				}
+				lenFile = fread(&data[0], 1, blockSize, fp);
+				if ((lenFile == 0) && (err == 0)) {
+					// Handle case where convert is holding a lead surrogate but no more data
+					const size_t lenFileTrail = convert.convert(nullptr, lenFile);
+					if (lenFileTrail) {
+						const char *dataTrail = convert.getNewBuf();
+						err = pLoader->AddData(dataTrail, lenFileTrail);
+					}
 				}
 			}
+			fclose(fp);
+			fp = nullptr;
+			unicodeMode = static_cast<UniMode>(
+					      static_cast<int>(convert.getEncoding()));
+			// Check the first two lines for coding cookies
+			if (unicodeMode == UniMode::uni8Bit) {
+				unicodeMode = umCodingCookie;
+			}
 		}
-		fclose(fp);
-		fp = nullptr;
-		unicodeMode = static_cast<UniMode>(
-				      static_cast<int>(convert.getEncoding()));
-		// Check the first two lines for coding cookies
-		if (unicodeMode == UniMode::uni8Bit) {
-			unicodeMode = umCodingCookie;
-		}
+	} catch (...) {
+		err = 1;
 	}
 	SetCompleted();
-	pListener->PostOnMainThread(WORK_FILEREAD, this);
+	try {
+		pListener->PostOnMainThread(WORK_FILEREAD, this);
+	} catch (...) {
+		err = 1;
+	}
 }
 
-void FileLoader::Cancel() {
+void FileLoader::Cancel() noexcept {
 	FileWorker::Cancel();
-	pLoader->Release();
+	try {
+		pLoader->Release();
+	} catch (...) {
+		// Release will never throw
+	}
 	pLoader = nullptr;
 }
 
@@ -101,50 +113,58 @@ static constexpr bool IsUTF8TrailByte(int ch) noexcept {
 	return (ch >= 0x80) && (ch < (0x80 + 0x40));
 }
 
-void FileStorer::Execute() {
-	if (fp) {
-		Utf8_16_Write convert;
-		if (unicodeMode != UniMode::cookie) {	// Save file with cookie without BOM.
-			convert.setEncoding(static_cast<Utf8_16::encodingType>(
-						    static_cast<int>(unicodeMode)));
-		}
-		convert.setfile(fp);
-		std::vector<char> data(blockSize + 1);
-		const size_t lengthDoc = size;
-		size_t grabSize;
-		for (size_t i = 0; i < lengthDoc && (!Cancelling()); i += grabSize) {
-			GUI::SleepMilliseconds(sleepTime);
-			grabSize = lengthDoc - i;
-			if (grabSize > blockSize)
-				grabSize = blockSize;
-			if ((unicodeMode != UniMode::uni8Bit) && (i + grabSize < lengthDoc)) {
-				// Round down so only whole characters retrieved.
-				size_t startLast = grabSize;
-				while ((startLast > 0) && ((grabSize - startLast) < 6) && IsUTF8TrailByte(static_cast<unsigned char>(documentBytes[i + startLast])))
-					startLast--;
-				if ((grabSize - startLast) < 5)
-					grabSize = startLast;
+void FileStorer::Execute() noexcept {
+	try {
+		if (fp) {
+			Utf8_16_Write convert;
+			if (unicodeMode != UniMode::cookie) {	// Save file with cookie without BOM.
+				convert.setEncoding(static_cast<Utf8_16::encodingType>(
+							    static_cast<int>(unicodeMode)));
 			}
-			memcpy(&data[0], documentBytes+i, grabSize);
-			const size_t written = convert.fwrite(&data[0], grabSize);
-			IncrementProgress(grabSize);
-			if (et.Duration() > nextProgress) {
-				nextProgress = et.Duration() + timeBetweenProgress;
-				pListener->PostOnMainThread(WORK_FILEPROGRESS, this);
+			convert.setfile(fp);
+			std::vector<char> data(blockSize + 1);
+			const size_t lengthDoc = size;
+			size_t grabSize;
+			for (size_t i = 0; i < lengthDoc && (!Cancelling()); i += grabSize) {
+				GUI::SleepMilliseconds(sleepTime);
+				grabSize = lengthDoc - i;
+				if (grabSize > blockSize)
+					grabSize = blockSize;
+				if ((unicodeMode != UniMode::uni8Bit) && (i + grabSize < lengthDoc)) {
+					// Round down so only whole characters retrieved.
+					size_t startLast = grabSize;
+					while ((startLast > 0) && ((grabSize - startLast) < 6) && IsUTF8TrailByte(static_cast<unsigned char>(documentBytes[i + startLast])))
+						startLast--;
+					if ((grabSize - startLast) < 5)
+						grabSize = startLast;
+				}
+				memcpy(&data[0], documentBytes+i, grabSize);
+				const size_t written = convert.fwrite(&data[0], grabSize);
+				IncrementProgress(grabSize);
+				if (et.Duration() > nextProgress) {
+					nextProgress = et.Duration() + timeBetweenProgress;
+					pListener->PostOnMainThread(WORK_FILEPROGRESS, this);
+				}
+				if (written == 0) {
+					err = 1;
+					break;
+				}
 			}
-			if (written == 0) {
+			if (convert.fclose() != 0) {
 				err = 1;
-				break;
 			}
 		}
-		if (convert.fclose() != 0) {
-			err = 1;
-		}
+	} catch (...) {
+		err = 1;
 	}
 	SetCompleted();
-	pListener->PostOnMainThread(WORK_FILEWRITTEN, this);
+	try {
+		pListener->PostOnMainThread(WORK_FILEWRITTEN, this);
+	} catch (...) {
+		err = 1;
+	}
 }
 
-void FileStorer::Cancel() {
+void FileStorer::Cancel() noexcept {
 	FileWorker::Cancel();
 }

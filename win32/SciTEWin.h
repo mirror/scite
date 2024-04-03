@@ -126,7 +126,7 @@ public:
 
 	CommandWorker() noexcept;
 	void Initialise(bool resetToStart) noexcept;
-	void Execute() override;
+	void Execute() noexcept override;
 };
 
 class Dialog;

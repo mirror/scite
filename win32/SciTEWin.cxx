@@ -821,8 +821,12 @@ void CommandWorker::Initialise(bool resetToStart) noexcept {
 	outputScroll = 1;
 }
 
-void CommandWorker::Execute() {
-	pSciTE->ProcessExecute();
+void CommandWorker::Execute() noexcept {
+	try {
+		pSciTE->ProcessExecute();
+	} catch (...) {
+		pSciTE->OutputAppendEncodedStringSynchronised(L"Exception in thread.\r\n", 0);
+	}
 }
 
 void SciTEWin::ResetExecution() {
