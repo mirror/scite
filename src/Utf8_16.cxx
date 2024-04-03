@@ -63,6 +63,167 @@ protected:
 	const ubyte *m_pEnd;
 };
 
+Utf8_Iter::Utf8_Iter() noexcept {
+	m_pBuf = nullptr;
+	m_pRead = nullptr;
+	m_pEnd = nullptr;
+	m_eState = eStart;
+	m_nCur = 0;
+	m_eEncoding = eUnknown;
+}
+
+void Utf8_Iter::set
+(const ubyte *pBuf, size_t nLen, encodingType eEncoding) noexcept {
+	m_pBuf = pBuf;
+	m_pRead = pBuf;
+	m_pEnd = pBuf + nLen;
+	m_eEncoding = eEncoding;
+	operator++();
+	// Note: m_eState, m_nCur not reset
+}
+
+// Go to the next byte.
+void Utf8_Iter::operator++() noexcept {
+	switch (m_eState) {
+	case eStart:
+		if ((0xF0 & *m_pRead) == 0xF0) {
+			m_nCur = (0x7 & *m_pRead) << 18;
+			m_eState = eSecondOf4Bytes;
+		} else if ((0xE0 & *m_pRead) == 0xE0) {
+			m_nCur = (~0xE0 & *m_pRead) << 12;
+			m_eState = ePenultimate;
+		} else if ((0xC0 & *m_pRead) == 0xC0) {
+			m_nCur = (~0xC0 & *m_pRead) << 6;
+			m_eState = eFinal;
+		} else {
+			m_nCur = *m_pRead;
+			toStart();
+		}
+		break;
+	case eSecondOf4Bytes:
+		m_nCur |= (0x3F & *m_pRead) << 12;
+		m_eState = ePenultimate;
+		break;
+	case ePenultimate:
+		m_nCur |= (0x3F & *m_pRead) << 6;
+		m_eState = eFinal;
+		break;
+	case eFinal:
+		m_nCur |= static_cast<utf8>(0x3F & *m_pRead);
+		toStart();
+		break;
+	}
+	++m_pRead;
+}
+
+void Utf8_Iter::toStart() noexcept {
+	m_eState = eStart;
+}
+
+}
+
+//==================================================
+Utf16_Iter::Utf16_Iter() noexcept {
+	m_pBuf = nullptr;
+	m_pRead = nullptr;
+	m_pEnd = nullptr;
+	m_eState = eStart;
+	m_nCur = 0;
+	m_nCur16 = 0;
+	m_eEncoding = eUnknown;
+}
+
+void Utf16_Iter::set
+(const ubyte *pBuf, size_t nLen, encodingType eEncoding, ubyte *endSurrogate) noexcept {
+	m_pBuf = pBuf;
+	m_pRead = pBuf;
+	m_pEnd = pBuf + nLen;
+	m_eEncoding = eEncoding;
+	if (nLen > 2) {
+		const utf16 lastElement = read(m_pEnd-2);
+		if (lastElement >= SURROGATE_LEAD_FIRST && lastElement <= SURROGATE_LEAD_LAST) {
+			// Buffer ends with lead surrogate so cut off buffer and store
+			endSurrogate[0] = m_pEnd[-2];
+			endSurrogate[1] = m_pEnd[-1];
+			m_pEnd -= 2;
+		}
+	}
+	operator++();
+	// Note: m_eState, m_nCur, m_nCur16 not reinitialized.
+}
+
+// Goes to the next byte.
+// Not the next symbol which you might expect.
+// This way we can continue from a partial buffer that doesn't align
+void Utf16_Iter::operator++() noexcept {
+	switch (m_eState) {
+	case eStart:
+		if (m_pRead >= m_pEnd) {
+			++m_pRead;
+			break;
+		}
+		if (m_eEncoding == eUtf16LittleEndian) {
+			m_nCur16 = *m_pRead++;
+			m_nCur16 |= static_cast<utf16>(*m_pRead << 8);
+		} else {
+			m_nCur16 = static_cast<utf16>(*m_pRead++ << 8);
+			m_nCur16 |= *m_pRead;
+		}
+		if (m_nCur16 >= SURROGATE_LEAD_FIRST && m_nCur16 <= SURROGATE_LEAD_LAST) {
+			++m_pRead;
+			if (m_pRead >= m_pEnd) {
+				// Have a lead surrogate at end of document with no access to trail surrogate.
+				// May be end of document.
+				--m_pRead;	// With next increment, leave pointer just past buffer
+			} else {
+				int trail;
+				if (m_eEncoding == eUtf16LittleEndian) {
+					trail = *m_pRead++;
+					trail |= static_cast<utf16>(*m_pRead << 8);
+				} else {
+					trail = static_cast<utf16>(*m_pRead++ << 8);
+					trail |= *m_pRead;
+				}
+				m_nCur16 = (((m_nCur16 & 0x3ff) << 10) | (trail & 0x3ff)) + SURROGATE_FIRST_VALUE;
+			}
+		}
+		++m_pRead;
+
+		if (m_nCur16 < 0x80) {
+			m_nCur = static_cast<ubyte>(m_nCur16 & 0xFF);
+			m_eState = eStart;
+		} else if (m_nCur16 < 0x800) {
+			m_nCur = static_cast<ubyte>(0xC0 | m_nCur16 >> 6);
+			m_eState = eFinal;
+		} else if (m_nCur16 < SURROGATE_FIRST_VALUE) {
+			m_nCur = static_cast<ubyte>(0xE0 | m_nCur16 >> 12);
+			m_eState = ePenultimate;
+		} else {
+			m_nCur = static_cast<ubyte>(0xF0 | m_nCur16 >> 18);
+			m_eState = eSecondOf4Bytes;
+		}
+		break;
+	case eSecondOf4Bytes:
+		m_nCur = static_cast<ubyte>(0x80 | ((m_nCur16 >> 12) & 0x3F));
+		m_eState = ePenultimate;
+		break;
+	case ePenultimate:
+		m_nCur = static_cast<ubyte>(0x80 | ((m_nCur16 >> 6) & 0x3F));
+		m_eState = eFinal;
+		break;
+	case eFinal:
+		m_nCur = static_cast<ubyte>(0x80 | (m_nCur16 & 0x3F));
+		m_eState = eStart;
+		break;
+	}
+}
+
+Utf8_16::utf16 Utf16_Iter::read(const ubyte *pRead) const noexcept {
+	if (m_eEncoding == eUtf16LittleEndian) {
+		return pRead[0] | static_cast<utf16>(pRead[1] << 8);
+	} else {
+		return pRead[1] | static_cast<utf16>(pRead[0] << 8);
+	}
 }
 
 // ==================================================================
@@ -264,165 +425,4 @@ int Utf8_16_Write::fclose() noexcept {
 
 void Utf8_16_Write::setEncoding(Utf8_16::encodingType eType) noexcept {
 	m_eEncoding = eType;
-}
-
-//=================================================================
-Utf8_Iter::Utf8_Iter() noexcept {
-	m_pBuf = nullptr;
-	m_pRead = nullptr;
-	m_pEnd = nullptr;
-	m_eState = eStart;
-	m_nCur = 0;
-	m_eEncoding = eUnknown;
-}
-
-void Utf8_Iter::set
-(const ubyte *pBuf, size_t nLen, encodingType eEncoding) noexcept {
-	m_pBuf = pBuf;
-	m_pRead = pBuf;
-	m_pEnd = pBuf + nLen;
-	m_eEncoding = eEncoding;
-	operator++();
-	// Note: m_eState, m_nCur not reset
-}
-// Go to the next byte.
-void Utf8_Iter::operator++() noexcept {
-	switch (m_eState) {
-	case eStart:
-		if ((0xF0 & *m_pRead) == 0xF0) {
-			m_nCur = (0x7 & *m_pRead) << 18;
-			m_eState = eSecondOf4Bytes;
-		} else if ((0xE0 & *m_pRead) == 0xE0) {
-			m_nCur = (~0xE0 & *m_pRead) << 12;
-			m_eState = ePenultimate;
-		} else if ((0xC0 & *m_pRead) == 0xC0) {
-			m_nCur = (~0xC0 & *m_pRead) << 6;
-			m_eState = eFinal;
-		} else {
-			m_nCur = *m_pRead;
-			toStart();
-		}
-		break;
-	case eSecondOf4Bytes:
-		m_nCur |= (0x3F & *m_pRead) << 12;
-		m_eState = ePenultimate;
-		break;
-	case ePenultimate:
-		m_nCur |= (0x3F & *m_pRead) << 6;
-		m_eState = eFinal;
-		break;
-	case eFinal:
-		m_nCur |= static_cast<utf8>(0x3F & *m_pRead);
-		toStart();
-		break;
-	}
-	++m_pRead;
-}
-
-void Utf8_Iter::toStart() noexcept {
-	m_eState = eStart;
-}
-
-//==================================================
-Utf16_Iter::Utf16_Iter() noexcept {
-	m_pBuf = nullptr;
-	m_pRead = nullptr;
-	m_pEnd = nullptr;
-	m_eState = eStart;
-	m_nCur = 0;
-	m_nCur16 = 0;
-	m_eEncoding = eUnknown;
-}
-
-void Utf16_Iter::set
-(const ubyte *pBuf, size_t nLen, encodingType eEncoding, ubyte *endSurrogate) noexcept {
-	m_pBuf = pBuf;
-	m_pRead = pBuf;
-	m_pEnd = pBuf + nLen;
-	m_eEncoding = eEncoding;
-	if (nLen > 2) {
-		const utf16 lastElement = read(m_pEnd-2);
-		if (lastElement >= SURROGATE_LEAD_FIRST && lastElement <= SURROGATE_LEAD_LAST) {
-			// Buffer ends with lead surrogate so cut off buffer and store
-			endSurrogate[0] = m_pEnd[-2];
-			endSurrogate[1] = m_pEnd[-1];
-			m_pEnd -= 2;
-		}
-	}
-	operator++();
-	// Note: m_eState, m_nCur, m_nCur16 not reinitialized.
-}
-
-// Goes to the next byte.
-// Not the next symbol which you might expect.
-// This way we can continue from a partial buffer that doesn't align
-void Utf16_Iter::operator++() noexcept {
-	switch (m_eState) {
-	case eStart:
-		if (m_pRead >= m_pEnd) {
-			++m_pRead;
-			break;
-		}
-		if (m_eEncoding == eUtf16LittleEndian) {
-			m_nCur16 = *m_pRead++;
-			m_nCur16 |= static_cast<utf16>(*m_pRead << 8);
-		} else {
-			m_nCur16 = static_cast<utf16>(*m_pRead++ << 8);
-			m_nCur16 |= *m_pRead;
-		}
-		if (m_nCur16 >= SURROGATE_LEAD_FIRST && m_nCur16 <= SURROGATE_LEAD_LAST) {
-			++m_pRead;
-			if (m_pRead >= m_pEnd) {
-				// Have a lead surrogate at end of document with no access to trail surrogate.
-				// May be end of document.
-				--m_pRead;	// With next increment, leave pointer just past buffer
-			} else {
-				int trail;
-				if (m_eEncoding == eUtf16LittleEndian) {
-					trail = *m_pRead++;
-					trail |= static_cast<utf16>(*m_pRead << 8);
-				} else {
-					trail = static_cast<utf16>(*m_pRead++ << 8);
-					trail |= *m_pRead;
-				}
-				m_nCur16 = (((m_nCur16 & 0x3ff) << 10) | (trail & 0x3ff)) + SURROGATE_FIRST_VALUE;
-			}
-		}
-		++m_pRead;
-
-		if (m_nCur16 < 0x80) {
-			m_nCur = static_cast<ubyte>(m_nCur16 & 0xFF);
-			m_eState = eStart;
-		} else if (m_nCur16 < 0x800) {
-			m_nCur = static_cast<ubyte>(0xC0 | m_nCur16 >> 6);
-			m_eState = eFinal;
-		} else if (m_nCur16 < SURROGATE_FIRST_VALUE) {
-			m_nCur = static_cast<ubyte>(0xE0 | m_nCur16 >> 12);
-			m_eState = ePenultimate;
-		} else {
-			m_nCur = static_cast<ubyte>(0xF0 | m_nCur16 >> 18);
-			m_eState = eSecondOf4Bytes;
-		}
-		break;
-	case eSecondOf4Bytes:
-		m_nCur = static_cast<ubyte>(0x80 | ((m_nCur16 >> 12) & 0x3F));
-		m_eState = ePenultimate;
-		break;
-	case ePenultimate:
-		m_nCur = static_cast<ubyte>(0x80 | ((m_nCur16 >> 6) & 0x3F));
-		m_eState = eFinal;
-		break;
-	case eFinal:
-		m_nCur = static_cast<ubyte>(0x80 | (m_nCur16 & 0x3F));
-		m_eState = eStart;
-		break;
-	}
-}
-
-Utf8_16::utf16 Utf16_Iter::read(const ubyte *pRead) const noexcept {
-	if (m_eEncoding == eUtf16LittleEndian) {
-		return pRead[0] | static_cast<utf16>(pRead[1] << 8);
-	} else {
-		return pRead[1] | static_cast<utf16>(pRead[0] << 8);
-	}
 }
