@@ -50,11 +50,11 @@ void FileLoader::Execute() noexcept {
 		if (fp) {
 			Utf8_16_Read convert;
 			std::vector<char> data(blockSize);
-			size_t lenFile = fread(&data[0], 1, blockSize, fp);
+			size_t lenFile = fread(data.data(), 1, blockSize, fp);
 			const UniMode umCodingCookie = CodingCookieValue(std::string_view(data.data(), lenFile));
 			while ((lenFile > 0) && (err == 0) && (!Cancelling())) {
 				GUI::SleepMilliseconds(sleepTime);
-				lenFile = convert.convert(&data[0], lenFile);
+				lenFile = convert.convert(data.data(), lenFile);
 				const char *dataBlock = convert.getNewBuf();
 				err = pLoader->AddData(dataBlock, lenFile);
 				IncrementProgress(lenFile);
@@ -62,7 +62,7 @@ void FileLoader::Execute() noexcept {
 					nextProgress = et.Duration() + timeBetweenProgress;
 					pListener->PostOnMainThread(WORK_FILEPROGRESS, this);
 				}
-				lenFile = fread(&data[0], 1, blockSize, fp);
+				lenFile = fread(data.data(), 1, blockSize, fp);
 				if ((lenFile == 0) && (err == 0)) {
 					// Handle case where convert is holding a lead surrogate but no more data
 					const size_t lenFileTrail = convert.convert(nullptr, lenFile);
@@ -138,8 +138,8 @@ void FileStorer::Execute() noexcept {
 					if ((grabSize - startLast) < 5)
 						grabSize = startLast;
 				}
-				memcpy(&data[0], documentBytes+i, grabSize);
-				const size_t written = convert.fwrite(&data[0], grabSize);
+				memcpy(data.data(), documentBytes+i, grabSize);
+				const size_t written = convert.fwrite(data.data(), grabSize);
 				IncrementProgress(grabSize);
 				if (et.Duration() > nextProgress) {
 					nextProgress = et.Duration() + timeBetweenProgress;

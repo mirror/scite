@@ -328,13 +328,13 @@ void SciTEBase::OpenCurrentFile(const long long fileSize, bool suppressMessage, 
 
 		Utf8_16_Read convert;
 		std::vector<char> data(blockSize);
-		size_t lenFile = fread(&data[0], 1, data.size(), fp);
+		size_t lenFile = fread(data.data(), 1, data.size(), fp);
 		const UniMode umCodingCookie = CodingCookieValue(std::string_view(data.data(), lenFile));
 		while (lenFile > 0) {
-			lenFile = convert.convert(&data[0], lenFile);
+			lenFile = convert.convert(data.data(), lenFile);
 			const char *dataBlock = convert.getNewBuf();
 			wEditor.AddText(lenFile, dataBlock);
-			lenFile = fread(&data[0], 1, data.size(), fp);
+			lenFile = fread(data.data(), 1, data.size(), fp);
 			if (lenFile == 0) {
 				// Handle case where convert is holding a lead surrogate but no more data
 				const size_t lenFileTrail = convert.convert(nullptr, lenFile);
@@ -1402,16 +1402,16 @@ void SciTEBase::OpenFromStdin(bool UseOutputPane) {
 		wEditor.BeginUndoAction();	// Group together clear and insert
 		wEditor.ClearAll();
 	}
-	size_t lenFile = fread(&data[0], 1, data.size(), stdin);
+	size_t lenFile = fread(data.data(), 1, data.size(), stdin);
 	const UniMode umCodingCookie = CodingCookieValue(std::string_view(data.data(), lenFile));
 	while (lenFile > 0) {
-		lenFile = convert.convert(&data[0], lenFile);
+		lenFile = convert.convert(data.data(), lenFile);
 		if (UseOutputPane) {
 			wOutput.AddText(lenFile, convert.getNewBuf());
 		} else {
 			wEditor.AddText(lenFile, convert.getNewBuf());
 		}
-		lenFile = fread(&data[0], 1, data.size(), stdin);
+		lenFile = fread(data.data(), 1, data.size(), stdin);
 	}
 	if (UseOutputPane) {
 		if (props.GetInt("split.vertical") == 0) {

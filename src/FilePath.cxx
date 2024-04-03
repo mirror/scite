@@ -486,10 +486,10 @@ std::string FilePath::Read() const {
 	FileHolder fp(Open(fileRead));
 	if (fp) {
 		std::string block(readBlockSize, '\0');
-		size_t lenBlock = fread(&block[0], 1, block.size(), fp.get());
+		size_t lenBlock = fread(block.data(), 1, block.size(), fp.get());
 		while (lenBlock > 0) {
 			data.append(block, 0, lenBlock);
-			lenBlock = fread(&block[0], 1, block.size(), fp.get());
+			lenBlock = fread(block.data(), 1, block.size(), fp.get());
 		}
 	}
 	return data;
