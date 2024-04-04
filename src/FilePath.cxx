@@ -302,7 +302,7 @@ FilePath FilePath::NormalizePath() const {
 	}
 	GUI::gui_string path(fileName);
 #ifdef _WIN32
-	// Convert unix path separators to Windows
+	// Convert Unix path separators to Windows
 	std::replace(path.begin(), path.end(), L'/', pathSepChar);
 #endif
 	GUI::gui_string_view source = path;
@@ -345,7 +345,7 @@ FilePath FilePath::NormalizePath() const {
 }
 
 GUI::gui_string FilePath::RelativePathTo(const FilePath &filePath) const {
-	// Only handles simple case where filePath is in this directory or a subdirectory
+	// Only handles simple case where filePath is in this directory or a sub-directory
 	GUI::gui_string relPath = filePath.fileName;
 	if (!fileName.empty() && relPath.starts_with(fileName)) {
 		relPath = relPath.substr(fileName.length());
@@ -363,7 +363,7 @@ GUI::gui_string FilePath::RelativePathTo(const FilePath &filePath) const {
  */
 FilePath FilePath::AbsolutePath() const {
 #ifdef _WIN32
-	// The runtime libraries for GCC and Visual C++ give different results for _fullpath
+	// The run-time libraries for GCC and Visual C++ give different results for _fullpath
 	// so use the OS.
 	GUI::gui_char absPath[2000] {};
 	GUI::gui_char *fileBit = nullptr;
@@ -682,7 +682,7 @@ void FilePath::FixName() {
 	} else {
 		// On Windows file comparison is done case insensitively so the user can
 		// enter scite.cxx and still open this file, SciTE.cxx. To ensure that the file
-		// is saved with correct capitalisation FindFirstFile is used to find out the
+		// is saved with correct capitalization FindFirstFile is used to find out the
 		// real name of the file.
 		WIN32_FIND_DATAW FindFileData;
 		HANDLE hFind = ::FindFirstFileW(AsInternal(), &FindFileData);
