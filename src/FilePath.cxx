@@ -558,9 +558,8 @@ namespace {
 void Lowercase(GUI::gui_string &s) {
 	const int sLength = static_cast<int>(s.length());
 	const int chars = ::LCMapString(LOCALE_SYSTEM_DEFAULT, LCMAP_LOWERCASE, s.c_str(), sLength, nullptr, 0);
-	GUI::gui_string vc(chars, 0);
-	::LCMapString(LOCALE_SYSTEM_DEFAULT, LCMAP_LOWERCASE, s.c_str(), sLength, vc.data(), chars);
-	s = vc;
+	s.resize(chars);
+	::LCMapString(LOCALE_SYSTEM_DEFAULT, LCMAP_LOWERCASE, s.c_str(), sLength, s.data(), chars);
 }
 #endif
 
