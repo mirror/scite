@@ -52,14 +52,14 @@
 
 #if defined(__unix__) || defined(__APPLE__)
 const GUI::gui_char pathSepString[] = "/";
-const GUI::gui_char pathSepChar = '/';
+constexpr GUI::gui_char pathSepChar = '/';
 const GUI::gui_char listSepString[] = ":";
 const GUI::gui_char configFileVisibilityString[] = ".";
 #endif
 #ifdef _WIN32
 // Windows
 const GUI::gui_char pathSepString[] = GUI_TEXT("\\");
-const GUI::gui_char pathSepChar = '\\';
+constexpr GUI::gui_char pathSepChar = '\\';
 const GUI::gui_char listSepString[] = GUI_TEXT(";");
 const GUI::gui_char configFileVisibilityString[] = GUI_TEXT("");
 #endif

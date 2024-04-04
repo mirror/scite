@@ -537,19 +537,21 @@ void SciTEWin::ReadProperties() {
 	}
 }
 
-static FilePath GetSciTEPath(const FilePath &home) {
+namespace {
+
+FilePath GetSciTEPath(const FilePath &home) {
 	if (home.IsSet()) {
-		return FilePath(home);
+		return home;
 	} else {
-		GUI::gui_char path[MAX_PATH];
-		if (::GetModuleFileNameW(0, path, static_cast<DWORD>(std::size(path))) == 0)
-			return FilePath();
+		GUI::gui_char path[MAX_PATH+1]{};
+		if (::GetModuleFileNameW(0, path, MAX_PATH) == 0)
+			return {};
 		// Remove the SciTE.exe
-		GUI::gui_char *lastSlash = wcsrchr(path, pathSepChar);
-		if (lastSlash)
-			*lastSlash = '\0';
-		return FilePath(path);
+		const FilePath pathSciTE(path);
+		return pathSciTE.Directory();
 	}
+}
+
 }
 
 FilePath SciTEWin::GetDefaultDirectory() {

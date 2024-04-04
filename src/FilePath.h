@@ -9,7 +9,6 @@
 #define FILEPATH_H
 
 extern const GUI::gui_char pathSepString[];
-extern const GUI::gui_char pathSepChar;
 extern const GUI::gui_char listSepString[];
 extern const GUI::gui_char configFileVisibilityString[];
 extern const GUI::gui_char fileRead[];
