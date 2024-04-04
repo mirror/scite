@@ -51,6 +51,7 @@ SciTEWin.o: \
 	../src/JobQueue.h \
 	../src/Cookie.h \
 	../src/Worker.h \
+	../src/Utf8_16.h \
 	../src/FileWorker.h \
 	../src/MatchMarker.h \
 	../src/Searcher.h \
@@ -89,6 +90,7 @@ Sc1.o: \
 	../src/JobQueue.h \
 	../src/Cookie.h \
 	../src/Worker.h \
+	../src/Utf8_16.h \
 	../src/FileWorker.h \
 	../src/MatchMarker.h \
 	../src/Searcher.h \
@@ -127,6 +129,7 @@ SciTEWinBar.o: \
 	../src/JobQueue.h \
 	../src/Cookie.h \
 	../src/Worker.h \
+	../src/Utf8_16.h \
 	../src/FileWorker.h \
 	../src/MatchMarker.h \
 	../src/Searcher.h \
@@ -161,6 +164,7 @@ SciTEWinDlg.o: \
 	../src/JobQueue.h \
 	../src/Cookie.h \
 	../src/Worker.h \
+	../src/Utf8_16.h \
 	../src/FileWorker.h \
 	../src/MatchMarker.h \
 	../src/Searcher.h \
@@ -196,6 +200,7 @@ Strips.o: \
 	../src/JobQueue.h \
 	../src/Cookie.h \
 	../src/Worker.h \
+	../src/Utf8_16.h \
 	../src/FileWorker.h \
 	../src/MatchMarker.h \
 	../src/Searcher.h \
@@ -231,6 +236,7 @@ UniqueInstance.o: \
 	../src/JobQueue.h \
 	../src/Cookie.h \
 	../src/Worker.h \
+	../src/Utf8_16.h \
 	../src/FileWorker.h \
 	../src/MatchMarker.h \
 	../src/Searcher.h \
@@ -396,8 +402,8 @@ FileWorker.o: \
 	../src/FilePath.h \
 	../src/Cookie.h \
 	../src/Worker.h \
-	../src/FileWorker.h \
-	../src/Utf8_16.h
+	../src/Utf8_16.h \
+	../src/FileWorker.h
 IFaceTable.o: \
 	../src/IFaceTable.cxx \
 	../src/GUI.h \
@@ -487,6 +493,7 @@ SciTEBase.o: \
 	../src/JobQueue.h \
 	../src/Cookie.h \
 	../src/Worker.h \
+	../src/Utf8_16.h \
 	../src/FileWorker.h \
 	../src/MatchMarker.h \
 	../src/EditorConfig.h \
@@ -512,6 +519,7 @@ SciTEBuffers.o: \
 	../src/JobQueue.h \
 	../src/Cookie.h \
 	../src/Worker.h \
+	../src/Utf8_16.h \
 	../src/FileWorker.h \
 	../src/MatchMarker.h \
 	../src/Searcher.h \
@@ -535,11 +543,11 @@ SciTEIO.o: \
 	../src/JobQueue.h \
 	../src/Cookie.h \
 	../src/Worker.h \
+	../src/Utf8_16.h \
 	../src/FileWorker.h \
 	../src/MatchMarker.h \
 	../src/Searcher.h \
-	../src/SciTEBase.h \
-	../src/Utf8_16.h
+	../src/SciTEBase.h
 SciTEProps.o: \
 	../src/SciTEProps.cxx \
 	../../scintilla/include/ILexer.h \
@@ -593,6 +601,7 @@ StyleWriter.o: \
 	../src/StyleWriter.h
 Utf8_16.o: \
 	../src/Utf8_16.cxx \
+	../src/Cookie.h \
 	../src/Utf8_16.h
 lapi.o: \
 	../lua/src/lapi.c \
