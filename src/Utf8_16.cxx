@@ -109,7 +109,7 @@ void Utf8_Iter::operator++() noexcept {
 		m_eState = eFinal;
 		break;
 	case eFinal:
-		m_nCur |= static_cast<utf8>(0x3F & *m_pRead);
+		m_nCur |= 0x3F & *m_pRead;
 		toStart();
 		break;
 	}
@@ -164,9 +164,9 @@ void Utf16_Iter::operator++() noexcept {
 		}
 		if (m_eEncoding == eUtf16LittleEndian) {
 			m_nCur16 = *m_pRead++;
-			m_nCur16 |= static_cast<utf16>(*m_pRead << 8);
+			m_nCur16 |= (*m_pRead << 8);
 		} else {
-			m_nCur16 = static_cast<utf16>(*m_pRead++ << 8);
+			m_nCur16 = (*m_pRead++ << 8);
 			m_nCur16 |= *m_pRead;
 		}
 		if (m_nCur16 >= SURROGATE_LEAD_FIRST && m_nCur16 <= SURROGATE_LEAD_LAST) {
@@ -176,12 +176,12 @@ void Utf16_Iter::operator++() noexcept {
 				// May be end of document.
 				--m_pRead;	// With next increment, leave pointer just past buffer
 			} else {
-				int trail;
+				int trail = 0;
 				if (m_eEncoding == eUtf16LittleEndian) {
 					trail = *m_pRead++;
-					trail |= static_cast<utf16>(*m_pRead << 8);
+					trail |= (*m_pRead << 8);
 				} else {
-					trail = static_cast<utf16>(*m_pRead++ << 8);
+					trail = (*m_pRead++ << 8);
 					trail |= *m_pRead;
 				}
 				m_nCur16 = (((m_nCur16 & 0x3ff) << 10) | (trail & 0x3ff)) + SURROGATE_FIRST_VALUE;
@@ -190,29 +190,29 @@ void Utf16_Iter::operator++() noexcept {
 		++m_pRead;
 
 		if (m_nCur16 < 0x80) {
-			m_nCur = static_cast<ubyte>(m_nCur16 & 0xFF);
+			m_nCur = m_nCur16 & 0xFF;
 			m_eState = eStart;
 		} else if (m_nCur16 < 0x800) {
-			m_nCur = static_cast<ubyte>(0xC0 | m_nCur16 >> 6);
+			m_nCur = 0xC0 | ((m_nCur16 >> 6) & 0xFF);
 			m_eState = eFinal;
 		} else if (m_nCur16 < SURROGATE_FIRST_VALUE) {
-			m_nCur = static_cast<ubyte>(0xE0 | m_nCur16 >> 12);
+			m_nCur = 0xE0 | ((m_nCur16 >> 12) & 0xFF);
 			m_eState = ePenultimate;
 		} else {
-			m_nCur = static_cast<ubyte>(0xF0 | m_nCur16 >> 18);
+			m_nCur = 0xF0 | ((m_nCur16 >> 18) & 0xFF);
 			m_eState = eSecondOf4Bytes;
 		}
 		break;
 	case eSecondOf4Bytes:
-		m_nCur = static_cast<ubyte>(0x80 | ((m_nCur16 >> 12) & 0x3F));
+		m_nCur = 0x80 | ((m_nCur16 >> 12) & 0x3F);
 		m_eState = ePenultimate;
 		break;
 	case ePenultimate:
-		m_nCur = static_cast<ubyte>(0x80 | ((m_nCur16 >> 6) & 0x3F));
+		m_nCur = 0x80 | ((m_nCur16 >> 6) & 0x3F);
 		m_eState = eFinal;
 		break;
 	case eFinal:
-		m_nCur = static_cast<ubyte>(0x80 | (m_nCur16 & 0x3F));
+		m_nCur = 0x80 | (m_nCur16 & 0x3F);
 		m_eState = eStart;
 		break;
 	}
@@ -220,9 +220,9 @@ void Utf16_Iter::operator++() noexcept {
 
 Utf8_16::utf16 Utf16_Iter::read(const ubyte *pRead) const noexcept {
 	if (m_eEncoding == eUtf16LittleEndian) {
-		return pRead[0] | static_cast<utf16>(pRead[1] << 8);
+		return pRead[0] | (pRead[1] << 8);
 	} else {
-		return pRead[1] | static_cast<utf16>(pRead[0] << 8);
+		return pRead[1] | (pRead[0] << 8);
 	}
 }
 
