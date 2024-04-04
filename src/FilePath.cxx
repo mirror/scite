@@ -119,8 +119,8 @@ namespace {
 // Encapsulate Win32 CompareStringW
 [[nodiscard]] int Compare(const GUI::gui_string &a, const GUI::gui_string &b) noexcept {
 	return ::CompareStringW(LOCALE_SYSTEM_DEFAULT, NORM_IGNORECASE,
-		a.c_str(), static_cast<int>(a.length()),
-		b.c_str(), static_cast<int>(b.length()));
+		a.c_str(), -1,
+		b.c_str(), -1);
 }
 
 }
