@@ -24,8 +24,8 @@
 #include "FilePath.h"
 #include "Cookie.h"
 #include "Worker.h"
-#include "FileWorker.h"
 #include "Utf8_16.h"
+#include "FileWorker.h"
 
 constexpr double timeBetweenProgress = 0.4;
 
@@ -48,38 +48,28 @@ FileLoader::FileLoader(WorkerListener *pListener_, Scintilla::ILoader *pLoader_,
 void FileLoader::Execute() noexcept {
 	try {
 		if (fp) {
-			Utf8_16_Read convert;
+			std::unique_ptr<Utf8_16::Reader> convert = Utf8_16::Reader::Allocate();
 			std::vector<char> data(blockSize);
-			size_t lenFile = fread(data.data(), 1, blockSize, fp);
-			const UniMode umCodingCookie = CodingCookieValue(std::string_view(data.data(), lenFile));
+			size_t lenFile = fread(data.data(), 1, data.size(), fp);
 			while ((lenFile > 0) && (err == 0) && (!Cancelling())) {
 				GUI::SleepMilliseconds(sleepTime);
-				lenFile = convert.convert(data.data(), lenFile);
-				const char *dataBlock = convert.getNewBuf();
-				err = pLoader->AddData(dataBlock, lenFile);
+				const std::string_view converted = convert->convert(std::string_view(data.data(), lenFile));
+				err = pLoader->AddData(converted.data(), converted.size());
 				IncrementProgress(lenFile);
 				if (et.Duration() > nextProgress) {
 					nextProgress = et.Duration() + timeBetweenProgress;
 					pListener->PostOnMainThread(WORK_FILEPROGRESS, this);
 				}
-				lenFile = fread(data.data(), 1, blockSize, fp);
-				if ((lenFile == 0) && (err == 0)) {
-					// Handle case where convert is holding a lead surrogate but no more data
-					const size_t lenFileTrail = convert.convert(nullptr, lenFile);
-					if (lenFileTrail) {
-						const char *dataTrail = convert.getNewBuf();
-						err = pLoader->AddData(dataTrail, lenFileTrail);
-					}
-				}
+				lenFile = fread(data.data(), 1, data.size(), fp);
 			}
 			fclose(fp);
 			fp = nullptr;
-			unicodeMode = static_cast<UniMode>(
-					      static_cast<int>(convert.getEncoding()));
-			// Check the first two lines for coding cookies
-			if (unicodeMode == UniMode::uni8Bit) {
-				unicodeMode = umCodingCookie;
+			if (err == 0) {
+				// Handle case where convert is holding a lead surrogate but no more data
+				const std::string_view convertedTrail = convert->convert("");
+				err = pLoader->AddData(convertedTrail.data(), convertedTrail.size());
 			}
+			unicodeMode = convert->getEncoding();
 		}
 	} catch (...) {
 		err = 1;
@@ -107,6 +97,7 @@ FileStorer::FileStorer(WorkerListener *pListener_, std::string_view bytes_, cons
 	FileWorker(pListener_, path_, bytes_.size(), fp_), documentBytes(bytes_.data()), writtenSoFar(0),
 	unicodeMode(unicodeMode_), visibleProgress(visibleProgress_) {
 	SetSizeJob(size);
+	convert = Utf8_16::Writer::Allocate(unicodeMode, blockSize);
 }
 
 static constexpr bool IsUTF8TrailByte(int ch) noexcept {
@@ -116,30 +107,21 @@ static constexpr bool IsUTF8TrailByte(int ch) noexcept {
 void FileStorer::Execute() noexcept {
 	try {
 		if (fp) {
-			Utf8_16_Write convert;
-			if (unicodeMode != UniMode::cookie) {	// Save file with cookie without BOM.
-				convert.setEncoding(static_cast<Utf8_16::encodingType>(
-							    static_cast<int>(unicodeMode)));
-			}
-			convert.setfile(fp);
-			std::vector<char> data(blockSize + 1);
+			const std::string_view documentView(documentBytes, size);
 			const size_t lengthDoc = size;
-			size_t grabSize;
-			for (size_t i = 0; i < lengthDoc && (!Cancelling()); i += grabSize) {
+			for (size_t startBlock = 0; startBlock < lengthDoc && (!Cancelling());) {
 				GUI::SleepMilliseconds(sleepTime);
-				grabSize = lengthDoc - i;
-				if (grabSize > blockSize)
-					grabSize = blockSize;
-				if ((unicodeMode != UniMode::uni8Bit) && (i + grabSize < lengthDoc)) {
+				size_t grabSize = std::min(lengthDoc - startBlock, blockSize);
+				if ((unicodeMode != UniMode::uni8Bit) && (startBlock + grabSize < lengthDoc)) {
 					// Round down so only whole characters retrieved.
 					size_t startLast = grabSize;
-					while ((startLast > 0) && ((grabSize - startLast) < 6) && IsUTF8TrailByte(static_cast<unsigned char>(documentBytes[i + startLast])))
+					while ((startLast > 0) && ((grabSize - startLast) < 6) &&
+						IsUTF8TrailByte(static_cast<unsigned char>(documentBytes[startBlock + startLast])))
 						startLast--;
 					if ((grabSize - startLast) < 5)
 						grabSize = startLast;
 				}
-				memcpy(data.data(), documentBytes+i, grabSize);
-				const size_t written = convert.fwrite(data.data(), grabSize);
+				const size_t written = convert->fwrite(documentView.substr(startBlock, grabSize), fp);
 				IncrementProgress(grabSize);
 				if (et.Duration() > nextProgress) {
 					nextProgress = et.Duration() + timeBetweenProgress;
@@ -149,10 +131,12 @@ void FileStorer::Execute() noexcept {
 					err = 1;
 					break;
 				}
+				startBlock += grabSize;
 			}
-			if (convert.fclose() != 0) {
+			if (fclose(fp) != 0) {
 				err = 1;
 			}
+			fp = nullptr;
 		}
 	} catch (...) {
 		err = 1;

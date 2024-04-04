@@ -63,3 +63,9 @@ badBitmaskCheck:scite/win32/SciTEWin.cxx
 
 // Suppress everything in lua as that comes from the Lua distribution
 *:scite/lua/*
+
+// Suppress everything in catch.hpp as won't be changing
+*:scite/test/catch.hpp
+
+// cppcheck doesn't understand ""sv literals
+unknownMacro:scite/test/testUtf8_16.cxx

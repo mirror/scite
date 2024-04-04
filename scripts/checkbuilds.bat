@@ -17,6 +17,12 @@ mingw32-make -j%THREADS%
 .\unitTest
 @if ERRORLEVEL 2 goto ERROR
 @popd
+@pushd scite\test
+mingw32-make -j%THREADS%
+@if ERRORLEVEL 2 goto ERROR
+.\unitTest
+@if ERRORLEVEL 2 goto ERROR
+@popd
 @rem
 rem ************************************************************
 rem Target 2: Build and check Lexilla

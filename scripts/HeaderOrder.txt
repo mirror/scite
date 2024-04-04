@@ -35,6 +35,8 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <span>
+#include <array>
 #include <deque>
 #include <map>
 #include <set>
@@ -124,6 +126,7 @@
 
 #include "Cookie.h"
 #include "Worker.h"
+#include "Utf8_16.h"
 #include "FileWorker.h"
 #include "MatchMarker.h"
 #include "EditorConfig.h"
@@ -132,7 +135,6 @@
 #include "UniqueInstance.h"
 #include "StripDefinition.h"
 #include "Strips.h"
-#include "Utf8_16.h"
 
 #include "IFaceTable.h"
 #include "SciTEKeys.h"
@@ -148,3 +150,5 @@
 #include "lualib.h"
 #include "lauxlib.h"
 
+// Catch testing framework
+#include "catch.hpp"

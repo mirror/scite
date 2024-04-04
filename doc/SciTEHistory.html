@@ -631,6 +631,10 @@
 		<li>
 		Requires a C++20 compiler. GCC 11.2 and MSVC 2022 are supported.
 		</li>
+		<li>
+		Fix read failure for UTF-16LE files where surrogate pair straddles block boundary and lead
+		surrogate is a multiple of 256.
+		</li>
 	</ul>
 	<li>Scintilla 5.5.0</li>
 	<ul>

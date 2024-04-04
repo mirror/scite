@@ -50,6 +50,7 @@ public:
 	size_t writtenSoFar;
 	UniMode unicodeMode;
 	bool visibleProgress;
+	std::unique_ptr<Utf8_16::Writer> convert;
 
 	FileStorer(WorkerListener *pListener_, std::string_view bytes_, const FilePath &path_,
 		   FILE *fp_, UniMode unicodeMode_, bool visibleProgress_);

@@ -13,15 +13,35 @@
 #include <cstring>
 #include <cstdio>
 
+#include <string>
+#include <string_view>
+#include <vector>
+#include <array>
 #include <memory>
 
+#include "Cookie.h"
 #include "Utf8_16.h"
 
-const Utf8_16::utf8 Utf8_16::k_Boms[][3] = {
+namespace {
+
+using utf16 = unsigned short; // 16 bits
+using utf8 = unsigned char; // 8 bits
+using ubyte = unsigned char;
+
+enum encodingType {
+	eUnknown,
+	eUtf16BigEndian,
+	eUtf16LittleEndian,  // Default on Windows
+	eUtf8,
+	eCookie
+};
+
+const utf8 k_Boms[][3] = {
 	{0x00, 0x00, 0x00},  // Unknown
 	{0xFE, 0xFF, 0x00},  // Big endian
 	{0xFF, 0xFE, 0x00},  // Little endian
-	{0xEF, 0xBB, 0xBF}, // UTF8
+	{0xEF, 0xBB, 0xBF},  // UTF8
+	{0x00, 0x00, 0x00},  // Cookie
 };
 
 enum { SURROGATE_LEAD_FIRST = 0xD800 };
@@ -30,13 +50,11 @@ enum { SURROGATE_TRAIL_FIRST = 0xDC00 };
 enum { SURROGATE_TRAIL_LAST = 0xDFFF };
 enum { SURROGATE_FIRST_VALUE = 0x10000 };
 
-namespace {
-
 // Reads UTF-8 and outputs UTF-16
-class Utf8_Iter : public Utf8_16 {
+
+class Utf8_Iter {
 public:
-	Utf8_Iter() noexcept;
-	void set(const ubyte *pBuf, size_t nLen, encodingType eEncoding) noexcept;
+	Utf8_Iter(std::string_view buf, encodingType eEncoding) noexcept;
 	int get() const noexcept {
 		assert(m_eState == eStart);
 		return m_nCur;
@@ -57,29 +75,19 @@ protected:
 	encodingType m_eEncoding;
 	eState m_eState;
 	int m_nCur;
-	// These 3 pointers are for externally allocated memory passed to set
-	const ubyte *m_pBuf;
-	const ubyte *m_pRead;
+	// These 2 pointers are for externally allocated memory passed to constructor
+	const ubyte *m_pRead;	// Ends at m_pEnd+1
 	const ubyte *m_pEnd;
 };
 
-Utf8_Iter::Utf8_Iter() noexcept {
-	m_pBuf = nullptr;
-	m_pRead = nullptr;
-	m_pEnd = nullptr;
+Utf8_Iter::Utf8_Iter(std::string_view buf, encodingType eEncoding) noexcept {
+	const ubyte *pBuf = reinterpret_cast<const ubyte *>(buf.data());
+	m_pRead = pBuf;
+	m_pEnd = pBuf + buf.size();
 	m_eState = eStart;
 	m_nCur = 0;
-	m_eEncoding = eUnknown;
-}
-
-void Utf8_Iter::set
-(const ubyte *pBuf, size_t nLen, encodingType eEncoding) noexcept {
-	m_pBuf = pBuf;
-	m_pRead = pBuf;
-	m_pEnd = pBuf + nLen;
 	m_eEncoding = eEncoding;
 	operator++();
-	// Note: m_eState, m_nCur not reset
 }
 
 // Go to the next byte.
@@ -120,29 +128,54 @@ void Utf8_Iter::toStart() noexcept {
 	m_eState = eStart;
 }
 
-}
+// ==================================================================
 
-//==================================================
-Utf16_Iter::Utf16_Iter() noexcept {
-	m_pRead = nullptr;
-	m_pEnd = nullptr;
-	m_eState = eStart;
-	m_nCur = 0;
-	m_nCur16 = 0;
-	m_eEncoding = eUnknown;
-}
+// Reads UTF-16 and outputs UTF-8
 
-void Utf16_Iter::set
-(const ubyte *pBuf, size_t nLen, encodingType eEncoding, ubyte *endSurrogate) noexcept {
+class Utf16_Iter {
+public:
+	Utf16_Iter() noexcept = default;
+	void set(std::string_view buf, UniMode eEncoding) noexcept;
+	utf8 get() const noexcept {
+		return m_nCur;
+	}
+	void operator++() noexcept;
+	operator bool() const noexcept { return m_pRead <= m_pEnd; }
+	utf16 read(const ubyte *pRead) const noexcept;
+	bool retained() const noexcept;
+protected:
+	enum eState {
+		eStart,
+		eSecondOf4Bytes,
+		ePenultimate,
+		eFinal
+	};
+protected:
+	using UWord = std::array<ubyte, 2>;
+	UniMode m_eEncoding = UniMode::uni8Bit;
+	eState m_eState = eStart;
+	utf8 m_nCur = 0;
+	int m_nCur16 = 0;
+	UWord prefix{};
+	UWord m_leadSurrogate{};
+	// These 2 pointers are for externally allocated memory passed to set
+	const ubyte *m_pRead = nullptr;
+	const ubyte *m_pEnd = nullptr;
+};
+
+void Utf16_Iter::set(std::string_view buf, UniMode eEncoding) noexcept {
+	const ubyte *pBuf = reinterpret_cast<const ubyte *>(buf.data());
 	m_pRead = pBuf;
-	m_pEnd = pBuf + nLen;
+	m_pEnd = pBuf + buf.length();
 	m_eEncoding = eEncoding;
-	if (nLen > 2) {
-		const utf16 lastElement = read(m_pEnd-2);
+	prefix = m_leadSurrogate;
+	m_leadSurrogate.fill(0);
+	if (buf.length() >= 2) {
+		const utf16 lastElement = read(m_pEnd - 2);
 		if (lastElement >= SURROGATE_LEAD_FIRST && lastElement <= SURROGATE_LEAD_LAST) {
 			// Buffer ends with lead surrogate so cut off buffer and store
-			endSurrogate[0] = m_pEnd[-2];
-			endSurrogate[1] = m_pEnd[-1];
+			m_leadSurrogate[0] = m_pEnd[-2];
+			m_leadSurrogate[1] = m_pEnd[-1];
 			m_pEnd -= 2;
 		}
 	}
@@ -160,32 +193,25 @@ void Utf16_Iter::operator++() noexcept {
 			++m_pRead;
 			break;
 		}
-		if (m_eEncoding == eUtf16LittleEndian) {
-			m_nCur16 = *m_pRead++;
-			m_nCur16 |= (*m_pRead << 8);
+		if (prefix[0] || prefix[1]) {
+			m_nCur16 = read(prefix.data());
+			prefix.fill(0);
 		} else {
-			m_nCur16 = (*m_pRead++ << 8);
-			m_nCur16 |= *m_pRead;
+			m_nCur16 = read(m_pRead);
+			m_pRead += 2;
 		}
 		if (m_nCur16 >= SURROGATE_LEAD_FIRST && m_nCur16 <= SURROGATE_LEAD_LAST) {
-			++m_pRead;
 			if (m_pRead >= m_pEnd) {
 				// Have a lead surrogate at end of document with no access to trail surrogate.
 				// May be end of document.
 				--m_pRead;	// With next increment, leave pointer just past buffer
 			} else {
-				int trail = 0;
-				if (m_eEncoding == eUtf16LittleEndian) {
-					trail = *m_pRead++;
-					trail |= (*m_pRead << 8);
-				} else {
-					trail = (*m_pRead++ << 8);
-					trail |= *m_pRead;
-				}
+				const int trail = read(m_pRead);
+				++m_pRead;
 				m_nCur16 = (((m_nCur16 & 0x3ff) << 10) | (trail & 0x3ff)) + SURROGATE_FIRST_VALUE;
 			}
+			++m_pRead;
 		}
-		++m_pRead;
 
 		if (m_nCur16 < 0x80) {
 			m_nCur = m_nCur16 & 0xFF;
@@ -216,108 +242,103 @@ void Utf16_Iter::operator++() noexcept {
 	}
 }
 
-Utf8_16::utf16 Utf16_Iter::read(const ubyte *pRead) const noexcept {
-	if (m_eEncoding == eUtf16LittleEndian) {
+utf16 Utf16_Iter::read(const ubyte *pRead) const noexcept {
+	if (m_eEncoding == UniMode::uni16LE) {
 		return pRead[0] | (pRead[1] << 8);
 	} else {
 		return pRead[1] | (pRead[0] << 8);
 	}
 }
 
+bool Utf16_Iter::retained() const noexcept {
+	return m_leadSurrogate[0] || m_leadSurrogate[1];
+}
+
 // ==================================================================
 
-Utf8_16_Read::Utf8_16_Read() noexcept {
-	m_eEncoding = eUnknown;
-	m_nBufSize = 0;
-	m_pBuf = nullptr;
-	m_pNewBuf = nullptr;
-	m_bFirstRead = true;
-	m_nLen = 0;
-	m_leadSurrogate[0] = 0;
-	m_leadSurrogate[1] = 0;
-}
+// Reads UTF16 and outputs UTF8
+class Utf8_16_Reader : public Utf8_16::Reader {
+public:
+	Utf8_16_Reader() noexcept;
 
-Utf8_16_Read::~Utf8_16_Read() noexcept {
-	if ((m_eEncoding != eUnknown) && (m_eEncoding != eUtf8)) {
-		delete [] m_pNewBuf;
-		m_pNewBuf = nullptr;
+	// Deleted so Utf8_16_Read objects can not be copied.
+	Utf8_16_Reader(const Utf8_16_Reader &) = delete;
+	Utf8_16_Reader(Utf8_16_Reader &&) = delete;
+	Utf8_16_Reader &operator=(const Utf8_16_Reader &) = delete;
+	Utf8_16_Reader &operator=(Utf8_16_Reader &&) = delete;
+
+	~Utf8_16_Reader() noexcept override;
+
+	std::string_view convert(std::string_view buf) override;
+
+	UniMode getEncoding() const noexcept override {
+		return static_cast<UniMode>(static_cast<int>(m_eEncoding));
 	}
-}
 
-size_t Utf8_16_Read::convert(char *buf, size_t len) {
-	m_pBuf = reinterpret_cast<ubyte *>(buf);
-	m_nLen = len;
+private:
+	int determineEncoding(std::string_view text) noexcept;
+	UniMode m_eEncoding = UniMode::uni8Bit;
+	// m_pNewBuf may be allocated by Utf8_16_Read::convert
+	std::vector<ubyte> m_pNewBuf;
+	bool m_bFirstRead = true;
+	Utf16_Iter m_Iter16;
+};
 
+// ==================================================================
+
+Utf8_16_Reader::Utf8_16_Reader() noexcept = default;
+
+Utf8_16_Reader::~Utf8_16_Reader() noexcept = default;
+
+std::string_view Utf8_16_Reader::convert(std::string_view buf) {
 	int nSkip = 0;
 	if (m_bFirstRead) {
-		nSkip = determineEncoding();
+		nSkip = determineEncoding(buf);
+		if (m_eEncoding == UniMode::uni8Bit) {
+			m_eEncoding = CodingCookieValue(buf);
+		}
 		m_bFirstRead = false;
 	}
 
-	if (m_eEncoding == eUnknown) {
-		// Do nothing, pass through
-		m_nBufSize = 0;
-		m_pNewBuf = m_pBuf;
-		return len;
-	}
+	buf.remove_prefix(nSkip);
 
-	if (m_eEncoding == eUtf8) {
-		// Pass through after BOM
-		m_nBufSize = 0;
-		m_pNewBuf = m_pBuf + nSkip;
-		return len - nSkip;
+	if ((m_eEncoding == UniMode::uni8Bit) || (m_eEncoding == UniMode::utf8) || (m_eEncoding == UniMode::cookie)) {
+		// Do nothing, pass through omitting BOM when present
+		return buf;
 	}
 
 	// Else...
-	const size_t newSize = len + len / 2 + 4 + 1;
-	if (m_nBufSize != newSize) {
-		delete [] m_pNewBuf;
-		m_pNewBuf = new ubyte[newSize];
-		m_nBufSize = newSize;
-	}
+	m_pNewBuf.clear();
 
-	ubyte *pCur = m_pNewBuf;
-
-	ubyte endSurrogate[2] = { 0, 0 };
-	ubyte *pbufPrependSurrogate = nullptr;
-	if (m_leadSurrogate[0]) {
-		pbufPrependSurrogate = new ubyte[len - nSkip + 2];
-		memcpy(pbufPrependSurrogate, m_leadSurrogate, 2);
-		if (m_pBuf)
-			memcpy(pbufPrependSurrogate + 2, m_pBuf + nSkip, len - nSkip);
-		m_Iter16.set(pbufPrependSurrogate, len - nSkip + 2, m_eEncoding, endSurrogate);
-	} else {
-		if (!m_pBuf)
-			return 0;
-		m_Iter16.set(m_pBuf + nSkip, len - nSkip, m_eEncoding, endSurrogate);
-	}
+	if (!buf.length() && !m_Iter16.retained())
+		return {};
+	m_Iter16.set(buf, m_eEncoding);
 
 	for (; m_Iter16; ++m_Iter16) {
-		*pCur++ = m_Iter16.get();
+		m_pNewBuf.push_back(m_Iter16.get());
 	}
 
-	delete []pbufPrependSurrogate;
-
-	memcpy(m_leadSurrogate, endSurrogate, 2);
-
-	// Return number of bytes written out
-	return pCur - m_pNewBuf;
+	return std::string_view(reinterpret_cast<const char *>(m_pNewBuf.data()), m_pNewBuf.size());
 }
 
-int Utf8_16_Read::determineEncoding() noexcept {
-	m_eEncoding = eUnknown;
+bool mem_equal(const void *ptr1, const void *ptr2, size_t num) noexcept {
+	return 0 == memcmp(ptr1, ptr2, num);
+}
+
+int Utf8_16_Reader::determineEncoding(std::string_view text) noexcept {
+	m_eEncoding = UniMode::uni8Bit;
 
 	int nRet = 0;
 
-	if (m_nLen > 1) {
-		if (m_pBuf[0] == k_Boms[eUtf16BigEndian][0] && m_pBuf[1] == k_Boms[eUtf16BigEndian][1]) {
-			m_eEncoding = eUtf16BigEndian;
+	if (text.length() > 1) {
+		if (mem_equal(text.data(), k_Boms[eUtf16BigEndian], 2)) {
+			m_eEncoding = UniMode::uni16BE;
 			nRet = 2;
-		} else if (m_pBuf[0] == k_Boms[eUtf16LittleEndian][0] && m_pBuf[1] == k_Boms[eUtf16LittleEndian][1]) {
-			m_eEncoding = eUtf16LittleEndian;
+		} else if (mem_equal(text.data(), k_Boms[eUtf16LittleEndian], 2)) {
+			m_eEncoding = UniMode::uni16LE;
 			nRet = 2;
-		} else if (m_nLen > 2 && m_pBuf[0] == k_Boms[eUtf8][0] && m_pBuf[1] == k_Boms[eUtf8][1] && m_pBuf[2] == k_Boms[eUtf8][2]) {
-			m_eEncoding = eUtf8;
+		} else if (text.length() > 2 && mem_equal(text.data(), k_Boms[eUtf8], 3)) {
+			m_eEncoding = UniMode::utf8;
 			nRet = 3;
 		}
 	}
@@ -325,67 +346,93 @@ int Utf8_16_Read::determineEncoding() noexcept {
 	return nRet;
 }
 
-// ==================================================================
-
-Utf8_16_Write::Utf8_16_Write() noexcept {
-	m_eEncoding = eUnknown;
-	m_pFile = nullptr;
-	m_bFirstWrite = true;
-	m_nBufSize = 0;
 }
 
-Utf8_16_Write::~Utf8_16_Write() noexcept {
-	if (m_pFile) {
-		fclose();
+namespace Utf8_16 {
+
+std::unique_ptr<Reader> Reader::Allocate() {
+	return std::make_unique<Utf8_16_Reader>();
+}
+
+}
+
+namespace {
+
+// ==================================================================
+
+
+// Read in a UTF-8 buffer and write out to UTF-16 or UTF-8
+class Utf8_16_Write : public Utf8_16::Writer {
+public:
+	explicit Utf8_16_Write(UniMode unicodeMode, size_t bufferSize) noexcept;
+
+	// Deleted so Utf8_16_Write objects can not be copied.
+	Utf8_16_Write(const Utf8_16_Write &) = delete;
+	Utf8_16_Write(Utf8_16_Write &&) = delete;
+	Utf8_16_Write &operator=(const Utf8_16_Write &) = delete;
+	Utf8_16_Write &operator=(Utf8_16_Write &&) = delete;
+
+	~Utf8_16_Write() noexcept override;
+
+	void appendCodeUnit(int codeUnit);
+	size_t fwrite(std::string_view buf, FILE *pFile) override;
+
+protected:
+	encodingType m_eEncoding = eUnknown;
+	std::vector<utf16> m_buf16;
+	bool m_bFirstWrite = true;
+};
+
+Utf8_16_Write::Utf8_16_Write(UniMode unicodeMode, size_t bufferSize) noexcept {
+	if (unicodeMode != UniMode::cookie) {	// Save file with cookie without BOM.
+		m_eEncoding = static_cast<encodingType>(static_cast<int>(unicodeMode));
+	}
+	if (m_eEncoding == eUtf16BigEndian || m_eEncoding == eUtf16LittleEndian) {
+		// Pre-allocate m_buf16 so should not allocate in storing thread where harder to report failure
+		m_buf16.reserve(bufferSize / 2 + 1);
+	}
+};
+
+Utf8_16_Write::~Utf8_16_Write() noexcept = default;
+
+void Utf8_16_Write::appendCodeUnit(int codeUnit) {
+	if (m_eEncoding == eUtf16LittleEndian) {
+		m_buf16.push_back(codeUnit & 0xFFFF);
+	} else {
+		const utf16 swapped = ((codeUnit & 0xFF) << 8) + ((codeUnit & 0xFF00) >> 8);
+		m_buf16.push_back(swapped);
 	}
 }
 
-void Utf8_16_Write::setfile(FILE *pFile) noexcept {
-	m_pFile = pFile;
-
-	m_bFirstWrite = true;
-}
-
-// Swap the two low order bytes of an integer value
-static int swapped(int v) noexcept {
-	return ((v & 0xFF) << 8) + (v >> 8);
-}
-
-size_t Utf8_16_Write::fwrite(const void *p, size_t _size) {
-	if (!m_pFile) {
+size_t Utf8_16_Write::fwrite(std::string_view buf, FILE *pFile) {
+	if (!pFile) {
 		return 0; // fail
 	}
 
 	if (m_eEncoding == eUnknown) {
 		// Normal write
-		return ::fwrite(p, _size, 1, m_pFile);
+		return ::fwrite(buf.data(), 1, buf.size(), pFile);
 	}
 
 	if (m_eEncoding == eUtf8) {
 		if (m_bFirstWrite)
-			::fwrite(k_Boms[m_eEncoding], 3, 1, m_pFile);
+			::fwrite(k_Boms[m_eEncoding], 3, 1, pFile);
 		m_bFirstWrite = false;
-		return ::fwrite(p, _size, 1, m_pFile);
+		return ::fwrite(buf.data(), 1, buf.size(), pFile);
 	}
 
-	if (_size > m_nBufSize) {
-		m_nBufSize = _size;
-		m_buf16 = std::make_unique<utf16[]>(m_nBufSize + 1);
-	}
+	m_buf16.clear();
 
 	if (m_bFirstWrite) {
 		if (m_eEncoding == eUtf16BigEndian || m_eEncoding == eUtf16LittleEndian) {
 			// Write the BOM
-			::fwrite(k_Boms[m_eEncoding], 2, 1, m_pFile);
+			::fwrite(k_Boms[m_eEncoding], 2, 1, pFile);
 		}
 
 		m_bFirstWrite = false;
 	}
 
-	Utf8_Iter iter8;
-	iter8.set(static_cast<const ubyte *>(p), _size, m_eEncoding);
-
-	utf16 *pCur = m_buf16.get();
+	Utf8_Iter iter8(buf, m_eEncoding);
 
 	for (; iter8; ++iter8) {
 		if (iter8.canGet()) {
@@ -393,34 +440,27 @@ size_t Utf8_16_Write::fwrite(const void *p, size_t _size) {
 			if (codePoint >= SURROGATE_FIRST_VALUE) {
 				codePoint -= SURROGATE_FIRST_VALUE;
 				const int lead = (codePoint >> 10) + SURROGATE_LEAD_FIRST;
-				*pCur++ = static_cast<utf16>((m_eEncoding == eUtf16BigEndian) ?
-							     swapped(lead) : lead);
+				appendCodeUnit(lead);
 				const int trail = (codePoint & 0x3ff) + SURROGATE_TRAIL_FIRST;
-				*pCur++ = static_cast<utf16>((m_eEncoding == eUtf16BigEndian) ?
-							     swapped(trail) : trail);
+				appendCodeUnit(trail);
 			} else {
-				*pCur++ = static_cast<utf16>((m_eEncoding == eUtf16BigEndian) ?
-							     swapped(codePoint) : codePoint);
+				appendCodeUnit(codePoint);
 			}
 		}
 	}
 
-	const size_t ret = ::fwrite(m_buf16.get(),
-				    reinterpret_cast<const char *>(pCur) - reinterpret_cast<const char *>(m_buf16.get()),
-				    1, m_pFile);
+	const size_t ret = ::fwrite(m_buf16.data(),
+		sizeof(utf16), m_buf16.size(), pFile);
 
 	return ret;
 }
 
-int Utf8_16_Write::fclose() noexcept {
-	m_buf16.reset();
-
-	const int ret = ::fclose(m_pFile);
-	m_pFile = nullptr;
-
-	return ret;
 }
 
-void Utf8_16_Write::setEncoding(Utf8_16::encodingType eType) noexcept {
-	m_eEncoding = eType;
+namespace Utf8_16 {
+
+std::unique_ptr<Writer> Writer::Allocate(UniMode unicodeMode, size_t bufferSize) {
+	return std::make_unique<Utf8_16_Write>(unicodeMode, bufferSize);
+}
+
 }
