@@ -54,8 +54,7 @@ protected:
 	eState m_eState;
 	utf8 m_nCur;
 	int m_nCur16;
-	// These 3 pointers are for externally allocated memory passed to set
-	const ubyte *m_pBuf;
+	// These 2 pointers are for externally allocated memory passed to set
 	const ubyte *m_pRead;
 	const ubyte *m_pEnd;
 };

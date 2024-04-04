@@ -124,7 +124,6 @@ void Utf8_Iter::toStart() noexcept {
 
 //==================================================
 Utf16_Iter::Utf16_Iter() noexcept {
-	m_pBuf = nullptr;
 	m_pRead = nullptr;
 	m_pEnd = nullptr;
 	m_eState = eStart;
@@ -135,7 +134,6 @@ Utf16_Iter::Utf16_Iter() noexcept {
 
 void Utf16_Iter::set
 (const ubyte *pBuf, size_t nLen, encodingType eEncoding, ubyte *endSurrogate) noexcept {
-	m_pBuf = pBuf;
 	m_pRead = pBuf;
 	m_pEnd = pBuf + nLen;
 	m_eEncoding = eEncoding;
