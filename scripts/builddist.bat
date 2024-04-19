@@ -111,7 +111,7 @@ popd
 
 endlocal
 
-:: Build the 32-bit executables with MSVC 2017 as it suports XP
+:: Build the 32-bit executables
 call "%MSVC_DIRECTORY%\vcvars32.bat"
 
 pushd lexilla
