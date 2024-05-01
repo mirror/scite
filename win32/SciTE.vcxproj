@@ -212,7 +212,6 @@
     <ClCompile Include="..\..\lexilla\lexlib\LexAccessor.cxx" />
     <ClCompile Include="..\..\lexilla\lexlib\LexerBase.cxx" />
     <ClCompile Include="..\..\lexilla\lexlib\LexerModule.cxx" />
-    <ClCompile Include="..\..\lexilla\lexlib\LexerNoExceptions.cxx" />
     <ClCompile Include="..\..\lexilla\lexlib\LexerSimple.cxx" />
     <ClCompile Include="..\..\lexilla\lexlib\PropSetSimple.cxx" />
     <ClCompile Include="..\..\lexilla\lexlib\StyleContext.cxx" />
