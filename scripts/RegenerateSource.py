@@ -286,6 +286,38 @@ def RecentHistoryVersion(pathHistory):
     release = re.search("Release ([0-9.]+)", contents)
     return release.group(1)
 
+def TagName(t):
+    if ' ' in t:
+        t = t.split()[0]
+    t = "".join(c for c in t if c.isalpha())
+    return t
+
+def CheckTags(text, context):
+    stack = []
+    lineNumber = 0
+    for l in text.splitlines():
+        lineNumber += 1
+        inTag = False
+        tag = ""
+        for ch in l:
+            if ch == '<':
+                tag = ch
+                inTag = True
+            elif inTag:
+                tag = tag + ch
+                if ch == '>':
+                    if not (tag.endswith("/>") or tag.startswith("<?")):
+                        # Start or end tag
+                        if tag.startswith("</"):
+                            # End tag
+                            previous = stack[-1]
+                            if TagName(tag) != TagName(previous[0]):
+                                print(f"{context}:{previous[1]}: tag mismatch {previous[0]} -> {lineNumber} {tag} ")
+                            stack = stack[:len(stack)-1]
+                        else:
+                            stack.append([tag, lineNumber])
+                    inTag = False
+
 def CheckHistoryLinks(pathHistory):
     contents = pathHistory.read_text("utf-8")
 
@@ -318,6 +350,8 @@ def CheckHistoryLinks(pathHistory):
         # SciTE 2.0 is a special case
         if linkNums != literalNums and linkNums != "200":
             print(f"{link} {linkNums}-> {literal}")
+
+    CheckTags(contents, pathHistory)
 
 def RegenerateAll():
     sci = ScintillaData.ScintillaData(sciDirectory)
