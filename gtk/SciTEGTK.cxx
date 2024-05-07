@@ -789,14 +789,14 @@ SciTEGTK::~SciTEGTK()=default;
 static void destroyDialog(GtkWidget *, gpointer *window) {
 	if (window) {
 		GUI::Window *pwin = reinterpret_cast<GUI::Window *>(window);
-		*(pwin) = 0;
+		pwin->SetID(nullptr);
 	}
 }
 
 static void destroyDialogFindReplace(GtkWidget *, gpointer *window) {
 	if (window) {
 		DialogFindReplace *dlg = reinterpret_cast<DialogFindReplace *>(window);
-		*((GUI::Window *)dlg) = 0;
+		dlg->SetID(nullptr);
 	}
 }
 
