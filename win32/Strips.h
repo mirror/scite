@@ -80,7 +80,7 @@ public:
 	Strip(Strip &&) = delete;
 	Strip &operator=(const Strip &) = delete;
 	Strip &operator=(Strip &&) = delete;
-	virtual ~Strip() = default;
+	virtual ~Strip() override = default;
 	virtual int Height() noexcept {
 		return lineHeight * Lines() + space - 1;
 	}

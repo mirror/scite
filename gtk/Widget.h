@@ -116,7 +116,7 @@ private:
 	GtkToggleButton *ToggleButton() const;
 public:
 	WCheckDraw();
-	~WCheckDraw();
+	~WCheckDraw() override;
 	void Create(int cmd_, const char **xpmImage, const GUI::gui_string &toolTip);
 	int Command() const;
 	const char *Label() const;
@@ -183,7 +183,7 @@ public:
 	bool visible;
 	Strip() : allowMenuActions(false), childHasFocus(false), visible(false) {
 	}
-	virtual ~Strip() {
+	virtual ~Strip() override {
 	}
 	virtual void Creation(GtkWidget *container);
 	virtual void Show(int buttonHeight);

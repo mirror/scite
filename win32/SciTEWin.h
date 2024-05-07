@@ -386,7 +386,7 @@ public:
 	SciTEWin &operator=(const SciTEWin &) = delete;
 	SciTEWin &operator=(SciTEWin &&) = delete;
 
-	~SciTEWin();
+	~SciTEWin() override;
 
 	static bool DialogHandled(GUI::WindowID id, MSG *pmsg) noexcept;
 	bool ModelessHandler(MSG *pmsg);
