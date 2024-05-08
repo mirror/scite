@@ -55,6 +55,9 @@ constParameterCallback:scite/src/LuaExtension.cxx
 // Don't understand what is happening here in SwitchDocumentAt
 constParameterPointer:scite/src/SciTEBuffers.cxx
 
+// Not using const pointer as called method TextWritten may change to mutate argument
+constParameterPointer:scite/src/SciTEIO.cxx
+
 // Menu::Show is cross-platform and may have to mutate its second argument
 constParameterReference:scite/win32/GUIWin.cxx
 
