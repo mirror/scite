@@ -1159,7 +1159,9 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 		stExitMessage << ">Exit code: " << exitcode;
 		if (jobQueue.TimeCommands()) {
 			stExitMessage << "    Time: ";
-			stExitMessage << std::setprecision(4) << cmdWorker.commandTime.Duration();
+			stExitMessage << std::fixed;
+			stExitMessage << std::setprecision(4);
+			stExitMessage << cmdWorker.commandTime.Duration();
 		}
 		stExitMessage << "\n";
 		OutputAppendStringSynchronised(stExitMessage.str());
