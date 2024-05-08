@@ -244,9 +244,9 @@ void Utf16_Iter::operator++() noexcept {
 
 utf16 Utf16_Iter::read(const ubyte *pRead) const noexcept {
 	if (m_eEncoding == UniMode::uni16LE) {
-		return pRead[0] | (pRead[1] << 8);
+		return pRead[0] | static_cast<utf16>(pRead[1] << 8);
 	} else {
-		return pRead[1] | (pRead[0] << 8);
+		return pRead[1] | static_cast<utf16>(pRead[0] << 8);
 	}
 }
 
@@ -399,7 +399,7 @@ void Utf8_16_Write::appendCodeUnit(int codeUnit) {
 	if (m_eEncoding == eUtf16LittleEndian) {
 		m_buf16.push_back(codeUnit & 0xFFFF);
 	} else {
-		const utf16 swapped = ((codeUnit & 0xFF) << 8) + ((codeUnit & 0xFF00) >> 8);
+		const utf16 swapped = static_cast<utf16>((codeUnit & 0xFF) << 8) | ((codeUnit & 0xFF00) >> 8);
 		m_buf16.push_back(swapped);
 	}
 }
