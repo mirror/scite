@@ -364,7 +364,7 @@ namespace {
 // Read in a UTF-8 buffer and write out to UTF-16 or UTF-8
 class Utf8_16_Write : public Utf8_16::Writer {
 public:
-	explicit Utf8_16_Write(UniMode unicodeMode, size_t bufferSize) noexcept;
+	explicit Utf8_16_Write(UniMode unicodeMode, size_t bufferSize);
 
 	// Deleted so Utf8_16_Write objects can not be copied.
 	Utf8_16_Write(const Utf8_16_Write &) = delete;
@@ -383,7 +383,7 @@ protected:
 	bool m_bFirstWrite = true;
 };
 
-Utf8_16_Write::Utf8_16_Write(UniMode unicodeMode, size_t bufferSize) noexcept {
+Utf8_16_Write::Utf8_16_Write(UniMode unicodeMode, size_t bufferSize) {
 	if (unicodeMode != UniMode::cookie) {	// Save file with cookie without BOM.
 		m_eEncoding = static_cast<encodingType>(static_cast<int>(unicodeMode));
 	}
