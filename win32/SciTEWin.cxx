@@ -283,7 +283,7 @@ uintptr_t SciTEWin::GetInstance() {
 	return reinterpret_cast<uintptr_t>(hInstance);
 }
 
-void SciTEWin::Register(HINSTANCE hInstance_) {
+void SciTEWin::Register(HINSTANCE hInstance_) noexcept {
 	const TCHAR resourceName[] = TEXT("SciTE");
 
 	hInstance = hInstance_;
@@ -316,7 +316,7 @@ void SciTEWin::Register(HINSTANCE hInstance_) {
 
 namespace {
 
-int CodePageFromName(const std::string &encodingName) {
+int CodePageFromName(const std::string &encodingName) noexcept {
 	struct Encoding {
 		const char *name;
 		int codePage;
@@ -827,7 +827,11 @@ void CommandWorker::Execute() noexcept {
 	try {
 		pSciTE->ProcessExecute();
 	} catch (...) {
-		pSciTE->OutputAppendEncodedStringSynchronised(L"Exception in thread.\r\n", 0);
+		try {
+			pSciTE->OutputAppendEncodedStringSynchronised(L"Exception in thread.\r\n", 0);
+		} catch (...) {
+			// Ignore exception here which could be memory exhaustion from encoding
+		}
 	}
 }
 

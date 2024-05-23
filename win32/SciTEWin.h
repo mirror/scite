@@ -426,7 +426,7 @@ public:
 	}
 
 	uintptr_t GetInstance() override;
-	static void Register(HINSTANCE hInstance_);
+	static void Register(HINSTANCE hInstance_) noexcept;
 	static LRESULT PASCAL TWndProc(
 		HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
 
