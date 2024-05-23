@@ -349,7 +349,7 @@ std::string StringEncode(std::wstring_view wsv, int codePage) {
 		const int sLength = static_cast<int>(wsv.length());
 		const int cchMulti = ::WideCharToMultiByte(codePage, 0, wsv.data(), sLength, nullptr, 0, nullptr, nullptr);
 		std::string sMulti(cchMulti, 0);
-		::WideCharToMultiByte(codePage, 0, wsv.data(), sLength, &sMulti[0], cchMulti, nullptr, nullptr);
+		::WideCharToMultiByte(codePage, 0, wsv.data(), sLength, sMulti.data(), cchMulti, nullptr, nullptr);
 		return sMulti;
 	} else {
 		return std::string();
@@ -361,7 +361,7 @@ std::wstring StringDecode(std::string_view sv, int codePage) {
 		const int sLength = static_cast<int>(sv.length());
 		const int cchWide = ::MultiByteToWideChar(codePage, 0, sv.data(), sLength, nullptr, 0);
 		std::wstring sWide(cchWide, 0);
-		::MultiByteToWideChar(codePage, 0, sv.data(), sLength, &sWide[0], cchWide);
+		::MultiByteToWideChar(codePage, 0, sv.data(), sLength, sWide.data(), cchWide);
 		return sWide;
 	} else {
 		return std::wstring();
@@ -1057,8 +1057,8 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 			DWORD bytesAvail = 0;
 			std::vector<char> buffer(pipeBufferSize);
 
-			if (!::PeekNamedPipe(hPipeRead, &buffer[0],
-					     static_cast<DWORD>(buffer.size()), &bytesRead, &bytesAvail, nullptr)) {
+			if (!::PeekNamedPipe(hPipeRead, buffer.data(), pipeBufferSize,
+				&bytesRead, &bytesAvail, nullptr)) {
 				bytesAvail = 0;
 			}
 
@@ -1104,13 +1104,13 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 				}
 
 			} else if (bytesAvail > 0) {
-				const int bTest = ::ReadFile(hPipeRead, &buffer[0],
-							     static_cast<DWORD>(buffer.size()), &bytesRead, nullptr);
+				const int bTest = ::ReadFile(hPipeRead, buffer.data(), pipeBufferSize,
+							     &bytesRead, nullptr);
 
 				if (bTest && bytesRead) {
 
 					if (jobToRun.flags & jobRepSelMask) {
-						repSelBuf.append(&buffer[0], bytesRead);
+						repSelBuf.append(buffer.data(), bytesRead);
 					}
 
 					if (!(jobToRun.flags & jobQuiet)) {
@@ -1243,7 +1243,7 @@ void SciTEWin::ShellExec(std::string_view cmd, std::string_view dir) {
 	if (!s)
 		s = strstr(mycmdLowered, ".com");
 	std::string cmdcopy(cmd);
-	char *mycmdcopy = &cmdcopy[0];
+	char *mycmdcopy = cmdcopy.data();
 	const char *mycmd;
 	char *mycmdEnd = nullptr;
 	if (s && ((*(s + 4) == '\0') || (*(s + 4) == ' '))) {
