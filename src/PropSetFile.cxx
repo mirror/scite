@@ -343,7 +343,7 @@ void GetFullLine(std::string_view &data, std::string &lineBuffer) {
 bool IsCommentLine(std::string_view line) noexcept {
 	while (!line.empty() && IsSpaceOrTab(line.front()))
 		line.remove_prefix(1);
-	return StartsWith(line, "#");
+	return line.starts_with('#');
 }
 
 bool GenericPropertiesFile(const FilePath &filename) {
