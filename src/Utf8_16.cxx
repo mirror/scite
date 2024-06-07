@@ -256,6 +256,40 @@ bool Utf16_Iter::retained() const noexcept {
 
 // ==================================================================
 
+bool mem_equal(const void *ptr1, const void *ptr2, size_t num) noexcept {
+	return 0 == memcmp(ptr1, ptr2, num);
+}
+
+UniMode DetermineEncoding(std::string_view text) noexcept {
+	if (text.length() >= 2) {
+		if (mem_equal(text.data(), k_Boms[eUtf16BigEndian], 2)) {
+			return UniMode::uni16BE;
+		}
+		if (mem_equal(text.data(), k_Boms[eUtf16LittleEndian], 2)) {
+			return UniMode::uni16LE;
+		} 
+		if (text.length() >= 3 && mem_equal(text.data(), k_Boms[eUtf8], 3)) {
+			return UniMode::utf8;
+		}
+	}
+
+	return UniMode::uni8Bit;
+}
+
+size_t LengthBOM(UniMode encoding) noexcept {
+	switch (encoding) {
+	case UniMode::uni8Bit:
+	case UniMode::cookie:
+		return 0;
+	case UniMode::uni16BE:
+	case UniMode::uni16LE:
+		return 2;
+	case UniMode::utf8:
+		return 3;
+	}
+	return 0;
+}
+
 // Reads UTF16 and outputs UTF8
 class Utf8_16_Reader : public Utf8_16::Reader {
 public:
@@ -276,7 +310,6 @@ public:
 	}
 
 private:
-	int determineEncoding(std::string_view text) noexcept;
 	UniMode m_eEncoding = UniMode::uni8Bit;
 	// m_pNewBuf may be allocated by Utf8_16_Read::convert
 	std::vector<ubyte> m_pNewBuf;
@@ -291,16 +324,14 @@ Utf8_16_Reader::Utf8_16_Reader() noexcept = default;
 Utf8_16_Reader::~Utf8_16_Reader() noexcept = default;
 
 std::string_view Utf8_16_Reader::convert(std::string_view buf) {
-	int nSkip = 0;
 	if (m_bFirstRead) {
-		nSkip = determineEncoding(buf);
+		m_eEncoding = DetermineEncoding(buf);
+		buf.remove_prefix(LengthBOM(m_eEncoding));
 		if (m_eEncoding == UniMode::uni8Bit) {
 			m_eEncoding = CodingCookieValue(buf);
 		}
 		m_bFirstRead = false;
 	}
-
-	buf.remove_prefix(nSkip);
 
 	if ((m_eEncoding == UniMode::uni8Bit) || (m_eEncoding == UniMode::utf8) || (m_eEncoding == UniMode::cookie)) {
 		// Do nothing, pass through omitting BOM when present
@@ -319,31 +350,6 @@ std::string_view Utf8_16_Reader::convert(std::string_view buf) {
 	}
 
 	return std::string_view(reinterpret_cast<const char *>(m_pNewBuf.data()), m_pNewBuf.size());
-}
-
-bool mem_equal(const void *ptr1, const void *ptr2, size_t num) noexcept {
-	return 0 == memcmp(ptr1, ptr2, num);
-}
-
-int Utf8_16_Reader::determineEncoding(std::string_view text) noexcept {
-	m_eEncoding = UniMode::uni8Bit;
-
-	int nRet = 0;
-
-	if (text.length() > 1) {
-		if (mem_equal(text.data(), k_Boms[eUtf16BigEndian], 2)) {
-			m_eEncoding = UniMode::uni16BE;
-			nRet = 2;
-		} else if (mem_equal(text.data(), k_Boms[eUtf16LittleEndian], 2)) {
-			m_eEncoding = UniMode::uni16LE;
-			nRet = 2;
-		} else if (text.length() > 2 && mem_equal(text.data(), k_Boms[eUtf8], 3)) {
-			m_eEncoding = UniMode::utf8;
-			nRet = 3;
-		}
-	}
-
-	return nRet;
 }
 
 }
