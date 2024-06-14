@@ -13,7 +13,7 @@
 
 # Regenerates Scintilla files by calling LexGen.RegenerateAll
 
-import datetime, pathlib, re, sys
+import datetime, html, pathlib, re, sys
 
 sciteBase = pathlib.Path(__file__).resolve().parent.parent
 baseDirectory = sciteBase.parent
@@ -373,7 +373,7 @@ def RegenerateAll():
     propertiesHTML = []
     for k in documentProperties:
         propertiesHTML.append("        <tr id='property-%s'>\n        <td>%s</td>\n        <td>%s</td>\n        </tr>" %
-            (k, k, lex.propertyDocuments[k]))
+            (k, k, html.escape(lex.propertyDocuments[k], quote=False)))
 
     # Find all the SciTE properties files
     otherProps = [
