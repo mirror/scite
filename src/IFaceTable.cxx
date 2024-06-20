@@ -3305,6 +3305,7 @@ static IFaceFunction ifaceFunctions[] = {
 	{"CreateDocument", 2375, iface_pointer, {iface_position, iface_int}},
 	{"CreateLoader", 2632, iface_pointer, {iface_position, iface_int}},
 	{"Cut", 2177, iface_void, {iface_void, iface_void}},
+	{"CutAllowLine", 2810, iface_void, {iface_void, iface_void}},
 	{"DelLineLeft", 2395, iface_void, {iface_void, iface_void}},
 	{"DelLineRight", 2396, iface_void, {iface_void, iface_void}},
 	{"DelWordLeft", 2335, iface_void, {iface_void, iface_void}},
@@ -3841,7 +3842,7 @@ static IFaceProperty ifaceProperties[] = {
 };
 
 enum {
-	ifaceFunctionCount = 330,
+	ifaceFunctionCount = 331,
 	ifaceConstantCount = 3102,
 	ifacePropertyCount = 272
 };
