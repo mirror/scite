@@ -4820,6 +4820,8 @@ bool SciTEBase::ProcessCommandLine(const std::vector<GUI::gui_string> &args, int
 				InitialiseBuffers();
 				if (props.GetInt("save.recent"))
 					RestoreRecentMenu();
+				if (props.GetInt("load.session.always") && props.GetInt("buffers") && props.GetInt("save.session") && props.GetInt("check.if.already.open"))
+					RestoreSession();
 			}
 
 			if (!PreOpenCheck(args[i]))

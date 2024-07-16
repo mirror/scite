@@ -369,7 +369,9 @@ NameError: name 'mistake' is not defined
         command line last session will not restore even if "save.session"
         variable is set to "1". This makes "save.session" safe to use - you
         will never open a couple of files when you are trying to open just
-        one, specific file.
+        one, specific file. However, if you wish to have files opened with your
+        last session, you can do so by also setting "load.session.always"
+        and "check.if.already.open" to "1".
      </p>
      <p>
         By setting "session.bookmarks" and "session.folds" variables bookmarks
@@ -3295,14 +3297,17 @@ Prev File|IDM_PREVFILE|<br/>
         <td>
           <a name='property-save.recent'></a><a name='property-save.position'></a><a name='property-save.find'></a>
           save.session<br />
+          load.session.always<br />
           save.recent<br />
           save.position<br />
           save.find
         </td>
         <td>
-        If you set save.session, the list of currently opened buffers will be saved on exit
+        If you set save.session to 1, the list of currently opened buffers will be saved on exit
         in a session file. When you start SciTE next time (without specifying a file name
-        on the command line) the last session will be restored automatically.<br />
+        on the command line) the last session will be restored automatically. If you also
+        set load.session.always and check.if.already.open to 1, SciTE will restore your last session
+        and open the specified file alongside it.<br />
         <b>For GTK</b>, the file is called ".SciTE.session" and is located in the
         directory given by the SciTE_USERHOME environment variable and if that is
         not set, the value of the SciTE_HOME environment variable and if that is not
