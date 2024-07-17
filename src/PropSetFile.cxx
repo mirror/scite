@@ -374,8 +374,8 @@ PropSetFile::ReadLineState PropSetFile::ReadLine(const std::string &lineBuffer, 
 	if ((rls == ReadLineState::conditionFalse) && (!IsSpaceOrTab(lineBuffer[0])))    // If clause ends with first non-indented line
 		rls = ReadLineState::active;
 	if (StartsWith(lineBuffer, "module ")) {
-		std::string module = lineBuffer.substr(strlen("module") + 1);
-		if (module.empty() || filter.IsValid(module)) {
+		std::string moduleName = lineBuffer.substr(strlen("module") + 1);
+		if (moduleName.empty() || filter.IsValid(moduleName)) {
 			rls = ReadLineState::active;
 		} else {
 			rls = ReadLineState::excludedModule;
