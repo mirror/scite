@@ -134,7 +134,7 @@
 <tr><td>2547</td><td>AnnotationClearAll</td><td>Clear the annotations from all lines</td></tr>
 <tr><td>2101</td><td>AutoCCancel</td><td>Remove the auto-completion list from the screen.</td></tr>
 <tr><td>2104</td><td>AutoCComplete</td><td>User has selected an item so remove the list and insert the selection.</td></tr>
-<tr><td>2328</td><td>BackTab</td><td>Dedent the selected lines.</td></tr>
+<tr><td>2328</td><td>BackTab</td><td>If selection is empty or all on one line dedent the line if caret is at start, else move caret. If more than one line selected, dedent the lines.</td></tr>
 <tr><td>2078</td><td>BeginUndoAction</td><td>Start a sequence of actions that is undone and redone as a unit. May be nested.</td></tr>
 <tr><td>2201</td><td>CallTipCancel</td><td>Remove the call tip from the screen.</td></tr>
 <tr><td>2325</td><td>Cancel</td><td>Cancel any modes such as call tip or auto-completion list display.</td></tr>
@@ -184,6 +184,7 @@
 <tr><td>2450</td><td>HomeWrapExtend</td><td>Like HomeExtend but when word-wrap is enabled extends first to start of display line HomeDisplayExtend, then to start of document line HomeExtend.</td></tr>
 <tr><td>2455</td><td>LineCopy</td><td>Copy the line containing the caret.</td></tr>
 <tr><td>2337</td><td>LineCut</td><td>Cut the line containing the caret.</td></tr>
+<tr><td>2814</td><td>LineDedent</td><td>Dedent the current and selected lines.</td></tr>
 <tr><td>2338</td><td>LineDelete</td><td>Delete the line containing the caret.</td></tr>
 <tr><td>2300</td><td>LineDown</td><td>Move caret down one line.</td></tr>
 <tr><td>2301</td><td>LineDownExtend</td><td>Move caret down one line extending selection to new caret position.</td></tr>
@@ -196,6 +197,7 @@
 <tr><td>2432</td><td>LineEndRectExtend</td><td>Move caret to last position on line, extending rectangular selection to new caret position.</td></tr>
 <tr><td>2451</td><td>LineEndWrap</td><td>Like LineEnd but when word-wrap is enabled goes first to end of display line LineEndDisplay, then to start of document line LineEnd.</td></tr>
 <tr><td>2452</td><td>LineEndWrapExtend</td><td>Like LineEndExtend but when word-wrap is enabled extends first to end of display line LineEndDisplayExtend, then to start of document line LineEndExtend.</td></tr>
+<tr><td>2813</td><td>LineIndent</td><td>Indent the current and selected lines.</td></tr>
 <tr><td>2354</td><td>LineReverse</td><td>Reverse order of selected lines.</td></tr>
 <tr><td>2342</td><td>LineScrollDown</td><td>Scroll the document down, keeping the caret visible.</td></tr>
 <tr><td>2343</td><td>LineScrollUp</td><td>Scroll the document up, keeping the caret visible.</td></tr>

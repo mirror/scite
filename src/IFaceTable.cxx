@@ -3394,6 +3394,7 @@ static IFaceFunction ifaceFunctions[] = {
 	{"IsRangeWord", 2691, iface_bool, {iface_position, iface_position}},
 	{"LineCopy", 2455, iface_void, {iface_void, iface_void}},
 	{"LineCut", 2337, iface_void, {iface_void, iface_void}},
+	{"LineDedent", 2814, iface_void, {iface_void, iface_void}},
 	{"LineDelete", 2338, iface_void, {iface_void, iface_void}},
 	{"LineDown", 2300, iface_void, {iface_void, iface_void}},
 	{"LineDownExtend", 2301, iface_void, {iface_void, iface_void}},
@@ -3408,6 +3409,7 @@ static IFaceFunction ifaceFunctions[] = {
 	{"LineEndWrapExtend", 2452, iface_void, {iface_void, iface_void}},
 	{"LineFromIndexPosition", 2713, iface_line, {iface_position, iface_int}},
 	{"LineFromPosition", 2166, iface_line, {iface_position, iface_void}},
+	{"LineIndent", 2813, iface_void, {iface_void, iface_void}},
 	{"LineLength", 2350, iface_position, {iface_line, iface_void}},
 	{"LineReverse", 2354, iface_void, {iface_void, iface_void}},
 	{"LineScroll", 2168, iface_void, {iface_position, iface_line}},
@@ -3851,7 +3853,7 @@ static IFaceProperty ifaceProperties[] = {
 };
 
 enum {
-	ifaceFunctionCount = 331,
+	ifaceFunctionCount = 333,
 	ifaceConstantCount = 3108,
 	ifacePropertyCount = 275
 };
