@@ -319,6 +319,8 @@ void SciTEBase::SetOneStyle(GUI::ScintillaWindow &win, int style, std::string_vi
 		win.StyleSetItalic(style, sd.italics);
 	if (sd.specified & StyleDefinition::sdWeight)
 		win.StyleSetWeight(style, sd.weight);
+	if (sd.specified & StyleDefinition::sdStretch)
+		win.StyleSetStretch(style, sd.stretch);
 	if (sd.specified & StyleDefinition::sdFont) {
 		win.StyleSetFont(style, sd.font.c_str());
 		bool inMonospacedList = !monospacedList.empty() && (monospacedList.back() == "*");

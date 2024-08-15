@@ -3987,7 +3987,7 @@ imports.include=fortran lisp
           each lexer.<br />
            The value of each setting is a set of ',' separated attributes, some of which have a
           subvalue after a ':'. The attributes are: <div class="example">font, size, fore, back, italics, notitalics, bold,
-          notbold, weight, eolfilled, noteolfilled, underlined, notunderlined, case,
+          notbold, weight, stretch. eolfilled, noteolfilled, underlined, notunderlined, case,
           visible, notvisible, invisiblerepresentation, changeable, and notchangeable</div>
          <table cellpadding="1" cellspacing="0" border="1" summary="Style fields">
           <tr><th>attribute</th><th>subvalue</th></tr>
@@ -3999,7 +3999,8 @@ imports.include=fortran lisp
           <tr><td>notitalics</td><td></td></tr>
           <tr><td>bold</td><td></td></tr>
           <tr><td>notbold</td><td></td></tr>
-          <tr><td>weight</td><td>numeric 1.. 999: 100=light, 400=normal, 700=bold</td></tr>
+          <tr><td>weight</td><td>numeric 1 .. 999: 100=light, 400=normal, 700=bold</td></tr>
+          <tr><td>stretch</td><td>numeric 1 .. 9: 1=ultra-condensed, 5=normal, 9=ultra-expanded</td></tr>
           <tr><td>eolfilled</td><td></td></tr>
           <tr><td>noteolfilled</td><td></td></tr>
           <tr><td>underlined</td><td></td></tr>

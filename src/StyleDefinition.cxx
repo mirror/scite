@@ -27,8 +27,9 @@
 namespace SA = Scintilla;
 
 StyleDefinition::StyleDefinition(std::string_view definition) :
-	sizeFractional(10.0), size(10), fore("#000000"), back("#FFFFFF"),
-	weight(SA::FontWeight::Normal), italics(false), eolfilled(false), underlined(false),
+	sizeFractional(10.0), size(10), back("#FFFFFF"),
+	weight(SA::FontWeight::Normal), stretch(SA::FontStretch::Normal),
+	italics(false), eolfilled(false), underlined(false),
 	caseForce(SA::CaseVisible::Mixed),
 	visible(true), changeable(true),
 	specified(sdNone) {
@@ -67,6 +68,14 @@ bool StyleDefinition::ParseStyleDefinition(std::string_view definition) {
 			specified = static_cast<flags>(specified | sdWeight);
 			try {
 				weight = static_cast<SA::FontWeight>(std::stoi(std::string(optionValue)));
+			} catch (std::logic_error &) {
+				// Ignore bad values, either non-numeric or out of range numberic
+			}
+		}
+		if ((optionName == "stretch") && !optionValue.empty()) {
+			specified = static_cast<flags>(specified | sdStretch);
+			try {
+				stretch = static_cast<SA::FontStretch>(std::stoi(std::string(optionValue)));
 			} catch (std::logic_error &) {
 				// Ignore bad values, either non-numeric or out of range numberic
 			}
