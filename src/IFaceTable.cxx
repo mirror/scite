@@ -2168,6 +2168,21 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_TEX_SPECIAL",1},
 	{"SCE_TEX_SYMBOL",3},
 	{"SCE_TEX_TEXT",5},
+	{"SCE_TOML_COMMENT",1},
+	{"SCE_TOML_DATETIME",14},
+	{"SCE_TOML_DEFAULT",0},
+	{"SCE_TOML_ERROR",7},
+	{"SCE_TOML_ESCAPECHAR",13},
+	{"SCE_TOML_IDENTIFIER",2},
+	{"SCE_TOML_KEY",6},
+	{"SCE_TOML_KEYWORD",3},
+	{"SCE_TOML_NUMBER",4},
+	{"SCE_TOML_OPERATOR",8},
+	{"SCE_TOML_STRING_DQ",10},
+	{"SCE_TOML_STRING_SQ",9},
+	{"SCE_TOML_TABLE",5},
+	{"SCE_TOML_TRIPLE_STRING_DQ",12},
+	{"SCE_TOML_TRIPLE_STRING_SQ",11},
 	{"SCE_TXT2TAGS_BLOCKQUOTE",15},
 	{"SCE_TXT2TAGS_CODE",19},
 	{"SCE_TXT2TAGS_CODE2",20},
@@ -2901,6 +2916,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCLEX_TCMD",103},
 	{"SCLEX_TEHEX",119},
 	{"SCLEX_TEX",49},
+	{"SCLEX_TOML",136},
 	{"SCLEX_TXT2TAGS",99},
 	{"SCLEX_VB",8},
 	{"SCLEX_VBSCRIPT",28},
@@ -3854,7 +3870,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 333,
-	ifaceConstantCount = 3108,
+	ifaceConstantCount = 3124,
 	ifacePropertyCount = 275
 };
 
