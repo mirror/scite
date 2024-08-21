@@ -1,5 +1,5 @@
-/** @file testDecoration.cxx
- ** Unit Tests for Scintilla internal data structures
+/** @file testUtf8_16.cxx
+ ** Unit Tests for SciTE internal data structures
  **/
 
 #define _CRT_SECURE_NO_WARNINGS
