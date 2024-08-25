@@ -183,6 +183,24 @@ bool StyleAndWords::Includes(const std::string &value) const {
 	return value.find(ch) != std::string::npos;
 }
 
+UndoBlock::UndoBlock(Scintilla::ScintillaCall &sci_, bool groupNeeded) : sci(sci_) {
+	if (groupNeeded) {
+		sci.BeginUndoAction();
+		// If exception thrown doesn't set began so end is not called
+		began = true;
+	}
+}
+
+UndoBlock::~UndoBlock() noexcept {
+	if (began) {
+		try {
+			sci.EndUndoAction();
+		} catch (...) {
+			// Must not throw from destructor so ignore exceptions
+		}
+	}
+}
+
 SciTEBase::SciTEBase(Extension *ext) : apis(true), pwFocussed(&wEditor), extender(ext) {
 	needIdle = false;
 	codePage = 0;
@@ -1305,7 +1323,7 @@ intptr_t SciTEBase::DoReplaceAll(bool inSelection) {
 	if ((posFind >= 0) && (posFind <= rangeSearch.end)) {
 		SA::Position lastMatch = posFind;
 		intptr_t replacements = 0;
-		wEditor.BeginUndoAction();
+		UndoBlock ub(wEditor);
 		// Replacement loop
 		while (posFind >= 0) {
 			const SA::Position lenTarget = wEditor.TargetEnd() - wEditor.TargetStart();
@@ -1358,7 +1376,6 @@ intptr_t SciTEBase::DoReplaceAll(bool inSelection) {
 		} else {
 			SetSelection(lastMatch, lastMatch);
 		}
-		wEditor.EndUndoAction();
 		return replacements;
 	}
 	return 0;
@@ -1894,7 +1911,7 @@ bool SciTEBase::PerformInsertAbbreviation() {
 	bool isIndent = true;
 	const SA::EndOfLine eolMode = wEditor.EOLMode();
 
-	wEditor.BeginUndoAction();
+	UndoBlock ub(wEditor);
 
 	// add temporary characters around the selection for correct line indentation
 	// if there are tabs or spaces at the beginning or end of the selection
@@ -1970,7 +1987,6 @@ bool SciTEBase::PerformInsertAbbreviation() {
 	// restore selection
 	wEditor.SetSelectionEnd(caretPos + selLength);
 
-	wEditor.EndUndoAction();
 	return true;
 }
 
@@ -2010,7 +2026,7 @@ bool SciTEBase::StartExpandAbbreviation() {
 	bool isIndent = true;
 	const SA::EndOfLine eolMode = wEditor.EOLMode();
 
-	wEditor.BeginUndoAction();
+	UndoBlock ub(wEditor);
 
 	// add a temporary character for correct line indentation
 	// if there are tabs or spaces after the caret
@@ -2070,7 +2086,6 @@ bool SciTEBase::StartExpandAbbreviation() {
 		wEditor.GotoPos(caretPos);
 	}
 
-	wEditor.EndUndoAction();
 	return true;
 }
 
@@ -2106,7 +2121,7 @@ bool SciTEBase::StartBlockComment() {
 	if ((lines > 0) &&
 			(selectionEnd == wEditor.LineStart(selEndLine)))
 		selEndLine--;
-	wEditor.BeginUndoAction();
+	UndoBlock ub(wEditor);
 	for (SA::Line i = selStartLine; i <= selEndLine; i++) {
 		const SA::Position lineStart = wEditor.LineStart(i);
 		SA::Position lineIndent = lineStart;
@@ -2151,7 +2166,6 @@ bool SciTEBase::StartBlockComment() {
 	} else {
 		wEditor.SetSel(selectionStart, selectionEnd);
 	}
-	wEditor.EndUndoAction();
 	return true;
 }
 
@@ -2216,7 +2230,7 @@ bool SciTEBase::StartBoxComment() {
 	const SA::Position middleCommentLength = middleComment.length();
 	const SA::Position endCommentLength = endComment.length();
 
-	wEditor.BeginUndoAction();
+	UndoBlock ub(wEditor);
 
 	// Insert startComment if needed
 	SA::Position lineStart = wEditor.LineStart(selStartLine);
@@ -2278,8 +2292,6 @@ bool SciTEBase::StartBoxComment() {
 		wEditor.SetSel(selectionStart, selectionEnd);
 	}
 
-	wEditor.EndUndoAction();
-
 	return true;
 }
 
@@ -2317,7 +2329,7 @@ bool SciTEBase::StartStreamComment() {
 		if (selection.start == selection.end)
 			return true; // caret is located _between_ words
 	}
-	wEditor.BeginUndoAction();
+	UndoBlock ub(wEditor);
 	wEditor.InsertText(selection.start, startComment.c_str());
 	selection.end += startCommentLength;
 	selection.start += startCommentLength;
@@ -2329,7 +2341,6 @@ bool SciTEBase::StartStreamComment() {
 	} else {
 		wEditor.SetSel(selection.start, selection.end);
 	}
-	wEditor.EndUndoAction();
 	return true;
 }
 
@@ -2486,7 +2497,7 @@ static std::string CreateIndentation(int indent, int tabSize, bool insertSpaces)
 }
 
 void SciTEBase::ConvertIndentation(int tabSize, int useTabs) {
-	wEditor.BeginUndoAction();
+	UndoBlock ub(wEditor);
 	const SA::Line maxLine = wEditor.LineCount();
 	for (SA::Line line = 0; line < maxLine; line++) {
 		const SA::Position lineStart = wEditor.LineStart(line);
@@ -2502,7 +2513,6 @@ void SciTEBase::ConvertIndentation(int tabSize, int useTabs) {
 			}
 		}
 	}
-	wEditor.EndUndoAction();
 }
 
 bool SciTEBase::RangeIsAllWhitespace(SA::Position start, SA::Position end) {
@@ -2867,13 +2877,12 @@ bool SciTEBase::HandleXml(char ch) {
 	std::string strFound = FindOpenXmlTag(sel.c_str(), nCaret - nMin);
 
 	if (strFound.length() > 0) {
-		wEditor.BeginUndoAction();
+		UndoBlock ub(wEditor);
 		std::string toInsert = "</";
 		toInsert += strFound;
 		toInsert += ">";
 		wEditor.ReplaceSel(toInsert.c_str());
 		SetSelection(nCaret, nCaret);
-		wEditor.EndUndoAction();
 		return true;
 	}
 

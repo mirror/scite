@@ -297,6 +297,19 @@ constexpr GrepFlags operator|(GrepFlags a, GrepFlags b) noexcept {
 	return static_cast<GrepFlags>(static_cast<int>(a) | static_cast<int>(b));
 }
 
+class UndoBlock {
+	Scintilla::ScintillaCall &sci;
+	bool began = false;
+public:
+	explicit UndoBlock(Scintilla::ScintillaCall &sci_, bool groupNeeded=true);
+	// Deleted so UndoBlock objects can not be copied.
+	UndoBlock(const UndoBlock &) = delete;
+	UndoBlock(UndoBlock &&) = delete;
+	UndoBlock &operator=(const UndoBlock &) = delete;
+	UndoBlock &operator=(UndoBlock &&) = delete;
+	~UndoBlock() noexcept;
+};
+
 class SciTEBase : public ExtensionAPI, public Searcher, public WorkerListener {
 protected:
 	bool needIdle;

@@ -1336,14 +1336,10 @@ void SciTEWin::Execute() {
 
 	if (job.jobType == JobSubsystem::extension) {
 		// Execute extensions synchronously
-		if (job.flags & jobGroupUndo)
-			wEditor.BeginUndoAction();
-
-		if (extender)
+		if (extender) {
+			UndoBlock ub(wEditor, job.flags & jobGroupUndo);
 			extender->OnExecute(job.command.c_str());
-
-		if (job.flags & jobGroupUndo)
-			wEditor.EndUndoAction();
+		}
 
 		ExecuteNext();
 	} else {

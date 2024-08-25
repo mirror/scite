@@ -306,11 +306,9 @@ void SciTEBase::OpenCurrentFile(const long long fileSize, bool suppressMessage, 
 
 	CurrentBuffer()->SetTimeFromFile();
 
-	wEditor.BeginUndoAction();	// Group together clear and insert
-	wEditor.ClearAll();
-
 	CurrentBuffer()->lifeState = Buffer::LifeState::reading;
 	if (asynchronous) {
+		wEditor.ClearAll();
 		// Turn grey while loading
 		wEditor.StyleSetBack(StyleDefault, 0xEEEEEE);
 		wEditor.SetReadOnly(true);
@@ -328,21 +326,23 @@ void SciTEBase::OpenCurrentFile(const long long fileSize, bool suppressMessage, 
 		CurrentBuffer()->pFileWorker->sleepTime = props.GetInt("asynchronous.sleep");
 		PerformOnNewThread(CurrentBuffer()->pFileWorker.get());
 	} else {
-		wEditor.Allocate(bufferSize);
-
 		std::unique_ptr<Utf8_16::Reader> convert = Utf8_16::Reader::Allocate();
-		std::vector<char> data(blockSize);
-		size_t lenFile = fread(data.data(), 1, data.size(), fp);
-		while (lenFile > 0) {
-			const std::string_view dataBlock = convert->convert(std::string_view(data.data(), lenFile));
-			AddText(wEditor, dataBlock);
-			lenFile = fread(data.data(), 1, data.size(), fp);
+		{
+			UndoBlock ub(wEditor);	// Group together clear and insert
+			wEditor.ClearAll();
+			wEditor.Allocate(bufferSize);
+			std::vector<char> data(blockSize);
+			size_t lenFile = fread(data.data(), 1, data.size(), fp);
+			while (lenFile > 0) {
+				const std::string_view dataBlock = convert->convert(std::string_view(data.data(), lenFile));
+				AddText(wEditor, dataBlock);
+				lenFile = fread(data.data(), 1, data.size(), fp);
+			}
+			fclose(fp);
+			// Handle case where convert is holding a lead surrogate but no more data
+			const std::string_view dataTrail = convert->convert("");
+			AddText(wEditor, dataTrail);
 		}
-		fclose(fp);
-		// Handle case where convert is holding a lead surrogate but no more data
-		const std::string_view dataTrail = convert->convert("");
-		AddText(wEditor, dataTrail);
-		wEditor.EndUndoAction();
 
 		CurrentBuffer()->unicodeMode = convert->getEncoding();
 
@@ -1173,7 +1173,7 @@ void SciTEBase::EnsureFinalNewLine() {
 bool SciTEBase::PrepareBufferForSave(const FilePath &saveName) {
 	bool retVal = false;
 	// Perform clean ups on text before saving
-	wEditor.BeginUndoAction();
+	UndoBlock ub(wEditor);
 	if (stripTrailingSpaces)
 		StripTrailingSpaces();
 	if (ensureFinalLineEnd)
@@ -1183,8 +1183,6 @@ bool SciTEBase::PrepareBufferForSave(const FilePath &saveName) {
 
 	if (extender)
 		retVal = extender->OnBeforeSave(saveName.AsUTF8().c_str());
-
-	wEditor.EndUndoAction();
 
 	return retVal;
 }
