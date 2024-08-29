@@ -1,6 +1,9 @@
 // File to suppress cppcheck warnings for files that will not be fixed.
 // Does not suppress warnings where an additional occurrence of the warning may be of interest.
-// Configured for cppcheck 2.11
+// Configured for cppcheck 2.14
+
+// This just warns that cppcheck isn't exhaustive and it still appears in exhaustive mode
+normalCheckLevelMaxBranches
 
 // These may be interesting but its not clear without examining each instance closely
 useStlAlgorithm
