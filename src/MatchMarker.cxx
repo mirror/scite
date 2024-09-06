@@ -89,9 +89,12 @@ void MatchMarker::Continue() {
 	//Monitor the amount of time took by the search.
 	GUI::ElapsedTime searchElapsedTime;
 
+	SA::Position matchPrevious = SA::InvalidPosition;
+
 	// Find the first occurrence of word.
 	SA::Span rangeFound = pSci->SpanSearchInTarget(textMatch);
-	while (rangeFound.start >= 0) {
+	while ((rangeFound.start >= 0) && (rangeFound.start != matchPrevious)) {
+		matchPrevious = rangeFound.start;
 		// Limit the search duration to 250 ms. Avoid to freeze editor for huge lines.
 		if (searchElapsedTime.Duration() > 0.25) {
 			// Clear all indicators because timer has expired.
