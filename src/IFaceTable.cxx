@@ -2343,6 +2343,23 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_YAML_OPERATOR",9},
 	{"SCE_YAML_REFERENCE",5},
 	{"SCE_YAML_TEXT",7},
+	{"SCE_ZIG_BUILTIN_FUNCTION",12},
+	{"SCE_ZIG_CHARACTER",6},
+	{"SCE_ZIG_COMMENTLINE",1},
+	{"SCE_ZIG_COMMENTLINEDOC",2},
+	{"SCE_ZIG_COMMENTLINETOP",3},
+	{"SCE_ZIG_DEFAULT",0},
+	{"SCE_ZIG_ESCAPECHAR",9},
+	{"SCE_ZIG_FUNCTION",11},
+	{"SCE_ZIG_IDENTIFIER",10},
+	{"SCE_ZIG_KW_PRIMARY",13},
+	{"SCE_ZIG_KW_SECONDARY",14},
+	{"SCE_ZIG_KW_TERTIARY",15},
+	{"SCE_ZIG_KW_TYPE",16},
+	{"SCE_ZIG_MULTISTRING",8},
+	{"SCE_ZIG_NUMBER",4},
+	{"SCE_ZIG_OPERATOR",5},
+	{"SCE_ZIG_STRING",7},
 	{"SCFIND_CXX11REGEX",0x00800000},
 	{"SCFIND_MATCHCASE",0x4},
 	{"SCFIND_NONE",0x0},
@@ -2986,6 +3003,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCLEX_XCODE",13},
 	{"SCLEX_XML",5},
 	{"SCLEX_YAML",48},
+	{"SCLEX_ZIG",139},
 	{"SCMOD_ALT",4},
 	{"SCMOD_CTRL",2},
 	{"SCMOD_META",16},
@@ -3939,7 +3957,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 333,
-	ifaceConstantCount = 3192,
+	ifaceConstantCount = 3210,
 	ifacePropertyCount = 276
 };
 
