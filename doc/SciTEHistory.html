@@ -630,6 +630,10 @@
 		Released 21 August 2024.
 		</li>
 		<li>
+		Fix find and replace of regular expression like ^.*$ that may match empty range.
+		Find Next previously failed on subsequent searches.
+		</li>
+		<li>
 		Fix marking each match of a regular expression like ^$ for an empty line so it doesn't
 		get stuck, time out, then stop after one segment.
 		</li>

@@ -1141,9 +1141,29 @@ bool SciTEBase::FindReplaceAdvanced() const {
 	return props.GetInt("find.replace.advanced");
 }
 
-SA::Position SciTEBase::FindInTarget(const std::string &findWhatText, SA::Span range) {
+SA::Position SciTEBase::FindInTarget(const std::string &findWhatText, SA::Span range, bool notEmptyAtStartRegEx) {
 	wEditor.SetTarget(range);
 	SA::Position posFind = wEditor.SearchInTarget(findWhatText);
+	if (notEmptyAtStartRegEx) {
+		const SA::Span rangeTarget = wEditor.TargetSpan();
+		if ((posFind == range.start) && (rangeTarget.Length() == 0)) {
+			if (range.start == range.end) {
+				return SA::InvalidPosition;
+			} else if (range.start < range.end) {
+				range.start = wEditor.PositionAfter(range.start);
+				if (range.start > range.end) {
+					return SA::InvalidPosition;
+				}
+			} else {
+				range.start = wEditor.PositionBefore(range.start);
+				if (range.start < range.end) {
+					return SA::InvalidPosition;
+				}
+			}
+			wEditor.SetTarget(range);
+			posFind = wEditor.SearchInTarget(findWhatText);
+		}
+	}
 	while (findInStyle && (posFind >= 0) && (findStyle != wEditor.UnsignedStyleAt(posFind))) {
 		if (range.start < range.end) {
 			wEditor.SetTarget(SA::Span(posFind + 1, range.end));
@@ -1210,15 +1230,17 @@ SA::Position SciTEBase::FindNext(bool reverseDirection, bool showWarnings, bool 
 		rangeSearch = SA::Span(rangeSelection.start, 0);
 	}
 
-	wEditor.SetSearchFlags(SearchFlags(allowRegExp && regExp));
-	SA::Position posFind = FindInTarget(findTarget, rangeSearch);
+	const bool performRegExp = regExp && allowRegExp;
+	wEditor.SetSearchFlags(SearchFlags(performRegExp));
+	const bool notEmptyAtStartRegEx = performRegExp && (rangeSelection.Length() == 0);
+	SA::Position posFind = FindInTarget(findTarget, rangeSearch, notEmptyAtStartRegEx);
 	if (posFind == -1 && wrapFind) {
 		// Failed to find in indicated direction
 		// so search from the beginning (forward) or from the end (reverse)
 		// unless wrapFind is false
 		const SA::Span rangeAll = reverseDirection ?
 					   SA::Span(lengthDoc, 0) : SA::Span(0, lengthDoc);
-		posFind = FindInTarget(findTarget, rangeAll);
+		posFind = FindInTarget(findTarget, rangeAll, false);
 		WarnUser(warnFindWrapped);
 	}
 	if (posFind < 0) {
@@ -1319,7 +1341,7 @@ intptr_t SciTEBase::DoReplaceAll(bool inSelection) {
 
 	const std::string replaceTarget = UnSlashAsNeeded(EncodeString(replaceWhat), unSlash, regExp);
 	wEditor.SetSearchFlags(SearchFlags(regExp));
-	SA::Position posFind = FindInTarget(findTarget, rangeSearch);
+	SA::Position posFind = FindInTarget(findTarget, rangeSearch, false);
 	if ((posFind >= 0) && (posFind <= rangeSearch.end)) {
 		SA::Position lastMatch = posFind;
 		intptr_t replacements = 0;
@@ -1343,14 +1365,16 @@ intptr_t SciTEBase::DoReplaceAll(bool inSelection) {
 						// Run off the end of the document/selection with an empty match
 						posFind = -1;
 					} else {
-						posFind = FindInTarget(findTarget, SA::Span(lastMatch, rangeSearch.end));
+						posFind = FindInTarget(findTarget, SA::Span(lastMatch, rangeSearch.end), false);
 					}
 					continue;	// No replacement
 				}
 			}
 			SA::Position lenReplaced = replaceTarget.length();
+			bool notEmptyAtStartRegEx = false;
 			if (regExp) {
 				lenReplaced = wEditor.ReplaceTargetRE(replaceTarget);
+				notEmptyAtStartRegEx = lenTarget <= 0;
 			} else {
 				wEditor.ReplaceTarget(replaceTarget);
 			}
@@ -1359,14 +1383,11 @@ intptr_t SciTEBase::DoReplaceAll(bool inSelection) {
 			// For the special cases of start of line and end of line
 			// something better could be done but there are too many special cases
 			lastMatch = posFind + lenReplaced;
-			if (lenTarget <= 0) {
-				lastMatch = wEditor.PositionAfter(lastMatch);
-			}
 			if (lastMatch >= rangeSearch.end) {
 				// Run off the end of the document/selection with an empty match
 				posFind = -1;
 			} else {
-				posFind = FindInTarget(findTarget, SA::Span(lastMatch, rangeSearch.end));
+				posFind = FindInTarget(findTarget, SA::Span(lastMatch, rangeSearch.end), notEmptyAtStartRegEx);
 			}
 			replacements++;
 		}
