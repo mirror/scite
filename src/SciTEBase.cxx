@@ -1145,8 +1145,7 @@ SA::Position SciTEBase::FindInTarget(const std::string &findWhatText, SA::Span r
 	wEditor.SetTarget(range);
 	SA::Position posFind = wEditor.SearchInTarget(findWhatText);
 	if (notEmptyAtStartRegEx) {
-		const SA::Span rangeTarget = wEditor.TargetSpan();
-		if ((posFind == range.start) && (rangeTarget.Length() == 0)) {
+		if ((posFind == range.start) && (wEditor.TargetEnd() == posFind)) {
 			if (range.start == range.end) {
 				return SA::InvalidPosition;
 			} else if (range.start < range.end) {
@@ -1348,7 +1347,7 @@ intptr_t SciTEBase::DoReplaceAll(bool inSelection) {
 		UndoBlock ub(wEditor);
 		// Replacement loop
 		while (posFind >= 0) {
-			const SA::Position lenTarget = wEditor.TargetEnd() - wEditor.TargetStart();
+			const SA::Position lenTarget = wEditor.TargetEnd() - posFind;
 			if (inSelection && countSelections > 1) {
 				// We must check that the found target is entirely inside a selection
 				bool insideASelection = false;
