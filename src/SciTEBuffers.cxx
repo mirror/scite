@@ -1853,8 +1853,8 @@ static SA::Line DecodeMessage(const char *cdoc, std::string &sourcePath, int for
 			const size_t lenLine = strlen(idLine);
 			const char *file = strstr(cdoc, idFile);
 			const char *line = strstr(cdoc, idLine);
-			const char *lineend = strrchr(cdoc, ':');
 			if (line && file && (line > file)) {
+				const char *lineend = strrchr(cdoc, ':');
 				file += lenFile;
 				const size_t length = line - file;
 				sourcePath.assign(file, length);
