@@ -1,6 +1,9 @@
 // File to suppress cppcheck warnings for files that will not be fixed.
 // Does not suppress warnings where an additional occurrence of the warning may be of interest.
-// Configured for cppcheck 2.14
+// Configured for cppcheck 2.15
+
+// Just a report of how many checkers are run
+checkersReport
 
 // This just warns that cppcheck isn't exhaustive and it still appears in exhaustive mode
 normalCheckLevelMaxBranches
@@ -44,9 +47,6 @@ stlcstrConstructor:scite/gtk/SciTEGTK.cxx
 // gtk_print_operation_set_default_page_setup takes a non const pointer so ancestor variables should be non-const
 constVariablePointer:scite/gtk/SciTEGTK.cxx
 
-// HandleStringMessage uses char* for variable 'cmd' as derived variable 'colon' is written to
-constVariablePointer:scite/win32/DirectorExtension.cxx
-
 // Changing events to const pointers changes signature and would require casts when hooking up
 constParameterCallback:scite/gtk/SciTEGTK.cxx
 constParameterPointer:scite/gtk/SciTEGTK.cxx
@@ -54,6 +54,9 @@ constParameterCallback:scite/gtk/Widget.cxx
 constParameterCallback:scite/gtk/Strips.cxx
 // Since LuaPanicFunction is callback of form prescribed by Lua match signature exactly rather than add const
 constParameterCallback:scite/src/LuaExtension.cxx
+
+// A judgement call: value semantics avoids potential for lifetime bugs at cost of performance
+returnByReference:scite/src/StringHelpers.h
 
 // Don't understand what is happening here in SwitchDocumentAt
 constParameterPointer:scite/src/SciTEBuffers.cxx
